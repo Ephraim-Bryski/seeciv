@@ -2,7 +2,6 @@
 <link rel="stylesheet" href="test.css">
 <script src="make_page.js"></script>
 <script>
-    var hashTexts=["emily","jon","pelin","nik"]
     var names=["Emily","Jon","Pelin","Nik"]
     var description=["mec major","Jon is cool","ASCE president!","only non-engineering major on list"]
     function getInfo(checkDiv,notUsed){   
@@ -10,5 +9,5 @@
             checkDiv.innerHTML=description[stage]
         }
     } 
-    makePage(hashTexts,names,getInfo)
+    makePage(names,getInfo)
 </script>

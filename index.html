@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" href="test.css">
+    <body></body> 
+    <script>
+        var split=0
+
+        //#region <create and position divs>
+        //#region <divs in body>
+            var tabDiv=document.createElement("div")
+            Object.assign(tabDiv.style,{
+                position: "absolute",
+                top: 0,
+                width: "100%",
+                height: (split*100).toString().concat("%")
+            })
+
+            var pageDiv=document.createElement("div")
+            Object.assign(pageDiv.style,{
+                position: "absolute",
+                bottom: 0,
+                width: "100%",
+                height: (100-split*100).toString().concat("%")
+            })
+            //#region <divs in pageDiv>
+                //! this isn't as programmatic as other stuff, but might be OK
+                var courseTitleDiv=document.createElement("div")
+                courseTitleDiv.innerHTML="Test Apps"
+                Object.assign(courseTitleDiv.style,{
+                    position: "absolute",
+                    color: "blue",
+                    top: "100px",
+                    width: "100%"
+                })
+
+                var topicBtnDiv=document.createElement("div")
+                Object.assign(topicBtnDiv.style,{
+                    top: "150px",
+                    width: "100%"
+                })
+                //#region <divs in topicBtnDiv>
+                    var namesLink=document.createElement("a")
+                    namesLink.href="names.html"
+                    namesLink.innerHTML="Names (Basic Test) "
+
+                    var shapesLink=document.createElement("a")
+                    shapesLink.href="shapes.html"  
+                    shapesLink.innerHTML="Shapes (Test With GlowScript)"
+
+                //#endregion
+            //#endregion
+         //#endregion
+         //#endregion
+
+
+
+        document.body.appendChild(tabDiv)
+        document.body.appendChild(pageDiv)
+        pageDiv.appendChild(courseTitleDiv)
+        pageDiv.appendChild(topicBtnDiv)
+        topicBtnDiv.appendChild(namesLink)
+        topicBtnDiv.appendChild(shapesLink)
+
+    </script>
+</html>
+

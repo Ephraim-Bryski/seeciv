@@ -1,4 +1,4 @@
-function makePage(hashTexts,labels,makeVisual){
+function makePage(labels,makeVisual){
   // sets initial stage to 0:
   var stage=0 
 
@@ -63,10 +63,6 @@ function makePage(hashTexts,labels,makeVisual){
           width: "100%",                                              //! unsure if the div should take up the entire width
       })
 
-      var extBtn=document.createElement("a")  
-      extBtn.innerHTML="EXIT"
-      extBtn.href="main.html"
-
       //#region <children of BackFwdBtns>
 
         var backBtn=document.createElement("button")
@@ -120,7 +116,6 @@ function makePage(hashTexts,labels,makeVisual){
   leftDiv.appendChild(textDiv)
   leftDiv.appendChild(titleDiv)
   leftDiv.appendChild(backFwdBtns)
-  leftDiv.appendChild(extBtn) 
   backFwdBtns.appendChild(backBtn)
   backFwdBtns.appendChild(fwdBtn)
   
@@ -134,7 +129,6 @@ function makePage(hashTexts,labels,makeVisual){
   function changeStage() {
 
     makeVisual.update(stage)
-    window.location.hash=hashTexts[stage]
     
     //#region <change stage buttons and title>
     
