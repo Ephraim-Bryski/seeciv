@@ -12,13 +12,14 @@
 <script>
     "use strict";
 
+    var hashTexts=["cone","box","sphere"]
     var shapeLabels=["Cool Cone","Big Box","Smooth Sphere"]
     var shapeDescription=["It looks pretty pointy"," It's also a cool cube"," don't slip!"]
 
     function makeShape(descriptionDiv,graphDiv){
 
         window.__context= {glowscript_container: graphDiv}
-        var scene=canvas()
+        var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight})
         var myCone=cone({id: "mycone", visible: false})
         var myBox=box({visible: false})
         var mySphere=sphere({visible:false})
@@ -34,5 +35,6 @@
             myShapes[stage].visible=true
         }
     }
-    makePage(shapeLabels,makeShape)
+
+    makePage(hashTexts,shapeLabels,makeShape)
 </script>

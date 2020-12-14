@@ -6,16 +6,17 @@ body{
 /* style of all divs (just to see layout easily) */
 div{   
     box-sizing: border-box;     
-    border: solid red 1px;
+    border: solid red 0px;
     position: absolute;
 }
 
 /* style of stage buttons */
 .stage-btn {
-    background-color: rgb(235, 35, 105);
+    background-color: #ccc ;
     float: left;
     border: none;
-    font-size: 17px;
+    font-size: 20px;
+    height: 100%
 }
 
 /* stage buttons during hover */
@@ -25,7 +26,7 @@ div{
 
 /* stage button when active */
 .stage-btn.active {
-    background-color: #ccc;
+    background-color: rgb(235, 35, 105);
 }
 
 /* style of back forward button */

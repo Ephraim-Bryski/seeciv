@@ -1,20 +1,20 @@
-function makePage(labels,makeVisual){
+function makePage(hashTexts,labels,makeVisual){
   // sets initial stage to 0:
   var stage=0 
 
   //#region <sets dimensions for page layout>
 
   var verSplit=0.3                    // from left
-  var horSplit=0.1                    // from bottom
+  var horSplit=0.08                   // from bottom
 
   var textWidth=0.9                   // fraction of text box which fills up leftDiv
   var textBottomSpace=0.1             // relative distance between bottom of text box and bottom of leftDiv
   var textTopSpace=0.2                // relative distance between top of text box and top of leftDiv
 
   var titleFromTop=0.1                // relative distance between top of title and top of leftDiv
-  var backFwdBtnsFromBottom=0.05      // relative distance between bottom of the back/forward buttons and bottom of leftDiv
+  var backFwdBtnsFromBottom=0.1       // relative distance between bottom of the back/forward buttons and bottom of leftDiv
   //#endregion
-
+ 
   //#region <create and position divs>
     //#region <children of body>
     var leftDiv=document.createElement("div")
@@ -52,7 +52,8 @@ function makePage(labels,makeVisual){
           top: (100*titleFromTop).toString().concat("%"),
           width: "100%",
           textAlign: "center",
-          display: "block"
+          display: "block",
+          fontSize: 30
       })
       titleDiv.innerHTML="my title!"
 
@@ -69,6 +70,10 @@ function makePage(labels,makeVisual){
       //#region <children of BackFwdBtns>
 
         var backBtn=document.createElement("button")
+        Object.assign(backBtn.style,{
+          position: "absolute",
+          right: "50%",
+        })
         backBtn.innerHTML="BACK"
         backBtn.classList.add("back-fwd-btn")
         backBtn.onclick=function(){
@@ -77,6 +82,10 @@ function makePage(labels,makeVisual){
         }
 
         var fwdBtn=document.createElement("button")
+        Object.assign(fwdBtn.style,{
+          position: "absolute",
+          left: "50%"
+        })
         fwdBtn.innerHTML="NEXT"
         fwdBtn.classList.add("back-fwd-btn")
         fwdBtn.onclick=function(){
@@ -88,11 +97,14 @@ function makePage(labels,makeVisual){
     //#endregion
   //#endregion
 
-  //#region <add design and functionality to stage buttons and append>
+  //#region <appends stage buttons>
   for (let i = 0; i < labels.length; i++){
       var btn=document.createElement("button")
       btn.innerHTML=labels[i]
       btn.classList="stage-btn"
+      Object.assign(btn.style,{
+        width: (100/labels.length).toString().concat("%")
+      })
       btn.onclick=function(){
         stage=i
         changeStage()
@@ -116,12 +128,13 @@ function makePage(labels,makeVisual){
   //#endregion
 
   //starts by making visual and changing to stage 0:
-  makeVisual(textDiv,rightDiv)        //! there should also be a textDiv input
+  makeVisual(textDiv,rightDiv)
   changeStage()
 
   function changeStage() {
 
     makeVisual.update(stage)
+    window.location.hash=hashTexts[stage]
     
     //#region <change stage buttons and title>
     
