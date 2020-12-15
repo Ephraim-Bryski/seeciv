@@ -6,7 +6,7 @@ body{
 /* style of all divs (just to see layout easily) */
 div{   
     box-sizing: border-box;     
-    border: solid red 0px;
+    border: solid red 1px;
     position: absolute;
 }
 

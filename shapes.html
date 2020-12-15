@@ -1,34 +1,48 @@
 <body></body>
-<link rel="stylesheet" href="test.css">
-<script src="make_page.js"></script>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link type="text/css" href="https://www.glowscript.org/css/redmond/2.1/jquery-ui.custom.css" rel="stylesheet" />
 <link type="text/css" href="https://www.glowscript.org/css/ide.css" rel="stylesheet" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 <script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery-ui.custom.min.js"></script>
 <script type="text/javascript" src="https://www.glowscript.org/package/glow.3.0.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/RSrun.3.0.min.js"></script>
+
+<link rel="stylesheet" href="test.css">
+
 <script src="make_page.js"></script>
+<script src="change_under_text.js"></script>
 
-<script>
+<script type="text/javascript">
     "use strict";
-
 
     var shapeLabels=["Cool Cone","Big Box","Smooth Sphere"]
     var shapeDescription=["It looks pretty pointy"," It's also a cool cube"," don't slip!"]
 
+    // add shapes, text, and slider to the divs (divs are first appended makePage)
     function makeShape(descriptionDiv,graphDiv){
 
+        // create shapes and sliders:
         window.__context= {glowscript_container: graphDiv}
-        var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight})
+        var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight-50})
         var myCone=cone({id: "mycone", visible: false})
         var myBox=box({visible: false})
         var mySphere=sphere({visible:false})
+        var mySlider=slider({bind: changeEq})                   //always visible, so don't need to set visible to false
         var myShapes=[myCone,myBox,mySphere]
-        
-        //ALL APPS MUST HAVE AN UPDATE PROPERTY
-        makeShape.update=function(stage){
-            descriptionDiv.innerHTML=shapeDescription[stage]
 
+        // create text:
+        descriptionDiv.innerText="\\( \\underbrace {1}_{2} + \\frac{5} {0.0} =\\underbrace {1}_{0.0}\\)"
+        MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]))
+        
+        // change equation when slider is toggled:
+        function changeEq(s){
+            changeUnderText(2,s.value,1)                                                                                                                                                   
+        }
+        
+        // ALL APPS MUST HAVE A changeStageGraphic PROPERTY
+        makeShape.changeStageGraphic=function(stage){
+            // descriptionDiv.innerHTML=shapeDescription[stage]
             for (let i=0;i<myShapes.length;i++){
                 myShapes[i].visible=false
             }
@@ -36,5 +50,9 @@
         }
     }
 
+    // calls makePage with defined labels and function:
     makePage(shapeLabels,makeShape)
+
+    
+
 </script>

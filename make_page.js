@@ -55,12 +55,12 @@ function makePage(labels,makeVisual){
           display: "block",
           fontSize: 30
       })
-      titleDiv.innerHTML="my title!"
+      titleDiv.innerHTML="The Title is Not Displaying ):"
 
       var backFwdBtns=document.createElement("div")
       Object.assign(backFwdBtns.style,{
           bottom: (100*backFwdBtnsFromBottom).toString().concat("%"),
-          width: "100%",                                              //! unsure if the div should take up the entire width
+          width: "100%",
       })
 
       //#region <children of BackFwdBtns>
@@ -128,7 +128,7 @@ function makePage(labels,makeVisual){
 
   function changeStage() {
 
-    makeVisual.update(stage)
+    makeVisual.changeStageGraphic(stage)
     
     //#region <change stage buttons and title>
     
