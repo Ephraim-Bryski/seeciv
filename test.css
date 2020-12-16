@@ -6,7 +6,7 @@ body{
 /* style of all divs (just to see layout easily) */
 div{   
     box-sizing: border-box;     
-    border: solid red 1px;
+    border: solid red 0px;
     position: absolute;
 }
 
@@ -32,5 +32,28 @@ div{
 /* style of back forward button */
 .back-fwd-btn {
     background-color: lightblue
+}
+
+/* style of buttons to go to topics */
+.topic-link {
+    font: bold 10px Arial;
+    text-decoration: none;
+    background-color: blue;
+    color: black;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-top: 1px solid #CCCCCC;
+    border-right: 1px solid #333333;
+    border-bottom: 1px solid #333333;
+    border-left: 1px solid #CCCCCC;
+    margin-right: 20px;
+    margin-left: 20px
+
+}
+
+.topic-link:hover{
+    background-color: lightblue;
 }
 

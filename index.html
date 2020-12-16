@@ -1,66 +1,55 @@
 <!DOCTYPE html>
 <html>
     <link rel="stylesheet" href="test.css">
-    <body></body> 
-    <script>
-        var split=0
+    <body style="text-align: center;">
+        <br>
+        SeeCiv is in the works at the moment. You can see some tests now, but be on the look out for real material in the future.
+        <!--I think the code to create the tabs should just be copied for all HTML files (index, about, feedback etc.)-->
+        <div style="position: absolute;
+            top: 0;
+            width: 100%;
+            height: 10%">
+        </div>
 
-        //#region <create and position divs>
-        //#region <divs in body>
-            var tabDiv=document.createElement("div")
-            Object.assign(tabDiv.style,{
-                position: "absolute",
-                top: 0,
-                width: "100%",
-                height: (split*100).toString().concat("%")
-            })
+        <div style="position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 90%">
 
-            var pageDiv=document.createElement("div")
-            Object.assign(pageDiv.style,{
-                position: "absolute",
-                bottom: 0,
-                width: "100%",
-                height: (100-split*100).toString().concat("%")
-            })
-            //#region <divs in pageDiv>
-                //! this isn't as programmatic as other stuff, but might be OK
-                var courseTitleDiv=document.createElement("div")
-                courseTitleDiv.innerHTML="Test Apps"
-                Object.assign(courseTitleDiv.style,{
-                    position: "absolute",
-                    color: "blue",
-                    top: "100px",
-                    width: "100%"
-                })
+            <div style=
+                "position: absolute;
+                top: 100px;
+                width: 100%;
+                text-align: center">
+                
+                Test Apps
+            </div>
 
-                var topicBtnDiv=document.createElement("div")
-                Object.assign(topicBtnDiv.style,{
-                    top: "150px",
-                    width: "100%"
-                })
-                //#region <divs in topicBtnDiv>
-                    var namesLink=document.createElement("a")
-                    namesLink.href="names.html"
-                    namesLink.innerHTML="Names (Basic Test) "
+            <div style="
+                width: 100%;
+                text-align: center;
+                top: 150px">
 
-                    var shapesLink=document.createElement("a")
-                    shapesLink.href="shapes.html"  
-                    shapesLink.innerHTML="Shapes (Test With GlowScript)"
+                <div id="inner" style="
+                    display: inline-block;
+                    margin: 0 auto;
+                    padding: 3px;
+                    text-align: center;
+                    position: static">
+                
+                    <a href="names.html" class="topic-link">
+                        Names (Basic Test)
+                    </a>
 
-                //#endregion
-            //#endregion
-         //#endregion
-         //#endregion
+                    <a href="shapes.html" class="topic-link">
+                        Shapes (Test With GlowScript)
+                    </a>
+                </div>
 
 
+            </div>
 
-        document.body.appendChild(tabDiv)
-        document.body.appendChild(pageDiv)
-        pageDiv.appendChild(courseTitleDiv)
-        pageDiv.appendChild(topicBtnDiv)
-        topicBtnDiv.appendChild(namesLink)
-        topicBtnDiv.appendChild(shapesLink)
-
-    </script>
+        </div>
+    </body> 
 </html>
 
