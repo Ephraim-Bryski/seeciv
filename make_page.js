@@ -20,15 +20,23 @@ function makePage(labels,makeVisual){
     var leftDiv=document.createElement("div")
     Object.assign(leftDiv.style,{
         width:(verSplit*100).toString().concat("%"),
-        height: (100-horSplit*100).toString().concat("%")
+        height: (100-horSplit*100).toString().concat("%"),
+        backgroundColor: "black",
+        color: "white",
     })
+    
 
     var rightDiv=document.createElement("div")
     Object.assign(rightDiv.style,{
         width:(100-verSplit*100).toString().concat("%"),
-        height: (100-horSplit*100).toString().concat("%")
+        height: (100-horSplit*100).toString().concat("%"),
+        right: "0%",
+        backgroundColor: "black",
+        color: "white",
+        textAlign: "right"
     })
-    rightDiv.style.right="0%"
+    rightDiv.innerText="Ctrl+Click to Orbit"
+
 
     var stageBtns=document.createElement("div")
     Object.assign(stageBtns.style,{
@@ -69,8 +77,9 @@ function makePage(labels,makeVisual){
         Object.assign(backBtn.style,{
           position: "absolute",
           right: "50%",
+          fontSize: 20
         })
-        backBtn.innerHTML="BACK"
+        backBtn.innerHTML="<"
         backBtn.classList.add("back-fwd-btn")
         backBtn.onclick=function(){
           stage-=1
@@ -80,9 +89,10 @@ function makePage(labels,makeVisual){
         var fwdBtn=document.createElement("button")
         Object.assign(fwdBtn.style,{
           position: "absolute",
-          left: "50%"
+          left: "50%",
+          fontSize: 20
         })
-        fwdBtn.innerHTML="NEXT"
+        fwdBtn.innerHTML=">"
         fwdBtn.classList.add("back-fwd-btn")
         fwdBtn.onclick=function(){
           stage+=1
@@ -125,6 +135,7 @@ function makePage(labels,makeVisual){
   //starts by making visual and changing to stage 0:
   makeVisual(textDiv,rightDiv)
   changeStage()
+  //makeVisual.setValues()
 
   function changeStage() {
 
