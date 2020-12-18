@@ -1,0 +1,36 @@
+/* style of body (remove margins) */
+body {
+    margin: 0;
+}
+
+/* style of all divs (just to see layout easily) */
+div {    
+    box-sizing: border-box;     
+    border: solid red 1px;
+    position: absolute;
+}
+
+/* style of stage buttons */
+.stage-btn {
+    background-color: #ccc ;
+    float: left;
+    border: none;
+    font-size: 20px;
+    height: 100%
+}
+
+/* stage buttons during hover */
+.stage-btn:hover {
+    background-color: #ddd;
+}
+
+/* stage button when active */
+.stage-btn.active {
+    background-color: rgb(35, 10, 159);
+}
+
+/* style of back forward button */
+.back-fwd-btn {
+    background-color: white;
+    border: none
+}
