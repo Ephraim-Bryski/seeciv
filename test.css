@@ -1,10 +1,10 @@
 /* style of body (remove margins) */
-body{
+body {
     margin: 0;
 }
 
 /* style of all divs (just to see layout easily) */
-div{   
+div {    
     box-sizing: border-box;     
     border: solid red 0px;
     position: absolute;
@@ -26,34 +26,30 @@ div{
 
 /* stage button when active */
 .stage-btn.active {
-    background-color: rgb(235, 35, 105);
+    background-color: rgb(35, 10, 159);
 }
 
 /* style of back forward button */
 .back-fwd-btn {
-    background-color: lightblue
+    background-color: white;
+    border: none
 }
 
 /* style of buttons to go to topics */
 .topic-link {
     font: bold 10px Arial;
     text-decoration: none;
-    background-color: blue;
-    color: black;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-top: 1px solid #CCCCCC;
-    border-right: 1px solid #333333;
-    border-bottom: 1px solid #333333;
-    border-left: 1px solid #CCCCCC;
+    background-color: rgb(0, 0, 62);
+    color: white;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
     margin-right: 20px;
     margin-left: 20px
 
 }
 
 .topic-link:hover{
-    background-color: lightblue;
+    background-color: rgb(0 ,0, 80);
 }
-
