@@ -12,47 +12,150 @@
 
 <script src="make_page.js"></script>
 <script src="change_under_text.js"></script>
+<script src="widget_groups.js"></script>
 
 <script type="text/javascript">
     "use strict";
 
+
+
     var shapeLabels=["Cool Cone","Big Box","Smooth Sphere"]
-    var shapeDescription=["It looks pretty pointy"," It's also a cool cube"," don't slip!"]
+
+    makePage(shapeLabels,makeShape)
+
 
     // add shapes, text, and slider to the divs (divs are first appended makePage)
-    function makeShape(descriptionDiv,graphDiv){
+    function makeShape(textDiv,graphDiv){
+        // define initial values:
+        var initConeR=3
+        var initConeH=5
+        var initBoxS=5
+        var initSphereR=3
 
-        // create shapes and sliders:
+        // create and append shapes and sliders:
         window.__context= {glowscript_container: graphDiv}
-        var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight-50})
-        var myCone=cone({id: "mycone", visible: false})
-        var myBox=box({visible: false})
-        var mySphere=sphere({visible:false})
-        var mySlider=slider({bind: changeEq})                   //always visible, so don't need to set visible to false
+        var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight})
+        scene.camera.pos=vec(0,0,15)
+        scene.resizable=false
+        scene.userzoom=false
+        scene.autoscale=false
+        var myCone=cone()
+        var myBox=box()
+        var mySphere=sphere()
         var myShapes=[myCone,myBox,mySphere]
 
-        // create text:
-        descriptionDiv.innerText="\\( \\underbrace {1}_{2} + \\frac{5} {0.0} =\\underbrace {1}_{0.0}\\)"
-        MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]))
-        
-        // change equation when slider is toggled:
-        function changeEq(s){
-            changeUnderText(2,s.value,1)                                                                                                                                                   
+
+        var sliderLength=200
+        var coneRadiusSlider=makeSliderGroup(graphDiv,"5%","90%","Radius",sliderLength,"horizontal",[0,5],initConeR,updateCone)
+        var coneHeightSlider=makeSliderGroup(graphDiv,"50%","90%","Height",sliderLength,"horizontal",[0,10],initConeH,updateCone)
+        var boxSlider=       makeSliderGroup(graphDiv,"30%","90%","Side Length",sliderLength,"horizontal",[0,10],initBoxS,updateBox)
+        var sphereSlider=    makeSliderGroup(graphDiv,"30%","90%","Radius",sliderLength,"horizontal",[0,5],initSphereR,updateSphere)
+        var mySliders=[coneRadiusSlider,coneHeightSlider,boxSlider,sphereSlider]
+
+
+
+
+        // create and append text:
+        var eqnPos={ position: "static", padding: "20px", width: "100%", textAlign: "center"}
+
+        var coneEqn=document.createElement("div")
+        coneEqn.innerText="\\( \\underbrace{V}_{0.0} = \\frac{1}{3} \\pi {\\underbrace{r}_{0.0}}^2 \\underbrace{h}_{0.0} \\)"
+        Object.assign(coneEqn.style,eqnPos)
+
+        var boxEqn=document.createElement("div")
+        boxEqn.innerText="\\( \\underbrace{V}_{0.0} = {\\underbrace{s}_{0.0}}^3 \\)"
+        Object.assign(boxEqn.style,eqnPos)
+
+        var sphereEqn=document.createElement("div")
+        sphereEqn.innerText="\\( \\underbrace{V}_{0.0} = \\frac{4}{3} \\pi {\\underbrace{r}_{0.0}}^3 \\)"
+        Object.assign(sphereEqn.style,eqnPos)
+
+        var eqnDivs=[coneEqn,boxEqn,sphereEqn]
+
+        var phrases=[
+            "You know the cone is cool when there's two sliders. Here's it's volume:",
+            "It's big, but how big is it?",
+            "It's smooth if you don't look too close."
+        ]
+
+        var phraseDivs=[]
+        for (let i=0;i<3;i++){
+            console.log(phraseDivs)
+            phraseDivs[i]=document.createElement("div")
+            phraseDivs[i].innerText=phrases[i]
+            Object.assign(phraseDivs[i].style,{position: "static"})
+            textDiv.appendChild(phraseDivs[i])
         }
+
+        textDiv.appendChild(coneEqn)
+        textDiv.appendChild(boxEqn)
+        textDiv.appendChild(sphereEqn)
+
+
+        MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]),
+            function(){
+                updateCone(initConeR,initConeH)
+                updateBox(initBoxS)
+                updateSphere(initSphereR)
+            }
+        )
+
+        //#region  change equation and shape when sliders are toggled:
         
+        function updateCone(){                         
+            // because there are multiple sliders which control it, it makes more sense to have a single function for both with no input
+            // then just get the values from the sliders in the function
+            // It is being called with an input from makeSliderGroup, but it just ignores the input
+            var r=coneRadiusSlider.children[1].value
+            var h=coneHeightSlider.children[1].value
+            changeUnderText(1,1/3*Math.PI*h*r**2,1,coneEqn)
+            changeUnderText(2,r,1,coneEqn)
+            changeUnderText(3,h,1,coneEqn)
+            myCone.radius=r
+            myCone.length=h
+        }
+
+        function updateBox(s){  
+            changeUnderText(1,s**3,1,boxEqn)  
+            changeUnderText(2,s,1,boxEqn)
+            myBox.size=vec(s,s,s)                                                                                                                                           
+        }
+
+        function updateSphere(r){
+            changeUnderText(1,4/3*Math.PI*r**3,1,sphereEqn)
+            changeUnderText(2,r,1,sphereEqn)
+            mySphere.radius=r
+        }
+        //#endregion
+
+
         // ALL APPS MUST HAVE A changeStageGraphic PROPERTY
         makeShape.changeStageGraphic=function(stage){
-            // descriptionDiv.innerHTML=shapeDescription[stage]
             for (let i=0;i<myShapes.length;i++){
                 myShapes[i].visible=false
+                Object.assign(eqnDivs[i].style,{display: "none"})
+                Object.assign(phraseDivs[i].style,{display: "none"})
             }
+            for(let i=0;i<mySliders.length;i++){
+                Object.assign(mySliders[i].style,{display: "none"})
+            }
+
             myShapes[stage].visible=true
+            Object.assign(eqnDivs[stage].style,{display: "block"})
+            Object.assign(phraseDivs[stage].style,{display: "block"})
+            if (stage==0){
+                Object.assign(mySliders[0].style,{display: "block"})
+                Object.assign(mySliders[1].style,{display: "block"})
+            }else if(stage==1){
+                Object.assign(mySliders[2].style,{display: "block"})
+            }else if(stage==2){
+                Object.assign(mySliders[3].style,{display: "block"})
+            }
         }
     }
 
-    // calls makePage with defined labels and function:
-    makePage(shapeLabels,makeShape)
 
-    
+
+   
 
 </script>
