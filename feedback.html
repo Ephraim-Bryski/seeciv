@@ -1,0 +1,36 @@
+<link rel="stylesheet" href="main_pages.css">
+<script src="tab_bar.js"></script>
+
+<body>
+    <header></header>
+    <div class="title">Feedback</div>
+    <div class="text">  
+    <p>
+        I’m Ephraim Bryski, a Junior at Stony Brook University studying Civil Engineering. I came up with the idea for the site, developed the topics, and coded the website. You can find more information on me, specifically pertaining to my work at Stony Brook, on one of the department’s <a href="https://www.stonybrook.edu/commcms/civileng/student_spotlights/EphraimBryski" target="_blanck">Student Spotlight</a>
+    </p>
+    <p>
+        I’m grateful for the contributions from Dr. Kedar Kirane for guidance and critiques, Emily Sonant and Jonathan Craig for testing the programs out and providing suggestions, and Kenechukwu Ejinkonye for advice on web development.    
+    </p> 
+    <p>
+        I’m always looking for feedback on the site: what did or didn’t work for you, any corrections you’ve spotted, possible improvements, contributions or whatever else you might have on your mind. Make sure to include your email address if you want me to contact you back. 
+    </p>
+
+    <form name="contact" method="POST" data-netlify="true">
+
+
+
+        <p>
+          <textarea name="message" style="width: 80%; height: 20%; margin-top: 20px"></textarea>
+        </p>
+        <p>
+            <label>Your Email: <input type="email" name="email" /></label>
+          </p>
+        <p>
+          <button type="submit">Send</button>
+        </p>
+      </form>
+    </div>
+</body>
+<script>
+    makeTabBar(document.getElementsByTagName("header")[0])
+</script>
