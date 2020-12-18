@@ -1,0 +1,66 @@
+    div{
+        border: solid red 0px;
+    }
+
+/* layout of header and body */
+
+    header{
+        margin: 0;
+        border: solid blue 0px;
+        width: 100%;
+
+    }
+
+    body{
+        margin: 0;
+        border: solid green 0px;
+ 
+        /* not sure it if should be aligned to center */
+    }
+
+    .title{
+        text-align: center;
+        margin-bottom: 20px;
+        margin-top: 40px;
+        
+    }
+
+    .text{
+        text-indent: 20px;
+    }
+
+
+
+/* links to each topic */
+    .topic-link {
+        font: bold 10px Arial;
+        text-decoration: none;
+        background-color: rgb(0, 0, 62);
+        color: white;
+        padding: 15px;
+        margin-right: 20px;
+        margin-left: 20px
+
+    }
+
+    .topic-link:hover{
+        background-color: rgb(0 ,0, 80);
+    }
+
+/* links to Topics, About, Feedback etc. */
+    .tab{
+        background-color: darkblue;
+        text-decoration: none;
+        color: gray;
+        padding-bottom: 20px;
+        padding-right: 20px;
+        width: 50px;
+    }
+    .tab:hover{
+        color: lightgray
+    }
+    .tab.active{
+        color: white
+    }
+
+/* styl of titles for the pages */
