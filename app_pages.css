@@ -21,7 +21,8 @@ div {
     float: left;
     border: none;
     font-size: 15px;
-    height: 100%
+    height: 100%;
+    color: white;
 }
 
 /* stage buttons during hover */
@@ -31,7 +32,8 @@ div {
 
 /* stage button when active */
 .stage-btn.active {
-    background-color: white
+    background-color: white;
+    color: black;
 }
 
 /* style of back forward button */
@@ -41,14 +43,13 @@ div {
     position: "absolute";
     font-size: 40;
     color: white;
-    right: 100px
+    right: 100px;
+    z-index: 2;
 }
 
 .back-fwd-btn:disabled{
     color: #444;
 }
-
-
 
 .tooltip .tooltiptext {
     visibility: hidden;
@@ -59,11 +60,19 @@ div {
     border-radius: 0px;
     padding: 5px 0;
     position: absolute;  
-    z-index: 1;
     font-size: 10px;
 }
 
 .tooltip:hover .tooltiptext {
     transition-delay: 0.3s;
     visibility: visible;
+}
+
+
+.border-div{
+    right: 0%;
+    height: 80%;
+    bottom: 10%;
+    border-right: solid gray 1px;
+
 }
