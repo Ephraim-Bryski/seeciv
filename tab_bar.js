@@ -9,7 +9,7 @@ function makeTabBar(parent){
         var tab=document.createElement("a")
         tab.href=tabLinks[i]
         if (i==0){
-            tab.href="google.com"
+            tab.href="https://www.seeciv.com"
         }
         tab.innerHTML=tabTitles[i]
         tab.classList="tab"
