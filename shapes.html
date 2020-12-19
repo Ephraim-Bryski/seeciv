@@ -15,9 +15,6 @@
 <script src="widget_groups.js"></script>
 
 <script type="text/javascript">
-    "use strict";
-
-
 
     var shapeLabels=["Cool Cone","Big Box","Smooth Sphere"]
 
@@ -32,46 +29,34 @@
         var initBoxS=5
         var initSphereR=3
 
-        // create and append shapes and sliders:
+        // set up canvas:
         window.__context= {glowscript_container: graphDiv}
-        var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight})
-        scene.camera.pos=vec(0,0,15)
-        scene.resizable=false
-        scene.userzoom=false
-        scene.autoscale=false
+        var scene=canvas(
+            {width: graphDiv.offsetWidth,
+            height: graphDiv.offsetHeight,
+            resizable: false,
+            userzoom: false,
+            autoscale: false
+        })
+
+        scene.camera.pos=vec(0,0,15)    // only one which is different for different topics
+
+        // create shapes:
         var myCone=cone()
         var myBox=box()
         var mySphere=sphere()
         var myShapes=[myCone,myBox,mySphere]
 
-
+        // create sliders:
         var sliderLength=200
         var coneRadiusSlider=makeSliderGroup(graphDiv,"5%","90%","Radius",sliderLength,"horizontal",[0,5],initConeR,updateCone)
         var coneHeightSlider=makeSliderGroup(graphDiv,"50%","90%","Height",sliderLength,"horizontal",[0,10],initConeH,updateCone)
-        var boxSlider=       makeSliderGroup(graphDiv,"30%","90%","Side Length",sliderLength,"horizontal",[0,10],initBoxS,updateBox)
-        var sphereSlider=    makeSliderGroup(graphDiv,"30%","90%","Radius",sliderLength,"horizontal",[0,5],initSphereR,updateSphere)
+        var boxSlider       =makeSliderGroup(graphDiv,"30%","90%","Side Length",sliderLength,"horizontal",[0,10],initBoxS,updateBox)
+        var sphereSlider    =makeSliderGroup(graphDiv,"30%","90%","Radius",sliderLength,"horizontal",[0,5],initSphereR,updateSphere)
         var mySliders=[coneRadiusSlider,coneHeightSlider,boxSlider,sphereSlider]
 
 
-
-
-        // create and append text:
-        var eqnPos={ position: "static", padding: "20px", width: "100%", textAlign: "center"}
-
-        var coneEqn=document.createElement("div")
-        coneEqn.innerText="\\( \\underbrace{V}_{0.0} = \\frac{1}{3} \\pi {\\underbrace{r}_{0.0}}^2 \\underbrace{h}_{0.0} \\)"
-        Object.assign(coneEqn.style,eqnPos)
-
-        var boxEqn=document.createElement("div")
-        boxEqn.innerText="\\( \\underbrace{V}_{0.0} = {\\underbrace{s}_{0.0}}^3 \\)"
-        Object.assign(boxEqn.style,eqnPos)
-
-        var sphereEqn=document.createElement("div")
-        sphereEqn.innerText="\\( \\underbrace{V}_{0.0} = \\frac{4}{3} \\pi {\\underbrace{r}_{0.0}}^3 \\)"
-        Object.assign(sphereEqn.style,eqnPos)
-
-        var eqnDivs=[coneEqn,boxEqn,sphereEqn]
-
+        // creates and appends phrases
         var phrases=[
             "You know the cone is cool when there's two sliders. Here's its volume:",
             "It's big, but how big is it?",
@@ -87,10 +72,28 @@
             textDiv.appendChild(phraseDivs[i])
         }
 
+        // creates and appends equations:
+        var eqnPos={padding: "20px", width: "100%", textAlign: "center"}
+
+        var coneEqn=document.createElement("div")
+        coneEqn.innerText="\\( \\underbrace{V}_{0.0} = \\frac{1}{3} \\pi {\\underbrace{r}_{0.0}}^2 \\underbrace{h}_{0.0} \\)"
+        Object.assign(coneEqn.style,eqnPos)
+
+        var boxEqn=document.createElement("div")
+        boxEqn.innerText="\\( \\underbrace{V}_{0.0} = {\\underbrace{s}_{0.0}}^3 \\)"
+        Object.assign(boxEqn.style,eqnPos)
+
+        var sphereEqn=document.createElement("div")
+        sphereEqn.innerText="\\( \\underbrace{V}_{0.0} = \\frac{4}{3} \\pi {\\underbrace{r}_{0.0}}^3 \\)"
+        Object.assign(sphereEqn.style,eqnPos)
+
+        var eqnDivs=[coneEqn,boxEqn,sphereEqn]
+
         textDiv.appendChild(coneEqn)
         textDiv.appendChild(boxEqn)
         textDiv.appendChild(sphereEqn)
 
+        // set initial value of equation and shape dimensions once MathJax finishes:
 
         MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]),
             function(){
@@ -101,13 +104,13 @@
         )
 
         //#region  change equation and shape when sliders are toggled:
+
+        // the functions get the values directly from the sliders (the second child of the group is the slider)
+        // this makes it easy for multiple sliders to use the same function
         
         function updateCone(){                         
-            // because there are multiple sliders which control it, it makes more sense to have a single function for both with no input
-            // then just get the values from the sliders in the function
-            // It is being called with an input from makeSliderGroup, but it just ignores the input
-            var r=coneRadiusSlider.children[1].value
             var h=coneHeightSlider.children[1].value
+            var r=coneRadiusSlider.children[1].value
             changeUnderText(1,1/3*Math.PI*h*r**2,1,coneEqn)
             changeUnderText(2,r,1,coneEqn)
             changeUnderText(3,h,1,coneEqn)
@@ -115,13 +118,15 @@
             myCone.length=h
         }
 
-        function updateBox(s){  
+        function updateBox(){  
+            var s=boxSlider.children[1].value
             changeUnderText(1,s**3,1,boxEqn)  
             changeUnderText(2,s,1,boxEqn)
             myBox.size=vec(s,s,s)                                                                                                                                           
         }
 
-        function updateSphere(r){
+        function updateSphere(){
+            var r=sphereSlider.children[1].value
             changeUnderText(1,4/3*Math.PI*r**3,1,sphereEqn)
             changeUnderText(2,r,1,sphereEqn)
             mySphere.radius=r
@@ -143,6 +148,7 @@
             myShapes[stage].visible=true
             Object.assign(eqnDivs[stage].style,{display: "block"})
             Object.assign(phraseDivs[stage].style,{display: "block"})
+
             if (stage==0){
                 Object.assign(mySliders[0].style,{display: "block"})
                 Object.assign(mySliders[1].style,{display: "block"})
@@ -153,9 +159,5 @@
             }
         }
     }
-
-
-
-   
 
 </script>

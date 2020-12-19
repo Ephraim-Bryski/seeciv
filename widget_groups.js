@@ -29,7 +29,7 @@ function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,in
         width: "100px",
         display: displayType,
         color: "white",
-        textAlign: "right"
+        textAlign: alignLabel
     })
 
 

@@ -5,7 +5,7 @@ function makePage(labels,makeVisual){
   //#region <sets dimensions for page layout>
 
   var verSplit=0.3                    // from left
-  var horSplit=0.08                   // from bottom
+  var horSplit=0.05                   // from bottom
 
   var textWidth=0.9                   // fraction of text box which fills up leftDiv
   var textBottomSpace=0.1             // relative distance between bottom of text box and bottom of leftDiv
@@ -18,12 +18,12 @@ function makePage(labels,makeVisual){
   //#region <create and position divs>
     //#region <children of body>
     var leftDiv=document.createElement("div")
+    leftDiv.classList.add("text-box")
     Object.assign(leftDiv.style,{
         width:(verSplit*100).toString().concat("%"),
         height: (100-horSplit*100).toString().concat("%"),
-        backgroundColor: "black",
-        color: "white",
     })
+    
     
 
     var rightDiv=document.createElement("div")
@@ -46,7 +46,6 @@ function makePage(labels,makeVisual){
     })    
 
       //#region <children of leftDiv>
-
       var textDiv=document.createElement("div")
       Object.assign(textDiv.style,{
           width:((textWidth*100).toString().concat("%")),
@@ -63,41 +62,44 @@ function makePage(labels,makeVisual){
           display: "block",
           fontSize: 30
       })
-      titleDiv.innerHTML="The Title is Not Displaying ):"
+      titleDiv.innerText="The Title is Not Displaying ):"
 
       var backFwdBtns=document.createElement("div")
       Object.assign(backFwdBtns.style,{
           bottom: (100*backFwdBtnsFromBottom).toString().concat("%"),
           width: "100%",
+          textAlign: "center"
       })
 
       //#region <children of BackFwdBtns>
 
         var backBtn=document.createElement("button")
-        Object.assign(backBtn.style,{
-          position: "absolute",
-          right: "50%",
-          fontSize: 20
-        })
-        backBtn.innerHTML="<"
         backBtn.classList.add("back-fwd-btn")
+        backBtn.classList.add("tooltip")
+        backBtn.innerHTML="&#8249;&nbsp"
         backBtn.onclick=function(){
           stage-=1
           changeStage()
         }
 
+        var backBtnToolTip=document.createElement("div")
+        backBtnToolTip.classList.add("tooltiptext")
+        backBtnToolTip.innerText="Back to Previous Step"
+        backBtn.appendChild(backBtnToolTip)
+
         var fwdBtn=document.createElement("button")
-        Object.assign(fwdBtn.style,{
-          position: "absolute",
-          left: "50%",
-          fontSize: 20
-        })
-        fwdBtn.innerHTML=">"
+        fwdBtn.innerHTML="&nbsp&#8250;"
         fwdBtn.classList.add("back-fwd-btn")
+        fwdBtn.classList.add("tooltip")
         fwdBtn.onclick=function(){
           stage+=1
           changeStage()
         }
+
+        var fwdBtnToolTip=document.createElement("div")
+        fwdBtnToolTip.classList.add("tooltiptext")
+        fwdBtnToolTip.innerText="Forward to Next Step"
+        fwdBtn.appendChild(fwdBtnToolTip)
         //#endregion
       //#endregion
     //#endregion
