@@ -35,6 +35,7 @@ function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,in
 
     var sliderElement=document.createElement("input")
     sliderElement.type="range"
+    sliderElement.classList.add("slider")
     sliderElement.min=range[0]
     sliderElement.max=range[1]
     sliderElement.oninput=function(){updateInputs(this.value)}
@@ -76,6 +77,3 @@ function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,in
         updateFunction(val)
     }
 }
-
-
-

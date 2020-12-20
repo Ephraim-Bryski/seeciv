@@ -68,7 +68,11 @@ div {
     visibility: visible;
 }
 
+ 
 
+
+
+/* creates border between text and graphic */
 .border-div{
     right: 0%;
     height: 80%;

@@ -39,10 +39,11 @@
             autoscale: false
         })
 
-        scene.camera.pos=vec(0,0,15)    // only one which is different for different topics
+        scene.forward=vec(-1,-1,-1)
+        scene.range=10
 
         // create shapes:
-        var myCone=cone({axis: vec(0,1,0),pos: vec(0,-2,0)})
+        var myCone=cone({pos: vec(0,-2,0)})
         var myBox=box()
         var mySphere=sphere()
         var myShapes=[myCone,myBox,mySphere]

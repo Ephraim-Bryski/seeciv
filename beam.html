@@ -1,0 +1,236 @@
+<body></body>
+
+<!-----------------Imports GlowScript Libraries and NumJs------------------------>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link type="text/css" href="https://www.glowscript.org/css/redmond/2.1/jquery-ui.custom.css" rel="stylesheet" />
+<link type="text/css" href="https://www.glowscript.org/css/ide.css" rel="stylesheet" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery-ui.custom.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/glow.3.0.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/RSrun.3.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+
+
+<!---------------------------Adds Style-------------------------------------------------->
+<link rel="stylesheet" href="app_pages.css">
+
+<!------------------------Run make_page and change_under_text to define functions (changeUnderText is optional)------------------->
+<script src="make_page.js"></script>
+<script src="change_under_text.js"></script>
+<script src="widget_groups.js"></script>
+
+<!------------------------JavaScript------------------------------------------------>
+<script type="text/javascript">
+
+    // Define your labels for the stages
+    var yourLabels=["Photo Of Beam Instead","Look Inside","Moment","Shear Moment Relation","Shear","Force Balance","Summary"]
+    
+
+    // calls makePage with defined labels and function:
+    makePage(yourLabels,makeYourGraphics)
+
+
+    // You can also create an array for the text in the text box and refer to it in the changeStageGraphics method
+    function makeYourGraphics(textDiv,graphDiv){
+        // define initial values
+        var space=1/3
+
+        var dx=1
+        var h=1             // half of the height
+        var b=2
+
+        var A=2*h*b
+        var I=1/12*b*(2*h)**3
+
+        var initLeftMoment=6
+        var initShear=4
+        var initCutLoc=1   // initially shows the full box
+
+        var isRound=false
+        var bottomOpacity=1
+        var topOpacity=0.3
+        var stageOpacity=0.1
+        var scale=30        // scales the arrow length down by this value
+
+        //#region <set up canvas>
+        window.__context= {glowscript_container: graphDiv}  
+        var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: false,userzoom: false,autoscale: false})
+        // use scene.center scene.forward scene.range to change scene
+        scene.forward=vec(-.4,-.4,-1)
+        scene.range=2
+        console.log(scene.camera.pos)
+        scene.camera.pos=vec(1.2,.8,3) // just shifts box a bit higher up
+        //#endregion
+
+        //#region <Create GlowScript graphics and combine in array>
+
+            //#region <create coordinate system object>
+            var coordShapePos=vec(2,0,0)
+            var coordShapeScale=.2
+
+            var xDir=arrow({axis:vec(1,0,0).multiply(coordShapeScale),pos:coordShapePos})
+            var yDir=arrow({axis:vec(0,1,0).multiply(coordShapeScale),pos:coordShapePos})
+            var zDir=arrow({axis:vec(0,0,1).multiply(coordShapeScale),pos:coordShapePos})
+
+
+            var xText=label({text:"x",pos:vec(1,0,0).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
+            var yText=label({text:"y",pos:vec(0,1,0).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
+            var zText=label({text:"z",pos:vec(0,0,1).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
+            //#endregion
+
+            //#region <create boxes>
+                var boxBottom=box({opacity: bottomOpacity})
+                var boxTop=box({opacity: topOpacity})
+            //#endregion
+
+            //#region <create arrows>
+            var LNA=[]
+            var RNA=[]
+            var LVA=[]
+            var RVA=[]
+            var TVA=[]
+            for (let z=-b/2; z<=b/2;z+=space){
+                for (let y=-h;y<=h;y+=space){
+                    LNA.push(arrow({pos: vec(-dx/2,y,z),round: isRound,color: vec(0,0,1)}))
+                    RNA.push(arrow({pos: vec(dx/2,y,z),round: isRound,color: vec(0,0,1)}))
+
+                    LVA.push(arrow({pos: vec(-dx/2,y,z),round: isRound,color: vec(1,0,0)}))
+                    RVA.push(arrow({pos: vec(dx/2,y,z),round: isRound,color: vec(1,0,0)}))
+                }
+                for (let x=-dx/2;x<=dx/2;x+=space){
+                    TVA.push(arrow({pos: vec(x,0,z),round: isRound,color: vec(1,0,0)}))
+                }
+            }
+
+            //#endregion
+        //#endregion
+        
+        //#region <create widgets and combine into array>
+        var cutLocSlider=makeSliderGroup(graphDiv,"0%","90%","Horizontal Cut Location",200,"horizontal",[-1,1],initCutLoc,update)
+        var momentSlider=makeSliderGroup(graphDiv,"33%","90%","Moment on Left Side",200,"horizontal",[-10,10],initLeftMoment,update)
+        var shearSlider=makeSliderGroup(graphDiv,"66%","90%","Shear Force",200,"horizontal",[-10,10],initShear,update)
+        //#endregion
+
+        // create text with equations, combine into array and append on textDiv
+       
+        update() //! should be in the queue instead (here now so it's faster)
+
+        MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]),
+            function(){
+                // call update functions with initial values
+
+            }
+        )
+
+        //update functions for graphics (called when widgets toggled)
+        
+        function update(){
+
+            var cutLoc=Number(cutLocSlider.children[2].value)
+            var leftMoment=Number(momentSlider.children[1].value)
+            var shear=Number(shearSlider.children[1].value)
+
+
+            // shear and moment relation
+            var rightMoment=leftMoment+shear*dx
+            for (let i=0;i<LNA.length;i++){    // all of them have the same length so it's ok
+                LNA[i].axis=vec(getMoment(leftMoment,LNA[i].pos.y),0,0).divide(scale)
+                RNA[i].axis=vec(getMoment(rightMoment,RNA[i].pos.y),0,0).divide(-scale)
+                LVA[i].axis=vec(0,getShear(shear,LVA[i].pos.y),0).divide(-scale)
+                RVA[i].axis=vec(0,getShear(shear,RVA[i].pos.y),0).divide(scale)
+            }
+
+
+            // cut location:
+            boxBottom.size=vec(dx,h+cutLoc,b)// would get value from slider
+            boxTop.size=vec(dx,h-cutLoc,b)
+            
+            boxBottom.pos=vec(0,-(h-cutLoc)/2,0)
+            boxTop.pos=vec(0,(h+cutLoc)/2,0)
+
+
+            
+            var sideArrows=[LNA,RNA,LVA,RVA]
+
+            for (let i=0;i<sideArrows.length;i++){
+                var arrowGroup=sideArrows[i]
+                for (let j=0;j<arrowGroup.length;j++){  
+                    var arrowSel=arrowGroup[j]  
+                    if (arrowSel.pos.y>cutLoc){
+                        arrowSel.visible=false
+                    }else{
+                        arrowSel.visible=true
+                    }
+                }
+            }
+
+            for (let i=0;i<TVA.length;i++){
+                var arrowSel=TVA[i]
+                arrowSel.pos.y=cutLoc
+                arrowSel.axis=vec(getShear(shear,cutLoc),0,0).divide(scale)
+  
+            }
+        }
+        
+        function getShear(V,y){return -3/2*V/A*(1-y**2/h**2)}
+        function getMoment(M,y){return M*y/I}
+
+        // change the graphic for each stage (must be named exactly changeStageGraphic):
+        makeYourGraphics.changeStageGraphic=function(stage){
+            // loop through graphics, widgets, text arrays turn all visiblity off
+
+            // turn visibility on based on stage
+
+            // compounding arrows prevents them from being modified individually ):
+
+            //! also create coordinate system and boxes compound (for photo stage)
+            /*
+            var N=compound([LNA,RNA].flat())
+            var sideV=compound([LVA,RVA].flat())
+            var topV=compound(TVA)
+            */
+
+            var MS=momentSlider.style
+            var VS=shearSlider.style
+            var CS=cutLocSlider.style
+
+           
+            if(stage==0){
+                //N.opacity=sideV.opacity=topV.opacity=0
+                changeOpacity([LNA,RNA,LVA,RVA,TVA],0)
+                MS.visibility=VS.visibility=CS.visibility="hidden"
+            }else if(stage==1){
+                changeOpacity([LNA,RNA,LVA,RVA,TVA],1)
+                MS.visibility=VS.visibility=CS.visibility="hidden"
+            }else if(stage==2){
+                changeOpacity([LVA,RVA,TVA],stageOpacity);changeOpacity([LNA,RNA],1)
+                VS.visibility=CS.visibility="hidden";MS.visibility="visible"
+            }else if(stage==3){
+                changeOpacity([LNA,RNA,LVA,RVA,TVA],1)
+                CS.visibility="hidden";MS.visibility=VS.visibility="visible"
+            }else if(stage==4){
+                changeOpacity([LNA,RNA],stageOpacity);changeOpacity([LVA,RVA,TVA],1)
+                MS.visibility=CS.visibility="hidden";VS.visibility="visible"
+            }else if(stage==5){
+                changeOpacity([LVA,RVA],stageOpacity);changeOpacity([TVA,LNA,RNA],1)
+                MS.visibility=VS.visibility=CS.visibility="visible"
+            }else if (stage==6){
+                changeOpacity([LNA,RNA,LVA,RVA,TVA],1)
+                MS.visibility=VS.visibility=CS.visibility="visible"
+            }
+
+
+            function changeOpacity(shapeGroups,opacitySel){
+                for (let i=0;i<shapeGroups.length;i++){
+                    var shapeGroup=shapeGroups[i]
+                    for (let j=0;j<shapeGroup.length;j++){
+                        var shape=shapeGroup[j]
+                        shape.opacity=opacitySel
+                    }
+                }
+            }
+        }
+    }
+</script>
