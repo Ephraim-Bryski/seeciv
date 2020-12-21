@@ -25,7 +25,7 @@
 <script type="text/javascript">
 
     // Define your labels for the stages
-    var yourLabels=["Photo Of Beam Instead","Look Inside","Moment","Shear Moment Relation","Shear","Force Balance","Summary"]
+    var yourLabels=["See the Beam","Look Inside","Moment","Shear Moment Relation","Shear","Force Balance","Summary"]
     
     makePage(yourLabels,stressesInBeam)
 
@@ -141,7 +141,7 @@
         "$$\\underbrace{\\color{red}{\\Delta H}}_{0.0}=(\\underbrace{\\frac{\\color{blue}{M_{Right}}}{I}}_{0.0}-\\underbrace{\\frac{\\color{blue}{M_{Left}}}{I}}_{0.0})\\underbrace{Q}_{0.0}$$").concat(
         "$$\\frac{\\color{red}{\\Delta H}}{\\Delta x}=\\frac{\\color{blue}{\\Delta M}}{\\Delta x}\\frac{Q}{I}$$").concat(
         "<p>Shear flow is defined as \\(\\frac{\\Delta H}{\\Delta x}\\) and is the horizontal shear force per length of beam. Divide that by the beam thickness \\(b\\) to get shear stress:</p>").concat(
-        "$$\\tau=\\frac{VQ}{Ib}$$")
+        "$$\\color{red}{\\tau}=\\frac{\\color{red}{V}Q}{Ib}$$")
 
         allText[6]="<p>Normal stresses produce bending moments and shear stresses produce shear forces.</p> <p>The equation for normal stress:</p> $$\\sigma=\\frac{M}{I}y$$<p> The equation for shear stress:</p> $$\\tau=\\frac{VQ}{Ib}$$ <p>The relation between bending moment and shear force:</p> $$M_{Right}-M_{Left}=V\\Delta x$$<p>The stresses in a beam are distributed so that all forces and moments are perfectly balanced when a load is applied, keeping it, and anyone who happens to be relying on it, at rest.</p>"
 
