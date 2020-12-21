@@ -27,25 +27,22 @@
     // Define your labels for the stages
     var yourLabels=["Photo Of Beam Instead","Look Inside","Moment","Shear Moment Relation","Shear","Force Balance","Summary"]
     
-
-    // calls makePage with defined labels and function:
-    makePage(yourLabels,makeYourGraphics)
-
+    makePage(yourLabels,stressesInBeam)
 
     // You can also create an array for the text in the text box and refer to it in the changeStageGraphics method
-    function makeYourGraphics(textDiv,graphDiv){
-        // define initial values
+    function stressesInBeam(textDiv,graphDiv){
+        //#region <define initial values>
         var space=1/3
 
         var dx=1
         var h=1             // half of the height
-        var b=2
+        var b=1
 
         var A=2*h*b
         var I=1/12*b*(2*h)**3
 
-        var initLeftMoment=6
-        var initShear=4
+        var initLeftMoment=8
+        var initShear=-5
         var initCutLoc=1   // initially shows the full box
 
         var isRound=false
@@ -53,105 +50,147 @@
         var topOpacity=0.3
         var stageOpacity=0.1
         var scale=30        // scales the arrow length down by this value
+        //#endregion
 
         //#region <set up canvas>
         window.__context= {glowscript_container: graphDiv}  
         var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: false,userzoom: false,autoscale: false})
-        // use scene.center scene.forward scene.range to change scene
-        scene.forward=vec(-.4,-.4,-1)
-        scene.range=2
+        scene.center=vec(-.2,0,0)
+        scene.forward=vec(.5,-.8,-1)
+        scene.range=1.5
         console.log(scene.camera.pos)
-        scene.camera.pos=vec(1.2,.8,3) // just shifts box a bit higher up
         //#endregion
 
-        //#region <Create GlowScript graphics and combine in array>
+        //#region <create coordinate system object>
+        var coordShapePos=vec(1.5,0,0)
+        var coordShapeScale=.2
+        var coordTextGap=.1
 
-            //#region <create coordinate system object>
-            var coordShapePos=vec(2,0,0)
-            var coordShapeScale=.2
-
-            var xDir=arrow({axis:vec(1,0,0).multiply(coordShapeScale),pos:coordShapePos})
-            var yDir=arrow({axis:vec(0,1,0).multiply(coordShapeScale),pos:coordShapePos})
-            var zDir=arrow({axis:vec(0,0,1).multiply(coordShapeScale),pos:coordShapePos})
+        var xDir=arrow({axis:vec(1,0,0).multiply(coordShapeScale),pos:coordShapePos})
+        var yDir=arrow({axis:vec(0,1,0).multiply(coordShapeScale),pos:coordShapePos})
+        var zDir=arrow({axis:vec(0,0,1).multiply(coordShapeScale),pos:coordShapePos})
 
 
-            var xText=label({text:"x",pos:vec(1,0,0).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
-            var yText=label({text:"y",pos:vec(0,1,0).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
-            var zText=label({text:"z",pos:vec(0,0,1).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
-            //#endregion
+        var xText=label({text:"x",pos:vec(1+coordTextGap,0,0).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
+        var yText=label({text:"y",pos:vec(0,1+coordTextGap,0).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
+        var zText=label({text:"z",pos:vec(0,0,1+coordTextGap).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
 
-            //#region <create boxes>
-                var boxBottom=box({opacity: bottomOpacity})
-                var boxTop=box({opacity: topOpacity})
-            //#endregion
-
-            //#region <create arrows>
-            var LNA=[]
-            var RNA=[]
-            var LVA=[]
-            var RVA=[]
-            var TVA=[]
-            for (let z=-b/2; z<=b/2;z+=space){
-                for (let y=-h;y<=h;y+=space){
-                    LNA.push(arrow({pos: vec(-dx/2,y,z),round: isRound,color: vec(0,0,1)}))
-                    RNA.push(arrow({pos: vec(dx/2,y,z),round: isRound,color: vec(0,0,1)}))
-
-                    LVA.push(arrow({pos: vec(-dx/2,y,z),round: isRound,color: vec(1,0,0)}))
-                    RVA.push(arrow({pos: vec(dx/2,y,z),round: isRound,color: vec(1,0,0)}))
-                }
-                for (let x=-dx/2;x<=dx/2;x+=space){
-                    TVA.push(arrow({pos: vec(x,0,z),round: isRound,color: vec(1,0,0)}))
-                }
-            }
-
-            //#endregion
+        var coordShape=[xDir,yDir,zDir,xText,yText,zText] 
         //#endregion
         
-        //#region <create widgets and combine into array>
-        var cutLocSlider=makeSliderGroup(graphDiv,"0%","90%","Horizontal Cut Location",200,"horizontal",[-1,1],initCutLoc,update)
-        var momentSlider=makeSliderGroup(graphDiv,"33%","90%","Moment on Left Side",200,"horizontal",[-10,10],initLeftMoment,update)
-        var shearSlider=makeSliderGroup(graphDiv,"66%","90%","Shear Force",200,"horizontal",[-10,10],initShear,update)
+        //#region <create boxes>
+        var boxBottom=box({opacity: bottomOpacity})
+        var boxTop=box({opacity: topOpacity})
+        var boxes=[boxBottom,boxTop]
         //#endregion
 
-        // create text with equations, combine into array and append on textDiv
-       
-        update() //! should be in the queue instead (here now so it's faster)
+        //#region <create arrows>
+        var LNA=[]
+        var RNA=[]
+        var LVA=[]
+        var RVA=[]
+        var TVA=[]
+        for (let z=-b/2; z<=b/2;z+=space){
+            for (let y=-h;y<=h;y+=space){
+                LNA.push(arrow({pos: vec(-dx/2,y,z),round: isRound,color: vec(0,0,1)}))
+                RNA.push(arrow({pos: vec(dx/2,y,z),round: isRound,color: vec(0,0,1)}))
 
+                LVA.push(arrow({pos: vec(-dx/2,y,z),round: isRound,color: vec(1,0,0)}))
+                RVA.push(arrow({pos: vec(dx/2,y,z),round: isRound,color: vec(1,0,0)}))
+            }
+            for (let x=-dx/2;x<=dx/2;x+=space){
+                TVA.push(arrow({pos: vec(x,0,z),round: isRound,color: vec(1,0,0)}))
+            }
+        }
+
+        //#endregion
+
+        //#region <create widgets and combine into array>
+        var cutLocSlider=makeSliderGroup(graphDiv,"15%","10%","Horizontal Cut Location",700,"vertical",[-1,1],initCutLoc,update)    
+        var momentSlider=makeSliderGroup(graphDiv,"3%","15%","Moment on Left Side",200,"vertical",[-10,10],initLeftMoment,update,"blue")
+        var shearSlider=makeSliderGroup(graphDiv,"3%","55%","Shear Force",200,"vertical",[-10,10],initShear,update,"red")
+        cutLocSlider.style.zIndex=2 // so it doesn't block the other slider
+        //#endregion
+
+        //#region <create image>
+        var beamImg=document.createElement("img")
+       
+        beamImg.src="beams.png"
+        beamImg.style.position="absolute"
+        beamImg.style.left=0
+        beamImg.style.width="100%"
+        graphDiv.appendChild(beamImg)
+        //#endregion
+
+        //#region <create text and append to text div>
+        var allText=[]
+
+        allText[0]="<p>Beams are all around us. They make up the buildings we live in and the bridges we cross. They're also around us at smaller scales, like cross car beams in your car and a table top. They're not defined by any particular application: they're simply a structural element, usually substantially longer in one direction, which responds to transverse loads, or loads perpendicular to that direction, by bending. These elements are of particular importance to civil engineers.</p><p>Engineers make predictions about structures and how they will respond to loads. This requires them to understand and quantify the internal stresses in elements of these structures.</p><p>Photo of a building under construction, allowing you to see the beams which support it. Photo credit to structuralengineeringbasics.com</p>"
+
+        allText[1]="<p>Any load applied on a beam, whether it be from a testing device or the weight of a building, will lead to internal stresses throughout the beam. This topic will look at one section of the beam; this way we can look at the internal stresses acting on this section.</p><p>The internal bending moment in a beam consists of compressive and tensile normal stresses that act along the beam's length, or the x direction. There is also a shear force, which consists of shear stresses which act vertically, or the y direction.</p><p>This is a first look, but how do we quantify these stresses and how do they relate? This topic will explore that, starting with normal stresses.</p>"
+
+        allText[2]="<p>Normal stresses in the beam produce an internal bending moment. This stress varies in the cross-section: it is 0 at the neutral axis, compressive on one side, and tensile on the other side.</p><p> More precisely, the stress at a point is linearly proportional to its y coordinate:</p> $$ \\sigma=\\frac{M}{I}y$$ <p>Move the slider to change the moment on the left side of the section of beam. Notice that the moment on the right side and the moment on the left side are opposite but not equal in magnitude though.</p><p> Why doesn't this difference cause an imabalance in moment?</p>"
+
+        allText[3]="<p>The difference in moment is balanced by a force couple from the shear force. The greater the shear, the greater the difference in moment. Therefore they're related as follows:</p> $$\\underbrace{\\color{blue}{M_{Right}}}_{0.0}-\\underbrace{\\color{blue}{M_{Left}}}_{0.0}=\\underbrace{\\color{red}{V}}_{0.0}\\Delta x$$ <p>\\(\\Delta x\\) is the length of the section and is the lever arm of the shear force couple.</p><p> As \\(\\Delta x\\) goes to 0, the relation becomes</p> $$V=\\frac{dM}{dx}$$ <p>You might notice that the shear stress is also not uniform. The next slides will explore that in more depth.</p>"
+        
+        allText[4]="<p>The shear stress is a maximum at the neutral axis and goes to 0 at the top and bottom of the beam. Notice that the shear stress goes up one side and down on the other, balancing the vertical force.</p><p>In general, the vertical shear stress must be balanced by an equal horizontal shear stress:</p> $$\\tau_{xy}=\\tau_{yx}$$ <p>Therefore, there must be a horizontal shear stress in the beam as well; change the cut location to see it. This shear stress is equal to the vertical shear stress at the point it is cut</p><p>Why doesn't this horizontal shear stress cause a net horizontal force?</p>"
+
+        allText[5]=("<p>The horizontal force from the shear stress is balanced by a force produced by the difference in moment. The moment one one side produces the force:</p>").concat(
+        "$$\\color{blue}{F}=\\int \\ \\color{blue}{\\sigma} dA=\\frac{\\color{blue}{M}}{I}\\int ydA=\\frac{\\color{blue}{M}}{I}Q$$").concat(
+        "<p>The forces from the normal stress are balanced by the horizontal shear force \\(\\Delta H\\):</p>").concat(
+        "$$\\underbrace{\\color{red}{\\Delta H}}_{0.0}=(\\underbrace{\\frac{\\color{blue}{M_{Right}}}{I}}_{0.0}-\\underbrace{\\frac{\\color{blue}{M_{Left}}}{I}}_{0.0})\\underbrace{Q}_{0.0}$$").concat(
+        "$$\\frac{\\color{red}{\\Delta H}}{\\Delta x}=\\frac{\\color{blue}{\\Delta M}}{\\Delta x}\\frac{Q}{I}$$").concat(
+        "<p>Shear flow is defined as \\(\\frac{\\Delta H}{\\Delta x}\\) and is the horizontal shear force per length of beam. Divide that by the beam thickness \\(b\\) to get shear stress:</p>").concat(
+        "$$\\tau=\\frac{VQ}{Ib}$$")
+
+        allText[6]="<p>Normal stresses produce bending moments and shear stresses produces shear forces. The equation for normal stress: $$\\sigma=\\frac{M}{I}y$$ The equation for shear stress:</p> $$\\tau=\\frac{VQ}{Ib}$$ <p>The relation between bending moment and shear force:</p> $$M_{Right}-M_{Left}=V\\Delta x$$<p>The stresses in a beam are distributed so that all forces and moments are perfectly balanced when a load is applied, keeping it, and anyone who happens to be relying on it, at rest.</p>"
+
+
+        var allDivs=[]
+
+        for (let i=0;i<allText.length;i++){
+            var myText=allText[i]
+            var myDiv=document.createElement("div")
+            myDiv.innerHTML=myText
+            allDivs[i]=myDiv
+            textDiv.append(myDiv)
+        }
+
+        //#endregion
+
+        
         MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]),
             function(){
-                // call update functions with initial values
-
+                update()
             }
         )
 
-        //update functions for graphics (called when widgets toggled)
-        
         function update(){
-
+            //#region <get values from sliders>
             var cutLoc=Number(cutLocSlider.children[2].value)
             var leftMoment=Number(momentSlider.children[1].value)
             var shear=Number(shearSlider.children[1].value)
+            //#endregion
 
-
-            // shear and moment relation
+            //#region <shear and moment relation>
             var rightMoment=leftMoment+shear*dx
             for (let i=0;i<LNA.length;i++){    // all of them have the same length so it's ok
-                LNA[i].axis=vec(getMoment(leftMoment,LNA[i].pos.y),0,0).divide(scale)
-                RNA[i].axis=vec(getMoment(rightMoment,RNA[i].pos.y),0,0).divide(-scale)
-                LVA[i].axis=vec(0,getShear(shear,LVA[i].pos.y),0).divide(-scale)
-                RVA[i].axis=vec(0,getShear(shear,RVA[i].pos.y),0).divide(scale)
+                LNA[i].axis=vec(sigma(leftMoment,LNA[i].pos.y),0,0).divide(scale)
+                RNA[i].axis=vec(sigma(rightMoment,RNA[i].pos.y),0,0).divide(-scale)
+                LVA[i].axis=vec(0,tau(shear,LVA[i].pos.y),0).divide(-scale)
+                RVA[i].axis=vec(0,tau(shear,RVA[i].pos.y),0).divide(scale)
             }
+            //#endregion
 
-
-            // cut location:
+            //#region <cut location>
+            // change box dimension:
             boxBottom.size=vec(dx,h+cutLoc,b)// would get value from slider
             boxTop.size=vec(dx,h-cutLoc,b)
             
             boxBottom.pos=vec(0,-(h-cutLoc)/2,0)
             boxTop.pos=vec(0,(h+cutLoc)/2,0)
 
-
-            
+            // change visibility of arrows above and below:
             var sideArrows=[LNA,RNA,LVA,RVA]
 
             for (let i=0;i<sideArrows.length;i++){
@@ -166,62 +205,73 @@
                 }
             }
 
+            // change top shear value:
             for (let i=0;i<TVA.length;i++){
                 var arrowSel=TVA[i]
                 arrowSel.pos.y=cutLoc
-                arrowSel.axis=vec(getShear(shear,cutLoc),0,0).divide(scale)
-  
+                arrowSel.axis=vec(tau(shear,cutLoc),0,0).divide(scale)
             }
+            //#endregion
+
+            // update underbraces
+           changeUnderText(1,rightMoment,0,allDivs[3])
+           changeUnderText(2,leftMoment,0,allDivs[3])
+           changeUnderText(3,shear,0 ,allDivs[3])
+
+            changeUnderText(1,dH(),0,allDivs[5])
+            changeUnderText(2,rightMoment/I,0,allDivs[5])
+            changeUnderText(3,leftMoment/I,0,allDivs[5])
+            changeUnderText(4,Q(),1,allDivs[5])
+            
+            
+            function Q(){return (cutLoc**2-h**2)*b/2}
+            function dH(){return Q()*(rightMoment-leftMoment)/I}
+            function tau(V,y){return -3/2*V/A*(1-y**2/h**2)}
+            function sigma(M,y){return M*y/I}
         }
-        
-        function getShear(V,y){return -3/2*V/A*(1-y**2/h**2)}
-        function getMoment(M,y){return M*y/I}
 
-        // change the graphic for each stage (must be named exactly changeStageGraphic):
-        makeYourGraphics.changeStageGraphic=function(stage){
-            // loop through graphics, widgets, text arrays turn all visiblity off
-
-            // turn visibility on based on stage
-
-            // compounding arrows prevents them from being modified individually ):
-
-            //! also create coordinate system and boxes compound (for photo stage)
-            /*
-            var N=compound([LNA,RNA].flat())
-            var sideV=compound([LVA,RVA].flat())
-            var topV=compound(TVA)
-            */
-
+        stressesInBeam.changeStageGraphic=function(stage){
+            // defined just to shorten code:
             var MS=momentSlider.style
             var VS=shearSlider.style
             var CS=cutLocSlider.style
+            var IMG=beamImg.style
 
-           
+            //#region <change opacity based on stage>
             if(stage==0){
-                //N.opacity=sideV.opacity=topV.opacity=0
-                changeOpacity([LNA,RNA,LVA,RVA,TVA],0)
-                MS.visibility=VS.visibility=CS.visibility="hidden"
+                changeOpacity([LNA,RNA,LVA,RVA,TVA],0)             
+                MS.visibility=VS.visibility=CS.visibility="hidden";IMG.visibility="visible"
             }else if(stage==1){
                 changeOpacity([LNA,RNA,LVA,RVA,TVA],1)
-                MS.visibility=VS.visibility=CS.visibility="hidden"
+                MS.visibility=VS.visibility=CS.visibility=IMG.visibility="hidden"
             }else if(stage==2){
                 changeOpacity([LVA,RVA,TVA],stageOpacity);changeOpacity([LNA,RNA],1)
-                VS.visibility=CS.visibility="hidden";MS.visibility="visible"
+                VS.visibility=CS.visibility=IMG.visibility="hidden";MS.visibility="visible"
             }else if(stage==3){
                 changeOpacity([LNA,RNA,LVA,RVA,TVA],1)
-                CS.visibility="hidden";MS.visibility=VS.visibility="visible"
+                CS.visibility=IMG.visibility="hidden";MS.visibility=VS.visibility="visible"
             }else if(stage==4){
                 changeOpacity([LNA,RNA],stageOpacity);changeOpacity([LVA,RVA,TVA],1)
-                MS.visibility=CS.visibility="hidden";VS.visibility="visible"
+                MS.visibility=IMG.visibility="hidden";CS.visibility=VS.visibility="visible"
             }else if(stage==5){
                 changeOpacity([LVA,RVA],stageOpacity);changeOpacity([TVA,LNA,RNA],1)
-                MS.visibility=VS.visibility=CS.visibility="visible"
+                IMG.visibility="hidden";MS.visibility=VS.visibility=CS.visibility="visible"
             }else if (stage==6){
                 changeOpacity([LNA,RNA,LVA,RVA,TVA],1)
-                MS.visibility=VS.visibility=CS.visibility="visible"
+                IMG.visibility="hidden";MS.visibility=VS.visibility=CS.visibility="visible"
+            }
+            //#endregion
+
+            // change visiblity of text:
+            for (let i=0;i<allText.length;i++){
+                var myDiv=allDivs[i]
+                myDiv.style.visibility="hidden"
+                if (stage==i){
+                    myDiv.style.visibility="visible"
+                }
             }
 
-
+            // iterates through arrow grouops to change opacity of each (so it doesn't have to do that in each branch)
             function changeOpacity(shapeGroups,opacitySel){
                 for (let i=0;i<shapeGroups.length;i++){
                     var shapeGroup=shapeGroups[i]
@@ -231,6 +281,7 @@
                     }
                 }
             }
+
         }
     }
 </script>

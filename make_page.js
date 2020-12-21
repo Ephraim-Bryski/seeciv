@@ -9,10 +9,10 @@ function makePage(labels,makeVisual){
 
   var textWidth=0.9                   // fraction of text box which fills up leftDiv
   var textBottomSpace=0.1             // relative distance between bottom of text box and bottom of leftDiv
-  var textTopSpace=0.2                // relative distance between top of text box and top of leftDiv
+  var textTopSpace=0.1               // relative distance between top of text box and top of leftDiv
 
-  var titleFromTop=0.1                // relative distance between top of title and top of leftDiv
-  var backFwdBtnsFromBottom=0.1       // relative distance between bottom of the back/forward buttons and bottom of leftDiv
+  var titleFromTop=0.05               // relative distance between top of title and top of leftDiv
+  var backFwdBtnsFromBottom=0.05       // relative distance between bottom of the back/forward buttons and bottom of leftDiv
   //#endregion
  
   //#region <create and position divs>
@@ -27,13 +27,11 @@ function makePage(labels,makeVisual){
     
 
     var rightDiv=document.createElement("div")
+    rightDiv.classList.add("graph")
     Object.assign(rightDiv.style,{
         width:(100-verSplit*100).toString().concat("%"),
         height: (100-horSplit*100).toString().concat("%"),
-        right: "0%",
-        backgroundColor: "black",
-        color: "white",
-        textAlign: "right"
+        right: "0%"
     })
     rightDiv.innerText="Ctrl+Click to Orbit"
 

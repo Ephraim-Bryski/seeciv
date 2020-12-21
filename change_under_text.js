@@ -7,6 +7,7 @@ function changeUnderText(underTextIndex,value,numOfDec,parent=document){
 
 
     // get the element with the desired text:
+
     textSpan=parent.getElementsByClassName("mjx-under")[(underTextIndex-1)*2+1].children[0].children[0].children[0].children[0]
     
     // round the value:

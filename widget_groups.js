@@ -1,4 +1,4 @@
-function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,initialVal,updateFunction){    // xRel and yRel should be strings with the percentage relative position in parent from left and top
+function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,initialVal,updateFunction,thumbColor="#333"){    // xRel and yRel should be strings with the percentage relative position in parent from left and top
    //! add range as input
    // If I start wanting to add more optional inputs, I could just make a class and make them attributes
     var width=30                                                                        // just adjust to get the slider in a nice position
@@ -36,6 +36,7 @@ function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,in
     var sliderElement=document.createElement("input")
     sliderElement.type="range"
     sliderElement.classList.add("slider")
+    sliderElement.style.setProperty("--c",thumbColor)
     sliderElement.min=range[0]
     sliderElement.max=range[1]
     sliderElement.oninput=function(){updateInputs(this.value)}

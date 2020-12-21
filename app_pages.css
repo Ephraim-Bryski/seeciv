@@ -10,10 +10,30 @@ div {
     position: absolute;
 }
 
+.graph{
+    background-color: black;
+    color: white;
+    text-align: right;
+    overflow: hidden;
+    position: absolute;
+}
+
 .text-box{
     background-color: black;
     color: white;
+    font-size: 15px;
 }
+
+/* center mathjax expressions */
+.MJXc-display{
+    display:table;
+    margin:0 auto;
+    
+}
+p{
+    padding: 10px;
+}
+
 
 /* style of stage buttons */
 .stage-btn {
@@ -23,6 +43,7 @@ div {
     font-size: 15px;
     height: 100%;
     color: white;
+    outline: none;
 }
 
 /* stage buttons during hover */
@@ -45,6 +66,8 @@ div {
     color: white;
     right: 100px;
     z-index: 2;
+    outline: none;
+    
 }
 
 .back-fwd-btn:disabled{
@@ -69,7 +92,33 @@ div {
 }
 
  
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    border-radius: 20px;  
+    background: lightgray;
+    outline: none;
+    opacity: 0.8;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+.slider:hover {
+    opacity: 1;
+}
 
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%; 
+    background: var(--c)
+}
+
+.slider::-moz-range-thumb {
+    /* for Firefox */
+    /* should be same as stuff in webkit-slider-thumb */
+}
 
 
 /* creates border between text and graphic */
