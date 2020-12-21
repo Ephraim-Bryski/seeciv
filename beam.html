@@ -127,7 +127,7 @@
 
         allText[0]="<p>Beams are all around us. They make up the buildings we live in and the bridges we cross. They're also around us at smaller scales, like cross car beams in your car and a table top. They're not defined by any particular application: they're simply a structural element, usually substantially longer in one direction, which responds to transverse loads, or loads perpendicular to that direction, by bending. These elements are of particular importance to civil engineers.</p><p>Engineers make predictions about structures and how they will respond to loads. This requires them to understand and quantify the internal stresses in elements of these structures.</p><p>Photo of a building under construction, allowing you to see the beams which support it. Photo credit to structuralengineeringbasics.com</p>"
 
-        allText[1]="<p>Any load applied on a beam, whether it be from the weight of a person or the weight of a building, will lead to internal stresses throughout the beam. This topic will look at one section of the beam; this way we can look at the internal stresses acting on this section.</p><p>The internal bending moment in a beam consists of compressive and tensile normal stresses that act along the beam's length, or the x direction. There is also a shear force, which consists of shear stresses which act vertically, or the y direction.</p><p>This is a first look, but how do we quantify these stresses and how do they relate? This topic will explore that, starting with normal stresses.</p>"
+        allText[1]="<p>Any load applied on a beam, whether it be from the weight of a person or the weight of a building, will lead to internal stresses throughout the beam. This topic will look at one section of the beam; this way we can look at the internal stresses acting on this section.</p><p> The length of the beam is along the x direction; the beam is cut along the yz plane.</p><p>The internal bending moment in a beam consists of compressive and tensile normal stresses that act along the beam's length, or the x direction. There is also a shear force, which consists of shear stresses which act vertically, or the y direction.</p><p>This is a first look, but how do we quantify these stresses and how do they relate? This topic will explore that, starting with normal stresses.</p>"
 
         allText[2]="<p>Normal stresses in the beam produce an internal bending moment. This stress varies in the cross-section: it is 0 at the neutral axis, compressive on one side, and tensile on the other side.</p><p> More precisely, the stress at a point is linearly proportional to its y coordinate:</p> $$ \\sigma=\\frac{M}{I}y$$ <p>Move the slider to change the moment on the left side of the section of beam. Notice that the moment on the right side and the moment on the left side are opposite but not equal in magnitude though.</p><p> Why doesn't this difference cause an imabalance in moment?</p>"
 
@@ -239,7 +239,7 @@
 
             //#region <change opacity based on stage>
             if(stage==0){
-                changeOpacity([LNA,RNA,LVA,RVA,TVA],0)             
+                changeOpacity([LNA,RNA,LVA,RVA,TVA],0)          
                 MS.visibility=VS.visibility=CS.visibility="hidden";IMG.visibility="visible"
             }else if(stage==1){
                 changeOpacity([LNA,RNA,LVA,RVA,TVA],1)
