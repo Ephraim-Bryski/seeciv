@@ -69,10 +69,6 @@ function makePage(labels,makeVisual){
           textAlign: "center"
       })
 
-      var borderDiv=document.createElement("div")
-      borderDiv.classList.add("border-div")
-
-
       //#region <children of BackFwdBtns>
 
         var backBtn=document.createElement("button")
@@ -130,7 +126,6 @@ function makePage(labels,makeVisual){
   leftDiv.appendChild(textDiv)
   leftDiv.appendChild(titleDiv)
   leftDiv.appendChild(backFwdBtns)
-  leftDiv.appendChild(borderDiv)
   backFwdBtns.appendChild(backBtn)
   backFwdBtns.appendChild(fwdBtn)
   

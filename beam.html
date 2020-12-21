@@ -82,6 +82,7 @@
         var boxBottom=box({opacity: bottomOpacity})
         var boxTop=box({opacity: topOpacity})
         var boxes=[boxBottom,boxTop]
+        var BB=[box({size: vec(10,2*h,b)})]
         //#endregion
 
         //#region <create arrows>
@@ -119,6 +120,7 @@
         beamImg.style.position="absolute"
         beamImg.style.left=0
         beamImg.style.width="100%"
+        beamImg.style.zIndex=2
         graphDiv.appendChild(beamImg)
         //#endregion
 
@@ -239,25 +241,25 @@
 
             //#region <change opacity based on stage>
             if(stage==0){
-                changeOpacity([LNA,RNA,LVA,RVA,TVA],0)          
+                changeOpacity([LNA,RNA,LVA,RVA,TVA,BB],0)     
                 MS.visibility=VS.visibility=CS.visibility="hidden";IMG.visibility="visible"
             }else if(stage==1){
-                changeOpacity([LNA,RNA,LVA,RVA,TVA],1)
+                changeOpacity([BB],0.3);changeOpacity([LNA,RNA,LVA,RVA,TVA],1)
                 MS.visibility=VS.visibility=CS.visibility=IMG.visibility="hidden"
             }else if(stage==2){
-                changeOpacity([LVA,RVA,TVA],stageOpacity);changeOpacity([LNA,RNA],1)
+                changeOpacity([BB],0);changeOpacity([LVA,RVA,TVA],stageOpacity);changeOpacity([LNA,RNA],1)
                 VS.visibility=CS.visibility=IMG.visibility="hidden";MS.visibility="visible"
             }else if(stage==3){
-                changeOpacity([LNA,RNA,LVA,RVA,TVA],1)
+                changeOpacity([BB],0);changeOpacity([LNA,RNA,LVA,RVA,TVA],1)
                 CS.visibility=IMG.visibility="hidden";MS.visibility=VS.visibility="visible"
             }else if(stage==4){
-                changeOpacity([LNA,RNA],stageOpacity);changeOpacity([LVA,RVA,TVA],1)
+                changeOpacity([BB],0);changeOpacity([LNA,RNA],stageOpacity);changeOpacity([LVA,RVA,TVA],1)
                 MS.visibility=IMG.visibility="hidden";CS.visibility=VS.visibility="visible"
             }else if(stage==5){
-                changeOpacity([LVA,RVA],stageOpacity);changeOpacity([TVA,LNA,RNA],1)
+                changeOpacity([BB],0);changeOpacity([LVA,RVA],stageOpacity);changeOpacity([TVA,LNA,RNA],1)
                 IMG.visibility="hidden";MS.visibility=VS.visibility=CS.visibility="visible"
             }else if (stage==6){
-                changeOpacity([LNA,RNA,LVA,RVA,TVA],1)
+                changeOpacity([BB],0);changeOpacity([LNA,RNA,LVA,RVA,TVA],1)
                 IMG.visibility="hidden";MS.visibility=VS.visibility=CS.visibility="visible"
             }
             //#endregion

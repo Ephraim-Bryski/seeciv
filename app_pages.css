@@ -19,8 +19,8 @@ div {
 }
 
 .text-box{
-    background-color: black;
-    color: white;
+    background-color: white;
+    color: black;
     font-size: 13px;
 }
 
@@ -63,7 +63,7 @@ p{
     border: none;
     position: "absolute";
     font-size: 40;
-    color: white;
+    color: black;
     right: 100px;
     z-index: 2;
     outline: none;
@@ -121,11 +121,3 @@ p{
 }
 
 
-/* creates border between text and graphic */
-.border-div{
-    right: 0%;
-    height: 80%;
-    bottom: 10%;
-    border-right: solid gray 1px;
-
-}
