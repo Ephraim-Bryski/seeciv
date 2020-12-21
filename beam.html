@@ -106,8 +106,8 @@
         //#endregion
 
         //#region <create widgets and combine into array>
-        var cutLocSlider=makeSliderGroup(graphDiv,"15%","8%","Horizontal Cut Location",400,"vertical",[-1,1],initCutLoc,update)    
-        var momentSlider=makeSliderGroup(graphDiv,"3%","10%","Moment on Left Side",200,"vertical",[-10,10],initLeftMoment,update,"blue")
+        var cutLocSlider=makeSliderGroup(graphDiv,"15%","8%","Horizontal Cut Location",500,"vertical",[-1,1],initCutLoc,update)    
+        var momentSlider=makeSliderGroup(graphDiv,"3%","8%","Moment on Left Side",200,"vertical",[-10,10],initLeftMoment,update,"blue")
         var shearSlider=makeSliderGroup(graphDiv,"3%","55%","Shear Force",200,"vertical",[-10,10],initShear,update,"red")
         cutLocSlider.style.zIndex=2 // so it doesn't block the other slider
         //#endregion
