@@ -1,4 +1,4 @@
-function makePage(labels,makeVisual){
+function makePage(labels,text,makeVisual){
   // sets initial stage to 0:
   var stage=0 
 
@@ -33,7 +33,7 @@ function makePage(labels,makeVisual){
         height: (100-horSplit*100).toString().concat("%"),
         right: "0%"
     })
-    rightDiv.innerText="Ctrl+Click to Orbit"
+    
 
 
     var stageBtns=document.createElement("div")
@@ -68,6 +68,17 @@ function makePage(labels,makeVisual){
           width: "100%",
           textAlign: "center"
       })
+      //#region <children of textDiv (ALSO APPENDS IN LOOP)>
+      var stageText=[]
+      for (let i=0;i<text.length;i++){
+          stageText[i]=document.createElement("div")
+          stageText[i].classList.add("stage-text") //so it can be accessed to change underbraces
+          stageText[i].innerHTML=text[i]
+          textDiv.append(stageText[i])
+      }
+
+      //#endregion
+
 
       //#region <children of BackFwdBtns>
 
@@ -100,6 +111,13 @@ function makePage(labels,makeVisual){
         fwdBtn.appendChild(fwdBtnToolTip)
         //#endregion
       //#endregion
+      //#region <children of rightDiv>
+      var graphInfo=document.createElement("div")
+      graphInfo.classList.add("graph-info")
+    
+      graphInfo.innerText="Ctrl+Click to Orbit"
+
+      //#endregion
     //#endregion
   //#endregion
 
@@ -124,10 +142,12 @@ function makePage(labels,makeVisual){
   document.body.appendChild(rightDiv)
   document.body.appendChild(stageBtns)
   leftDiv.appendChild(textDiv)
+  // stageText (text divs for each stage) are appended in loop
   leftDiv.appendChild(titleDiv)
   leftDiv.appendChild(backFwdBtns)
   backFwdBtns.appendChild(backBtn)
   backFwdBtns.appendChild(fwdBtn)
+  rightDiv.appendChild(graphInfo)
   
 
   //#endregion
@@ -140,7 +160,7 @@ function makePage(labels,makeVisual){
   function changeStage() {
 
     makeVisual.changeStageGraphic(stage)
-    
+     
     //#region <change stage buttons and title>
     
     // get buttons:
@@ -149,6 +169,12 @@ function makePage(labels,makeVisual){
 
     // change title:
     titleDiv.innerHTML=selBtn.innerHTML
+
+    // change text:
+    for (let i=0;i<stageText.length;i++){
+      stageText[i].style.visibility="hidden"
+      if (stage==i){stageText[i].style.visibility="visible"}
+  }
 
     // modify buttons:
     for (let i = 0; i < labels.length; i++) { 
@@ -168,6 +194,7 @@ function makePage(labels,makeVisual){
       fwdBtn.disabled=false
     }
     //#endregion
-  }  
+  } 
+  return stageText 
 }
 

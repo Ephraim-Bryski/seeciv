@@ -1,0 +1,340 @@
+<body></body>
+
+<!-----------------Imports GlowScript Libraries and NumJs------------------------>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link type="text/css" href="https://www.glowscript.org/css/redmond/2.1/jquery-ui.custom.css" rel="stylesheet" />
+<link type="text/css" href="https://www.glowscript.org/css/ide.css" rel="stylesheet" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery-ui.custom.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/glow.3.0.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/RSrun.3.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/8.1.0/math.js" integrity="sha512-ne87j5uORxbrU7+bsqeJJWfWj5in65R9PCjaQL161xtH5cesZgULVbeVAkzAAN7hnYOcrHeBas9Wbd/Lm8gXFA==" crossorigin="anonymous"></script>
+
+
+<!---------------------------Adds Style-------------------------------------------------->
+<link rel="stylesheet" href="app_pages.css">
+
+<!------------------------Run make_page and change_under_text to define functions (changeUnderText is optional)------------------->
+<script src="make_page.js"></script>
+<script src="misc_funcs.js"></script>
+<script src="widget_groups.js"></script>
+<script src="surface.js"></script>
+
+<!------------------------JavaScript------------------------------------------------>
+<script type="text/javascript">
+
+    // Define your labels for the stages
+    var titles=["Intro","Torque-Stress","Stress-Strain","Strain-Deformation","Summary"]
+    var text=Array(5).fill("some super cool explanations will go here")
+
+    // calls makePage with defined labels and function:
+    makePage(titles,text,makeYourGraphics)
+
+
+    // You can also create an array for the text in the text box and refer to it in the changeStageGraphics method
+    function makeYourGraphics(textDiv,graphDiv){
+        //! textDiv is never used
+
+        //#region  <define initial values>
+
+        var initR=2
+        var initH=1
+        var s=.15  // approximate side length of square of grid (rounds to whole number of grids)
+
+        var initT=100
+        var initG=50
+        
+
+        var nCoils=20
+        var nRings=6
+
+        var thick=.01
+        var wrapFrac=0
+        var gridColor=vec(.3,.3,1)
+
+        var arrowScale=.05
+        var nArrowsR=5 //number of arrowGroup radially
+        var nArrowsS=8 // number of arrowGroup around loop
+
+
+        var patchColor=color.green
+        var nPatchPoints=10 //number of points in each direction (total number is square of this)
+        
+        var nYSec=2 // the section to highlight (1 would mean highlight second from bottom)
+        //#endregion
+
+        var strainCloseUp=document.createElement("div")
+        Object.assign(strainCloseUp.style,{ 
+            zIndex: 1,
+            bottom: 0,
+            width: "30%",
+            height: "30%"
+        })
+        graphDiv.appendChild(strainCloseUp)
+
+
+        //#region <set up canvas>
+        window.__context= {glowscript_container: graphDiv}  
+        var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: false,userzoom: false,autoscale: false})
+        // use scene.center scene.forward scene.range to change scene
+        scene.forward=vec(-3,-2,-1)
+        scene.range=5
+        //#endregion
+
+        //#region <Create GlowScript graphics and combine in arrays>
+        var rod=cylinder({pos: vec(0,0,0), opacity: 1})
+
+        var coils=[]
+        var nCoilPoints=10  // number of points on helix
+        for (let i=0;i<nCoils;i++){coils[i]=curve({pos: Array(nCoilPoints).fill(vec(0,0,0)),thickness: thick, color: gridColor})}
+
+        var rings=[]
+        for (let i=0;i<nRings;i++){rings[i]=ring({pos: vec(0,0,0), axis: vec(0,1,0),thickness: thick, color: gridColor})}
+
+        
+        var xGrid=yGrid=zGrid=math.zeros(nPatchPoints,nPatchPoints)._data
+        var patch=makeSurf(xGrid,yGrid,zGrid,patchColor)
+
+        
+        var arrowGroup=[]
+        for (let sideN=0;sideN<2;sideN++){
+            arrowGroup[sideN]=[]
+            for (let i=0;i<nArrowsS;i++){
+                arrowGroup[sideN][i]=[]
+                for (let j=0;j<nArrowsR;j++){
+                    arrowGroup[sideN][i][j]=arrow({color: color.red})
+                }
+
+            }
+        }
+    
+        
+        
+        //#endregion
+
+        //#region <create widgets and combine into array (onlick is update)>
+        var torqueSlider=makeSliderGroup(graphDiv,"50%","80%","Torque",500,"horizontal",[-100,100],initT,update)
+
+        var radiusSlider=makeSliderGroup(graphDiv,"0%","80%","Radius",500,"horizontal",[1,5],initR,update)
+        var heightSlider=makeSliderGroup(graphDiv,"0%","90%","Height",500,"horizontal",[0,5],initH,update)
+        var gSlider=makeSliderGroup(graphDiv,"50%","90%","Shear Modulus",500,"horizontal",[10,100],initG,update)
+
+        radiusSlider.style.zIndex=heightSlider.style.zIndex=1
+        //#endregion
+
+        //#region <create labels and geometry lines>
+
+        var phiLabel=label({text: "Φ",box: false})
+        var gammaLabel=label({text: "γ",box:false})
+        var geometryLines=[]
+        for (let i=0;i<4;i++){geometryLines[i]= curve({pos: [vec(0,0,0),vec(0,0,0)], thickness: thick, color: color.black})}
+        //#endregion
+
+        //#region <create strain close up>
+        window.__context= {glowscript_container: strainCloseUp}
+        var strainScene=canvas({width: strainCloseUp.offsetWidth,height: strainCloseUp.offsetHeight,resizable: false,userzoom: false,autoscale: false})  
+        strainScene.range=2
+       
+
+        var vertices=[]
+        for (let i=0;i<4;i++){vertices[i]=vertex({pos: vec(0,0,0)})}
+        var patch2D=quad({vs: vertices})
+
+        var patchArrows=[]
+        for (let i=0;i<4;i++){patchArrows[i]=arrow({color: color.red})}
+
+        //#endregion
+        
+        //create text with equations, combine into array and append on textDiv
+
+ 
+
+        MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]),update)  // you could add multiple functions to update different things
+
+        function update(){
+            
+            //#region <get values from sliders and define phsyical variables>
+            var T=Number(torqueSlider.children[2].value)
+            var r=Number(radiusSlider.children[2].value)
+            var h=Number(heightSlider.children[2].value)
+            var G=Number(gSlider.children[2].value)
+            
+            var J=1/4*Math.PI*r**4;
+            var phi=T*h/(J*G);
+            var gamma=phi*r/h;
+            var s_max=T*r/J;
+            //#endregion
+
+            //#region <change properties of cylinder, rings, and coils>
+            
+            // change cylinder:
+            rod.axis=vec(0,h,0)
+            rod.radius=r
+
+            // change coils:
+            for (let i=0;i<nCoils;i++){
+                var coilPoints=[]
+                for (let j=0;j<nCoilPoints;j++){
+                    var angle=-phi*j/(nCoilPoints-1)+2*Math.PI*i/nCoils
+                    coilPoints[j]=vec(r*cos(angle),h*j/(nCoilPoints-1),r*sin(angle))
+                    coils[i].modify(j,coilPoints[j])
+                    
+                }
+
+               
+            }
+
+            // change ring height:  
+            for (let i=0;i<nRings;i++){
+                rings[i].pos.y=h*i/(nRings-1)
+                rings[i].radius=r
+            }
+
+            //#endregion
+
+            //#region <change patch>
+            var theta=math.range(0,phi,.2)._data
+            var thetaShift=phi/(nRings-1)
+            
+
+            var thetaGrid=[]
+            var yGrid=[]
+            
+            var gap=0.001    // gap so it's not directly on cylinder
+
+            var rGrid=math.multiply(math.ones(nPatchPoints,nPatchPoints)._data,r+gap)
+
+            for (let i=0;i<nPatchPoints;i++){
+                yGrid[i]=Array(nPatchPoints).fill(h*i/((nRings-1)*(nPatchPoints-1))+h*nYSec/(nRings-1))
+                thetaGrid[i]=[]
+
+                for (let j=0;j<nPatchPoints;j++){
+                    var shiftR=2*Math.PI/(nCoils)*j/(nPatchPoints-1)
+                    var shiftY=phi/(nRings-1)*i/(nPatchPoints-1)
+                    thetaGrid[i].push(-(shiftR+shiftY+nYSec/(nRings-1)*phi))
+
+                }
+            }
+            xGrid=math.dotMultiply(rGrid,math.cos(thetaGrid))
+            zGrid=math.dotMultiply(rGrid,math.sin(thetaGrid))
+
+            changeSurf(patch,xGrid,yGrid,zGrid)
+            //#endregion
+         
+            //#region <change arrows>
+            for (let sideN=0;sideN<2;sideN++){
+                if      (sideN==0){var y=h; var sign=-1}
+                else if (sideN==1){var y=0; var sign=1}
+
+                for (let i=0;i<nArrowsS;i++){
+                    var thetaArrow=2*Math.PI*i/nArrowsS
+                    for (let j=0;j<nArrowsR;j++){
+                        var arrowSel=arrowGroup[sideN][i][j]
+                        var arrowR=0.9*r*(j+1)/5
+                        var mag=s_max*sign*arrowR/r
+
+
+
+                        arrowSel.pos=vec(arrowR*cos(thetaArrow),y,arrowR*sin(thetaArrow))
+                        arrowSel.axis=vec(-mag*sin(thetaArrow)*arrowScale,0,mag*cos(thetaArrow)*arrowScale)
+                    }
+
+                }
+            }
+            //#endregion
+            
+            //#region <change labels and geometry lines>
+            phiLabel.pos=vec(0,h+.1,0)
+            gammaLabel.pos=vec(r+.1,0,0)
+
+            geometryLines[0].modify(0,vec(r,0,0));geometryLines[0].modify(1,vec(r,h,0))
+            geometryLines[1].modify(0,vec(0,h,0));geometryLines[1].modify(1,vec(r,h,0))
+            geometryLines[2].modify(0,vec(0,h,0));geometryLines[2].modify(1,vec(r*cos(-phi),h,r*sin(-phi)))
+            //#endregion
+
+            //#region <change strain close up>
+            var quadPoints=[vec(-1,-1,0),vec(1,-1,0),vec(1+gamma*2,1,0),vec(-1+gamma*2,1,0)]
+
+            var quadVertices=[]
+            for (let i=0;i<4;i++){
+                quadVertices[i]=vertex({pos: quadPoints[i], color: patchColor})
+            }
+
+            patch2D.vs=quadVertices
+
+            for (let i=0;i<4;i++){
+                var i1=i
+                var i2=i1+1
+                if (i2==4){i2=0}
+                if (i1%2==0){[i1,i2]=[i2,i1]}
+
+
+                var u=quadPoints[i2].add(quadPoints[i1].multiply(-1)).hat.multiply(s_max/10)
+                var mid=quadPoints[i1].add(quadPoints[i2]).divide(2)
+
+            
+                patchArrows[i].pos=mid.add(u.multiply(-0.5))
+                patchArrows[i].axis=u
+
+
+            }
+            //#endregion
+            var stageText=document.getElementsByClassName("stage-text") // accesses the divs containing the text for each stage
+            // use changeUnderText to change the underbrace values, with stageText[stage you want to change underbrace for]
+
+
+        }
+
+        // update functions for graphics (called when widgets toggled)
+
+        // change the graphic for each stage (must be named exactly changeStageGraphic):
+        makeYourGraphics.changeStageGraphic=function(stage){
+            var TS=arrowGroup                               // torque stress
+            var SS=[patch,patch2D,patchArrows]                  // stress strain
+            var SD=[phiLabel,gammaLabel,geometryLines]      // strain deformation
+
+            var TI=torqueSlider.style                       // torque input
+            var RI=radiusSlider.style
+            var HI=heightSlider.style
+            var GI=gSlider.style
+
+            if (stage==0){
+                changeOpacity(TS,0)
+                changeVisibility([SS,SD],false)
+                TI.visibility=RI.visibility=HI.visibility=GI.visibility="hidden"
+                
+            }else if (stage==1){
+                changeOpacity([TS],1)
+                changeVisibility([SS,SD],0)
+                HI.visibility=GI.visibility="hidden";TI.visibility=RI.visibility="visible"
+            }else if (stage==2){
+                changeOpacity(TS,1);
+                changeVisibility(SS,1);changeVisibility(SD,0)
+                HI.visibility=RI.visibility="hidden";TI.visibility=GI.visibility="visible"
+            }else if (stage==3){
+                changeOpacity(TS,0.1)
+                changeVisibility(SD,1);changeVisibility(SS,0)
+                GI.visibility=RI.visibility="hidden";TI.visibility=HI.visibility="visible"
+                // change color of helix
+            }else if (stage==4){
+                changeOpacity([TS],1)
+                changeVisibility([SS,SD],0)
+                TI.visibility=RI.visibility=HI.visibility=GI.visibility="visible"
+            }
+
+
+            if (stage==3){coils[0].color=color.black}
+            else{coils[0].color=gridColor}
+
+            // variables with short names can be set to the style of the shapes (just less to write for branches)
+            // branches for each stage
+                // change opacity of shapes and visiblity of slider (call changeOpacity)
+
+
+        }
+    }
+</script>

@@ -1,6 +1,6 @@
 <body></body>
 
-<!-----------------Import GlowScript Libraries and NumJs------------------------>
+<!-----------------Imports GlowScript Libraries and NumJs------------------------>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link type="text/css" href="https://www.glowscript.org/css/redmond/2.1/jquery-ui.custom.css" rel="stylesheet" />
 <link type="text/css" href="https://www.glowscript.org/css/ide.css" rel="stylesheet" />
@@ -12,49 +12,96 @@
 
 <script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/8.1.0/math.js" integrity="sha512-ne87j5uORxbrU7+bsqeJJWfWj5in65R9PCjaQL161xtH5cesZgULVbeVAkzAAN7hnYOcrHeBas9Wbd/Lm8gXFA==" crossorigin="anonymous"></script>
 
-<!---------------------------Add Style-------------------------------------------------->
-<link rel="stylesheet" href="test.css">
+
+<!---------------------------Adds Style-------------------------------------------------->
+<link rel="stylesheet" href="app_pages.css">
 
 <!------------------------Run make_page and change_under_text to define functions (changeUnderText is optional)------------------->
 <script src="make_page.js"></script>
-<script src="change_under_text.js"></script>
+<script src="misc_funcs.js"></script>
+<script src="widget_groups.js"></script>
+<script src="surface.js"></script>
 
 <!------------------------JavaScript------------------------------------------------>
 <script type="text/javascript">
-    "use strict";
 
     // Define your labels for the stages
-    var yourLabels=[]
+    var titles=["First"]
+    var text=["some info"]
+
+    // calls makePage with defined labels and function:
+    makePage(titles,text,makeYourGraphics)
+
 
     // You can also create an array for the text in the text box and refer to it in the changeStageGraphics method
     function makeYourGraphics(textDiv,graphDiv){
+        //#region  <define initial values>
+
+        var r=2
+        var h=1
+        var s=.15  // approximate side length of square of grid (rounds to whole number of grids)
+
+        var initT=100
+        var G=50
+        
+
+        var nCoils=round(2*Math.PI*r/s)
+        var nRings=round(h/s)+1
+
+        var thick=.01
+        var wrapFrac=0
+        var gridColor=vec(.3,.3,1)
+
+        
+        var nPatchPoints=10 //number of points in each direction (total number is square of this)
+        
+        var nYSec=2 // the section to highlight (1 would mean highlight second from bottom)
+        //#endregion
 
 
 
-        /* this line specifies div to put graphics in
-        you can create more divs and append them to textDiv and graphDiv, 
-        then repeat this line with the new div
-        graphics created following that line will be created in that new div */
         window.__context= {glowscript_container: graphDiv}  
+        var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: false,userzoom: false,autoscale: false})
+        // use scene.center scene.forward scene.range to change scene
+        scene.forward=vec(-1,-1,-1)
+        scene.range=2
 
- 
-        var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight}) // fill div with canvas
+
+        // Create GlowScript graphics and combine in array
+
+        // create widgets and combine into array (onlick is update)
+        // create text with equations, combine into array and append on textDiv
+
+        MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]),update)  // you could add multiple functions to update different things
+
+        function update(){
+            /*
+            get values from sliders
+            define variables and create functions for phsyical values
+
+            change properties of shapes 
+
+           
+            */
+
+            var stageText=document.getElementsByClassName("stage-text") // accesses the divs containing the text for each stage
+            // use changeUnderText to change the underbrace values, with stageText[stage you want to change underbrace for]
 
 
-        // Create GlowScript graphics
+        }
 
-        // You can combine all graphics into array so it's easy to change stages
-
+        // update functions for graphics (called when widgets toggled)
 
         // change the graphic for each stage (must be named exactly changeStageGraphic):
         makeYourGraphics.changeStageGraphic=function(stage){
 
-            // You can loop through the graphics array to turn visibility off
-            // Then turn the ones you want on 
+            // variables with short names can be set to the style of the shapes (just less to write for branches)
+            // branches for each stage
+                // change opacity of shapes and visiblity of slider (call changeOpacity)
+
+
         }
     }
-
-     // calls makePage with defined labels and function:
-     makePage(yourLabels,makeYourGraphics)
 </script>

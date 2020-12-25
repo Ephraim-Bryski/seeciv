@@ -11,11 +11,15 @@ div {
 }
 
 .graph{
-    background-color: black;
-    color: white;
-    text-align: right;
     overflow: hidden;
     position: absolute;
+}
+
+.graph-info{
+    right: 0;
+    color: white;
+    z-index: 1;
+
 }
 
 .text-box{

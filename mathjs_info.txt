@@ -1,0 +1,23 @@
+
+math.size(A)
+
+math.transpose(A)
+
+math.add(A,B)         addition (can also do element wise of matrix plus scalar)
+math.multiply(A,B,C) matrix multiplication (can also do matrix times scalar)
+math.dotMultiply(A,B) element wise multiplication
+math.cross(x,y)       cross product
+math.dot(x,y)           dot product
+
+math.concat()
+math.resize(A,[m,n])
+
+creates range object, so put ._data to get the array:
+math.zeros(m,n)._data
+math.ones(m,n)._data
+math.range(a,b,c)._data            a to b (not including b) with step size c
+
+
+var B=math.eigs(A)        eigenvalues and vectors
+B.values                    eigenvalues
+B.vectors                   eigenvectors

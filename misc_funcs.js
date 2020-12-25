@@ -1,3 +1,7 @@
+/*
+collection of short useful functions
+*/
+
 // function to modify underbrace text:
 function changeUnderText(underTextIndex,value,numOfDec,parent=document){
     // underTextIndex: underbrace you want to modify, input 1 for the first underbrace
@@ -16,4 +20,21 @@ function changeUnderText(underTextIndex,value,numOfDec,parent=document){
     // set the text to the rounded value:
     textSpan.innerText=roundedValue
 
+} 
+
+// changes the opacity of all shapes in an array (or nested array), called in branches when changing opacity
+function changeOpacity(shapeGroups,opacitySel){
+    var allShapes=shapeGroups.flat(Infinity)
+    for (let i=0;i<allShapes.length;i++){
+        var shape=allShapes[i]
+        shape.opacity=opacitySel
+    }
+}
+
+function changeVisibility(shapeGroups,isVisible){
+    var allShapes=shapeGroups.flat(Infinity)
+    for (let i=0;i<allShapes.length;i++){
+        var shape=allShapes[i]
+        shape.visible=isVisible
+    }
 }
