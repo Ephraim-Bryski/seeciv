@@ -117,11 +117,12 @@
         //#endregion
 
         //#region <create widgets and combine into array (onlick is update)>
-        var torqueSlider=makeSliderGroup(graphDiv,"50%","80%","Torque",500,"horizontal",[-100,100],initT,update)
+        var sliderLength=300
+        var torqueSlider=makeSliderGroup(graphDiv,"50%","80%","Torque",sliderLength,"horizontal",[-100,100],initT,update)
 
-        var radiusSlider=makeSliderGroup(graphDiv,"0%","80%","Radius",500,"horizontal",[1,5],initR,update)
-        var heightSlider=makeSliderGroup(graphDiv,"0%","90%","Height",500,"horizontal",[0,5],initH,update)
-        var gSlider=makeSliderGroup(graphDiv,"50%","90%","Shear Modulus",500,"horizontal",[10,100],initG,update)
+        var radiusSlider=makeSliderGroup(graphDiv,"0%","80%","Radius",sliderLength,"horizontal",[1,5],initR,update)
+        var heightSlider=makeSliderGroup(graphDiv,"0%","90%","Height",sliderLength,"horizontal",[0,5],initH,update)
+        var gSlider=makeSliderGroup(graphDiv,"50%","90%","Shear Modulus",sliderLength,"horizontal",[10,100],initG,update)
 
         radiusSlider.style.zIndex=heightSlider.style.zIndex=1
         //#endregion
