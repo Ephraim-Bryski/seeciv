@@ -2,10 +2,15 @@
 math.size(A)
 
 math.transpose(A)
+math.inv(A)
+
+math.identity(n)._data
 
 math.add(A,B)         addition (can also do element wise of matrix plus scalar)
+math.subtract(A,B)
 math.multiply(A,B,C) matrix multiplication (can also do matrix times scalar)
 math.dotMultiply(A,B) element wise multiplication
+math.divide(A,B)
 math.cross(x,y)       cross product
 math.dot(x,y)           dot product
 

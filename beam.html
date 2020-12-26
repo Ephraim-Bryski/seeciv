@@ -85,22 +85,9 @@
         scene.range=1.5
         //#endregion
 
-        //#region <create coordinate system object>
-        var coordShapePos=vec(1.5,0,0)
-        var coordShapeScale=.2
-        var coordTextGap=.1
-
-        var xDir=arrow({axis:vec(1,0,0).multiply(coordShapeScale),pos:coordShapePos})
-        var yDir=arrow({axis:vec(0,1,0).multiply(coordShapeScale),pos:coordShapePos})
-        var zDir=arrow({axis:vec(0,0,1).multiply(coordShapeScale),pos:coordShapePos})
-
-
-        var xText=label({text:"x",pos:vec(1+coordTextGap,0,0).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
-        var yText=label({text:"y",pos:vec(0,1+coordTextGap,0).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
-        var zText=label({text:"z",pos:vec(0,0,1+coordTextGap).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
-
-        var coordShape=[xDir,yDir,zDir,xText,yText,zText] 
-        //#endregion
+        // <create coordinate system object>
+        var coordShape=makeCoordShape(vec(1.5,0,0),0.2)
+  
         
         //#region <create boxes>
         var boxBottom=box({opacity: bottomOpacity})

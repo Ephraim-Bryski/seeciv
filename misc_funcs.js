@@ -38,3 +38,53 @@ function changeVisibility(shapeGroups,isVisible){
         shape.visible=isVisible
     }
 }
+
+
+function linspace(startValue, stopValue, cardinality) {
+    var arr = [];
+    var step = (stopValue - startValue) / (cardinality - 1);
+    for (var i = 0; i < cardinality; i++) {
+        arr.push(startValue + (step * i));
+    }
+    return arr;
+}
+  
+function vecToMat(pointsV){
+    var pointsM=[]
+    for (let  i=0;i<pointsV.length;i++){
+        pointsM[i]=[]
+        pointsM[i][0]=pointsV[i].x
+        pointsM[i][1]=pointsV[i].y
+        pointsM[i][2]=pointsV[i].z
+    }
+    return pointsM
+}
+function matToVec(pointsM){
+    var pointsV=[]
+    for (let i=0;i<pointsM.length;i++){
+        pointsV[i]=vec(0,0,0)
+        pointsV[i].x=pointsM[i][0]
+        pointsV[i].y=pointsM[i][1]
+        pointsV[i].z=pointsM[i][2]
+    }
+    return pointsV
+}
+
+function makeCoordShape(coordShapePos=vec(0,0,0),coordShapeScale=1){
+    
+    var coordTextGap=.1
+
+    var xDir=arrow({axis:vec(1,0,0).multiply(coordShapeScale),pos:coordShapePos})
+    var yDir=arrow({axis:vec(0,1,0).multiply(coordShapeScale),pos:coordShapePos})
+    var zDir=arrow({axis:vec(0,0,1).multiply(coordShapeScale),pos:coordShapePos})
+
+
+    var xText=label({text:"x",pos:vec(1+coordTextGap,0,0).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
+    var yText=label({text:"y",pos:vec(0,1+coordTextGap,0).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
+    var zText=label({text:"z",pos:vec(0,0,1+coordTextGap).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
+
+    var coordShape=[xDir,yDir,zDir,xText,yText,zText]
+    
+    return coordShape
+
+}

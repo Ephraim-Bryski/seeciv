@@ -1,8 +1,8 @@
-function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,initialVal,updateFunction,thumbColor="#333"){    // xRel and yRel should be strings with the percentage relative position in parent from left and top
+function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,initialVal,updateFunction,thumbColor="#333",makeSlider=true,stepSpinner=0.1){    // xRel and yRel should be strings with the percentage relative position in parent from left and top
    //! add range as input
    // If I start wanting to add more optional inputs, I could just make a class and make them attributes
     var width=30                                                                        // just adjust to get the slider in a nice position
-    
+    console.log(stepSpinner)
     if (orientation.localeCompare("vertical")==0){                                      // 0 means it's equal (JavaScript is stupid)
         var moveSliderString=("translateY(").concat((length-width)/2).concat("px) translateX(").concat((width-length)/2).concat("px) rotate(-90deg)")
         var moveSpinnerString=("translateY(").concat(length-width+5).concat("px)")      // 5 is just to give a bit of space (not needed)
@@ -54,6 +54,7 @@ function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,in
     var spinnerElement=document.createElement("input")
     spinnerElement.type="number"
     spinnerElement.value=initialVal
+    spinnerElement.step=stepSpinner
     spinnerElement.oninput=function(){updateInputs(this.value)}
     Object.assign(spinnerElement.style,{
         position: "static",
@@ -66,7 +67,7 @@ function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,in
 
     parent.appendChild(container)
     container.appendChild(label)
-    container.appendChild(sliderElement)
+    if(makeSlider){container.appendChild(sliderElement)}
     container.appendChild(spinnerElement)
 
     return container

@@ -1,0 +1,368 @@
+<body></body>
+
+<!-----------------Imports GlowScript Libraries and NumJs------------------------>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link type="text/css" href="https://www.glowscript.org/css/redmond/2.1/jquery-ui.custom.css" rel="stylesheet" />
+<link type="text/css" href="https://www.glowscript.org/css/ide.css" rel="stylesheet" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery-ui.custom.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/glow.3.0.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/RSrun.3.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/8.1.0/math.js" integrity="sha512-ne87j5uORxbrU7+bsqeJJWfWj5in65R9PCjaQL161xtH5cesZgULVbeVAkzAAN7hnYOcrHeBas9Wbd/Lm8gXFA==" crossorigin="anonymous"></script>
+
+
+<!---------------------------Adds Style-------------------------------------------------->
+<link rel="stylesheet" href="app_pages.css">
+
+<!------------------------Run make_page and change_under_text to define functions (changeUnderText is optional)------------------->
+<script src="make_page.js"></script>
+<script src="misc_funcs.js"></script>
+<script src="widget_groups.js"></script>
+<script src="surface.js"></script>
+
+<!------------------------JavaScript------------------------------------------------>
+<script type="text/javascript">
+
+    // Define your labels for the stages
+    var titles=["First"]
+    var text=["some info"]
+
+    // calls makePage with defined labels and function:
+    makePage(titles,text,makeYourGraphics)
+
+
+    // You can also create an array for the text in the text box and refer to it in the changeStageGraphics method
+    function makeYourGraphics(textDiv,graphDiv){
+        //#region  <define initial values>
+
+       
+        //#endregion
+
+
+
+        window.__context= {glowscript_container: graphDiv}  
+        var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: false,userzoom: false,autoscale: false})
+        // use scene.center scene.forward scene.range to change scene
+        scene.range=4
+ 
+
+
+        //#region <Create GlowScript graphics and combine in array>
+
+        var colors=[vec(1,0,0),vec(0,1,0),vec(0,0,1),vec(0,0.8,0.8),vec(1,0,1),vec(0.8,0.5,0.2)]
+        var scale=8
+
+    
+        var coordShape=makeCoordShape(vec(2,2,2))
+
+
+        var box0=[]
+        var boxP=[]
+        for (let i=0;i<6;i++){
+            var vertices=[]
+            var verticesP=[]
+            for (let j=0;j<4;j++){
+                vertices[j]=vertex({pos: vec(0,0,0), opacity: 0.5})
+                verticesP[j]=vertex({pos: vec(0,0,0), opacity: 1})
+            }
+            box0[i]=quad({vs: vertices})
+            boxP[i]=quad({vs: verticesP})
+        }
+
+
+        var arrowsN=[]
+        for (let i=0;i<6;i++){arrowsN[i]=arrow({pos: vec(0,0,0),axis: vec(0,0,0), color: colors[floor(i/2)]})}
+
+    
+
+        var arrowsV=[]
+        for (let i=0;i<12;i++){arrowsV[i]=arrow({pos: vec(0,0,0),axis: vec(0,0,0), color: colors[floor(i/4)+3]})} 
+
+        var points=[
+        vec(-1,-1,-1),
+        vec(1,-1,-1),
+        vec(1,-1,1),
+        vec(-1,-1,1),
+        vec(-1,1,-1),
+        vec(1,1,-1),
+        vec(1,1,1),
+        vec(-1,1,1)]
+
+
+        var midPoints=[
+        vec(-1,0,0),
+        vec(1,0,0),
+        vec(0,-1,0),
+        vec(0,1,0),
+        vec(0,0,-1),
+        vec(0,0,1)]
+
+        var faces=[[0,1,5,4]
+        ,[1,2,6,5]
+        ,[2,3,7,6]
+        ,[3,0,4,7]
+        ,[3,2,1,0]
+        ,[4,5,6,7]]
+
+
+        //#region 
+
+
+        //#region <create widgets and combine into array (onlick is update)>
+        var sliderLength=300
+        var sliderPosHor=["0%","33%","66%"]
+        var sliderPosVer=["80%","90%"]
+
+        var slidersN=[]
+        var slidersV=[]
+
+        var textN=["x","y","z"]
+        var textV=["xy","xz","yz"]
+
+        for (let i=0;i<3;i++){
+            slidersN[i]=makeSliderGroup(graphDiv,sliderPosHor[i],sliderPosVer[0],("\\(\\sigma_").concat(textN[i]).concat("\\)"),sliderLength,"horizontal",[-10,10],0,update)
+            slidersV[i]=makeSliderGroup(graphDiv,sliderPosHor[i],sliderPosVer[1],("\\(\\tau_{").concat(textV[i]).concat("}\\)"),sliderLength,"horizontal",[-10,10],0,update)
+
+        }
+        var ESlider=makeSliderGroup(graphDiv,"5%","20%","Young's Modulus",30,"vertical",[0,10],1,update,"#333",false)
+        var nuSlider=makeSliderGroup(graphDiv,"15%","20%","Poisson's Ratio",30,"vertical",[0,10],1,update,"#333",false,0.05 )
+        console.log(nuSlider)
+
+
+        var resetButton=document.createElement("BUTTON")
+        resetButton.onclick=reset
+        resetButton.appendChild(document.createTextNode("RESET"))
+        Object.assign(resetButton.style,{
+            position: "absolute",
+            left: 0
+            })
+
+        graphDiv.appendChild(resetButton)
+
+
+        //#endregion
+
+        //#region <create text with equations, combine into array and append on textDiv>
+        //#endregion
+        
+
+        function reset(){
+            for (let i=0;i<3;i++){
+                slidersN[i].children[1].value=slidersN[i].children[2].value=0
+                slidersV[i].children[1].value=slidersV[i].children[2].value=0
+                update()
+            }
+        }
+
+        update()
+        MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]),update)  // you could add multiple functions to update different things
+
+        function update(){
+            var s=[]
+            var t=[]
+
+            for (let i=0;i<3;i++){
+                s[i]=Number(slidersN[i].children[1].value)
+                t[i]=Number(slidersV[i].children[1].value)
+            }
+
+            var sx=s[0];var sy=s[1];var sz=s[2]
+            var txy=t[0];var txz=t[1];var tyz=t[2]
+
+
+
+            
+
+            var E=Number(ESlider.children[1].value)
+            var nu=Number(nuSlider.children[1].value)
+
+            
+            var sv=[[sx],[sy],[sz]]
+            var M=[[sx,txy,txz],[txy,sy,tyz],[txz,tyz,sz]]
+
+            var Eigen=math.eigs(M)
+            var D=Eigen.values
+            var W=Eigen.vectors
+
+    
+
+
+            var stressPrinc=[[D[0]],[D[1]],[D[2]]]
+
+
+            var compM=math.multiply(-nu,math.ones(3,3)._data)
+            compM[0][0]=compM[1][1]=compM[2][2]=1
+            compM=math.divide(compM,E)
+
+            var strain=math.multiply(compM,stressPrinc)
+
+            var strainM=[[strain[0][0],0,0],[0,strain[1][0],0],[0,0,strain[2][0]]]
+
+
+
+            var strainpM=math.multiply(math.inv(math.transpose(W)),strainM,math.transpose(W))
+
+            var strainp=[[strainpM[0][0]],[strainpM[1][1]],[strainpM[2][2]]]
+
+            var disp=math.add(strainpM,math.identity(3)._data)
+
+    
+        
+
+
+            var pointsM=vecToMat(points)
+            var midPointsM=vecToMat(midPoints)
+            
+
+            
+            var pointsNM=math.transpose(math.multiply(disp,math.transpose(pointsM)))
+            var midPointsNM=math.transpose(math.multiply(disp,math.transpose(midPointsM)))
+            var vx=math.subtract(pointsNM[1],pointsNM[0])
+            var vy=math.subtract(pointsNM[4],pointsNM[0])
+            var vz=math.subtract(pointsNM[3],pointsNM[0])
+
+            var vnM=math.transpose([vx,vy,vz])
+
+    
+
+
+            changeBox(box0,pointsM)
+            changeBox(boxP,pointsNM)
+            function changeBox(box,points){
+                var pointsV=matToVec(points)
+
+                for (let i=0;i<6;i++){
+                    var vertices=[]
+                    var sidePoints=[];for(let j=0;j<4;j++){sidePoints[j]=pointsV[faces[i][j]]}
+
+                    var a=sidePoints[0];var b=sidePoints[1];var c=sidePoints[2]
+
+                    var lightNorm=a.sub(b).cross(c.sub(b)).norm()
+
+                    for (let j=0;j<4;j++){
+                        box[i].vs[j].pos=pointsV[faces[i][j]]
+                        box[i].vs[j].normal=lightNorm
+                    }
+                }
+    
+
+            }
+
+            // create quads:
+            
+
+            
+
+            // scale and colors are defined here in MATLAB
+            
+
+            var snM=math.dotMultiply(math.identity(3)._data,math.transpose(Array(3).fill(math.transpose(sv).flat())))
+            var snMp=math.multiply(disp,snM)
+
+            for (let i=0;i<3;i++){
+                var snvp=math.transpose(snMp)[i]
+                if (math.norm(snvp)!=0){var usnvp=math.divide(snvp,math.norm(snvp))}
+                else{var usnvp=snvp}
+                var arrowStart=math.transpose(midPointsNM[2*i+1])
+                var arrowAxis=math.multiply(usnvp,sv[i]/scale)
+
+                if (snvp[i]<0){
+                    arrowStart=math.add(arrowStart,arrowAxis)
+                    arrowAxis=math.multiply(arrowAxis,-1)
+                }
+
+                arrowStartV=vec(arrowStart[0],arrowStart[1],arrowStart[2])
+                arrowAxisV=vec(arrowAxis[0],arrowAxis[1],arrowAxis[2])
+
+
+                arrowsN[2*i].pos=arrowStartV
+                arrowsN[2*i].axis=arrowAxisV
+                arrowsN[2*i+1].pos=arrowStartV.multiply(-1)
+                arrowsN[2*i+1].axis=arrowAxisV.multiply(-1)
+                
+
+                for (let j=0;j<3;j++){
+                    if(j>i){
+                        var tau=M[i][j]
+
+
+                        var vn=math.transpose(vnM)[j]
+                        if (math.norm(vn)!=0){var uvn=math.divide(vn,math.norm(vn))}
+                        else{var uvn=vn}
+
+                        var arrowStart=math.subtract(math.transpose(midPointsNM[2*i+1]),math.multiply(uvn,tau/(2*scale)))
+                        var arrowAxis=math.multiply(uvn,tau/scale)
+                        var arrowStartV=vec(arrowStart[0],arrowStart[1],arrowStart[2])
+                        var arrowAxisV=vec(arrowAxis[0],arrowAxis[1],arrowAxis[2])
+                    
+
+                        arrowsV[4*(i+j-1)].pos=arrowStartV
+                        arrowsV[4*(i+j-1)].axis=arrowAxisV
+                        arrowsV[4*(i+j-1)+1].pos=arrowStartV.multiply(-1)
+                        arrowsV[4*(i+j-1)+1].axis=arrowAxisV.multiply(-1)
+
+
+
+
+
+                        vn=math.transpose(vnM)[i]
+                        if (math.norm(vn)!=0){uvn=math.divide(vn,math.norm(vn))}
+                        else{uvn=vn}
+
+                        var arrowStart=math.subtract(math.transpose(midPointsNM[2*j+1]),math.multiply(uvn,tau/(2*scale)))
+                        var arrowAxis=math.multiply(uvn,tau/scale)
+                        var arrowStartV=vec(arrowStart[0],arrowStart[1],arrowStart[2])
+                        var arrowAxisV=vec(arrowAxis[0],arrowAxis[1],arrowAxis[2])
+
+
+                        arrowsV[4*(i+j-1)+2].pos=arrowStartV
+                        arrowsV[4*(i+j-1)+2].axis=arrowAxisV
+                        arrowsV[4*(i+j-1)+3].pos=arrowStartV.multiply(-1)
+                        arrowsV[4*(i+j-1)+3].axis=arrowAxisV.multiply(-1)
+
+                    
+                    }
+                }
+            }
+
+            
+
+            //#region <get values from sliders and define phsyical values>
+            //#endregion
+
+            //#region <change shapes>
+            //#endregion
+
+            var stageText=document.getElementsByClassName("stage-text") // accesses the divs containing the text for each stage
+
+            //#region <use changeUnderText to change the underbrace values, with stageText[stage you want to change underbrace for]>
+            //#endregion
+
+
+        }
+
+
+        // change the graphic for each stage (must be named exactly changeStageGraphic):
+        makeYourGraphics.changeStageGraphic=function(stage){
+
+            // variables with short names can be set to the style of the shapes (just less to write for branches)
+
+            
+            //#region <change opacity of shapes and visiblity of slider (call changeOpacity)>
+            //#endregion
+
+
+        }
+    }
+
+    //#endregion
+
+
+    
+
+    
+</script>

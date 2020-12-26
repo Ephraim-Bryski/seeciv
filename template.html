@@ -39,25 +39,7 @@
     function makeYourGraphics(textDiv,graphDiv){
         //#region  <define initial values>
 
-        var r=2
-        var h=1
-        var s=.15  // approximate side length of square of grid (rounds to whole number of grids)
-
-        var initT=100
-        var G=50
-        
-
-        var nCoils=round(2*Math.PI*r/s)
-        var nRings=round(h/s)+1
-
-        var thick=.01
-        var wrapFrac=0
-        var gridColor=vec(.3,.3,1)
-
-        
-        var nPatchPoints=10 //number of points in each direction (total number is square of this)
-        
-        var nYSec=2 // the section to highlight (1 would mean highlight second from bottom)
+       
         //#endregion
 
 
@@ -65,41 +47,48 @@
         window.__context= {glowscript_container: graphDiv}  
         var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: false,userzoom: false,autoscale: false})
         // use scene.center scene.forward scene.range to change scene
-        scene.forward=vec(-1,-1,-1)
-        scene.range=2
+ 
 
 
-        // Create GlowScript graphics and combine in array
+        //#region <Create GlowScript graphics and combine in array>
 
-        // create widgets and combine into array (onlick is update)
-        // create text with equations, combine into array and append on textDiv
+        //#endregion
+
+        //#region <create widgets and combine into array (onlick is update)>
+
+        //#endregion
+
+        //#region <create text with equations, combine into array and append on textDiv>
+        //#endregion
 
         MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]),update)  // you could add multiple functions to update different things
 
+        
+
         function update(){
-            /*
-            get values from sliders
-            define variables and create functions for phsyical values
+            //#region <get values from sliders and define phsyical values>
+            //#endregion
 
-            change properties of shapes 
-
-           
-            */
+            //#region <change shapes>
+            //#endregion
 
             var stageText=document.getElementsByClassName("stage-text") // accesses the divs containing the text for each stage
-            // use changeUnderText to change the underbrace values, with stageText[stage you want to change underbrace for]
+
+            //#region <use changeUnderText to change the underbrace values, with stageText[stage you want to change underbrace for]>
+            //#endregion
 
 
         }
 
-        // update functions for graphics (called when widgets toggled)
 
         // change the graphic for each stage (must be named exactly changeStageGraphic):
         makeYourGraphics.changeStageGraphic=function(stage){
 
             // variables with short names can be set to the style of the shapes (just less to write for branches)
-            // branches for each stage
-                // change opacity of shapes and visiblity of slider (call changeOpacity)
+
+            
+            //#region <change opacity of shapes and visiblity of slider (call changeOpacity)>
+            //#endregion
 
 
         }
