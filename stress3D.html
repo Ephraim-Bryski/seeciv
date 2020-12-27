@@ -28,8 +28,8 @@
 <script type="text/javascript">
 
     // Define your labels for the stages
-    var titles=["First"]
-    var text=["some info"]
+    var titles=["Everything in One"]
+    var text=["For the real deal, there will be multiple sections which will be explained."]
 
     // calls makePage with defined labels and function:
     makePage(titles,text,makeYourGraphics)
@@ -113,7 +113,7 @@
 
 
         //#region <create widgets and combine into array (onlick is update)>
-        var sliderLength=300
+        var sliderLength=250
         var sliderPosHor=["0%","33%","66%"]
         var sliderPosVer=["80%","90%"]
 
@@ -128,7 +128,7 @@
             slidersV[i]=makeSliderGroup(graphDiv,sliderPosHor[i],sliderPosVer[1],("\\(\\tau_{").concat(textV[i]).concat("}\\)"),sliderLength,"horizontal",[-10,10],0,update)
 
         }
-        var ESlider=makeSliderGroup(graphDiv,"5%","20%","Young's Modulus",30,"vertical",[0,10],1,update,"#333",false)
+        var ESlider=makeSliderGroup(graphDiv,"5%","20%","Young's Modulus",30,"vertical",[0,10],100,update,"#333",false)
         var nuSlider=makeSliderGroup(graphDiv,"15%","20%","Poisson's Ratio",30,"vertical",[0,10],1,update,"#333",false,0.05 )
         console.log(nuSlider)
 
@@ -138,7 +138,8 @@
         resetButton.appendChild(document.createTextNode("RESET"))
         Object.assign(resetButton.style,{
             position: "absolute",
-            left: 0
+            left: "20%",
+            top: "70%"
             })
 
         graphDiv.appendChild(resetButton)

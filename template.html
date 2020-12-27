@@ -23,9 +23,14 @@
 <script src="misc_funcs.js"></script>
 <script src="widget_groups.js"></script>
 <script src="surface.js"></script>
+<head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
 
 <!------------------------JavaScript------------------------------------------------>
 <script type="text/javascript">
+
+   
 
     // Define your labels for the stages
     var titles=["First"]
@@ -48,9 +53,24 @@
         var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: false,userzoom: false,autoscale: false})
         // use scene.center scene.forward scene.range to change scene
  
+        var myTrace={
+            x: [3,4],
+            y: [5,4],
+        }
 
 
         //#region <Create GlowScript graphics and combine in array>
+        gd = graph({width:600, height:150,
+      title:'<b>Test</b>',
+      xtitle:'<i>x</i>', ytitle:'<i>x</i><sup>2</sup>',
+      foreground:color.black, background:color.white,
+      xmin:-20, xmax:50, ymin:-2e3, ymax:5e3, fast: false})
+            var f1=gcurve()
+        f1.plot([1,1],[2,1])
+
+        debugger
+  
+ 
 
         //#endregion
 
