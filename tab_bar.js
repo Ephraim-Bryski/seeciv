@@ -16,6 +16,19 @@ function makeTabBar(parent){
         parent.append(tab)
     }
 
+    var logo=document.createElement("img")
+    logo.src="logo.png"
+
+    Object.assign(logo.style,{
+        position: "absolute",
+        right: "2%",
+        top: "2%",
+        height: "10%"
+    })
+
+    
+    parent.append(logo)
+
 
     var tabs=document.getElementsByClassName("tab")
 
