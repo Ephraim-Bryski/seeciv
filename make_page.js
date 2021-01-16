@@ -71,6 +71,7 @@ function makePage(labels,text,makeVisual){
 
 
       var homeBtn=document.createElement("button")
+      homeBtn.classList.add('home-btn')
     
       //homeBtn.innerHTML='<img src="home.png" />'
       //homeBtn.classList.add("home-btn")
@@ -106,7 +107,10 @@ function makePage(labels,text,makeVisual){
       for (let i=0;i<text.length;i++){
           stageText[i]=document.createElement("div")
           stageText[i].classList.add("stage-text") //so it can be accessed to change underbraces
-          stageText[i].innerHTML=text[i]
+
+            stageText[i].innerHTML=text[i].concat("<p>Hold right click to orbit the graphics.</p> ")
+          
+          console.log(stage)
           textDiv.append(stageText[i])
       }
 
@@ -148,7 +152,7 @@ function makePage(labels,text,makeVisual){
       var graphInfo=document.createElement("div")
       graphInfo.classList.add("graph-info")
     
-      graphInfo.innerText="Ctrl+Click to Orbit"
+      // graphInfo.innerText="Ctrl+Click to Orbit"
 
       //#endregion
     //#endregion
