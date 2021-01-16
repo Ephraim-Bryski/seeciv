@@ -77,10 +77,11 @@ function makePage(labels,text,makeVisual){
       
       Object.assign(homeBtn.style,{
         position: "absolute",
-        width: "5%",
-        border: "none",
-        color: "white",
-        top: "92%"
+        //border: "none",
+        //color: "white",
+        top: "0%",
+        left: "0%"
+
       })
       
 
