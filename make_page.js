@@ -80,7 +80,7 @@ function makePage(labels,text,makeVisual){
         border: "none",
         color: "white",
         top: "0%",
-        left: "0%",
+        left: "-2%",
         outline: "none"
 
 
