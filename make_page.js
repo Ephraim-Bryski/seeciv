@@ -71,14 +71,18 @@ function makePage(labels,text,makeVisual){
 
 
       var homeBtn=document.createElement("button")
+    
       //homeBtn.innerHTML='<img src="home.png" />'
       //homeBtn.classList.add("home-btn")
-      /*
+      
       Object.assign(homeBtn.style,{
         position: "absolute",
-        width: "5%"
+        width: "5%",
+        border: "none",
+        color: "white",
+        top: "92%"
       })
-      */
+      
 
       homeBtn.onclick=function(){
         window.location.pathname="/index.html"
