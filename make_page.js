@@ -68,6 +68,16 @@ function makePage(labels,text,makeVisual){
           width: "100%",
           textAlign: "center"
       })
+
+
+      var homeBtn=document.createElement("button")
+      homeBtn.innerHTML="TAKE ME HOME (country road)"
+      homeBtn.onclick=function(){
+        window.location.href="https://seeciv.com"
+      }
+
+
+
       //#region <children of textDiv (ALSO APPENDS IN LOOP)>
       var stageText=[]
       for (let i=0;i<text.length;i++){
@@ -142,6 +152,7 @@ function makePage(labels,text,makeVisual){
   document.body.appendChild(rightDiv)
   document.body.appendChild(stageBtns)
   leftDiv.appendChild(textDiv)
+  leftDiv.appendChild(homeBtn)
   // stageText (text divs for each stage) are appended in loop
   leftDiv.appendChild(titleDiv)
   leftDiv.appendChild(backFwdBtns)
