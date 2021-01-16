@@ -71,10 +71,26 @@ function makePage(labels,text,makeVisual){
 
 
       var homeBtn=document.createElement("button")
-      homeBtn.innerHTML="TAKE ME HOME (country road)"
+      //homeBtn.innerHTML='<img src="home.png" />'
+      //homeBtn.classList.add("home-btn")
+      /*
+      Object.assign(homeBtn.style,{
+        position: "absolute",
+        width: "5%"
+      })
+      */
+
       homeBtn.onclick=function(){
-        window.location.href="https://seeciv.com"
+        window.location.pathname="/index.html"
       }
+
+      var homeImg=document.createElement("img")
+      homeImg.src='home.png'
+      homeBtn.appendChild(homeImg)
+      Object.assign(homeImg.style,{
+        position: "absolute",
+        width: "50px"
+      })
 
 
 

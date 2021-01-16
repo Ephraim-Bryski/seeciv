@@ -38,6 +38,12 @@ p{
     padding: 10px;
 }
 
+.home-btn {
+    background-image: url("home.png");
+    position: absolute;
+    width: 300px;
+    height: 200px
+}
 
 /* style of stage buttons */
 .stage-btn {
