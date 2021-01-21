@@ -29,7 +29,40 @@
 
     // Define your labels for the stages
     var titles=["Intro","Torque-Stress","Stress-Strain","Strain-Deformation","Summary"]
-    var text=Array(5).fill("some super cool explanations will go here")
+    var text=[]
+    text[0]=(
+        "<p>Torsion is a twisting action, the axial rotation of one part of a material relative to the other. (I would plan on referencing the photo as an example). The loads and deflections can get extremely complicated. This topic will go over the basic principles behind it.</p>")
+    text[1]=(
+        "<p>The torque on a rod consists of shear stresses acting on the ends. Since the material farther from the middle of the rod deforms more, the shear stress increases radially, 0 in the middle and a maximum at the edge.</p>").concat(
+        "<p>The procedure for relating torque to shear stress is almost identical to relating bending moment to normal stress (hyperlink):</p>").concat(
+        "<p>$$T=\\int r dF=\\int r \\tau dA$$ $$T=\\frac{\\tau}{r}\\int{r^2 dA}=\\frac{\\tau}{r}J$$ </p>").concat(
+        "<p>\\(J\\) is the polar moment of inertia, analogous to the moment of inertia around a point and is based on the cross-section's geometry.</p>").concat(
+        "<p>So, looking at the \\(\\tau_{max}\\) ,the shear stress at the end of the rod, where \\(R\\) is the rod radius:</p>").concat(
+        "<p>$$\\underbrace{\\tau_{max}}_{0.0}=\\underbrace{\\frac{R}{J}}_{0.0}\\underbrace{T}_{0.0}$$</p>").concat(
+        "<p>\\(J\\) is proportional to \\(R^4\\) so increasing \\(R\\) actually decreases \\(\\frac{R}{J}\\)").concat(//If the cross-section is a circle \\(J=\\frac{1}{2}\\pi R^4\\)  (you can prove this for yourself) so:</p>").concat(
+        //"<p>$$\\underbrace{\\tau_{max}}_{0.0}=\\underbrace{\\frac{2}{\\pi R^3}}_{0.0}\\underbrace{T}_{0.0}$$</p>").concat(
+        "<p>For a thinner rod, more stress is required to produce the same torque, so as you would except a thinner rod twists more. The next stage relates these stresses to strains in the rod.</p>")
+    text[2]=(
+        "<p>The shear stress produces a proportional shear strain:</p>").concat(
+        "<p>$$\\underbrace{\\gamma}_{0.0}=\\underbrace{\\frac{1}{G}}_{0.0}\\underbrace{\\tau}_{0.0}$$</p>").concat(
+        "<p>\\( \\gamma\\), the shear strain, is the angle a section of the rod deforms.</p>").concat(
+        "<p>This equation relates the loads on the object with the deformation using the material properties. However, we generally care about rod twists at the end, not the shearing angle along the length. The two can be related through geometry.</p>")
+
+    text[3]=(
+        "<p>The shear strain \\(\\gamma\\) causes the overall twisting deformation of the rod. The relation between \\(\\gamma\\) and \\(\\phi\\) , the angle of twists, is a simple proportion which can be seen in the graphic:</p>").concat(
+        "<p>$$\\underbrace{L}_{0.0}\\underbrace{\\gamma}_{0.0}=\\underbrace{R}_{0.0}\\underbrace{\\phi}_{0.0}$$</p>").concat(
+        "<p>\\(\\phi\\) will be greater for a longer rod for the same strain. In other words, a longer rod twists more if you apply the same torque on it.</p>")
+    
+    text[4]=(
+        "<p>The results from the previous slides are the following:</p>").concat(
+        "<p>$$\\tau_{max}=\\frac{TR}{J}$$</p>").concat(
+        "<p>$$\\gamma=\\frac{\\tau}{G}$$</p>").concat(
+        "<p>$$L\\gamma=R\\phi$$</p>").concat(
+        "<p>This can be combined to give the following result:</p>").concat(
+        "<p>$$\\phi=\\frac{LT}{GJ}$$</p>").concat(
+        "<p>The angle of twist is dependent on the rod geometry \\(L\\) and \\(J\\), shear modulus \\(G\\), and of course the applied torque \\(T\\).</p>").concat(
+        "<p>This topic goes through the process of determining the stress on the material, relating the stresses and strains, and relating the strains to deflection. You will see processes like this throughout your time studying structures in civil engineering.</p>")
+    
 
     // calls makePage with defined labels and function:
     makePage(titles,text,makeYourGraphics)
@@ -120,7 +153,7 @@
         var sliderLength=300
         var torqueSlider=makeSliderGroup(graphDiv,"50%","80%","Torque",sliderLength,"horizontal",[-100,100],initT,update)
 
-        var radiusSlider=makeSliderGroup(graphDiv,"0%","80%","Radius",sliderLength,"horizontal",[1,5],initR,update)
+        var radiusSlider=makeSliderGroup(graphDiv,"0%","80%","Radius",sliderLength,"horizontal",[2,5],initR,update)
         var heightSlider=makeSliderGroup(graphDiv,"0%","90%","Height",sliderLength,"horizontal",[0,5],initH,update)
         var gSlider=makeSliderGroup(graphDiv,"50%","90%","Shear Modulus",sliderLength,"horizontal",[10,100],initG,update)
 
@@ -164,7 +197,7 @@
             var h=Number(heightSlider.children[2].value)
             var G=Number(gSlider.children[2].value)
             
-            var J=1/4*Math.PI*r**4;
+            var J=1/2*Math.PI*r**4;
             var phi=T*h/(J*G);
             var gamma=phi*r/h;
             var s_max=T*r/J;
@@ -286,7 +319,18 @@
             //#endregion
             var stageText=document.getElementsByClassName("stage-text") // accesses the divs containing the text for each stage
             // use changeUnderText to change the underbrace values, with stageText[stage you want to change underbrace for]
+            changeUnderText(1,s_max,1,stageText[1])
+            changeUnderText(2,2/(Math.PI*r**3),2,stageText[1])
+            changeUnderText(3,T,2,stageText[1])
 
+            changeUnderText(1,gamma,2,stageText[2])
+            changeUnderText(2,1/G,2,stageText[2])
+            changeUnderText(3,s_max,1,stageText[2])
+
+            changeUnderText(1,h,1,stageText[3])
+            changeUnderText(2,gamma,2,stageText[3])
+            changeUnderText(3,r,2,stageText[3])
+            changeUnderText(4,phi,2,stageText[3])
 
         }
 

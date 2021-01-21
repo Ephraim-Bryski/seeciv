@@ -40,7 +40,7 @@ function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,in
     sliderElement.max=range[1]
     sliderElement.oninput=function(){updateInputs(this.value)}
     sliderElement.value=initialVal
-    sliderElement.step=0.001
+    sliderElement.step=.01*(range[1]-range[0])
     Object.assign(sliderElement.style,{
         position: "static",
         width: length.toString().concat("px"),
@@ -54,7 +54,11 @@ function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,in
     spinnerElement.type="number"
     spinnerElement.value=initialVal
     spinnerElement.step=stepSpinner
-    spinnerElement.oninput=function(){updateInputs(this.value)}
+    spinnerElement.oninput=function(){
+        if (this.value<range[0]){this.value=range[0]}
+        if (this.value>range[1]){this.value=range[1]}
+        updateInputs(this.value)
+    }
     Object.assign(spinnerElement.style,{
         position: "static",
         width: "50px",
@@ -72,6 +76,7 @@ function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,in
     return container
 
     function updateInputs(val){
+
         sliderElement.value=val
         spinnerElement.value=val
         

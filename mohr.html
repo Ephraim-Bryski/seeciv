@@ -1,0 +1,589 @@
+<body></body>
+<!---
+
+    NOTE TO SELF:
+
+    Main issue is plotly is way too slow. figure out faster way of doing it (maybe use flot instead). (almost no lag without plotting!!) finish creating the plot. change the div set up (this will also be changed for different stages). Then just do the rest: add slider, add stages, add text and equations etc.
+
+    got very tired working on it so will give it to future self to finish
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-->
+
+<!-----------------Imports GlowScript Libraries and NumJs------------------------>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link type="text/css" href="https://www.glowscript.org/css/redmond/2.1/jquery-ui.custom.css" rel="stylesheet" />
+<link type="text/css" href="https://www.glowscript.org/css/ide.css" rel="stylesheet" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery-ui.custom.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/glow.3.0.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/RSrun.3.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/8.1.0/math.js" integrity="sha512-ne87j5uORxbrU7+bsqeJJWfWj5in65R9PCjaQL161xtH5cesZgULVbeVAkzAAN7hnYOcrHeBas9Wbd/Lm8gXFA==" crossorigin="anonymous"></script>
+
+<!---------------------------Adds Style-------------------------------------------------->
+<link rel="stylesheet" href="app_pages.css">
+
+<!------------------------Run make_page and change_under_text to define functions (changeUnderText is optional)------------------->
+<script src="make_page.js"></script>
+<script src="misc_funcs.js"></script>
+<script src="widget_groups.js"></script>
+<script src="surface.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+
+<!------------------------JavaScript------------------------------------------------>
+<script type="text/javascript">
+
+
+   
+
+    // Define your labels for the stages
+    var titles=["First"]
+    var text=["some info"]
+
+    // calls makePage with defined labels and function:
+    makePage(titles,text,makeYourGraphics)
+
+
+    // You can also create an array for the text in the text box and refer to it in the changeStageGraphics method
+    function makeYourGraphics(textDiv,graphDiv){
+
+        //#region <add divs in graphDiv>
+        var deformDiv=document.createElement("div")
+        Object.assign(deformDiv.style,{width: "48%",height: "100%",left: "0%"})
+        graphDiv.appendChild(deformDiv)
+
+        var rotateDiv=document.createElement("div")
+        Object.assign(rotateDiv.style,{width: "48%",height: "50%",right: "0%"})
+        graphDiv.appendChild(rotateDiv)
+
+        var mohrDiv=document.createElement("div")
+        Object.assign(mohrDiv.style,{width: "48%",height: "48%",right: "0%",bottom: "0%"})
+        graphDiv.appendChild(mohrDiv)
+        //#endregion
+
+        //#region  <define initial values>
+  
+             
+        //#region <grid values> 
+        var midPoints=math.multiply([[0,1,0,-1],[-1,0,1,0]],0.2)
+        var points        =math.multiply([[-1,1,1,-1],[-1,-1,1,1]],0.2)
+        var pointsOut     =math.multiply([[-1,1,1,-1],[-1,-1,1,1]],1.8)
+        var pointsOutSpace=math.multiply([[-1,1,1,-1],[-1,-1,1,1]],1.81)
+
+        var scaleSquare=2
+
+        
+        var nArrows=3
+
+        var space=0.4
+        var n=10
+        var range=(n/2-1)*space+space/2
+
+        B=[linspace(-range,range,n),math.multiply(-range,math.ones(1,n)._data).flat()]
+        T=[linspace(-range,range,n),math.multiply(range,math.ones(1,n)._data).flat()]
+        L=[math.multiply(-range,math.ones(1,n)._data).flat(),linspace(-range,range,n)]
+        R=[math.multiply(range,math.ones(1,n)._data).flat(),linspace(-range,range,n)]
+
+        //#endregion
+       
+        //#endregion
+
+
+        //#region <create shapes for deformed>
+        window.__context= {glowscript_container: deformDiv}  
+        var sceneDeform=canvas({width: deformDiv.offsetWidth,height: deformDiv.offsetHeight,resizable: false,userzoom: false,autoscale: false})
+        sceneDeform.lights=[]
+        sceneDeform.ambient=color.gray(.8)
+
+        // use scene.center scene.forward scene.range to change scene
+ 
+
+
+        var lineThickness=0.015
+        var verCurve=curve({pos: Array(3*n).fill(vec(0,0,0)),radius: lineThickness,color: color.black})
+        var horCurve=curve({pos: Array(3*n).fill(vec(0,0,0)),radius: lineThickness,color: color.black})
+
+       
+        var corners=[]
+        var cornersSec=[]
+        for (let i=0;i<4;i++){
+            corners[i]=vertex({color: vec(0.5,0.5,1),pos: vec(0,0,0)})
+            cornersSec[i]=vertex({color: color.blue,pos: vec(0,0,0)})
+        }
+        var deformShape=quad({vs:corners})   
+        var deformShapeSec=quad({vs:cornersSec})
+
+
+
+        
+        var deformArrowsS=[]
+        var deformArrowsT=[]
+        for (let i=0;i<4;i++){
+            deformArrowsS[i]=[]
+            deformArrowsT[i]=[]
+            for (let j=0;j<nArrows;j++){
+                deformArrowsS[i][j]=arrow({color:color.green})
+                deformArrowsT[i][j]=arrow({color: color.green})
+
+
+            }
+
+        }
+        //#endregion
+
+     
+        //#region <create shapes for undeformed>
+        window.__context= {glowscript_container: rotateDiv}  
+        var sceneDeform=canvas({width: rotateDiv.offsetWidth,height: rotateDiv.offsetHeight,resizable: false,userzoom: false,autoscale: false})
+        sceneDeform.lights=[]
+        sceneDeform.ambient=color.gray(.8)
+
+        var cornersRotate=[]
+        for (let i=0;i<4;i++){
+            cornersRotate[i]=vertex({color: color.blue,pos: vec(0,0,0)})
+           
+        }
+        var rotateShape=quad({vs:cornersRotate})  
+
+        var rotateArrowsS=[]
+        var rotateArrowsT=[]
+        for (let i=0;i<4;i++){
+            rotateArrowsS[i]=arrow({color:color.red})
+            rotateArrowsT[i]=arrow({color:color.red})
+        }
+        
+
+        //#endregion
+
+        //#region <mohrs circle>
+
+
+
+        var mohrLine = {x: [[]],y: [[]],type: 'scatter'};
+        var mohrLineP = {x: [[]],y: [[]],type: 'scatter'};
+        var mohrCircle={x: [[]],y: [[]],type: 'scatter'};
+
+        Plotly.newPlot(mohrDiv,[mohrLine,mohrLineP,mohrCircle],
+            {showlegend: false,  hovermode: false,
+                xaxis: {
+                title:'$\\sigma$',
+                range:[-1,10],showgrid:false,showline: false,linewidth:1
+                },
+                yaxis: {
+                title:{text: "$\\tau$"},
+                range:[-10,20],showgrid:false,showline:false,linewidth:1}
+            }
+        )
+
+        //#endregion
+ 
+
+
+        //#region <create widgets and combine into array (onlick is update)>
+
+        var thetaSlider=makeSliderGroup(graphDiv,"0%","50%","Angle",500,"horizontal",[0,90],0,update)
+        var sxSlider=makeSliderGroup(graphDiv,"0%","60%","stress x",500,"horizontal",[-10,10],0,update)
+
+        //#endregion
+
+        //#region <create text with equations, combine into array and append on textDiv>
+        //#endregion
+
+        MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]),update)  // you could add multiple functions to update different things
+
+
+
+
+        function update(){
+            //#region <get values from sliders and define phsyical values>
+            var sx=sy=tau=theta=nu=0
+     
+            theta=0
+            var E=1
+            //get theta from slider
+                       
+            var theta=Number(thetaSlider.children[1].value)
+            theta=theta*Math.PI/180
+
+            var sx=Number(sxSlider.children[1].value)
+
+            sx=1
+            sy=0
+            tau=0
+
+            //#endregion
+
+            //#region <compute transformed stress>
+            var stressM=[[sx,tau],[tau,sy]] 
+            var rotM=[[cos(theta),-sin(theta)],[sin(theta),cos(theta)]] 
+
+            var eigen=math.eigs(stressM)
+            var V=math.transpose(eigen.vectors)
+            var D=eigen.values
+
+            var lambda1=D[0]
+            var lambda2=D[1]
+
+            var disM=[[1+(lambda1-nu*lambda2)/E,0],
+                    [0,1+(lambda2-nu*lambda1)/E]]
+
+
+            var pointsN=math.multiply(math.inv(V),disM,V,rotM,points)
+            var pointsNOut=math.multiply(math.inv(V),disM,V,pointsOut)
+            var pointsNOutSpace=math.multiply(math.inv(V),disM,V,pointsOutSpace)
+
+            var vecx=math.transpose([math.subtract(math.transpose(pointsNOut)[1],math.transpose(pointsNOut)[0])])
+            var vecy=math.transpose([math.subtract(math.transpose(pointsNOut)[2],math.transpose(pointsNOut)[1])])
+
+         
+   
+            var ux=math.divide(vecx,math.norm(vecx.flat()))
+            var uy=math.divide(vecy,math.norm(vecy.flat()))
+
+         
+  
+            var Bp=math.multiply(math.inv(V),disM,V,rotM,B)
+            var Tp=math.multiply(math.inv(V),disM,V,rotM,T)
+            var Lp=math.multiply(math.inv(V),disM,V,rotM,L)
+            var Rp=math.multiply(math.inv(V),disM,V,rotM,R)
+
+            
+            
+
+            //#endregion
+
+            //#region <computation for plot with stress arrows (no deformation)
+            var Nxp=math.column(rotM,0)
+            var Nyp=math.column(rotM,1)
+
+            var Txp=math.multiply(stressM,Nxp)
+            var Typ=math.multiply(stressM,Nyp)
+
+            var sxp=math.multiply(Nxp,math.dot(Txp,Nxp))
+            var  syp=math.multiply(Nyp,math.dot(Typ,Nyp))
+
+            var taupx=math.subtract(Txp,sxp)
+            var taupy=math.subtract(Typ,syp)
+
+            var sNew=math.concat(math.multiply(syp,-1),sxp,syp,math.multiply(sxp,-1))
+            var tauM=math.concat(math.multiply(taupy,-1),taupx,taupy,math.multiply(taupx,-1))
+
+            var rotPoints=math.multiply(rotM,points,scaleSquare)
+            var rotMid=math.multiply(rotM,midPoints,scaleSquare)
+
+            
+            //#endregion
+
+            //#region <computation for mohrs circle>
+            var center=[(sx+sy)/2,0]
+            var r=sqrt(((sx-sy)/2)**2+tau**2);
+
+       
+
+            var sxp=sign(math.dot(math.column(rotM,0),sxp))*sqrt(sxp[0]**2+sxp[1]**2)
+            var syp=sign(math.dot(math.column(rotM,1),syp))*sqrt(syp[0]**2+syp[1]**2)
+            var taup=sign(math.dot(math.column(rotM,0),taupy))*sqrt(taupx[0]**2+taupx[1]**2)
+
+            var t=linspace(0,2*Math.PI,50)
+            var x=math.add(math.multiply(r,math.cos(t)),center[0])
+            var y=math.multiply(r,math.sin(t))
+
+            var theta0=Math.atan2(-2*tau,sx-sy)
+
+            var t=linspace(theta0,(theta0+2*theta),50)
+            if (sy>sx){
+                t=t-Math.PI
+            }
+
+            var xArc=math.add(math.multiply(0.2*r,math.cos(t)),center[0])
+            var yArc=math.multiply(0.2*r,math.sin(t))
+
+
+    
+            //#endregion
+
+            //#region <constrain and plot grid>
+            var verCon=[[],[]];
+            var horCon=[[],[]];
+            for (let i=0;i<n;i++){
+                var BTpCon=constrain(math.column(Bp,i),math.column(Tp,i))
+
+                var LRpCon=constrain(math.column(Lp,i),math.column(Rp,i))
+
+                var BpCon=math.transpose([BTpCon[0]])
+                var TpCon=math.transpose([BTpCon[1]])
+                var LpCon=math.transpose([LRpCon[0]])
+                var RpCon=math.transpose([LRpCon[1]])
+
+                verCon=math.concat(verCon,BpCon,TpCon,[[NaN],[NaN]])             
+                horCon=math.concat(horCon,LpCon,RpCon,[[NaN],[NaN]])
+            }
+
+
+
+            //#endregion
+
+            //#region <plot everying>
+
+
+            var verLines=matToVec(math.transpose(math.concat(verCon,[math.zeros(math.size(verCon)[1])._data],0)))
+            var horLines=matToVec(math.transpose(math.concat(horCon,[math.zeros(math.size(horCon)[1])._data],0)))
+
+
+            for (let i=0;i<3*n;i++){
+                verCurve.modify(i,{pos: verLines[i]})
+                horCurve.modify(i,{pos: horLines[i]})
+            }
+            
+            var corners=matToVec(math.transpose(math.concat(pointsNOut,[math.zeros(4)._data],0)))
+            var cornersSec=matToVec(math.transpose(math.concat(pointsN,math.add([math.zeros(4)._data],0.01),0)))
+            var cornersRotate=matToVec(math.transpose(math.concat(rotPoints,[math.zeros(4)._data],0)))
+
+            for (let i=0;i<4;i++){
+                deformShape.vs[i].pos=corners[i]
+                deformShapeSec.vs[i].pos=cornersSec[i]
+                rotateShape.vs[i].pos=cornersRotate[i]
+            }
+
+
+
+
+            var sScal=[sy,sx,sy,sx]
+            var nSVec=[-uy*sy,ux*sx,uy*sy,-ux*sx]
+
+            var nSVec=math.concat(math.multiply(uy,-sy),math.multiply(ux,sx),math.multiply(uy,sy),math.multiply(ux,-sx))
+            var nTVec=math.concat(math.multiply(ux,-tau),math.multiply(uy,tau),math.multiply(ux,tau),math.multiply(uy,-tau))
+
+
+ 
+
+            for (let i=0;i<4;i++){
+
+                if (i==3){i2=0}
+                else {i2=i+1}
+
+                var arrowsPos=linspace(1/(nArrows+2),1-1/(nArrows+2),nArrows)
+                for (let j=0;j<nArrows;j++){
+                    var jj=arrowsPos[j]
+
+                    var loc=math.add(
+                        math.multiply(
+                        math.subtract(
+                        math.column(pointsNOut,i2),
+                        math.column(pointsNOut,i)),
+                        jj),
+                        math.column(pointsNOut,i)
+                    ).flat()
+
+
+
+                    deformArrowsS[i][j].axis.x=nSVec[0][i]
+                    deformArrowsS[i][j].axis.y=nSVec[1][i]
+                    
+                    if (sScal[i]<0){
+                        deformArrowsS[i][j].pos.x=loc[0]-nSVec[0][i]
+                        deformArrowsS[i][j].pos.y=loc[1]-nSVec[1][i]                        
+                    }else{
+                       deformArrowsS[i][j].pos.x=loc[0]
+                        deformArrowsS[i][j].pos.y=loc[1]
+
+                    }
+                    deformArrowsT[i][j].pos.x=loc[0]-nTVec[0][i]/2
+                    deformArrowsT[i][j].pos.y=loc[1]-nTVec[1][i]/2
+                    deformArrowsT[i][j].axis.x=nTVec[0][i]
+                    deformArrowsT[i][j].axis.y=nTVec[1][i]
+                }
+
+            }
+            
+            var scale=2
+            if (math.dot(Txp,Nxp)<0){
+                var sStart1=math.subtract(math.column(rotMid,1),math.divide(math.column(sNew,1),scale))
+                var sStart3=math.subtract(math.column(rotMid,3),math.divide(math.column(sNew,3),scale))
+            }else{
+                var sStart1=math.column(rotMid,1)
+                var sStart3=math.column(rotMid,3)
+            }
+
+            if (math.dot(Typ,Nyp)<0){
+                var sStart0=math.subtract(math.column(rotMid,1),math.divide(math.column(sNew,0),scale))
+                var sStart2=math.subtract(math.column(rotMid,2),math.divide(math.column(sNew,2),scale))
+            }else{
+                var sStart0=math.column(rotMid,0)
+                var sStart2=math.column(rotMid,2)
+            }
+
+            var sStart=math.concat(sStart0,sStart1,sStart2,sStart3)
+
+            for (let i=0;i<4;i++){
+                rotateArrowsS[i].pos.x=sStart[0][i]
+                rotateArrowsS[i].pos.y=sStart[1][i]
+                rotateArrowsS[i].axis.x=sNew[0][i]/scale
+                rotateArrowsS[i].axis.y=sNew[1][i]/scale
+
+
+                rotateArrowsT[i].pos.x=rotMid[0][i]-tauM[0][i]/(2*scale)
+                rotateArrowsT[i].pos.y=rotMid[1][i]-tauM[1][i]/(2*scale)
+                rotateArrowsT[i].axis.x=tauM[0][i]
+                rotateArrowsT[i].axis.y=tauM[1][i]
+            }
+
+
+            Plotly.restyle(mohrDiv,{x: [[sx,sy],[sxp,syp],x],y:[[-tau,tau],[-taup,taup],y]},{},[0,1,2])
+
+
+            //#endregion
+
+            //#region <change shapes>
+            
+            //#endregion
+
+            var stageText=document.getElementsByClassName("stage-text") // accesses the divs containing the text for each stage
+
+            //#region <use changeUnderText to change the underbrace values, with stageText[stage you want to change underbrace for]>
+            //#endregion
+
+
+            function constrain(p1,p2){
+                
+                var a=[-uy[1],-uy[1],-ux[1],-ux[1]].flat()
+                var b=[uy[0],uy[0],ux[0],ux[0]].flat()
+
+                var indices=[2,3,2,1]
+                var pointsNOutSwitched=[[],[]]
+
+                for (let i=0;i<2;i++){
+                    for (let j=0;j<4;j++){
+                        pointsNOutSwitched[i].push(pointsNOut[i][indices[j]])
+                    }
+                }
+
+      
+
+                var c=math.add(math.dotMultiply(a,pointsNOutSwitched[0]),
+                            math.dotMultiply(b,pointsNOutSwitched[1]))
+                
+ 
+                var x1=p1[0]
+                var y1=p1[1]
+                var x2=p2[0]
+                var y2=p2[1]
+
+                var pa=y1-y2
+                var pb=x2-x1
+                var pc=-x1*(y2-y1)+y1*(x2-x1)
+
+                var p=[[],[]]
+                
+                for (let k=0;k<4;k++){
+                    var M=[[a[k],b[k]],[pa,pb]]
+
+                    if (math.det(M)!=0){
+
+                        var guess=math.multiply(math.inv(M),[[c[k]],[pc]])
+
+                        var different=true
+                        if (p.flat().length!=0){
+
+                            var guessFilled=math.transpose(Array(math.size(p)[1]).fill(math.transpose(guess)).flat())
+                            var dif=math.subtract(guessFilled,p)
+
+
+                            
+                            var smallMag=(vals)=>(math.dotPow(vals[0],2)+math.dotPow(vals[1],2))<.1
+                            if (math.transpose(dif).some(smallMag)){
+                                different=false
+                            }
+                            
+                        }
+
+                        if (inside(guess.flat(),math.transpose(pointsNOutSpace))&&different){
+                            p=math.concat(p,guess)
+                        }
+                    }
+                }
+
+              
+
+                if (p.flat().length==4){
+                    var p1out=math.transpose(p)[0]
+                    var p2out=math.transpose(p)[1]
+                } else{
+                    var p1out=[NaN,NaN]
+                    var p2out=[NaN,NaN]
+                }
+
+     
+                // in MATLAB, output points are column vectors, here they are row vectors (easier to work with)
+                return [p1out,p2out]
+            }
+
+            function inside(point, vs) {
+                // ray-casting algorithm based on
+                // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html/pnpoly.html
+                // array of coordinates of each vertex of the polygon
+                // Example:
+                // var polygon = [ [ 1, 1 ], [ 1, 2 ], [ 2, 2 ], [ 2, 1 ] ];
+                // inside([ 1.5, 1.5 ], polygon); // true
+                
+                var x = point[0], y = point[1];
+                
+                var inside = false;
+                for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+                    var xi = vs[i][0], yi = vs[i][1];
+                    var xj = vs[j][0], yj = vs[j][1];
+                    
+                    var intersect = ((yi > y) != (yj > y))
+                        && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                    if (intersect) inside = !inside;
+                }
+                
+                return inside;
+            }
+
+        }
+
+
+        // change the graphic for each stage (must be named exactly changeStageGraphic):
+        makeYourGraphics.changeStageGraphic=function(stage){
+
+            // variables with short names can be set to the style of the shapes (just less to write for branches)
+
+            
+            //#region <change opacity of shapes and visiblity of slider (call changeOpacity)>
+            //#endregion
+
+
+        }
+    } 
+</script>

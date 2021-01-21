@@ -25,7 +25,7 @@ div {
 .text-box{
     background-color: white;
     color: black;
-    font-size: 13px;
+    font-size: 10px;
 }
 
 /* center mathjax expressions */
@@ -35,7 +35,7 @@ div {
     
 }
 p{
-    padding: 10px;
+    padding: 5px;
 }
 
 

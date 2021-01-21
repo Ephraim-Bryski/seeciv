@@ -14,7 +14,7 @@ return [A,B]  // JS can't return multiple variables, so just use indices to get 
 
 }
 
-function makeSurf(A,B,C,colorSel=color.gray){ 
+function makeSurf(A,B,C,colorSel=color.gray,opacitySel=1){ 
 // A, B, and C are equal size matrices and x, y, z coordinates of points
 //! making points isn't needed
 
@@ -27,7 +27,7 @@ var surf=math.zeros(math.size(A)[0]-1,math.size(A)[1]-1)._data
 for (let i=0;i<math.size(A)[0];i++){
     for (let j=0;j<math.size(A)[1];j++){    
     myPoints[i][j]=vec(A[i][j],B[i][j],C[i][j])  
-    vertices[i][j]=vertex({pos: vec(A[i][j],B[i][j],C[i][j]), color:colorSel})
+    vertices[i][j]=vertex({pos: vec(A[i][j],B[i][j],C[i][j]), color:colorSel,opacity:opacitySel})
 
     if (i!=0&&j!=00){
         surf[i-1][j-1]=quad({vs: [vertices[i-1][j-1],vertices[i][j-1],vertices[i][j],vertices[i-1][j]]})

@@ -26,3 +26,10 @@ math.range(a,b,c)._data            a to b (not including b) with step size c
 var B=math.eigs(A)        eigenvalues and vectors
 B.values                    eigenvalues
 B.vectors                   eigenvectors
+
+
+math.column(A,n)        returns nth column from matrix
+
+const d = [[1, 2], [3, 4]]
+math.subset(d, math.index(1, 0))        // returns 3
+math.subset(d, math.index([0, 1], 1))   // returns [[2], [4]]
