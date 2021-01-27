@@ -121,8 +121,14 @@ p{
 }
 
 .slider::-moz-range-thumb {
-    /* for Firefox */
-    /* should be same as stuff in webkit-slider-thumb */
+    -webkit-appearance: none;
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%; 
+    background: var(--c)
 }
+
+
 
 
