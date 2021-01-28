@@ -23,11 +23,13 @@
         /* not sure it if should be aligned to center */
     }
 
-    
+
     p{
         margin-left: 50px;
         margin-right: 50px;
     }
+
+
 
     a{
         color: black;
@@ -54,10 +56,17 @@
 /* links to each topic */
     .topic-group {
         /* the padding specifies how far the buttons are spaced vertically */
+
+        padding-top: 20px;
+        
+        position: absolute;
+        left: 25%;
+        padding-left: 5px;
+        padding-right: 5px;
         text-align: center;
-        padding-top: 30px;
     }
     .topic-link {
+        /*
         box-shadow: 0px 0px 4px 0 rgba(0,0,0,.2);
         border-radius: 20px;
         background-color:lightblue;
@@ -68,6 +77,10 @@
         padding: 15px;
         margin-right: 20px;
         margin-left: 20px;
+        */
+        float: left;
+        width: 150px;
+        padding: 10px;
     }
     
     .topic-link:hover {

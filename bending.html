@@ -30,7 +30,7 @@
     // Define your labels for the stages
     var titles=["Intro","Geometry","Stress Strain","Moment","Summary"]
     var text=[]
-    text[0]="<p>Imagine bending a beam in two hands -- this is an example of pure bending. An external moment on both ends of the beam are the only loads applied. This is a simplified case; in general, there will be transverse loads (I could include a hyperlink to stresses in beam). However, analyzing this case is very useful for understanding both stress distribution and deflection.</p>"
+    text[0]="<p>Imagine bending a beam in two hands -- this is an example of pure bending. An external moment on both ends of the beam are the only loads applied. This is a simplified case; in general, there will be transverse loads (see the <a href='https://www.seeciv.com/beam.html'>beam</a> topic). However, analyzing this case is very useful for understanding both stress distribution and deflection.</p><p>Rubber beam being bent. Photo credit to handsonmechanics.org</p>"
     text[1]="<p>The geometry of a beam undergoing pure bending is relatively simple, making it easy to analyze. The lines that run along the length of the beam (axial) become circular arches while the lines that run transverse become radial lines. These lines remain perpendicular, so there's no shear stress. Essentially, the beam transforms into a circular arch.</p><p>Note that the analysis assumes small deformation and that the material is linear elastic. The graphics shown have an exaggerated deformation so it can be seen clearly.</p>"
     text[2]=("<p>Stress is proportional to strain:</p>").concat(
         "<p>$$\\underbrace{\\sigma}_{0.0}=\\underbrace{E}_{0.0}\\underbrace{\\epsilon}_{0.0}$$</p>").concat(
@@ -70,9 +70,6 @@
     // You can also create an array for the text in the text box and refer to it in the changeStageGraphics method>
     function makeYourGraphics(textDiv,graphDiv){
         //#region  <define initial values>
-
-        var w=1
-       
        
         var L=20
 
@@ -108,7 +105,7 @@
         var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: false,userzoom: false,autoscale: false})
         // use scene.center scene.forward scene.range to change scene
         scene.center=vec(0,2,0)
-        scene.range=10
+        scene.range=12
 
  
 
@@ -201,11 +198,23 @@
         //#region <create widgets and combine into array (onlick is update)>
 
         var sliderLength=300
-        var MSlider=makeSliderGroup(graphDiv,"0%","80%","Moment",sliderLength,"horizontal",[-100,100],50,update)
-        var hSlider=makeSliderGroup(graphDiv,"0%","90%","Beam Depth",sliderLength,"horizontal",[0,10],3,update)
+        var MSlider=makeSliderGroup(graphDiv,"0%","80%","Moment",sliderLength,"horizontal",[-40,40],30,update)
+        var hSlider=makeSliderGroup(graphDiv,"0%","90%","Beam Depth",sliderLength,"horizontal",[1.5,3],1.5,update)
         var ySlider=makeSliderGroup(graphDiv,"50%","80%","Relative Section Location",sliderLength,"horizontal",[-1,1],1,update,"#333",true,0.1)
-        var ESlider=makeSliderGroup(graphDiv,"50%","90%","Young's Modulus",sliderLength,"horizontal",[0,500],250,update)
+        var ESlider=makeSliderGroup(graphDiv,"50%","90%","Young's Modulus",sliderLength,"horizontal",[300,500],400,update)
 
+        //#endregion
+
+        //#region <create image>
+        var bendingImg=document.createElement("img")
+
+        bendingImg.src="bending.png"
+        bendingImg.style.position="absolute"
+        bendingImg.style.left=0
+        bendingImg.style.width="100%"
+        bendingImg.style.top="30%"
+        bendingImg.style.zIndex=2
+        graphDiv.appendChild(bendingImg)
         //#endregion
 
         //#region <create text with equations, combine into array and append on textDiv>
@@ -301,7 +310,7 @@
             var posSel=Number(ySlider.children[2].value)
  
             
-            var I=1/12*w*h**3
+            var I=1/12*width*h**3
             var rMid=E*I/M
             var theta=L/rMid
             var t=linspace(-theta/2,theta/2,nT)
@@ -394,7 +403,7 @@
             //#region <use changeUnderText to change the underbrace values, with stageText[stage you want to change underbrace for]>
             changeUnderText(1,posSel*M/I,2,stageText[2])
             changeUnderText(2,E,2,stageText[2])
-            changeUnderText(3,posSel*M/(E*I),2,stageText[2])
+            changeUnderText(3,posSel*M/(E*I),3,stageText[2])
 
             changeUnderText(1,M,2,stageText[3])
             changeUnderText(2,M/I,2,stageText[3])
@@ -420,18 +429,20 @@
             var HS=hSlider.style
             var YS=ySlider.style
 
+            var IMG=bendingImg.style
+
             if(stage==0){
                changeVisibility([geometryShapes,stressShapes],false);changeVisibility(introShapes,true)
-               MS.visibility=ES.visibility=HS.visibility=YS.visibility="hidden"
+               MS.visibility=ES.visibility=HS.visibility=YS.visibility="hidden";IMG.visibility="visible"
             }else if(stage==1){
-               changeVisibility([stressShapes,introShapes],false);changeVisibility(geometryShapes,true)
-               MS.visibility=ES.visibility=HS.visibility=YS.visibility="hidden"
+               changeVisibility([geometryShapes,stressShapes,introShapes],false)
+               MS.visibility=ES.visibility=HS.visibility=YS.visibility=IMG.visibility="hidden"
             }else if(stage==2){
                changeVisibility([geometryShapes,introShapes],false);changeVisibility(stressShapes,true)
-               MS.visibility=HS.visibility="hidden";YS.visibility=ES.visibility="visible"
+               MS.visibility=HS.visibility=IMG.visibility="hidden";YS.visibility=ES.visibility="visible"
             }else if(stage==3){
                changeVisibility([geometryShapes,stressShapes],false);changeVisibility(introShapes,true)
-               YS.visibility="hidden";MS.visibility=ES.visibility=HS.visibility="visible"
+               YS.visibility=IMG.visibility="hidden";MS.visibility=ES.visibility=HS.visibility="visible"
                
             }
 

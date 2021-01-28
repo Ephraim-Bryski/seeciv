@@ -28,37 +28,37 @@
 <script type="text/javascript">
 
     // Define your labels for the stages
-    var titles=["Intro","Normal","Normal All","Shear","All"]
+    var titles=["Zooming In","Normal","Normal: All Directions","Shear","All Stresses"]
     var text=[]
     text[0]=(
         "<p>It's important, especially for civil engineers, to understand how things will deform when loads are applied. More specifically, it's useful to understand the relation between stress, load per area, and strain, the change in material dimensions. </p>").concat(
-        "<p>To analyze this relation, it's helpful to consider a tiny, or more precisely infinitesimal, piece and consider the stresses acting on that element. Because it's so small, it's assumed that the stress is the same throughout the element. This analysis assumes the material is linear elastic, meaning stress and strain are linearly proportional.</p>")
+        "<p>To analyze this relation, it's helpful to consider a tiny, or more precisely infinitesimal, piece and consider the stresses acting on that element. Because it's so small, it's assumed that the stress is the same throughout the element. This analysis assumes the material is linear elastic, meaning stress and strain are linearly proportional.</p><p>The analyzed cube can be part of a larger structure, like a bridge foundation. Photo credit to bristol.ac.uk</p>")
     text[1]=(
         "<p>In the graphic, a normal stress is applied in the x direction, leading to a strain in the same direction.</p>").concat(
-        "<p>$$\\epsilon_x=\\frac{\\sigma_x}{E}$$</p>").concat(
+        "<p>$$\\underbrace{\\epsilon_x}_{0.0}=\\frac{\\color{red}{\\sigma_x}}{E}$$</p>").concat(
         "<p>However, if you've ever stretched a piece of rubber, you'll notice that the material stretches contracts laterally. Similarly, if you squeeze it, it will bulge out laterally. This relation between the axial strain and the lateral strain is the following:</p>").concat(
         "<p>$$\\nu=-\\frac{\\epsilon_{lateral}}{\\epsilon_{axial}}$$</p>").concat(
-        "<p>In general, \\(\\nu\\) is a positive number less than 0.5. There are cases where it is negative (stretching it one direction leads to expansion in others) include link.</p>").concat(
+        "<p>In general, \\(\\nu\\) is a positive number less than 0.5. There are cases where it is negative (stretching it one direction leads to expansion in others) as shown <a href='silver.neep.wisc.edu/~lakes/Poisson.html'>here</a>.</p>").concat(
         "<p>So:</p>").concat(
-        "<p>$$\\epsilon_y=-\\nu\\frac{\\sigma_x}{E}$$</p>").concat(
-        "<p>$$\\epsilon_z=-\\nu\\frac{\\sigma_x}{E}$$</p>").concat(
+        "<p>$$\\underbrace{\\epsilon_y}_{0.0}=-\\nu\\frac{\\color{red}{\\sigma_x}}{E}$$</p>").concat(
+        "<p>$$\\underbrace{\\epsilon_z}_{0.0}=-\\nu\\frac{\\color{red}{\\sigma_x}}{E}$$</p>").concat(
         "<p>This is for stress applied in one direction. What happens when a material's loaded in multiple directions?</p>")
 
 
     text[2]=(
         "<p>In general, stress would be applied in multiple directions, not just one. The strain due to each of the stresses can be added together to find the total strain. For example:</p>").concat(
-        "<p>$$\\underbrace{\\epsilon_x}_{0.0}=\\underbrace{\\frac{1}{E}\\sigma_x}_{0.0}\\underbrace{-\\frac{\\nu}{E}\\sigma_y}_{0.0}\\underbrace{-\\frac{\\nu}{E}\\sigma_z}_{0.0}$$</p>").concat(
+        "<p>$$\\underbrace{\\epsilon_x}_{0.0}=\\underbrace{\\frac{1}{E}\\color{red}{\\sigma_x}}_{0.0}\\underbrace{-\\frac{\\nu}{E}\\color{green}{\\sigma_y}}_{0.0}\\underbrace{-\\frac{\\nu}{E}\\color{blue}{\\sigma_z}}_{0.0}$$</p>").concat(
         "<p>The strain caused by stress in the x,y, and z direction are added together to find the total stress. This same relation holds true for strain in the y and z direction:</p>").concat(
-        "<p>$$\\underbrace{\\epsilon_y}_{0.0}=\\underbrace{-\\frac{\\nu}{E}\\sigma_x}_{0.0}\\underbrace{+\\frac{1}{E}\\sigma_y}_{0.0}\\underbrace{-\\frac{\\nu}{E}\\sigma_z}_{0.0}$$</p>").concat(
-        "<p>$$\\underbrace{\\epsilon_z}_{0.0}=\\underbrace{-\\frac{\\nu}{E}\\sigma_x}_{0.0}\\underbrace{-\\frac{\\nu}{E}\\sigma_y}_{0.0}\\underbrace{+\\frac{1}{E}\\sigma_z}_{0.0}$$</p>").concat(
+        "<p>$$\\underbrace{\\epsilon_y}_{0.0}=\\underbrace{-\\frac{\\nu}{E}\\color{red}{\\sigma_x}}_{0.0}\\underbrace{+\\frac{1}{E}\\color{green}{\\sigma_y}}_{0.0}\\underbrace{-\\frac{\\nu}{E}\\color{blue}{\\sigma_z}}_{0.0}$$</p>").concat(
+        "<p>$$\\underbrace{\\epsilon_z}_{0.0}=\\underbrace{-\\frac{\\nu}{E}\\color{red}{\\sigma_x}}_{0.0}\\underbrace{-\\frac{\\nu}{E}\\color{green}{\\sigma_y}}_{0.0}\\underbrace{+\\frac{1}{E}\\color{blue}{\\sigma_z}}_{0.0}$$</p>").concat(
         "<p>This is still missing half of the picture though. What happens when the stress isn't applied normal to the surface?</p>")
 
     text[3]=(
         "<p>Stress can also be applied along the surface instead of normal to it; this is called a shear stress.</p>").concat(
         "<p>Shear stress is denoted with two subscripts, the first is the direction normal to the surface, and the second the direction the stress is applied. For example, \\(\\tau_{xy}\\) indicates a shear stress acting on the x plane in the y direction. To balance the forces in the y direction, there must be a stress applied on the other side in the opposite direction.</p>").concat(
         "<p>Just as with normal stress and strain, there is a linear relation between shear stress and strain:</p>").concat(
-        "<p>$$\\gamma=\\frac{\\tau}{G}$$</p>").concat(
-        "<p>where \\(G\\) is the shear modulus. Note that \\(G\\) is dependent on \\(E\\) and \\(\\nu\\). include hyperlink</p>").concat(
+        "<p>$$\\underbrace{\\gamma}_{0.0}=\\frac{\\tau}{G}$$</p>").concat(
+        "<p>where \\(G\\) is the shear modulus. Note that \\(G\\) is dependent on \\(E\\) and \\(\\nu\\) as shown <a href='http://polymerdatabase.com/polymer%20physics/Moduli.html'>here</a></p>").concat(
         "<p>If it was only those two stresses were applied though, there would be a force couple, and the element would start spinning. To balance this, there has to be shear stresses on the y plane in the x direction or \\(\\tau_{yx}\\). The two must balance each other, so in general:</p>").concat(
         "<p>$$\\tau_{xy}=\\tau_{yx}$$</p>").concat(
         "<p>Of course, nothing's special about the x and y directions: the same holds true for all directions...</p>")
@@ -107,7 +107,7 @@
         var scale=8
 
     
-        var coordShape=makeCoordShape(vec(2,2,2))
+        var coordShape=makeCoordShape(vec(1.2,1.2,1.2))
 
 
         var box0=[]
@@ -178,9 +178,12 @@
             slidersV[i]=makeSliderGroup(graphDiv,sliderPosHor[i],sliderPosVer[1],("\\(\\tau_{").concat(textV[i]).concat("}\\)"),sliderLength,"horizontal",[-10,10],0,update,sColorsV[i])
 
         }
-        var ESlider=makeSliderGroup(graphDiv,"5%","20%","Young's Modulus",30,"vertical",[0,10],100,update,"#333",false)
-        var nuSlider=makeSliderGroup(graphDiv,"15%","20%","Poisson's Ratio",30,"vertical",[0,10],1,update,"#333",false,0.05 )
-        console.log(nuSlider)
+        var ESlider=makeSliderGroup(graphDiv,"5%","65%","Young's Modulus",30,"vertical",[0,200],100,update,"#333",false,1)
+        var nuSlider=makeSliderGroup(graphDiv,"15%","65%","Poisson's Ratio",30,"vertical",[-1,0.5],0.3,update,"#333",false,0.05 )
+        var GSlider=makeSliderGroup(graphDiv,"25%","65%","Shear Modulus",30,"vertical",[0,500],0,update,"#333",false,0.1,true )
+
+ 
+
 
 
         var resetButton=document.createElement("BUTTON")
@@ -188,8 +191,8 @@
         resetButton.appendChild(document.createTextNode("RESET"))
         Object.assign(resetButton.style,{
             position: "absolute",
-            left: "20%",
-            top: "70%"
+            left: "5%",
+            top: "50%"
             })
 
         graphDiv.appendChild(resetButton)
@@ -206,16 +209,27 @@
                 slidersN[i].children[1].value=slidersN[i].children[2].value=0
                 slidersV[i].children[1].value=slidersV[i].children[2].value=0
                 
+                
             }
+            ESlider.children[1].value=100
+            nuSlider.children[1].value=0.3
             update()
-            ESlider.children[1].value=ESlider.children[2].value=0
-            nuSlider.children[1].value=nuSlider.children[2].value=0
         }
+
+        var stressIMG=document.createElement("img")
+       
+       stressIMG.src="stress3D.png"
+       stressIMG.style.position="absolute"
+       stressIMG.style.left=0
+       stressIMG.style.width="100%"
+       stressIMG.style.zIndex=2
+       graphDiv.appendChild(stressIMG)
 
         MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]),update)  // you could add multiple functions to update different things
 
         function update(){
 
+            
 
             var s=[]
             var t=[]
@@ -234,6 +248,8 @@
 
             var E=Number(ESlider.children[1].value)
             var nu=Number(nuSlider.children[1].value)
+            var G=E/(2*(1+nu))
+            GSlider.children[1].value=G
 
             
             var sv=[[sx],[sy],[sz]]
@@ -254,7 +270,7 @@
             compM=math.divide(compM,E)
 
             var strain=math.multiply(compM,stressPrinc)
-            console.log(strain)
+  
 
             var strainM=[[strain[0][0],0,0],[0,strain[1][0],0],[0,0,strain[2][0]]]
 
@@ -282,6 +298,7 @@
             var vz=math.subtract(pointsNM[3],pointsNM[0])
 
             var vnM=math.transpose([vx,vy,vz])
+
 
     
 
@@ -396,9 +413,11 @@
             var stageText=document.getElementsByClassName("stage-text") // accesses the divs containing the text for each stage
 
             //#region <use changeUnderText to change the underbrace values, with stageText[stage you want to change underbrace for]>
-            changeUnderText(4,3,2,stageText[2])
-            console.log(sv)
-            console.log(strain)
+            changeUnderText(1,strainp[0][0],2,stageText[1])
+            changeUnderText(2,strainp[1][0],2,stageText[1])
+            changeUnderText(3,strainp[2][0],2,stageText[1])
+
+            changeUnderText(1,t[0]/G,2,stageText[3])
             for (let i=0;i<3;i++){
                 changeUnderText(i*4+1,strainp[i][0],2,stageText[2])
                 changeUnderText(i*5+2,sv[i][0]/E,2,stageText[2])
@@ -418,22 +437,35 @@
 
         // change the graphic for each stage (must be named exactly changeStageGraphic):
         makeYourGraphics.changeStageGraphic=function(stage){
+            try{reset()}catch(err){}
 
             // variables with short names can be set to the style of the shapes (just less to write for branches)
 
 
+            var IMG=stressIMG.style
+
             if (stage==0){
                 for (let i=0;i<3;i++){slidersN[i].style.visibility=slidersV[i].style.visibility="hidden"}
+                IMG.visibility="visible"
+                GSlider.style.visibility="hidden"
             }else if (stage==1){
                 for (let i=0;i<3;i++){slidersN[i].style.visibility=slidersV[i].style.visibility="hidden"}
+                IMG.visibility="hidden"
                 slidersN[0].style.visibility="visible"
+                GSlider.style.visibility="hidden"
             }else if (stage==2){
                 for (let i=0;i<3;i++){slidersV[i].style.visibility="hidden";slidersN[i].style.visibility="visible"}
+                IMG.visibility="hidden"
+                GSlider.style.visibility="hidden"
             }else if (stage==3){
                 for (let i=0;i<3;i++){slidersN[i].style.visibility=slidersV[i].style.visibility="hidden"}
                 slidersV[0].style.visibility="visible"
+                IMG.visibility="hidden"
+                GSlider.style.visibility="visible"
             }else if (stage==4){
                 for (let i=0;i<3;i++){slidersN[i].style.visibility=slidersV[i].style.visibility="visible"}
+                IMG.visibility="hidden"
+                GSlider.style.visibility="visible"
             }      
 
 

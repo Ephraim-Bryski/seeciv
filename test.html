@@ -14,20 +14,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/8.1.0/math.js" integrity="sha512-ne87j5uORxbrU7+bsqeJJWfWj5in65R9PCjaQL161xtH5cesZgULVbeVAkzAAN7hnYOcrHeBas9Wbd/Lm8gXFA==" crossorigin="anonymous"></script>
 
 <script src="surface.js"></script>
+ 
+
+<script src="fitty.min.js"></script>
 <body>
-  <script type="text/javascript">
 
-    var graphDiv=document.body
-    window.__context= {glowscript_container: graphDiv}  
-    var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: false,userzoom: false,autoscale: false})
+<script>
+fitty('#my-element');
+</script>
 
-    
-
-    var myArrow=arrow({pos: vec(0,0,0),axis: vec(0/0,0/0,0/0)})
-    myArrow.axis=vec(10,10,0)
-    
-
-   </script>
+   
 </body>
 
 

@@ -34,7 +34,7 @@
 
     text[1]="<p>Any load applied on a beam, whether it be from the weight of a person or the weight of a building, will lead to internal stresses throughout the beam. This topic will look at one section of the beam; this way we can look at the internal stresses acting on this section.</p><p> The length of the beam is along the x direction; the beam is cut along the yz plane.</p><p>The internal bending moment in a beam consists of compressive and tensile normal stresses that act along the beam's length, or the x direction. There is also a shear force, which consists of shear stresses which act vertically, or the y direction.</p><p>This is a first look, but how do we quantify these stresses and how do they relate? This topic will explore that, starting with normal stresses.</p>"
 
-    text[2]="<p>Normal stresses in the beam produce an internal bending moment. This stress varies in the cross-section: it is 0 at the neutral axis, compressive on one side, and tensile on the other side.</p><p> More precisely, the stress at a point is linearly proportional to its y coordinate:</p> $$ \\sigma=\\frac{M}{I}y$$ <p>Move the slider to change the moment on the left side of the section of beam. Notice that the moment on the right side and the moment on the left side are opposite but not equal in magnitude though.</p><p> Why doesn't this difference cause an imabalance in moment?</p>"
+    text[2]="<p>Normal stresses in the beam produce an internal bending moment. This stress varies in the cross-section: it is 0 at the neutral axis, compressive on one side, and tensile on the other side.</p><p> More precisely, the stress at a point is linearly proportional to its y coordinate (see the <a href='https://www.seeciv.com/bending.html'>bending topic</a> for the derivation):</p> $$ \\sigma=\\frac{M}{I}y$$ <p>Move the slider to change the moment on the left side of the section of beam. Notice that the moment on the right side and the moment on the left side are opposite but not equal in magnitude though.</p><p> Why doesn't this difference cause an imabalance in moment?</p>"
 
     text[3]="<p>The difference in moment is balanced by a force couple from the shear force. The greater the shear, the greater the difference in moment. Therefore they're related as follows:</p> $$\\underbrace{\\color{blue}{M_{Right}}}_{0.0}-\\underbrace{\\color{blue}{M_{Left}}}_{0.0}=\\underbrace{\\color{red}{V}}_{0.0}\\Delta x$$ <p>\\(\\Delta x\\) is the length of the section and is the lever arm of the shear force couple.</p><p> As \\(\\Delta x\\) goes to 0, the relation becomes:</p> $$V=\\frac{dM}{dx}$$ <p>You might notice that the shear stress is also not uniform. The next slides will explore that in more depth.</p>"
     
@@ -86,7 +86,7 @@
         //#endregion
 
         // <create coordinate system object>
-        var coordShape=makeCoordShape(vec(1.5,0,0),0.2)
+        var coordShape=makeCoordShape(vec(1,0,0),0.2)
   
         
         //#region <create boxes>
@@ -138,6 +138,7 @@
         MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]),update)
 
         function update(){
+            
             //#region <get values from sliders and compute value>
             var cutLoc=Number(cutLocSlider.children[2].value)
             var leftMoment=Number(momentSlider.children[1].value)
