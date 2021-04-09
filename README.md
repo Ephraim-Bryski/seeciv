@@ -1,11 +1,9 @@
 # seeciv
 This is the code for the website seeciv.com. The sight will explore topics in Civil Engineering with the aid of interactive 3D graphics.
 
-The content will based off of the MATLAB apps I created: https://www.mathworks.com/matlabcentral/fileexchange/79673-apps-for-solid-mechanics.
-
 The site uses GlowScript for 3D graphics and MathJax for equations. Find more at glowscript.org.
 
-Any feedback would be greatly appreciated!
+I have some ideas for expanding the site, and I'm always looking to collaborate with others on it. Feel free to join the discussions, submit pull requests, or fork the repository.
 
 The structure of the code is the following:
 
