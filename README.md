@@ -3,7 +3,7 @@ This is the code for the website seeciv.com. The sight will explore topics in Ci
 
 The site uses GlowScript for 3D graphics and MathJax for equations. Find more at glowscript.org.
 
-I have some ideas for expanding the site, and I'm always looking to collaborate with others on it. Feel free to join the discussions, submit pull requests, or fork the repository.
+I have some ideas for expanding the site, and I'm always looking to collaborate with others on it. Feel free to join the discussions and contribute to the code. For information on current plans, check out the Google Doc: https://docs.google.com/document/d/1khY9FJkwpUIDD7Q1wCzWFPmwEtcCwW_puN1Y9zYjKUk/edit.
 
 The structure of the code is the following:
 
