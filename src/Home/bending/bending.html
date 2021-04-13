@@ -1,0 +1,457 @@
+<body></body>
+
+<!-----------------Imports GlowScript Libraries and NumJs------------------------>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link type="text/css" href="https://www.glowscript.org/css/redmond/2.1/jquery-ui.custom.css" rel="stylesheet" />
+<link type="text/css" href="https://www.glowscript.org/css/ide.css" rel="stylesheet" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery-ui.custom.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/glow.3.0.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/RSrun.3.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/8.1.0/math.js" integrity="sha512-ne87j5uORxbrU7+bsqeJJWfWj5in65R9PCjaQL161xtH5cesZgULVbeVAkzAAN7hnYOcrHeBas9Wbd/Lm8gXFA==" crossorigin="anonymous"></script>
+
+
+<!---------------------------Adds Style-------------------------------------------------->
+<link rel="stylesheet" href="app_pages.css">
+
+<!------------------------Run make_page and change_under_text to define functions (changeUnderText is optional)------------------->
+<script src="make_page.js"></script>
+<script src="misc_funcs.js"></script>
+<script src="widget_groups.js"></script>
+<script src="surface.js"></script>
+
+<!------------------------JavaScript------------------------------------------------>
+<script type="text/javascript">
+
+    // Define your labels for the stages
+    var titles=["Intro","Geometry","Stress Strain","Moment","Summary"]
+    var text=[]
+    text[0]="<p>Imagine bending a beam in two hands -- this is an example of pure bending. An external moment on both ends of the beam are the only loads applied. This is a simplified case; in general, there will be transverse loads (see the <a href='https://www.seeciv.com/beam.html'>beam</a> topic). However, analyzing this case is very useful for understanding both stress distribution and deflection.</p><p>Rubber beam being bent. Photo credit to handsonmechanics.org</p>"
+    text[1]="<p>The geometry of a beam undergoing pure bending is relatively simple, making it easy to analyze. The lines that run along the length of the beam (axial) become circular arches while the lines that run transverse become radial lines. These lines remain perpendicular, so there's no shear stress. Essentially, the beam transforms into a circular arch.</p><p>Note that the analysis assumes small deformation and that the material is linear elastic. The graphics shown have an exaggerated deformation so it can be seen clearly.</p>"
+    text[2]=("<p>Stress is proportional to strain:</p>").concat(
+        "<p>$$\\underbrace{\\sigma}_{0.0}=\\underbrace{E}_{0.0}\\underbrace{\\epsilon}_{0.0}$$</p>").concat(
+        "<p>Where \\(E\\) is Young's Modulus, or the stiffness of the material. For the same stress, a material with a greater \\(E\\) deforms less, and so the beam overall bends less.</p>").concat(
+        "<p>The strain \\(\\epsilon\\) is also proportional to \\(y\\) You can see this: above the neutral axis, the section is shortened, or negative strain, and below the section is lengthened, or positive strain. This means that the stress \\(\\sigma\\) is also proportional to \\(y\\) or:</p>").concat(
+        "<p>$$\\frac{\\sigma}{y}=\\text{constant}$$</p>").concat(
+        "<p>Move the \\(y\\) slider to see how \\(\\sigma\\) varies throughout the beam. Note how the two are linearly proportional. However \\(\\sigma\\) still hasn't been related to the bending moment applied on the beam.</p>")
+    text[3]=("<p></p>").concat(
+        "<p>Moment is defined as:</p>").concat(
+        "<p>$$M=\\int ydF$$</p>").concat(
+        "<p>It's the rotational equivalent of a force. The equation says that force applied at a greater \\(y\\) or farther from the neutral axis contributes more to the moment. </p>").concat(
+        "<p>As force is stress over an area, \\(dF=\\sigma dA\\), which means:</p>").concat(
+        "<p>$$M=\\int y \\sigma dA$$</p>").concat(
+        "<p>Knowing that \\(\\frac{\\sigma}{y}\\) is a constant it can be moved out of the integral:</p>").concat(
+        "<p>$$M=\\int \\frac{\\sigma}{y}y^2 dA=\\frac{\\sigma}{y}\\int y^2 dA$$</p>").concat(
+        "<p>\\(\\int y^2dA\\) is \\(I\\) or Moment of Inertia! It's a property only of the cross section, and tells you how far the material is from the neutral axis. Pluggig it in gives the stress in a beam undergoing bending:</p>").concat(
+        "<p>$$\\underbrace{M}_{0.0}=\\underbrace{\\frac{\\sigma}{y}}_{0.0}\\underbrace{I}_{0.0}$$</p>")
+    text[4]="<p>The radial strain in a beam is proportional to the distance from the neutral axis, and the stress is proportional to the strain. The moment you apply on the beam by bending it produces this stress. This relation between moment and the beams deflection will be critical when studying beam theory.</p>"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // calls makePage with defined labels and function:
+    makePage(titles,text,makeYourGraphics)
+
+
+    // You can also create an array for the text in the text box and refer to it in the changeStageGraphics method>
+    function makeYourGraphics(textDiv,graphDiv){
+        //#region  <define initial values>
+       
+        var L=20
+
+    
+
+
+        var nArrows=[4,5]
+        var scale=10
+
+        var nT=51
+        var nR=5
+
+
+
+        var beamColor=color.blue
+        var beamOpacity=0.5
+        var sectionColor=vec(0,0,0.3)
+
+        var meshThickness=0.015
+
+        var geometryThickness=0.07
+
+        var fontSize=23
+
+        var width=5 //what paolo called the depth
+
+        
+        //#endregion
+
+
+
+        window.__context= {glowscript_container: graphDiv}  
+        var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: false,userzoom: false,autoscale: false})
+        // use scene.center scene.forward scene.range to change scene
+        scene.center=vec(0,2,0)
+        scene.range=12
+
+ 
+
+
+       //#region <Create GlowScript graphics and combine in array>
+
+        makeCoordShape()
+
+       var xGrid=yGrid=zGrid=math.zeros(nR,nT)._data
+        var face=[makeSurf(xGrid,yGrid,zGrid,beamColor,beamOpacity),
+                makeSurf(xGrid,yGrid,zGrid,beamColor,beamOpacity)]
+
+        var xGrid=yGrid=zGrid=math.zeros(2,nT)._data
+        var section=[makeSurf(xGrid,yGrid,zGrid,sectionColor),
+                    makeSurf(xGrid,yGrid,zGrid,sectionColor)]
+
+
+
+        var xGrid=yGrid=zGrid=math.zeros(2,2*nT+1)._data
+        var wrap=makeSurf(xGrid,yGrid,zGrid,beamColor,beamOpacity)
+        var sectionWrap=makeSurf(xGrid,yGrid,zGrid,sectionColor)
+
+       
+        
+
+       // arrows are in a nested array: [[left arrows],[right arrows]]
+       // changeArrows accesses and modifies the array
+        var arrows=[]
+        var sectionArrows=[]
+        for (let iSide=0;iSide<2;iSide++){
+            arrows[iSide]=[]
+            sectionArrows[iSide]=[]
+            for (let iWidth=0;iWidth<nArrows[0];iWidth++){
+                arrows[iSide][iWidth]=[]
+                sectionArrows[iSide][iWidth]=[]
+
+                sectionArrows[iSide][iWidth][0]=arrow({color: color.red})
+                for(let iHeight=0;iHeight<nArrows[1];iHeight++){
+                    arrows[iSide][iWidth][iHeight]=arrow({color:color.red})
+                }
+            }
+        }
+
+
+        var tCurves=[]
+        for (let i=0;i<(nT-1)/10+1;i++){
+            var tPoints=[]
+            for (let j=0;j<nR;j++){
+                tPoints[j]=vec(0,0,0)
+            }
+            tCurves[i]=curve({pos:tPoints,radius: meshThickness})
+        }
+
+
+        var rCurves=[]
+        for (let i=0;i<nR;i++){
+            var rPoints=[]
+            for (let j=0;j<nT;j++){
+                rPoints[j]=vec(0,0,0)
+            }
+            rCurves[i]=curve({pos:rPoints, radius: meshThickness})
+        }
+
+
+        var colors=[vec(0,1,0),vec(1,0,1)]
+
+        var geometryCurves=[]
+        for (let i=0;i<2;i++){
+            var points=[]
+            for (let j=0;j<nT+1;j++){
+                points[j]=vec(0,0,0)
+            }
+            geometryCurves[i]=curve({pos:points,box: false,color: colors[i],opacity: 1,radius:geometryThickness})
+        }
+
+        var tText=[label({text: "L",box: false,color: colors[0],opacity: 1,height: fontSize}),
+                  label({text: "L+ΔL",box:false, color: colors[1],opacity: 1,height:fontSize})]
+        var rText=[label({text: "ρ",box:false,color: colors[0],opacity: 1,height: fontSize}),
+                  label({text: "ρ-y",box: false, color: colors[1],opacity: 1,height:fontSize})]
+
+
+
+
+
+        
+        
+
+        //#endregion
+
+        //#region <create widgets and combine into array (onlick is update)>
+
+        var sliderLength=300
+        var MSlider=makeSliderGroup(graphDiv,"0%","80%","Moment",sliderLength,"horizontal",[-40,40],30,update)
+        var hSlider=makeSliderGroup(graphDiv,"0%","90%","Beam Depth",sliderLength,"horizontal",[1.5,3],1.5,update)
+        var ySlider=makeSliderGroup(graphDiv,"50%","80%","Relative Section Location",sliderLength,"horizontal",[-1,1],1,update,"#333",true,0.1)
+        var ESlider=makeSliderGroup(graphDiv,"50%","90%","Young's Modulus",sliderLength,"horizontal",[300,500],400,update)
+
+        //#endregion
+
+        //#region <create image>
+        var bendingImg=document.createElement("img")
+
+        bendingImg.src="bending.png"
+        bendingImg.style.position="absolute"
+        bendingImg.style.left=0
+        bendingImg.style.width="100%"
+        bendingImg.style.top="30%"
+        bendingImg.style.zIndex=2
+        graphDiv.appendChild(bendingImg)
+        //#endregion
+
+        //#region <create text with equations, combine into array and append on textDiv>
+        //#endregion
+
+        MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]),update)  // you could add multiple functions to update different things
+
+        
+
+        function update(){
+            function changeArch(surf,rRel,zPos){
+
+                
+         
+
+                var r=math.add(math.multiply(rRel,h),rMid)
+
+                // var r=linspace(rI,rO,nR)
+            
+
+                var tM=Array(r.length).fill(t)
+                var rM=math.transpose(Array(nT).fill(r))
+
+            
+
+                var y=math.subtract(rMid,math.dotMultiply(rM,math.cos(tM)))
+                var x=math.dotMultiply(rM,math.sin(tM))
+                var z=math.add(math.zeros(math.size(x)[0],math.size(x)[1])._data,zPos)
+
+
+                changeSurf(surf,x,y,z)
+                return [x,y,z]
+                // actual function would change the surface
+            }
+
+
+            
+            function changeWrap(surf,rRel,zPos){ 
+                //zPos should be [0,width]
+                // rshould be [rlower,rhigher] (for full beam [rMid-h,rMid+h])
+
+                        
+
+                var r=math.add(math.multiply(rRel,h),rMid)
+
+                var x=Array(2).fill(
+                                [math.dotMultiply(r[0],math.sin(t)),
+                                math.dotMultiply(r[1],math.sin(t)).reverse(),
+                                r[0]*math.sin(t[0])].flat()
+                                )
+
+                                
+                var y=Array(2).fill(
+                                [math.subtract(rMid,math.dotMultiply(r[0],math.cos(t))),
+                                math.subtract(rMid,math.dotMultiply(r[1],math.cos(t))).reverse(),
+                                rMid-r[0]*math.cos(t[0])].flat()
+                                )
+
+                var z=[Array(t.length*2+1).fill(zPos[0]),
+                        Array(t.length*2+1).fill(zPos[1])]
+
+                changeSurf(surf,x,y,z)
+                return [x,y,z]
+
+            }
+          
+
+            function changeArrows(arrows,arrowPos){
+                var zVals=linspace(0,width,nArrows[0])
+                for (let iz=0;iz<zVals.length;iz++){
+                    for (let iy=0;iy<arrowPos.length;iy++){
+                        var pos=(arrowPos[iy])/2+0.5
+
+                        var stress=M*(pos-0.5)*h/I/scale
+
+                        var xL=(x[x.length-1][0]-x[0][0])*pos+x[0][0]
+                        var yL=(y[y.length-1][0]-y[0][0])*pos+y[0][0]
+
+                        var xR=(x[x.length-1][x[0].length-1]-x[0][x[0].length-1])*pos+x[0][x[0].length-1]
+                        var yR=(y[y.length-1][y[0].length-1]-y[0][y[0].length-1])*pos+y[0][y[0].length-1]
+
+                        arrows[0][iz][iy].pos=vec(xL,yL,zVals[iz])
+                        arrows[1][iz][iy].pos=vec(xR,yR,zVals[iz])
+                        arrows[0][iz][iy].axis=vec(-stress*sin(Math.PI/2+theta/2),-stress*cos(Math.PI/2+theta/2),0)
+                        arrows[1][iz][iy].axis=vec(stress*sin(Math.PI/2+theta/2),-stress*cos(Math.PI/2+theta/2),0)
+                    }
+                }
+            }
+
+            var M=Number(MSlider.children[2].value)
+            var E=Number(ESlider.children[2].value)
+            var h=Number(hSlider.children[2].value)
+            var posSel=Number(ySlider.children[2].value)
+ 
+            
+            var I=1/12*width*h**3
+            var rMid=E*I/M
+            var theta=L/rMid
+            var t=linspace(-theta/2,theta/2,nT)
+        
+
+            var archPoints=changeArch(face[0],linspace(-1,1,nR),0)
+            var archPoints=changeArch(face[1],linspace(-1,1,nR),width)
+            var x=archPoints[0]
+            var y=archPoints[1]
+            var z=archPoints[2]
+
+
+            var space=0.05
+
+            var gap=0.05
+
+
+            changeArch(section[0],[posSel-space,posSel+space],-gap)      
+            changeArch(section[1],[posSel-space,posSel+space],width+gap)
+            
+
+            // test changeWrap:
+            //changeWrap(wrap,[rMid-h,rMid+h],[0,width])
+            changeWrap(wrap,[-1,1],[0,width])
+            changeWrap(sectionWrap,[posSel-space,posSel+space],[-gap,width+gap])
+        
+
+            for (let i=0;i<nR;i++){           
+                for (let j=0;j<nT;j++){              
+                    rCurves[i].modify(j,{pos:vec(x[i][j],y[i][j],z[i][j])})
+                }
+            }
+
+            for (let i=0;i<nT;i+=10){       
+                for (let j=0;j<nR;j++){
+                    tCurves[i/10].modify(j,{pos:vec(x[j][i],y[j][i],z[j][i])})
+                }
+            }
+
+
+            changeArrows(arrows,linspace(-1,1,nArrows[1]))
+            changeArrows(sectionArrows,[posSel])
+
+
+
+
+            var ySel=h*posSel
+            var rSel=ySel+rMid
+            rLines=[rMid,rSel]
+            var signs=[-1,1]
+
+            for (let i=0;i<2;i++){
+                
+                var y=[rMid,math.subtract(rMid,math.multiply(math.cos(t),rLines[i]))].flat()
+                var x=[0,math.multiply(math.sin(t),signs[i]*rLines[i])].flat()
+                var z=math.add(math.zeros(x.length)._data,.01)
+
+
+                var curvePoints=matToVec(math.transpose([x,y,z]))
+
+                
+                for (let j=0;j<curvePoints.length;j++){
+                    geometryCurves[i].modify(j,{pos:curvePoints[j]})
+                }
+
+                var textVec=[x[1]-x[2],y[1]-y[2]]
+                var uTextVec=math.multiply(textVec,0.2/math.norm(textVec))
+
+                
+                rText[i].pos=vec(average([x[0],x[1]])+uTextVec[0],average([y[0],y[1]])+uTextVec[1],0.2)
+            }
+
+   
+            var textGap=0.4
+
+            if (posSel<0) var textPos=[-textGap,rSel-rMid-textGap]
+            else var textPos=[textGap,rSel-rMid+textGap]
+
+            tText[0].pos=vec(0,textPos[0],0.05)
+            tText[1].pos=vec(0,-textPos[1],0.05)
+
+            //#region <get values from sliders and define phsyical values>
+            //#endregion
+
+            //#region <change shapes>
+            //#endregion
+  
+            var stageText=document.getElementsByClassName("stage-text") // accesses the divs containing the text for each stage
+
+            //#region <use changeUnderText to change the underbrace values, with stageText[stage you want to change underbrace for]>
+            changeUnderText(1,posSel*M/I,2,stageText[2])
+            changeUnderText(2,E,2,stageText[2])
+            changeUnderText(3,posSel*M/(E*I),3,stageText[2])
+
+            changeUnderText(1,M,2,stageText[3])
+            changeUnderText(2,M/I,2,stageText[3])
+            changeUnderText(3,I,2,stageText[3])
+           
+            //#endregion
+
+
+        }
+
+
+        // change the graphic for each stage (must be named exactly changeStageGraphic):
+        makeYourGraphics.changeStageGraphic=function(stage){
+
+            // variables with short names can be set to the style of the shapes (just less to write for branches)
+            var introShapes=[arrows]
+            var beam=[face,wrap]
+            var geometryShapes=[geometryCurves,tText,rText]
+            var stressShapes=[section,sectionWrap,sectionArrows].flat()
+
+            var MS=MSlider.style
+            var ES=ESlider.style
+            var HS=hSlider.style
+            var YS=ySlider.style
+
+            var IMG=bendingImg.style
+
+            if(stage==0){
+               changeVisibility([geometryShapes,stressShapes],false);changeVisibility(introShapes,true)
+               MS.visibility=ES.visibility=HS.visibility=YS.visibility="hidden";IMG.visibility="visible"
+            }else if(stage==1){
+               changeVisibility([geometryShapes,stressShapes,introShapes],false)
+               MS.visibility=ES.visibility=HS.visibility=YS.visibility=IMG.visibility="hidden"
+            }else if(stage==2){
+               changeVisibility([geometryShapes,introShapes],false);changeVisibility(stressShapes,true)
+               MS.visibility=HS.visibility=IMG.visibility="hidden";YS.visibility=ES.visibility="visible"
+            }else if(stage==3){
+               changeVisibility([geometryShapes,stressShapes],false);changeVisibility(introShapes,true)
+               YS.visibility=IMG.visibility="hidden";MS.visibility=ES.visibility=HS.visibility="visible"
+               
+            }
+
+
+            
+            //#region <change opacity of shapes and visiblity of slider (call changeOpacity)>
+            //#endregion
+
+
+        }
+    }
+</script>

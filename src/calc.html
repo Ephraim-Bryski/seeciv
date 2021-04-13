@@ -1,0 +1,123 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+
+   <!-- nerdamer -->
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.10/nerdamer.core.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.10/Algebra.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.10/Calculus.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.10/Extra.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.10/Solve.min.js"></script>
+
+    <!-- gridstack -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.12.1/underscore-min.js" integrity="sha512-MlLC+OTHLccQVYJj0oRc7LL9MBaC7EnFpVAPuru/G6Nirwsj9MVsrw+GOrkJDRQEa6/0TutTcoik9VRa53DySw==" crossorigin="anonymous"></script>  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.2.4/gridstack.min.js" integrity="sha512-WdDxKC+6+SRQzYUVYtrdh+PT4SQ+E83xpb6xZUwrayWdWaq38iqFTYytMmIt6rJPra9vXwlNOAWIjmO5bR65NA==" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.2.4/gridstack.min.css" integrity="sha512-RxnEGBxCieGCfyVnVIiLZ21OjPX+G3yIPAvwJE3tm+obCOePv02AW7ZMRDHfi5O8uF8393EY+JIDxsBPwGfXEA==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.2.4/gridstack-extra.min.css" integrity="sha512-S5Dc296GNm2+jDgIiTe56a6Daz6Zbo71O92qkvEVrwsOLOigoc3IFcqblu+deM9/2uRs9O4k8LvuQbN8nWHVuQ==" crossorigin="anonymous" />
+
+    <!-- mathquill -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.css"/> 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.js"></script>
+
+    <!-- INFORM  THE LATEST AVERSION INTERFACE WITH THIS CODE   -->
+    <script>
+        var MQ = MathQuill.getInterface(2);
+
+
+        var mysheet=[
+            {
+                name:"SoE 1",
+                eqns: [
+                    {
+                        text: "x+4=5",
+                        operation: "solve",
+                        solvefor: "x"
+                    },
+                    {
+                        text: "a+3=5",
+                        operation: "substitute"
+                    }
+                ]
+            },
+            {
+                name:"SoE 2",
+                eqns: [
+                    {
+
+                    }
+                ]
+            }
+        ]
+
+       var brace={}
+       brace.b=4
+
+       var brack=[]
+       brack.b=4
+
+    </script>
+
+
+</head>
+
+<body>
+
+
+    <script>
+/*
+        
+        MQ.StaticMath(inDiv)
+  */    
+  
+        var bigDiv=document.createElement('div')
+        document.body.appendChild(bigDiv)
+        bigDiv.style.width="50%"
+        bigDiv.style.position='absolute'
+
+        var inDiv=document.createElement('span')
+        bigDiv.appendChild(inDiv)
+        inDiv.innerHTML="bok"
+        //inDiv.style.position='absolute'
+        inDiv.style.width="10%"
+        inDiv.style.height="auto"
+        var eqDiv=MQ.MathField(inDiv,{
+        handlers: {
+    edit: function (){createSolve(eqDiv)}}})
+
+
+  
+        
+
+
+
+        /*
+        var eqDiv=MQ.MathField(inDiv,{
+            handlers:{
+                edit: function(){createSolve(eqDiv.latex())}
+            }
+        })
+        */
+
+     
+
+
+        function createSolve(eqDiv){
+            var text=eqDiv.latex()
+            
+            console.log(text)
+            if (text.includes("solve")){
+                var solveDiv=document.createElement('div')
+                document.body.appendChild(solveDiv)
+                solveDiv.innerHTML='\\text{solve} \\MathQuillMathField{} \\text{for} \\MathQuillMathField{} '
+
+                MQ.StaticMath(solveDiv)
+            }
+        }
+
+    </script>
+
+</body>

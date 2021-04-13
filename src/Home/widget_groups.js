@@ -7,7 +7,6 @@ function  makeSliderGroup(parent,xRel,yRel,labelText,length,orientation,range,in
         var moveSpinnerString=("translateY(").concat(length-width+5).concat("px)")      // 5 is just to give a bit of space (not needed)
         var displayType="block"
         var alignLabel="left"
-    }else if (orientation.localeCompare("horizontal")==0){
         var moveSliderString="translateY(10px)"                                         // just to center the slider a bit (not needed)
         var moveSpinnerString=""
         var displayType="inline-block"
