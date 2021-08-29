@@ -1,16 +1,8 @@
 # seeciv
 This is the code for the website seeciv.com. The sight will explore topics in Civil Engineering with the aid of interactive 3D graphics.
 
-The site uses GlowScript for 3D graphics and MathJax for equations. Find more at glowscript.org.
+I hope to incorporate these graphics into a math solver project I am collaorating on called QuatumSheet: https://github.com/stefnotch/quantum-sheet. Here is the current roadmap: https://docs.google.com/document/d/1khY9FJkwpUIDD7Q1wCzWFPmwEtcCwW_puN1Y9zYjKUk/edit
 
-I have some ideas for expanding the site, and I'm always looking to collaborate with others on it. Feel free to join the discussions and contribute to the code. For information on current plans, check out the Google Doc: https://docs.google.com/document/d/1khY9FJkwpUIDD7Q1wCzWFPmwEtcCwW_puN1Y9zYjKUk/edit.
+I'm always looking to collaorate with others on this project. If there's any topics you would want to see added work on, feel free to add an issue or join the Slack: slack://channel?id=C01TCELC4AH.
 
-The structure of the code is the following:
 
-  Index.html has links to HTML files for each topic (names.html and make_shapes.html). The topic files define a function (getInfo and makeShapes) that creates the text, graphics, and widgets for that topic. 
-
-  The topic files call make_page.js which creates the general display for the topic (position of divs and buttons for moving through stages of graphics). It calls the functions   (getInfo and makeShapes) to populate the page with the topic's content.
-
-  change_under_text.js changes the values of the under braces using DOM manipulation of the MathJax object.
-
-  widget.group.js groups an HTML slider, spinner, and text label.
