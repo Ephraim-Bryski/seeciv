@@ -1,0 +1,296 @@
+<body></body>
+
+<!-----------------Imports GlowScript Libraries and NumJs------------------------>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link type="text/css" href="https://www.glowscript.org/css/redmond/2.1/jquery-ui.custom.css" rel="stylesheet" />
+<link type="text/css" href="https://www.glowscript.org/css/ide.css" rel="stylesheet" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery-ui.custom.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/glow.3.0.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/RSrun.3.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/8.1.0/math.js" integrity="sha512-ne87j5uORxbrU7+bsqeJJWfWj5in65R9PCjaQL161xtH5cesZgULVbeVAkzAAN7hnYOcrHeBas9Wbd/Lm8gXFA==" crossorigin="anonymous"></script>
+
+
+<!---------------------------Adds Style-------------------------------------------------->
+<link rel="stylesheet" href="app_pages.css">
+
+<!------------------------Run make_page and change_under_text to define functions (changeUnderText is optional)------------------->
+<script src="make_page.js"></script>
+<script src="misc_funcs.js"></script>
+<script src="widget_groups.js"></script>
+<script src="surface.js"></script>
+<head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<!------------------------JavaScript------------------------------------------------>
+<script type="text/javascript">
+
+   
+
+    // Define your labels for the stages
+    var titles=["First"]
+    var text=["some info"]
+
+    // calls makePage with defined labels and function:
+    makePage(titles,text,makeYourGraphics)
+
+
+    // You can also create an array for the text in the text box and refer to it in the changeStageGraphics method
+    function makeYourGraphics(textDiv,graphDiv){
+        //#region  <define initial values>
+        var g=10;
+        var T=.3    // will be moved
+        var diffract_gap=0.2; 
+        var M=10;
+        var N=10;
+        var dx=.1;
+        var dt=.02;
+        var time_gap=50;
+        var BC_x='fixed';
+        var BC_y='fixed';
+
+        var m=M/dx;             
+        var n=N/dx;
+
+        var waterColor=color.blue
+        var waterOpacity=1
+        
+        var waveScale=200
+        var bathScale=100
+
+        var run=true // will get from button
+        //#endregion
+
+
+
+        window.__context= {glowscript_container: graphDiv}  
+        var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: false,userzoom: false,autoscale: false})
+        // use scene.center scene.forward scene.range to change scene
+        scene.range=m
+        scene.center=vec(m/2,n/2,0)
+        scene.forward=vec(0,1,-1)
+
+        var h=math.dotMultiply(
+            math.subtract(
+                math.subtract(math.ones(n,m),
+                Array(m).fill(linspace(0,0.4,n))),
+                math.transpose(Array(n).fill(linspace(0,0.4,m))))
+                ,1) // will have to get from slider
+
+
+        var grid=mesh([math.range(0,m)._data],math.transpose([math.range(0,m)._data]))
+        var xGrid=grid[0]
+        var yGrid=grid[1]
+        var zGrid=math.zeros(m,n)._data
+        var water=makeSurf(xGrid,yGrid,zGrid,waterColor,waterOpacity)
+        var bathymeter=makeSurf(xGrid,yGrid,math.dotMultiply(h._data,-bathScale),color.red)
+        var u=math.zeros(n,m+1)._data;
+        var v=math.zeros(n+1,m)._data;
+
+        var etta=math.zeros(n,m)
+
+        
+
+
+        //wall: plot3([0,0,M,M,0,0],[N/2*(1+diffract_gap),N,N,0,0,N/2*(1-diffract_gap)],2+zeros(1,6),'k','LineWidth',5)
+
+        
+
+
+        // would be button to start and stop simulation
+        
+
+
+
+
+        //#endregion
+
+        //#region <create widgets and combine into array (onlick is update)>
+        var runCheck=document.createElement('input')
+        runCheck.type='checkbox'
+        runCheck.style.position="absolute"
+        runCheck.style.left=0
+        runCheck.style.width="100%"
+        runCheck.style.top="30%"
+        document.body.appendChild(runCheck)
+
+
+        var resetButton=document.createElement('button')
+        resetButton.innerHTML='RESET'
+        resetButton.style.position="absolute"
+        resetButton.style.left=0
+        resetButton.style.width="100%"
+        resetButton.style.top="20%"
+        resetButton.onClick=function(){reset()}
+        document.body.appendChild(resetButton)
+        
+
+        //#endregion
+
+        //#region <create text with equations, combine into array and append on textDiv>
+        //#endregion
+
+        MathJax.Hub.Queue(RS_list_decorate([ "Typeset", MathJax.Hub ]),runSim)  // you could add multiple functions to update different things
+
+
+        function reset(){
+            consol.log('hi')
+            runCHeck.checked=false
+
+        }
+
+        function update(){
+            //#region <get values from sliders and define phsyical values>
+            //#endregion
+
+        }
+
+        
+
+        async function runSim(){
+            
+
+            //#region <change shapes>
+                var t=0
+            var t_step=0
+            
+            while (true) {
+                await rate(1*10^2)
+
+                var run=runCheck.checked
+                if (run){
+
+                    t=t+dt
+                    t_step=t_step+1
+
+
+
+
+
+                    // need to add zeros for diffraction
+                    // v_forcing=[zeros((1-diffract_gap)/2*n,1);
+                        //         8*sin(2*pi/T*t)*ones(diffract_gap*n,1);
+                            //        zeros((1-diffract_gap)/2*n,1)];
+                    var v_forcing=math.dotMultiply(math.ones(n,1),sin(2*pi/T*t))._data
+                    // im going to just use m for everything since m and n are the same
+                    var dettadx=math.dotDivide(math.subtract(
+                        math.subset(etta,math.index(math.range(0,m),math.range(1,m))),
+                        math.subset(etta,math.index(math.range(0,m),math.range(0,m-1)))),dx)
+                    //dettadx=(etta(:,2:end)-etta(:,1:end-1))/dx;
+
+                    var dudt=math.concat(math.concat(v_forcing,math.dotMultiply(-g,dettadx),1),math.zeros(n,1),1)
+                    //dudt=[v_forcing,-g*dettadx,zeros(n,1)];
+
+        
+                    var dettady=math.dotDivide(math.subtract(
+                        math.subset(etta,math.index(math.range(1,m),math.range(0,m))),
+                        math.subset(etta,math.index(math.range(0,m-1),math.range(0,m)))),dx)
+                    //dettady=(etta(2:end,:)-etta(1:end-1,:))/dx;
+
+                    var dvdt=math.concat(math.concat(math.zeros(1,m),math.dotMultiply(-g,dettady),0),math.zeros(1,n),0)
+                    //dvdt=[zeros(1,m);-g*dettady;zeros(1,m)];
+                
+                    
+                    // discretization of dh/dt=-h0*(du/dx+dv/dy):
+
+                    
+                    u=math.add(u,math.dotMultiply(dudt,dt))
+                    // u=u+dudt*dt;
+
+                    v=math.add(v,math.dotMultiply(dvdt,dt))
+                    // v=v+dvdt*dt;
+
+
+
+
+                    var h_ext_x=math.concat(
+                        math.subset(h,math.index(math.range(0,m),math.range(0,1)))._data,
+                        math.divide(math.add(math.subset(h,math.index(math.range(0,m),math.range(0,m-1))),
+                                            math.subset(h,math.index(math.range(0,m),math.range(0,m-1)))),2)._data,
+                        math.subset(h,math.index(math.range(0,m),math.range(m-1,m)))._data,1)
+                    // h_ext_x=[h(:,1),(h(:,1:end-1)+h(:,2:end))/2,h(:,end)];
+
+                    var h_ext_y=math.concat(
+                        math.subset(h,math.index(math.range(0,1),math.range(0,m)))._data,
+                        math.divide(math.add(math.subset(h,math.index(math.range(0,m-1),math.range(0,m))),
+                                            math.subset(h,math.index(math.range(0,m-1),math.range(0,m)))),2)._data,
+                        math.subset(h,math.index(math.range(m-1,m),math.range(0,m)))._data,0)
+
+                        
+
+
+
+                    var dhudx=math.dotDivide(math.subtract(
+                        math.dotMultiply(
+                            math.subset(h_ext_x,math.index(math.range(0,m),math.range(1,m+1))),
+                            math.subset(u,math.index(math.range(0,m),math.range(1,m+1)))),
+                        math.dotMultiply(
+                            math.subset(h_ext_x,math.index(math.range(0,m),math.range(0,m))),
+                            math.subset(u,math.index(math.range(0,m),math.range(0,m))))
+                    ),dx)
+                    //dhudx=(h_ext_x(:,2:end).*u(:,2:end)-h_ext_x(:,1:end-1).*u(:,1:end-1))/dx;
+
+
+
+                    var dhvdy=math.dotDivide(math.subtract(
+                        math.dotMultiply(
+                            math.subset(h_ext_y,math.index(math.range(1,m+1),math.range(0,m))),
+                            math.subset(v,math.index(math.range(1,m+1),math.range(0,m)))),
+                        math.dotMultiply(   
+                            math.subset(h_ext_y,math.index(math.range(0,m),math.range(0,m))),
+                            math.subset(v,math.index(math.range(0,m),math.range(0,m))))
+                    ),dx)
+
+                    // dhvdy=(h_ext_y(2:end,:).*v(2:end,:)-h_ext_y(1:end-1,:).*v(1:end-1,:))/dx;
+
+
+                    var dhdt=math.dotMultiply(-1,math.add(dhudx,dhvdy))
+                    //dhdt=-(dhudx+dhvdy);
+
+
+                    etta=math.add(etta,math.dotMultiply(dhdt,dt))
+                    //etta=etta+dhdt*dt;
+
+                    changeSurf(water,xGrid,yGrid,math.dotMultiply(etta._data,waveScale))
+
+
+                    if (t_step%time_gap==0) {
+
+    
+                        
+                    }
+                }
+            }
+
+
+            console.log('hi')
+            
+            //#endregion
+
+            var stageText=document.getElementsByClassName("stage-text") // accesses the divs containing the text for each stage
+
+            //#region <use changeUnderText to change the underbrace values, with stageText[stage you want to change underbrace for]>
+            //#endregion
+
+
+        }
+
+
+        // change the graphic for each stage (must be named exactly changeStageGraphic):
+        makeYourGraphics.changeStageGraphic=function(stage){
+
+            // variables with short names can be set to the style of the shapes (just less to write for branches)
+
+            
+            //#region <change opacity of shapes and visiblity of slider (call changeOpacity)>
+            //#endregion
+
+
+        }
+    }
+</script>
