@@ -1,8 +1,8 @@
 function makeTabBar(parent){
     //! add style (maybe make other CSS file), change look when clicked, add logo
     
-    var tabTitles=["Topics","About","Code","Feedback"]
-    var tabLinks=["","about.html","about_code.html","feedback.html"]
+    var tabTitles=["Topics","About","Code","Feedback","Calculator"]
+    var tabLinks=["","about.html","about_code.html","feedback.html","calc_about.html"]
     
 
     for (let i=0; i<tabTitles.length; i++) {
