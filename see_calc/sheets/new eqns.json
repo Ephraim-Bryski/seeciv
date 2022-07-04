@@ -1,0 +1,14 @@
+[
+  {
+    "name": "A",
+    "eqns": {
+      "input": "y=x^2"
+    }
+  },
+  {
+    "name": "A",
+    "eqns": {
+      "input": "z=y"
+    }
+  }
+]

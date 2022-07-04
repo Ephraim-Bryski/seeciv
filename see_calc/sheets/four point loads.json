@@ -1,0 +1,63 @@
+[
+  {
+    "name": "PointLoad",
+    "eqns": {
+      "input": "s=3*P/(2*pi*z^2*(1+(r/z)^2)^(5/2))"
+    }
+  },
+  {
+    "name": "Pos",
+    "eqns": [
+      {
+        "input": "PointLoad"
+      },
+      {
+        "input": "r^2=(x-px)^2+(y-py)^2"
+      }
+    ]
+  },
+  {
+    "name": "Problem",
+    "eqns": [
+      {
+        "input": "Pos,px:W/2,py:L/2,s:s1,r:r1"
+      },
+      {
+        "input": "Pos,px:-W/2,py:L/2,s:s2,r:r2"
+      },
+      {
+        "input": "Pos,px:W/2,py:-L/2,s:s3,r:r3"
+      },
+      {
+        "input": "Pos,px:-W/2,py:-L/2,s:s4,r:r4"
+      },
+      {
+        "input": "W=1"
+      },
+      {
+        "input": "L=1"
+      },
+      {
+        "input": "P=1"
+      },
+      {
+        "input": "z=1"
+      },
+      {
+        "input": "x=0"
+      },
+      {
+        "input": "s=.2"
+      },
+      {
+        "input": "s=s1+s2+s3+s4"
+      }
+    ]
+  },
+  {
+    "name": "Sol",
+    "eqns": {
+      "input": "solve Problem"
+    }
+  }
+]

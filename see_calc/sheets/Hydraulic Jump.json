@@ -1,0 +1,19 @@
+[
+  {
+    "name": "Froude",
+    "eqns": {
+      "input": "Fr=v/sqrt(g*h)"
+    }
+  },
+  {
+    "name": "Hydraulic_Jump",
+    "eqns": [
+      {
+        "input": "Froude"
+      },
+      {
+        "input": "h2/h1=1/2*(-1+sqrt(1+8*Fr^2))"
+      }
+    ]
+  }
+]

@@ -1,0 +1,54 @@
+[
+  {
+    "name": "Shoal",
+    "eqns": [
+      {
+        "input": "Ks=sqrt(1/(2*n*tanh(k*d)))"
+      },
+      {
+        "input": "n=.5*(1+2*k*d/(sinh(2*k*d)))"
+      },
+      {
+        "input": "k=2*pi/L"
+      },
+      {
+        "input": "H/H0=Ks"
+      }
+    ]
+  },
+  {
+    "name": "Dispersive",
+    "eqns": {
+      "input": "L=g*T^2/(2*pi)*tanh(k*d)"
+    }
+  },
+  {
+    "name": "Problem",
+    "eqns": [
+      {
+        "input": "Shoal"
+      },
+      {
+        "input": "Dispersive"
+      },
+      {
+        "input": "T=1"
+      },
+      {
+        "input": "d=1"
+      },
+      {
+        "input": "H0=3"
+      },
+      {
+        "input": "g=9.81"
+      }
+    ]
+  },
+  {
+    "name": "Sol",
+    "eqns": {
+      "input": "solve Problem"
+    }
+  }
+]

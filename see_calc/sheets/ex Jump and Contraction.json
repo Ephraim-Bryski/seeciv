@@ -1,0 +1,88 @@
+[
+  {
+    "name": "Froude",
+    "eqns": {
+      "input": "Fr=v/sqrt(g*h)"
+    }
+  },
+  {
+    "name": "Ber",
+    "eqns": {
+      "input": "H=h+v^2/(2*g)"
+    }
+  },
+  {
+    "name": "Hydraulic_Jump",
+    "eqns": [
+      {
+        "input": "Froude,h:h1,v:v1"
+      },
+      {
+        "input": "h2/h1=1/2*(-1+sqrt(1+8*Fr^2))"
+      }
+    ]
+  },
+  {
+    "name": "FlowRate",
+    "eqns": [
+      {
+        "input": "q=v*h"
+      },
+      {
+        "input": "Q=q*B"
+      }
+    ]
+  },
+  {
+    "name": "Contraction",
+    "eqns": [
+      {
+        "input": "FlowRate,B:B1,q:q1,v:v1,h:h1"
+      },
+      {
+        "input": "FlowRate,B:B2,q:q2,v:v2,h:h2"
+      },
+      {
+        "input": "Ber,h:h1,v:v1"
+      },
+      {
+        "input": "Ber,h:h2,v:v2"
+      }
+    ]
+  },
+  {
+    "name": "Problem",
+    "eqns": [
+      {
+        "input": "Contraction,h1:hb,h2:hc,v1:vb,v2:vc,q1:qb,q2:qc"
+      },
+      {
+        "input": "Hydraulic_Jump,v1:va,h1:ha,h2:hb"
+      },
+      {
+        "input": "g=9.81"
+      },
+      {
+        "input": "B1=1"
+      },
+      {
+        "input": "B2=2"
+      },
+      {
+        "input": "Q=3"
+      },
+      {
+        "input": "ha=1"
+      },
+      {
+        "input": "FlowRate,q:qa,B:B1,h:ha,v:va"
+      }
+    ]
+  },
+  {
+    "name": "Sol",
+    "eqns": {
+      "input": "solve Problem"
+    }
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Mohr",
+    "eqns": [
+      {
+        "input": "sav=(sx+sy)/2"
+      },
+      {
+        "input": "R=sqrt(((sx-sy)/2)^2+T^2)"
+      },
+      {
+        "input": "smax=sav+R"
+      },
+      {
+        "input": "smin=sav-R"
+      },
+      {
+        "input": "tan(2*a)=2*T/(sx-sy)"
+      },
+      {
+        "input": "Tmax=1/2*(smax-smin)"
+      }
+    ]
+  },
+  {
+    "name": "P1",
+    "eqns": [
+      {
+        "input": "Mohr,sx:20,sy:100,T:35"
+      },
+      {
+        "input": "Mohr,a:30*pi/180"
+      }
+    ]
+  },
+  {
+    "name": "Sol",
+    "eqns": {
+      "input": "solve P1"
+    }
+  }
+]

@@ -1,0 +1,52 @@
+body{
+    background-color: black;
+    border: 5px;
+    border-color: red;
+}
+
+.block{
+    background-color: white;
+    margin-bottom: 25px;
+    width: fit-content; 
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.remove-btn{
+    font-size: inherit;
+    border:none;
+    background-color: white;
+    color:darkgray;
+    text-align: center;
+}
+
+.remove-btn:hover{
+    color:black;
+    cursor: pointer;
+}
+
+.block-name{
+    margin-bottom: 10px;
+    font-size: large;
+
+}
+
+.block-name-txt{
+    font-size: inherit;
+}
+
+
+.block-remove{
+    float:right;
+}
+
+
+
+
+#save-load{
+    float:right;
+}
+
+#debug{
+    color:white;
+}

@@ -1,0 +1,26 @@
+{
+  "name": "SoilProps",
+  "eqns": [
+    {
+      "input": "e=Vv/Vs"
+    },
+    {
+      "input": "n=Vv/V"
+    },
+    {
+      "input": "S=Vw/Vv"
+    },
+    {
+      "input": "w=Ww/Ws"
+    },
+    {
+      "input": "y=W/V"
+    },
+    {
+      "input": "yd=Ws/V"
+    },
+    {
+      "input": "Ws=Gs*yw"
+    }
+  ]
+}

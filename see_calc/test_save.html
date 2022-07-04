@@ -1,0 +1,23 @@
+<div id="stuff"></div>
+<script>
+
+    function setup(htmlComponent) {
+		          
+        htmlComponent.addEventListener("DataChanged", function(event) {
+            
+            var sheet = JSON.stringify(htmlComponent.Data)
+            download(sheet.data,sheet.name+'.txt','text/plain')
+        //document.getElementById("stuff").innerHTML = htmlComponent.Data;
+            
+    })};   
+
+
+    function download(content, fileName, contentType) {
+        var a = document.createElement("a");
+        var file = new Blob([content], {type: contentType});
+        a.href = URL.createObjectURL(file);
+        a.download = fileName;
+        a.click()
+    }
+    
+</script>

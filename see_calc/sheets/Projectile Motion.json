@@ -1,0 +1,43 @@
+[
+  {
+    "name": "motion",
+    "eqns": {
+      "input": "d=v0*t+1/2*a*t^2"
+    }
+  },
+  {
+    "name": "ProjEq",
+    "eqns": [
+      {
+        "input": "motion,v0:vx,a:0,d:L"
+      },
+      {
+        "input": "motion,v0:vy,a:-g,d:y"
+      },
+      {
+        "input": "g=9.81"
+      },
+      {
+        "input": "vx=v0*cos(a)"
+      },
+      {
+        "input": "vy=v0*sin(a)"
+      },
+      {
+        "input": "a=.1"
+      },
+      {
+        "input": "v0=20"
+      },
+      {
+        "input": "L=10"
+      }
+    ]
+  },
+  {
+    "name": "Sol",
+    "eqns": {
+      "input": "solve ProjEq"
+    }
+  }
+]

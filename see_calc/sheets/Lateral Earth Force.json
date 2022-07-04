@@ -1,0 +1,65 @@
+[
+  {
+    "name": "LateralFactors",
+    "eqns": [
+      {
+        "input": "Kp=(1+sin(phi))/(1-sin(phi))"
+      },
+      {
+        "input": "Ka=(1-sin(phi))/(1+sin(phi))"
+      }
+    ]
+  },
+  {
+    "name": "LateralForce",
+    "eqns": {
+      "input": "Fh=Ka*Fv"
+    }
+  },
+  {
+    "name": "VerForce",
+    "eqns": [
+      {
+        "input": "Feff=0.5*(y-yw)*H^2"
+      },
+      {
+        "input": "Fw=0.5*yw*H^2"
+      }
+    ]
+  },
+  {
+    "name": "Problem",
+    "eqns": [
+      {
+        "input": "LateralFactors"
+      },
+      {
+        "input": "LateralForce,Fv:Feff,Fh:Fsoil"
+      },
+      {
+        "input": "VerForce"
+      },
+      {
+        "input": "Ftot=Fw+Fsoil"
+      },
+      {
+        "input": "H=1"
+      },
+      {
+        "input": "y=1"
+      },
+      {
+        "input": "yw=.5"
+      },
+      {
+        "input": "phi=.1"
+      }
+    ]
+  },
+  {
+    "name": "Sol",
+    "eqns": {
+      "input": "solve Problem"
+    }
+  }
+]
