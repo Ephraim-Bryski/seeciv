@@ -42,11 +42,54 @@ body{
 
 
 
-
-#save-load{
-    float:right;
+.line {
+    display: flex;
+    align-items: center;
 }
 
-#debug{
+.sub-table{
+    border: 2px;
+    border-style: solid;
+    margin: 5px;
+}
+
+.sub-input{
+    width: 50px;
+    
+}
+
+.sheet-load-btn{
+    background-color: black;
+    color: white;
+    width: fit-content; 
+    padding: 2px;
+    display: block;
+    border: none;
+    color: gray;
+}
+
+.sheet-load-btn:hover{
     color:white;
+    cursor: pointer;
+}
+
+#load-btn{
+    background-color: black;
+    width: fit-content; 
+    padding: 5px;
+    display: block;
+    border: none;
+    color: gray;
+    font-size: larger;
+    margin-bottom: 10px;
+}
+
+#load-btn:hover{
+    color:white;
+    cursor: pointer;
+}
+
+
+#load{
+    float: right;
 }

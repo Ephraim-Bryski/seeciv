@@ -1,0 +1,203 @@
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Calculus.min.js"></script>
+
+<script src="solver.js">// to get get_all_vars</script>
+
+
+<head>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>
+</head>
+
+<body>
+<p>
+    You can execute any Python code. Just enter something in the box below and
+    click the button.
+</p>
+<input id="code" value="x-x=3" />
+<button onclick="test()">Run</button>
+<br />
+<br />
+<div>Output:</div>
+<textarea id="output" style="width: 100%;" rows="6" disabled></textarea>
+
+<script>
+    const output = document.getElementById("output");
+    const code = document.getElementById("code");
+
+
+
+
+
+
+    let pyodide;
+    async function main() {
+        pyodide = await loadPyodide();
+        await pyodide.loadPackage("sympy");
+    }
+    main();
+
+
+
+
+
+    function not_async(){
+
+    }
+
+    function test(){
+        var eqn = document.getElementById("code").value
+        var solve_for = "x"
+        var result = sympy_solve(eqn,solve_for)
+        document.getElementById("output").value = result
+
+
+    }
+
+    function sympy_solve(eqn,solve_for) {   
+        
+        
+
+
+        // feed the commands to pyodide:
+        try {
+            var result = pyodide.runPython(make_sympy_commands(eqn,"x"));
+            
+            return parse_result(result)
+        } catch (err) {
+            throw err
+        }
+
+        // construct commands from the equation and what to solve for:
+        function make_sympy_commands(eqn,solve_for){
+            var command = ""
+
+            command+="from sympy import *;"
+
+            
+            var vars = get_all_vars([eqn])
+
+            vars.forEach((variable)=>{
+                var line = variable+'=Symbol("'+variable+'");'
+                command+=line
+            })
+            // get variables add Symbol commands for each
+            var exp = make_py_exp(eqn)
+            command+="sol=solve("+exp+","+solve_for+");"
+            command+="last_sol=([54321]+sol)[-1];"
+            command+="val=N(last_sol,chop=True);"
+            command+="simp=simplify("+exp+");"
+            command+="is_complex=im(last_sol)!=0;"
+            command+="result=[val,simp,is_complex];"
+            command+="result"
+
+           
+            console.log(command)
+
+            return command
+        }
+
+
+         /*
+
+        will have to check if contradiction
+        can use simplify function
+            0:                                  infinite solutions, nothing useful  --> continue and delete equation
+            variables, doesn't have solve_for:  infinite solutions, still useful    --> continue and swap equation with simplified (setting expression equal to 0)
+            variables with solve_for:           solutions                           --> keep the solution (should be only case where the solution isn't an empty array)
+            non-zero number:                    no solutions                        --> throw error
+            
+
+        Python would return result of solving equation and result of simplify to JS, then JS would check it
+
+        */
+
+        function parse_result(result){
+
+            // parses the result from pyodide, which contains
+            result = result.toString()
+            var split_result = result.replaceAll("[","").replace("]","").replaceAll("'","").replaceAll(" ","").split(",")
+            var sol = split_result[0]
+            var simp = split_result[1]
+            var is_complex = split_result[2]
+            return split_result
+
+            // this stuff should be done in the outer function
+            if (is_complex==="True"){
+                return "complex"
+            }
+
+            var simp_vars = get_all_vars([simp])
+            if (simp_vars.length===0){
+                var simp_val = parseFloat(simp)
+                if(simp_val===0){
+                    return "delete"
+                    // delete eqn
+                }else{
+                    return "contradiction"
+                }
+            }else if (simp_vars.includes(solve_for)){    // solve_for may also need to be passed as an input
+                var sol = make_js_exp(sol)
+                return sol
+            }else{
+                return "continue"
+                // keep the simplified equation, continue
+            }
+
+        }
+
+
+
+        function make_py_exp(eqn){
+            eqn = eqn.replaceAll("^","**")
+            exp = eqn.replaceAll("=","-")
+            return exp
+        }
+
+        function make_js_exp(exp){
+            exp = exp.replaceAll("**","^")
+            exp = exp.replaceAll(" ","")
+            return solve_for+"="+exp
+        }
+    }
+
+
+
+
+
+
+</script>
+</body>
+
+<script>
+    /*
+    const output = document.getElementById("output");
+    const code = document.getElementById("code");
+
+    function addToOutput(s) {
+      output.value += ">>>" + code.value + "\n" + s + "\n";
+    }
+
+    output.value = "Initializing...\n";
+    // init Pyodide
+    async function main() {
+      let pyodide = await loadPyodide();
+      output.value += "Ready!\n";
+      return pyodide;
+    }
+    let pyodideReadyPromise = main();
+
+    async function evaluatePython() {
+      let pyodide = await pyodideReadyPromise;
+      try {
+        let output = pyodide.runPython(code.value);
+        addToOutput(output);
+      } catch (err) {
+        addToOutput(err);
+      }
+    }
+    */
+  </script>
+

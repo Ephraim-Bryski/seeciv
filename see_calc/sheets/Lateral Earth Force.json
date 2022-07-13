@@ -12,9 +12,9 @@
   },
   {
     "name": "LateralForce",
-    "eqns": {
+    "eqns": [{
       "input": "Fh=Ka*Fv"
-    }
+    }]
   },
   {
     "name": "VerForce",
@@ -34,7 +34,7 @@
         "input": "LateralFactors"
       },
       {
-        "input": "LateralForce,Fv:Feff,Fh:Fsoil"
+        "input": "LateralForce sub Fv:Feff,Fh:Fsoil"
       },
       {
         "input": "VerForce"
@@ -58,8 +58,8 @@
   },
   {
     "name": "Sol",
-    "eqns": {
+    "eqns": [{
       "input": "solve Problem"
-    }
+    }]
   }
 ]

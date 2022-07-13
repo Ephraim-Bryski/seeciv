@@ -1,9 +1,9 @@
 [
   {
     "name": "Chezy",
-    "eqns": {
+    "eqns": [{
       "input": "Q=A*C*sqrt(R*S)"
-    }
+    }]
   },
   {
     "name": "Rectangular",

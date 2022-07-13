@@ -1,16 +1,50 @@
-<script src="https://github.com/adrianton3/pso.js.git">
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Calculus.min.js"></script>
+<body></body>
+<!--
+<script>
+    var arr = [3,2,8,7]
+    var stuff = ["three","two","eight","seven"]
+    var arr_sorted = []
+    var stuff_sorted = []
+    for (let i=0;i<arr.length;i++){
+        var elem_sel = arr[i]
+        var stuff_sel = stuff[i]
+        var idx = arr_sorted.findIndex(elem=>{return elem_sel<elem})
+        if (idx===-1){idx=arr.length}
+        arr_sorted.splice(idx,0,elem_sel)
+        stuff_sorted.splice(idx,0,stuff_sel)
+        console.log(arr_sorted)
+        console.log(stuff_sorted)
+    }
+</script>
+-->
+<script>
+    document.body.appendChild(null)
+</script>
 
-var optimizer = new pso.Optimizer();
+<script src="solver.js"></script>
+<script src="tabular_sub.js"></script>
 
-// set the objective function
-optimizer.setObjectiveFunction(function (x) { return -(x[0] * x[0] + x[1] * x[1]); });
+<script>
+    /*
+    solve = (eqn,variable)=>{
+        var sol = nerdamer(eqn).solveFor(variable)
+        for (let i=0;i<sol.length;i++){
+            sol[i] = sol[i].evaluate().toString()
+        }
+        console.log(sol)
+        return sol
+    }
 
-// set an initial population of 20 particles spread across the search space *[-10, 10] x [-10, 10]*
-optimizer.init(20, [{ start: -10, end: 10 }, { start: -10, end: 10 }]);
+    solve("sqrt(1-x^3)=0","x")
 
-// run the optimizer 40 iterations
-for (var i = 0; i < 40; i++) {
-    optimizer.step();
-}
+    console.log(transpose([[1,2],[3,4]]))
+    */
 
 </script>
+
+

@@ -14,10 +14,10 @@
     "name": "Problem",
     "eqns": [
       {
-        "input": "Stretch,D:3,A:A1,dL:dL1"
+        "input": "Stretch sub D:3,A:A1,dL:dL1"
       },
       {
-        "input": "Stretch,D:4,A:A2,dL:dL2"
+        "input": "Stretch sub D:4,A:A2,dL:dL2"
       },
       {
         "input": "L=5"

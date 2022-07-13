@@ -1,9 +1,9 @@
 [
   {
     "name": "PointLoad",
-    "eqns": {
+    "eqns": [{
       "input": "s=3*P/(2*pi*z^2*(1+(r/z)^2)^(5/2))"
-    }
+    }]
   },
   {
     "name": "Pos",
@@ -20,16 +20,16 @@
     "name": "Problem",
     "eqns": [
       {
-        "input": "Pos,px:W/2,py:L/2,s:s1,r:r1"
+        "input": "Pos sub px:W/2,py:L/2,s:s1,r:r1"
       },
       {
-        "input": "Pos,px:-W/2,py:L/2,s:s2,r:r2"
+        "input": "Pos sub px:-W/2,py:L/2,s:s2,r:r2"
       },
       {
-        "input": "Pos,px:W/2,py:-L/2,s:s3,r:r3"
+        "input": "Pos sub px:W/2,py:-L/2,s:s3,r:r3"
       },
       {
-        "input": "Pos,px:-W/2,py:-L/2,s:s4,r:r4"
+        "input": "Pos sub px:-W/2,py:-L/2,s:s4,r:r4"
       },
       {
         "input": "W=1"

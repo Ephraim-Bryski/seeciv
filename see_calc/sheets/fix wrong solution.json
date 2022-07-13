@@ -1,18 +1,18 @@
 [
   {
     "name": "PointLoad",
-    "eqns": {
+    "eqns": [{
       "input": "s=3*P/(2*pi*z^2*(1+(r/z)^2)^(5/2))"
-    }
+    }]
   },
   {
     "name": "VerPosition",
     "eqns": [
       {
-        "input": "PointLoad,r:r1,s:s1"
+        "input": "PointLoad sub r:r1,s:s1"
       },
       {
-        "input": "PointLoad,r:r2,s:s2"
+        "input": "PointLoad sub r:r2,s:s2"
       },
       {
         "input": "z=4"

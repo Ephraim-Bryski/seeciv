@@ -1,0 +1,43 @@
+[
+  {
+    "name": "Mohr",
+    "eqns": [
+      {
+        "input": "sav=(sx+sy)/2"
+      }
+    ]
+  },
+  {
+    "name": "P1",
+    "eqns": [
+      {
+        "input": "Mohr sub",
+        "sub_table": [
+          [
+            "sav",
+            "sx",
+            "sy"
+          ],
+          [
+            "sav",
+            "20",
+            "100"
+          ],
+          [
+            "sav",
+            "sx",
+            "sy"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Sol",
+    "eqns": [
+      {
+        "input": "solve P1"
+      }
+    ]
+  }
+]

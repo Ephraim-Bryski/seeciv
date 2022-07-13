@@ -12,24 +12,24 @@
   },
   {
     "name": "Thermal",
-    "eqns": {
+    "eqns": [{
       "input": "dL=dT*L*k"
-    }
+    }]
   },
   {
     "name": "Problem",
     "eqns": [
       {
-        "input": "Stretch,dL:dL1f,D:D1,A:A1"
+        "input": "Stretch sub dL:dL1f,D:D1,A:A1"
       },
       {
-        "input": "Stretch,dL:dL2f,D:D2,A:A2"
+        "input": "Stretch sub dL:dL2f,D:D2,A:A2"
       },
       {
-        "input": "Thermal,dL:dL1Temp"
+        "input": "Thermal sub dL:dL1Temp"
       },
       {
-        "input": "Thermal,dL:dL2Temp"
+        "input": "Thermal sub dL:dL2Temp"
       },
       {
         "input": "D1=2"

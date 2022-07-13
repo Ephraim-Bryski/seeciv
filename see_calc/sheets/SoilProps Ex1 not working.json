@@ -33,9 +33,9 @@
   },
   {
     "name": "P1",
-    "eqns": {
-      "input": "SoilProps,y:20.5,w:0.265,Gs:2.7,V:1,yw:1"
-    }
+    "eqns": [{
+      "input": "SoilProps sub y:20.5,w:0.265,Gs:2.7,V:1,yw:1"
+    }]
   },
   {
     "name": "blah",

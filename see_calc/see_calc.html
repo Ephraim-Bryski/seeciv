@@ -8,27 +8,41 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="mathquill.js"></script>
 
+<!--
+<script src="tabular_sub.js"></script>
+
+-->
+
+
+<link rel="stylesheet" href="main.css"/>
+
 
 
 <body>
+
+    <div id="load">
+        <input id="save-field"><button id="save-btn">Save</button>
+        <br>
+        <button id="load-btn">Library</button>
+    </div>
+
+
     <div style="color:white">Ctrl+Etr to calculate</div>
     <div style="color:white">Etr to make new line</div>
     
-    <button id="load" style="display:none">LOAD</button>
-    <input id="load_txt" style="display:none">
-    <div id="load_error" style="display:none"></div>
     
     
 
     <div id="root"></div>
     
-    </div>
 </body>
 
 
+<script src="solver.js"></script>
 
-<link rel="stylesheet" href="main.css"/>
 <script src="compute_sheet.js"></script>
 <script src="see_calc.js"></script>
+
+
 
 

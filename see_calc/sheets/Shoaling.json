@@ -18,9 +18,9 @@
   },
   {
     "name": "Dispersive",
-    "eqns": {
+    "eqns": [{
       "input": "L=g*T^2/(2*pi)*tanh(k*d)"
-    }
+    }]
   },
   {
     "name": "Problem",
