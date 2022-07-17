@@ -1,0 +1,49 @@
+[
+  {
+    "name": "Small",
+    "eqns": [
+      {
+        "input": "a=3"
+      },
+      {
+        "input": "b=4"
+      }
+    ]
+  },
+  {
+    "name": "Big",
+    "eqns": [
+      {
+        "input": "Small"
+      },
+      {
+        "input": "Small"
+      },
+      {
+        "input": "Small"
+      }
+    ]
+  },
+  {
+    "name": "Super",
+    "eqns": [
+      {
+        "input": "Big"
+      },
+      {
+        "input": "Big"
+      },
+      {
+        "input": "Big"
+      }
+    ]
+  },
+  {
+    "name": "Sol",
+    "eqns": [
+      {
+        "input": "solve Big"
+      }
+    ]
+  }
+]

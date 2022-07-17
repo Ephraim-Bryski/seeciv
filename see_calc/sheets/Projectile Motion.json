@@ -1,18 +1,37 @@
 [
   {
     "name": "motion",
-    "eqns": [{
-      "input": "d=v0*t+1/2*a*t^2"
-    }]
+    "eqns": [
+      {
+        "input": "d=v0*t+1/2*a*t^2"
+      }
+    ]
   },
   {
     "name": "ProjEq",
     "eqns": [
       {
-        "input": "motion sub v0:vx,a:0,d:L"
-      },
-      {
-        "input": "motion sub v0:vy,a:-g,d:y"
+        "input": "motion sub v0:vx,a:0,d:L",
+        "sub_table": [
+          [
+            "d",
+            "v0",
+            "t",
+            "a"
+          ],
+          [
+            "L",
+            "vx",
+            "t",
+            "0"
+          ],
+          [
+            "y",
+            "vy",
+            "t",
+            "-g"
+          ]
+        ]
       },
       {
         "input": "g=9.81"
@@ -36,8 +55,10 @@
   },
   {
     "name": "Sol",
-    "eqns": [{
-      "input": "solve ProjEq"
-    }]
+    "eqns": [
+      {
+        "input": "solve ProjEq"
+      }
+    ]
   }
 ]

@@ -18,37 +18,61 @@
   },
   {
     "name": "Dispersive",
-    "eqns": [{
-      "input": "L=g*T^2/(2*pi)*tanh(k*d)"
-    }]
+    "eqns": [
+      {
+        "input": "L=g*T^2/(2*pi)*tanh(k*d)"
+      }
+    ]
   },
   {
-    "name": "Problem",
+    "name": "Combined",
     "eqns": [
       {
         "input": "Shoal"
       },
       {
         "input": "Dispersive"
-      },
+      }
+    ]
+  },
+  {
+    "name": "Problem",
+    "eqns": [
       {
-        "input": "T=1"
-      },
-      {
-        "input": "d=1"
-      },
-      {
-        "input": "H0=3"
-      },
-      {
-        "input": "g=9.81"
+        "input": "Combined sub",
+        "sub_table": [
+          [
+            "Ks",
+            "n",
+            "k",
+            "d",
+            "L",
+            "H",
+            "H0",
+            "g",
+            "T"
+          ],
+          [
+            "Ks",
+            "n",
+            "k",
+            "1",
+            "L",
+            "H",
+            "3",
+            "9.81",
+            "1"
+          ]
+        ]
       }
     ]
   },
   {
     "name": "Sol",
-    "eqns": {
-      "input": "solve Problem"
-    }
+    "eqns": [
+      {
+        "input": "solve Problem"
+      }
+    ]
   }
 ]

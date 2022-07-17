@@ -1,0 +1,72 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.js" integrity="sha512-BbVEDjbqdN3Eow8+empLMrJlxXRj5nEitiCAK5A1pUr66+jLVejo3PmjIaucRnjlB0P9R3rBUs3g5jXc8ti+fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="solver.js"></script>
+<body></body>
+<script>
+    console.log(remove_zero_terms("b*(b + 3.0) - 4-(0)"))
+    function remove_zero_terms(exp){
+        var product_terms = []
+
+        search_tree(exp,1)
+
+        var filtered_terms = product_terms.filter(term=>get_all_vars(term).length>1)
+
+        
+
+        if (product_terms.length>filtered_terms.length){
+            console.log("terms that could be zero were eliminated: "+excess(product_terms,filtered_terms))
+        }
+
+        if (filtered_terms.length!==1){
+            var error_msg = "multiple terms could be zero: "
+            if (filtered_terms.length===0){var terms = product_terms}else{var terms = filtered_terms}
+            terms.forEach(term=>{error_msg+=term+", "})
+            throw error_msg
+        }
+
+
+        return filtered_terms[0]
+
+        
+        function search_tree(exp,exp_sign){
+            var exp_tree = math.parse(exp)
+
+
+            if (exp_tree.content!==undefined){   // if it's in parentheses you have to get the content property first
+                search_tree(exp_tree.content.toString(),exp_sign)
+                return
+            }
+
+            var arg_trees = exp_tree.args
+            var op = exp_tree.op
+
+
+            if (op!=="*" && op!=="/"){
+                add_term(exp,exp_sign)
+                return
+            }
+
+            arg_trees.forEach((arg_tree,idx)=>{
+                var arg = arg_tree.toString()
+                if (get_all_vars(arg).length<2){
+                    if (op==="/" && idx===1){add_term(arg,-exp_sign)}
+                    else{add_term(arg,exp_sign)}
+                }else{
+                    if (op==="/" && idx===1){search_tree(arg,-exp_sign)}
+                    else{search_tree(arg,exp_sign)}
+                }
+
+            })
+
+
+            function add_term(term,exp_sign){
+                if (exp_sign===1){
+                    product_terms.push(term)
+                }else{
+                    product_terms.push("("+term+")^(-1)")
+                }
+            }
+        }
+    }
+    
+
+</script>

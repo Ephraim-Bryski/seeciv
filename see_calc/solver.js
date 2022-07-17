@@ -1,209 +1,67 @@
-var eqns = [ 
-
-    "1=v*h",
-    "1=h+v^2/(20)"
-    
-    ]
-    
-    var eqns = [
-        "1=1/v+v^2/20"
-    ]
-
-
-var eqns = [ "qb=vb*hb",
-"Q=qb*B1",
-"qc=vc*hc",
-"Q=qc*B2",
-"H=hb+vb^2/(2*g)",
-"H=hc+vc^2/(2*g)",
-"Fr=va/sqrt(g*ha)",
-"hb/ha=1/2*(-1+sqrt(1+8*Fr^2))",
-"g=9.81",
-"B1=1",
-"B2=2",
-"Q=3",
-"ha=1",
-"qa=va*ha",
-"Q=qa*B1"]
-
-
-
-
-
-
-var eqns = [
-    "dL1=F*L/(f*A1)",
-"A1=pi*D^2/4",
-"dL2=F*L/(f*A2)",
-"A2=pi*D^2/4",
-"L=5",
-"f=10",
-"dL1+dL2=dLTot",
-"dLTot=1",
-"D=1"
-]
-
-var eqns = [
-    
-"sav=(sx+100)/2",
-"R=sqrt(((sx-100)/2)^2+35^2)",
-"smax=sav+R",
-"smin=sav-R",
-"tan(2*a)=2*35/(sx-100)",
-"Tmax=1/2*(smax-smin)",
-"sav=(sx+sy)/2",
-"R=sqrt(((sx-sy)/2)^2+T^2)",
-"smax=sav+R",
-"smin=sav-R",
-"tan(2*a)=2*T/(sx-sy)",
-"Tmax=1/2*(smax-smin)"
-]
-
-
-var eqns = [
-    "Ks=sqrt(1/(2*n*tanh(k*d)))",
-"n=0.5*(1+2*k*d/(sinh(2*k*d)))",
-"k=2*pi/L",
-"H/H0=Ks",
-"L=g*T^2/(2*pi)*tanh(k*d)",
-"T=1",
-"d=1",
-"H0=3",
-"g=9.81"
-]
-/*
-
-var eqns = ["g=9.81",
-"B1=1",
-"B2=2",
-"Q=3",
-"ha=1",
-
-"Q=qa*B1",
-"Q=qb*B1",
-"Q=qc*B2",
-
-"qa=va*ha",
-
-"Fr=va/sqrt(g*ha)",
-
-"hb/ha=1/2*(-1+sqrt(1+8*Fr^2))",
-
-"qb=vb*hb",
-
-"H=hb+vb^2/(2*g)"]
-
-*/
-
-var eqns = [
-    "sav=(20+100)/2",
-"R=sqrt(((20-100)/2)^2+35^2)",
-"smax=sav+R",
-"smin=sav-R",
-"a=2*35/(20-100)",
-"Tmax=1/2*(smax-smin)",
-"sav=(sx+sy)/2",
-"R=sqrt(((sx-sy)/2)^2+T^2)",
-"smax=sav+R",
-"smin=sav-R",
-"30*3.14/180=2*T/(sx-sy)",
-"Tmax=1/2*(smax-smin)"
-]
-
-
-//console.log(solve_eqns(eqns))
-
-
-
-function unit_test(func,problem,expectation){
-    try{
-        var result = func(problem)
-    }catch(error){
-        var result = error
-    }
-    if (areEqual(result,expectation)){
-        console.log("PASS")
-    }else{
-        console.log("FAIL")
-        console.log(result)
-    }
-
-
-    
-    // JS is retarded and arrays are objects so [3,4]==[3,4] is false so you need to check if the arrays are the same using this
-    function areEqual(array1, array2) {
-    if (array1.length === array2.length) {
-      return array1.every((element, index) => {
-        if (element === array2[index]) {
-          return true;
-        }
-  
-        return false;
-      });
-    }
-  
-    return false;
-  }
-}
-
-
-
-
-
-unit_tests()
-function unit_tests(){
-    //unit_test(solve_eqns,["x=4"],["x=4"])
-    //unit_test(remove_vars,["x+3=y","x=2*y"],["x"])
-
-}
-//! crashes: ["x=c^2","c=x^2+f","y=x^2"]    
-
-
-
-//console.log(solve_eqns(eqns))
-
-//var eqns = ["x+y=4","x=2*y","z=3*y+x","z=2*x"]
-
-
-
-
 
 // this would be used for substitution with blank outputs
 // this will NOT throw an error if the substitution leads to a contradiction
 function remove_vars(eqns,remove_vars){
     var stuff = back_solve(eqns,remove_vars)
     if(get_all_vars(stuff[2]).length===0){
+        console.log(stuff)
         throw "removed too much"
     }else{
         return stuff[2] // the third element has all the remaining equations
     }
 
 }
- 
-// it could just be done calling solve_eqns and getting the one you're trying to solve for, but this also works for solving in terms of other things
-function solve_eqns_for(eqns,solve_for){
-    if(solve_for.length===0){
-        // return solve_eqns(eqns)
-    }
-    var sub_vars = excess(get_all_vars(eqns),solve_for)
-    var stuff = back_solve(eqns,sub_vars)
-    console.log(stuff)
-    var sol = stuff[2]  // this is the stuff left over, which has everything in terms of solve_for
-    if (intersection(get_all_vars(sol),solve_for).length===0){
-        throw "cannot solve for"
-    }
 
-    // still have to check all the substituted equations are consistent:
-    try{
-        return solve_eqns(sol)
-    }catch(err){
-        throw "error remaining eqns: "+err
+/*
+
+function solve_eqns(eqns,solve_for=""){
+    var eqns_simp = []
+    eqns.forEach(eqn=>{
+       // eqns_simp.push(sympy_simplify(eqn))
+       eqns_simp.push(eqn)
+    })
+    var eqns_unique = [...new Set(eqns_simp)];
+    var vars = get_all_vars(eqns_unique)
+
+    var n_vars = vars.length
+    var n_eqns = eqns_unique.length
+
+    
+
+    if (n_vars>n_eqns){
+        throw "more unknowns than equations"
+    }else if (n_eqns>n_vars){
+        throw "more equations than unknowns"
     }
+    
+
+    var sympy_sol = sympy_system_solve(eqns_unique,vars)   // returns a string from sympy containing all values in a Matrix
+    return format_sol(sympy_sol,vars,solve_for)          // returns a string like "x=3, y=4, z=2"
+
 }
+*/
 
 
+function my_solve_eqns(eqns,solve_var){
 
-function solve_eqns(eqns){
+    var eqns_simp = []
+    eqns.forEach(eqn=>{
+       // eqns_simp.push(sympy_simplify(eqn))
+       eqns_simp.push(eqn)
+    })
+    var eqns_unique = [...new Set(eqns_simp)];
+    var vars = get_all_vars(eqns_unique)
+
+    var n_vars = vars.length
+    var n_eqns = eqns_unique.length
+
+    /*
+    if (n_vars>n_eqns){
+        throw "more unknowns than equations"
+    }else if (n_eqns>n_vars){
+        throw "more equations than unknowns"
+    }
+    */
 
     var stuff = back_solve(eqns,get_all_vars(eqns))      
     var sols = stuff[0]
@@ -220,34 +78,22 @@ function solve_eqns(eqns){
 
     //! if im not using nerdamer i need some other way to check for contradictions (could just send it over to solve_eqn OR check in backsolve)
     extra.forEach((extra_eqn)=>{
-        try{nerdamer(extra_eqn)}catch{throw "contradiction from nerdamer"} //! should probably be checked in back_solve so it will also lead to contradiction error   // if the equation is something like 3=4, nerdamer throws an error
-        if (nerdamer(extra_eqn).variables().length!==0){throw "makes no sense O: from nerdamer"}
+        var simp_exp = sympy_simplify(extra_eqn)
+        if (get_all_vars(simp_exp).length!==0){throw "solution has variables??"}
+
+
+        if (Math.abs(parseFloat(simp_exp))>10**-10 ){
+            throw "contradiction with equation: "+extra_eqn
+        }
     })
 
     return forward_solve(stuff[0],stuff[1])
 }
 
-
-
-
-//! using regexp instead
-/*
-function get_all_vars(eqns){
-    var all_vars = []
-    eqns.forEach((eqn)=>{
-        try{
-            var vars = nerdamer(eqn).variables()
-            all_vars.push(vars)
-        }catch{}
-         // if it's something like 0=1, throws an error, but no variables there anyway, and the error should get caught down the road
-    })
-    all_vars = all_vars.flat()
-    all_vars = [...new Set(all_vars)] // gets unique values
-    return all_vars
-}
-*/
-
 function back_solve(eqns,sub_vars){
+
+    var solve_time = 0
+    var simp_time = 0
 
     if (sub_vars.length===0){return [[],[],eqns]}   // shouldn't be needed
 
@@ -262,133 +108,109 @@ function back_solve(eqns,sub_vars){
         //check_if_done() // this is performed in the beginning and end
 
         // get number of variables to solve in terms of for each 
-        var new_vars = []
-
-        //! all this can be replaced with get_all_vars
-        /*
-        for (let j=0;j<unordered_eqns.length;j++){
-            var eqn = unordered_eqns[j]
-            try{var eqn_vars = nerdamer(eqn).variables().toString().split(",")}catch{throw "contradiction"}
-            new_vars[j] = excess(eqn_vars,ordered_vars) //! probably don't need to use excess any more
-            new_vars_len[j] = new_vars[j].length
-        }
-        */
-
-        var new_vars = get_all_vars(unordered_eqns) //! NOT NEEDED, also this wont work because get_all_vars flattens the array
 
 
-        /*
-
-            simplify each equation first --> get variables --> order the equations
+        var new_vars = unordered_eqns.map(eqn=>get_all_vars(eqn)) 
 
 
-        */
+        unordered_eqns = unordered_eqns.map(eqn=>remove_zero_terms(eqn))    // e.g.: a*(b-c)/d=0 --> b-c=0 (and gives warning)
 
-
-        var unordered_eqns_unsimp = unordered_eqns
-        var new_vars = []
-        unordered_eqns_unsimp.forEach((eqn)=>{
-            var exp_simp = sympy_simplify(eqn)
-            var eqn_vars = get_all_vars(eqn_simp)
-            if (parseFloat(exp_simp)!==0){
-                throw "contradiction with equation: "+eqn
-            }
-            var eqn_simp=exp_simp+"=0"
-            if (eqn_vars.length!==0){       // discards useless equations
-                new_vars.push(get_all_vars(eqn_simp))
-                unordered_eqns.push(eqn_simp)
-            }
-        })
-
-
+        if(is_done()){return to_return()}
 
         // sort equations by number of variables to substitute for
         var new_vars_sorted = []
         var unordered_eqns_sorted = []
         // sort the eqns by the number of variables
         for (let j=0;j<unordered_eqns.length;j++){
+
             var idx = new_vars_sorted.findIndex(elem=>{return new_vars[j].length<elem.length})
+
             if (idx===-1){idx=new_vars_sorted.length}
-            new_vars_sorted.splice(idx,0,new_vars[j])
-            unordered_eqns_sorted.splice(idx,0,unordered_eqns[j])
-        }
-
-        // try solving repeatedly until it can find something it can solve (it would usually break on the very first iteration)
-        // iterates through every equation and every substitution within the equation
-
-        /*
-        for (let j=0;j<unordered_eqns_sorted.length;j++){
-            var eqn = unordered_eqns_sorted[j]
-            var eqn_vars = new_vars_sorted[j]
-            var eqn_sub_vars = intersection(sub_vars,eqn_vars)
-            for (let k=0;k<eqn_sub_vars.length;k++){
-                //if (!sub_vars.includes(vars[k])){continue}  //! could be replaced by getting the intersection of sub_vars and vars[k] and iterating through that
-                //try{var eqn_sol = solve_eqn(eqn,vars[k])}catch{throw "immediate contradiction error"} //! this can be replaced with sympy check
-                //if (is_complex(eqn_sol)){   //! can be replaced with sympy check
-                //    continue}
-                var var_sel = eqn_sub_vars[k]
-
-
+            if (intersection(sub_vars,get_all_vars(new_vars[j])).length!==0){   // only add eqns that have variables to substitute
+                new_vars_sorted.splice(idx,0,new_vars[j])
+                unordered_eqns_sorted.splice(idx,0,unordered_eqns[j])
+        
             }
         }
-        */
-        /*
 
-        if (eqn_sol.length===0){    // solve_eqn returns empty array if there's infinite solutions
-            // if there's infinite solutions, the equation may still be useful, but you need to remove the useless variable by replacing it with a number
-            var eqn_idx = unordered_eqns.indexOf(eqn)
-            unordered_eqns[eqn_idx] = nerdamer(eqn).sub(var_sel,0.123).toString()   // not using 0 so I can clearly see what happened (and to avoid 1/0)
-        }else{
-            
+
+        if (unordered_eqns_sorted.length===0){
+            throw "what"
         }
-        */
-
-
-                /*
-
-
-                how much should sympy_solve function handle
-
-                eqn, var --> (throws contradiction) --> solution
-                    would also have to delete eqn if needed
-                
-                OR
-
-                eqn, var --> the whole package
-                    then analyze the stuff in the main function
-
-                */
-        // before I looped until it found something nerdamer could solve, now I'll keep the idea, but jsust use the first index
+        
         var eqn = unordered_eqns_sorted[0]
         var eqn_vars = new_vars_sorted[0]
         var eqn_sub_vars = intersection(sub_vars,eqn_vars)
+
+        if (eqn_sub_vars.length === 0){
+            throw "wut"
+        }
+
         var var_sel = eqn_sub_vars[0]
 
-        var sympy_package = sympy_solve(eqn,var_sel)
 
-
-        var eqn_sol = sympy_package[0]
-        var is_complex = sympy_package[1]
-
-        if (is_complex==="True"){
-            throw "complex: "+eqn_sol+", due to: "+eqn+" solving for "+var_sel
+        var start_time = Date.now()
+        if (get_all_vars(eqn).length===1){// && [...eqn.matchAll(var_sel)].length>1){
+            console.log('Performing numeric solve on '+eqn)
+            for (let i=25;i>-25;i--){
+                var init_guess = 10**(i/4)
+                var found = false
+                try{
+                    var eqn_sol = sympy_n_solve(eqn,var_sel,init_guess)
+                    console.log("solved numerically, solution: "+eqn_sol)
+                    var found = true
+                    break
+                }catch{continue}
+            }
+            if (!found){throw "could not solve numerically"}
+        }else{
+            var sympy_package = sympy_solve(eqn,var_sel)
+            var eqn_sol = sympy_package[0]
+            var is_complex = sympy_package[1]
+    
+            if (is_complex==="True"){
+                throw "complex: "+eqn_sol+", due to: "+eqn+" solving for "+var_sel
+            }
+    
         }
+        solve_time += Date.now()-start_time
+
+
+
 
         ordered_vars.push(var_sel)
         ordered_sols.push(eqn_sol)
         unordered_eqns.splice(unordered_eqns.indexOf(eqn),1)        // don't really need indexOf (should be 0)
         // substitute the solution to all the other equations:
         for (let j=0;j<unordered_eqns.length;j++){
-            unordered_eqns[j] = sub_vars(unordered_eqns[j],var_sel,eqn_sol)//nerdamer(unordered_eqns[j]).sub(var_sel,eqn_sol).toString()
+            var eqn = unordered_eqns[j]
+            var eqn_subbed = sub_all_vars(eqn,var_sel,eqn_sol)
+
+
+            // only simplify the equation if substitution changes it
+            if (eqn!==eqn_subbed){
+
+                var start_time = Date.now()
+                var exp_simp = sympy_simplify(eqn_subbed)
+                simp_time += Date.now()-start_time
+                var eqn_vars = get_all_vars([exp_simp])
+                if (Math.abs(parseFloat(exp_simp))>10**-10 && eqn_vars.length===0){
+                    throw "contradiction with equation: "+eqn
+                }
+                var eqn_subbed = exp_simp+"=0"
+            }
+
+            console.log("subbed eqn: "+eqn_subbed)
+            unordered_eqns[j] = eqn_subbed
         }
+
+        unordered_eqns = unordered_eqns.filter(eqn=>get_all_vars(eqn).length!==0)   // discards useless equations
+
+        console.log(unordered_eqns)
 
         //! do checks with sympy_package (in make_py_solve file)
 
 
-        
-
-
-        console.log([[...ordered_sols],[...ordered_vars],[...unordered_eqns]])
         if(is_done()){return to_return()}
     }
 
@@ -401,9 +223,12 @@ function back_solve(eqns,sub_vars){
         return intersection(get_all_vars(unordered_eqns),sub_vars).length===0 // excess(sub_vars,ordered_vars).length===0  ||){
     }
     function to_return(){
+        console.log("TIME TO SOLVE: "+solve_time)
+        console.log("TIME TO SIMPLIFY: "+simp_time)
         return [ordered_sols,ordered_vars,unordered_eqns]
     }
 }
+
 
 function forward_solve(ordered_sols,ordered_vars){
     // this would be called after order_solve, used to get numeric values only
@@ -419,7 +244,7 @@ function forward_solve(ordered_sols,ordered_vars){
 
         for (let j=0;j<ordered_sols.length;j++){
             if (i!==j){
-                ordered_sols[j] = sub_vars(ordered_sols[j],var_sel,sol)//nerdamer(ordered_sols[j]).sub(var_sel,sol).toString()    //! replace with sub_vars
+                ordered_sols[j] = sub_all_vars(ordered_sols[j],var_sel,sol)
             }
         }
     }
@@ -428,125 +253,130 @@ function forward_solve(ordered_sols,ordered_vars){
     var sol_eqns = []
     // final step is just to solve for the variable:
     for (let i=0;i<ordered_sols.length;i++){
-        var sol = ordered_sols[i]
+        var sol = smypy_evaluate(ordered_sols[i])
+        var dec_places = 3
+        var rounded_sol = (Math.round(parseFloat(sol)*10**dec_places)/10**dec_places).toString()
         var solve_var = ordered_vars[i]
-        sol_eqns[i] = solve_var+"="+sol//solve_eqn(eqn,solve_var)
+        sol_eqns[i] = solve_var+"="+rounded_sol
     }
     return sol_eqns
 }
 
 
+function smypy_evaluate(exp){
+    var exp = make_py_exp(exp)
+    var command = "val=N("+exp+");"
+    command += "val"
+    var result = sympy_compute(command,get_all_vars(exp))
+
+    return result
+}
+
 function sympy_simplify(eqn){
     var exp = make_py_exp(eqn)
-    command+="simp=simplify("+exp+");"
+    var command="simp=simplify("+exp+");"
     command+="simp"
 
-    return sympy_compute(command,eqn)  // eqn input just to get the variables
+    var result = sympy_compute(command,get_all_vars([eqn])) 
+
+
+    var new_result = result.replaceAll("Abs","")
+    if (result!==new_result){
+        console.warn("Removed absolute value from: "+result)
+        result = new_result
+    }
+    return result
 }
+
+
+function sympy_n_solve(eqn,solve_var,init){
+    var exp = make_py_exp(eqn)
+    console.log(eqn)
+    console.log(exp)
+    var command = "sol=nsolve("+exp+","+solve_var+","+init+");"
+    command+= "val=N(sol,chop=True);"
+    command+="val"
+    console.log(command)
+    return sympy_compute(command,[solve_var]) 
+}
+
+
 
 function sympy_solve(eqn,solve_for){
     // get variables add Symbol commands for each
+
+    //! now that i'm specifiying the variables should be real in sympy_compute, I don't need to check if the solution's complex
     var exp = make_py_exp(eqn)
-    command+="sol=solve("+exp+","+solve_for+");"
+    console.log("solve: "+exp+" for: "+solve_for)
+    var command="sol=solve("+exp+","+solve_for+");"
     command+="last_sol=sol[-1];"
     command+="val=N(last_sol,chop=True);"
     command+="is_complex=im(last_sol)!=0;"
     command+="result=[val,is_complex];"
     command+="result"
 
-    var result = sympy_compute(command,eqn)
+    console.log(command)
+    var result = sympy_compute(command,get_all_vars(eqn))
 
     var split_result = result.replaceAll("[","").replace("]","").replaceAll("'","").replaceAll(" ","").split(",")
     split_result[0] = make_js_exp(split_result[0])
     split_result[1] = make_js_exp(split_result[1])
+
+    var sol = split_result[0]
+
+    if(sol.includes("oo")){
+        throw "infinity found in: "+sol
+    }
+
+
+    console.log("result: "+split_result[0])
     return split_result
 }
 
+
 function make_py_exp(eqn){
     eqn = eqn.replaceAll("^","**")
-    eqn = eqn.replaceAll("=","-(")
-    eqn = eqn + ")"
-    var exp = eqn
-    return exp
+
+    if (eqn.slice(-2)==="=0"){      // im separating this case out so the function to remove zero terms recognizes it's a product (inputting "a-b" won't return zero terms even if b is 0 since subtraction is the outer-most operation)
+        return eqn.slice(0,eqn.length-2)
+    }else if (eqn.includes("=")){
+        eqn = eqn.replaceAll("=","-(")
+        eqn = eqn + ")"
+        var exp = eqn
+        return exp
+    }else{
+        return eqn
+    }
 }
 
 function make_js_exp(exp){
     exp = exp.replaceAll("**","^")
     exp = exp.replaceAll(" ","")
-    return solve_for+"="+exp
+    return "("+exp+")"
 }
+
 
 function sympy_compute(command_op_specific,vars) {   
     var command = "from sympy import *;"
 
-    var vars = get_all_vars(eqn)
     vars.forEach((variable)=>{
-        var line = variable+'=Symbol("'+variable+'");'
+        var line = variable+'=Symbol("'+variable+'",real=True);'
         command+=line
     })
     command+=command_op_specific
     // feed the commands to pyodide:
-    try {
-        var result = pyodide.runPython(command);   
-        result = result.toString()
-        return result
-    } catch (err) {
-        throw err
-    }
+
+    console.log(command)
+
+    var result = pyodide.runPython(command);   
+    result = result.toString()
+    return result
+
 
     // construct commands from the equation and what to solve for:
     
 }
 
-
-
-
-//! certain equations return complex numbers even when there are real solutions (e.g. 1=1/x+x^2/20)
-/*
-function solve_eqn(eqn,solve_var){
-    // complex numbers popped up in the hydraulic case, but not with small tests
-
-
-
-    // im putting error messages in arrays just so stuff using the function can check if it's an error by checking the type
-    eqn = nerdamer(eqn)
-    try{var sol = eqn.solveFor(solve_var)}catch{throw "eqn contradiction"} // if can't solve, no solution
-    //if (sol.length===0){throw "no solution"}                        // if no solutions, no solution
-
-    //  a=3: nerdamer gives value, a+3=5: nerdamer gives array, very stupid
-    if (Array.isArray(sol) && sol.length!==0){
-        sol = sol[0]
-    }
-
-
-    // sol = sol.sub("i","1")
-
-
-    // if there's infinite solutions, it returns 0 or empty string, so I add one to the variable and see if it still returns 0:
-    if (sol.toString()==="0"){
-        var eqn_check = eqn.sub(solve_var,solve_var+"+1")
-        if (eqn_check.solveFor(solve_var).toString()==="0"){
-            var infinite = true
-        }
-    }else if(sol.toString()===""){
-        var infinite = true
-    }else{
-        var infinite = false
-    }
-    // evaluate returns a fraction not decimal, so I need eval
-    if(infinite){
-        return []
-    }else{
-        return sol.evaluate().toString() //! EVAL IS DANGEROUS, but my way to convert to decimal (since it doesn't look like nerdamer can)
-    }
-}
-
-// not needed
-function is_complex(eqn_txt){
-    var eqn = nerdamer(eqn_txt)
-    return (eqn.sub("i","boop").toString()!==eqn.toString())
-}
-*/
 
 function excess(A,B){
     // if it's one variable, nerdamer doesn't use an array, so this puts it in an array:
@@ -570,22 +400,11 @@ function intersection(A,B){
 
 }
 
-// not needed
-function get_dec(val){
-    var dec_places = 2
-    var num_den = val.split("/")
-    if (num_den.length===1){
-        var val = parseFloat(num_den[0])
-    }else{
-        var val = parseFloat(num_den[0]/num_den[1])
-    }
-    var dec_val = Math.round(val*10**dec_places)/10**dec_places
-    return dec_val.toString()
-}
 
 
 
-function sub_vars(exp,sub_in,sub_out){
+
+function sub_all_vars(exp,sub_in,sub_out){
 
     // could be done using regexp since matchAll also gives you the indices (didn't know that when i wrote it)
     var in_len = sub_in.length
@@ -604,15 +423,16 @@ function sub_vars(exp,sub_in,sub_out){
         }
         
         if (/\W/.test(start) && /\W/.test(end) && str===sub_in){
-            var exp = exp.substring(0,i+1)+sub_out+exp.substring(i+1+in_len,exp.length)
+            var exp = exp.substring(0,i+1)+"("+sub_out+")"+exp.substring(i+1+in_len,exp.length)
         }
     }
-    
     return exp
 }
 
 function get_all_vars(eqns){
-    var regex = /\W([a-zA-Z]\w?)+/g
+    var exclude = ["sqrt","pi","sin","cos","tan","sec","csc","cot","sinh","cosh","tanh"]
+    if (typeof eqns ==="string"){eqns = [eqns]}
+    var regex = /\W[a-zA-Z](\w?)+/g
     var vars = []
     eqns.forEach((eqn)=>{
         txt = "-"+eqn+"-"
@@ -620,27 +440,138 @@ function get_all_vars(eqns){
         var eqn_vars = []
         matches.forEach(match=>{
             var var_txt = match[0].substring(1)
-            eqn_vars.push(var_txt)
+
+            if (!exclude.includes(var_txt)){
+                eqn_vars.push(var_txt)
+            }
         })
         vars.push(eqn_vars)
     })
     return [...new Set(vars.flat())]
 }
 
-function add_lead_zero(exp){
-    if (exp[0]==="."){
-        exp = "0"+exp
-    }
-    for (let i=0;i<exp.length;i++){
-        var not_alpha_num = exp[i]
-        var dec_point = exp[i+1]
 
-        if (/\W/.test(not_alpha_num)&&dec_point==="."){
-            var exp = exp.substring(0,i+1)+"0"+exp.substring(i+1,exp.length)
+
+
+function remove_zero_terms(eqn){
+    var exp = make_py_exp(eqn).replaceAll("**","^")
+    console.log(exp)
+    var product_terms = []
+    var quotient_terms = []
+
+    search_tree(exp,1)
+
+    var filtered_terms = product_terms.filter(term=>get_all_vars(term).length>1)
+
+    if (filtered_terms.length === 0){
+        return product_terms[0]+"=0"
+    }
+
+    if (product_terms.length>filtered_terms.length){
+        console.warn("terms that could be zero were eliminated: "+excess(product_terms,filtered_terms))
+    }
+
+    if (quotient_terms.length!==0){
+        console.warn("terms that would blow up the eqn if they were zero were eliminated: "+quotient_terms)
+    }
+
+    if (filtered_terms.length!==1){
+        var error_msg = "multiple terms could be zero: "
+        if (filtered_terms.length===0){var terms = product_terms}else{var terms = filtered_terms}
+        terms.forEach(term=>{error_msg+=term+", "})
+        throw error_msg
+    }
+
+
+    return filtered_terms[0]+"=0"
+
+    
+    function search_tree(exp,exp_sign){
+        console.log(exp)
+        var exp_tree = math.parse(exp)
+
+
+        if (exp_tree.content!==undefined){   // if it's in parentheses you have to get the content property first
+            search_tree(exp_tree.content.toString(),exp_sign)
+            return
+        }
+
+        var arg_trees = exp_tree.args
+        var op = exp_tree.op
+
+
+        if (op!=="*" && op!=="/"){
+            add_term(exp,exp_sign)
+            return
+        }
+
+        arg_trees.forEach((arg_tree,idx)=>{
+            var arg = arg_tree.toString()
+            if (get_all_vars(arg).length<2){
+                if (op==="/" && idx===1){add_term(arg,-exp_sign)}
+                else{add_term(arg,exp_sign)}
+            }else{
+                if (op==="/" && idx===1){search_tree(arg,-exp_sign)}
+                else{search_tree(arg,exp_sign)}
+            }
+
+        })
+
+
+        function add_term(term,exp_sign){
+            if (exp_sign===1){
+                product_terms.push(term)
+            }else{
+                quotient_terms.push(term)
+            }
         }
     }
-    return exp
 }
+
+
+// not used (yet)
+function format_sol(sols,vars,solve_for){
+    //! rounding should just happen for display, so there isn't rounding error from the solution
+
+    var dec_places = 3
+    // round answers and get rid of unnecessary parentheses
+
+    var regexp = /[0-9|.]+/g
+    var results = [...sols.matchAll(regexp)]
+
+    var eqn_sols = []
+
+    if (results.length!==vars.length){
+        console.log(sols)
+        console.log(results)
+        throw "different number of variables and found numbers??"
+    }
+
+    results.forEach((result,i)=>{
+        var number_txt = result[0]
+        var number = parseFloat(number_txt)
+        if (isNaN(number)){throw "solution isn't a valid number ?? solution: "+number_txt}
+
+        var rounded_val = Math.round(number*10**dec_places)/10**dec_places
+        var replacement = rounded_val.toString()
+
+        if (solve_for==="" || solve_for===vars[i]){
+            eqn_sols.push(vars[i]+"="+replacement)   
+        }
+
+
+    })
+
+    if (eqn_sols.length===0){
+        throw "variable to solve for not in the solution?? solve for: "+solve_for
+    }
+
+    return eqn_sols
+}
+
+
+
+
 
 
 

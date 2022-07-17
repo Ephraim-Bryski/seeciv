@@ -52,7 +52,7 @@ function calc(SoEs){
                 var line = line_var[0]
                 var solve_var = line_var[1]
             }else{
-                var solve_var = []
+                var solve_var = ""
             }
         }else{
             var solve_eqn = false
@@ -62,8 +62,8 @@ function calc(SoEs){
         //! easer to catch errors with regexp i think but for now it's ok
 
         if (line.includes("=")){
-            line = add_lead_zero(line)
-            try{(nerdamer(line))}catch{throw line+" is not a valid equation"}
+            //! need other way to check
+            //try{(nerdamer(line))}catch{throw line+" is not a valid equation"}
             var eqns = [line]
         }else{
             var ref_and_sub = line.split(" sub")
@@ -92,26 +92,7 @@ function calc(SoEs){
                 if (ref_eqns==="ERROR"){throw ref+" has an error"}
                 eqns.push(ref_eqns)
                 eqns = eqns.flat()
-
-                
-
-                /*
-                ref_eqns.forEach(ref_eqn =>{
-                    if (ref_and_sub.length>1){ // there is substitution
-                        var sub_eqns = ref_and_sub[1].split(",")
-                        sub_eqns.forEach(sub_eqn => {
-                            if (sub_eqn.length===0){throw "Invalid substitution syntax"}
-                            var sub_terms = sub_eqn.split(":")
-                            try{nerdamer(sub_terms)}catch{throw "Invalid substitution terms"}
-                            var sub_in = sub_terms[0]
-                            var sub_out = sub_terms[1]
-                            ref_eqn = ref_eqn.replace(sub_in,sub_out)
-                        })
-                    }
-                    eqns.push(ref_eqn)
-                    eqns.flat()
-                })
-                */
+  
             });
             
             if (ref_and_sub.length>1){
@@ -123,11 +104,7 @@ function calc(SoEs){
         }
         
         if (solve_eqn){
-            if (solve_var.length===0){
-                var result = solve_eqns(eqns)
-            }else{
-                var result = solve_eqns_for(eqns,solve_var)
-            }
+            var result = my_solve_eqns(eqns,solve_var)
         }else{
             var result = eqns
         }
@@ -144,43 +121,11 @@ function calc(SoEs){
         SoEs[SoE_i].eqns[line_i].sub_table = new_table
         SoEs[SoE_i].eqns[line_i].display=display;
     }
+
     return SoEs
 }
 
 
-// not used (replaced with solve_for_vars):
-function solve(eqns,solve_var){
-    try {
-        var sols = nerdamer.solveEquations(eqns)
-    
-    } catch {
-        throw "could not solve"
-    }
-    if (sols.length===0){throw "could not solve"}
-    if (!Array.isArray(sols[0])){     
-        sols=[sols]
-    }
-    
-    var sols_txt = []
-    sols.forEach(sol => {
-        if (solve_var.length===0 || solve_var===sol[0]){
-            sols_txt.push(sol[0]+"="+sol[1].toString())
-        }    
-    });
-    return sols_txt
-}
-
-    
-// not used:
-function get_vars(str){
-    let regexp = /\W(?=\D)(?=\w)\w+/g
-    let matches = [...str.matchAll(regexp)];
-    var vars=[]
-    matches.forEach((match) => {      
-        vars.push(match[0].substring(1))
-    });
-    return vars
-}
 
 function compute_sub_table(eqns,old_table){
     // takes the new eqns and the current table, replaces the columns to match the variables in the new eqns, then performs substitutions
@@ -231,7 +176,7 @@ function compute_sub_table(eqns,old_table){
             }else{
                 for (let k=0;k<eqns.length;k++){
                     // eqns_subbed[k]=nerdamer(eqns[k]).sub(sub_in,sub_out).toString()
-                    eqns_subbed[k] = sub_vars(eqns_subbed[k],sub_in,sub_out)
+                    eqns_subbed[k] = sub_all_vars(eqns_subbed[k],sub_in,sub_out)
                 }
             }         
         }

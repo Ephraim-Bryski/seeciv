@@ -1,69 +1,34 @@
+function compare_data(A,B){
+    // checks if two nested arrays have the same data
+    var Akeys = Object.keys(A)
+    var Bkeys = Object.keys(B)
 
+    if (Akeys.length>Bkeys.length){var ref_keys = Akeys}
+    else{var ref_keys = Bkeys}
 
+    console.log(ref_keys)
 
+    var match = true
 
-
-
-
-
-
-console.log(get_all_vars(["-3"]))
-
-parse_result("['5.00000000000000', y+x]","x")
-
-
-
-function parse_result(result,solve_for){
-
-
-    // parses the result from pyodide, which contains
-    result = result.toString()
-    var split_result = result.replaceAll("[","").replace("]","").replaceAll("'","").replaceAll(" ","").split(",")
-    var sol = split_result[0]
-    var simp = split_result[1]
-
-    //! will have to rewrite get_all_vars not using nerdamer (use regexp?)
-    var simp_vars = get_all_vars([simp])
-    if (simp_vars.length===0){
-        var simp_val = parseFloat(simp)
-        if(simp_val===0){
-            console.log("delete")
-            // delete eqn
+    ref_keys.forEach(key=>{
+        console.log(key)
+        A_in = A[key]
+        B_in = B[key]
+        if (typeof A_in === "object" && typeof B_in === "object"){
+            if(compare_data(A_in,B_in)){
+                console.log("Objects match: "+A_in+" and "+B_in)
+            }else{
+                console.log("Objects don't match: "+A_in+" and "+B_in)
+                match = false
+            }
+        }else if(A_in===B_in){
+            console.log("Elements match: "+A_in+" and "+B_in)
         }else{
-            throw "contradiction"
+            console.log("Elements don't match: "+A_in+" and "+B_in)
+            match = false
         }
-    }else if (simp_vars.includes(solve_for)){    // solve_for may also need to be passed as an input
-        var sol = make_js_exp(sol)
-        console.log(sol)
-    }else{
-        console.log("continue")
-        // keep the simplified equation, continue
-    }
-
-
-    function make_js_exp(exp){
-        exp = exp.replaceAll("**","^")
-        exp = exp.replaceAll(" ","")
-        return solve_for+"="+exp
-    }
-}
-
-
-
-function get_all_vars(eqns){
-    var regex = /\W([a-zA-Z]\w?)+/g
-    var vars = []
-    eqns.forEach((eqn)=>{
-        txt = "-"+eqn+"-"
-        var matches = [...txt.matchAll(regex)]
-        var eqn_vars = []
-        matches.forEach(match=>{
-            var var_txt = match[0].substring(1)
-            eqn_vars.push(var_txt)
-        })
-        vars.push(eqn_vars)
     })
-    return [...new Set(vars.flat())]
+    return match
 }
 
-
+console.log(compare_data([2,{a: 4,b: 3,c: [1,8]}],[2,{a: 4,b: 3,c:[1,6]}]))

@@ -12,24 +12,66 @@
   },
   {
     "name": "Thermal",
-    "eqns": [{
-      "input": "dL=dT*L*k"
-    }]
+    "eqns": [
+      {
+        "input": "dL=dT*L*k"
+      }
+    ]
   },
   {
     "name": "Problem",
     "eqns": [
       {
-        "input": "Stretch sub dL:dL1f,D:D1,A:A1"
+        "input": "Stretch sub dL:dL1f,D:D1,A:A1",
+        "sub_table": [
+          [
+            "dL",
+            "F",
+            "L",
+            "E",
+            "A",
+            "D"
+          ],
+          [
+            "dL1f",
+            "F",
+            "L",
+            "E",
+            "A1",
+            "D1"
+          ],
+          [
+            "dL2f",
+            "F",
+            "L",
+            "E",
+            "A2",
+            "D2"
+          ]
+        ]
       },
       {
-        "input": "Stretch sub dL:dL2f,D:D2,A:A2"
-      },
-      {
-        "input": "Thermal sub dL:dL1Temp"
-      },
-      {
-        "input": "Thermal sub dL:dL2Temp"
+        "input": "Thermal sub dL:dL1Temp",
+        "sub_table": [
+          [
+            "dL",
+            "dT",
+            "L",
+            "k"
+          ],
+          [
+            "dL1Temp",
+            "dT",
+            "L",
+            "k"
+          ],
+          [
+            "dL2Temp",
+            "dT",
+            "L",
+            "k"
+          ]
+        ]
       },
       {
         "input": "D1=2"
@@ -59,8 +101,10 @@
   },
   {
     "name": "Sol",
-    "eqns": {
-      "input": "solve Problem for dL1"
-    }
+    "eqns": [
+      {
+        "input": "solve Problem for dL1"
+      }
+    ]
   }
 ]

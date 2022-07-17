@@ -1,26 +1,94 @@
-{
-  "name": "SoilProps",
-  "eqns": [
-    {
-      "input": "e=Vv/Vs"
-    },
-    {
-      "input": "n=Vv/V"
-    },
-    {
-      "input": "S=Vw/Vv"
-    },
-    {
-      "input": "w=Ww/Ws"
-    },
-    {
-      "input": "y=W/V"
-    },
-    {
-      "input": "yd=Ws/V"
-    },
-    {
-      "input": "Ws=Gs*yw"
-    }
-  ]
-}
+[
+  {
+    "name": "SoilProps",
+    "eqns": [
+      {
+        "input": "e=Vv/Vs"
+      },
+      {
+        "input": "n=Vv/V"
+      },
+      {
+        "input": "S=Vw/Vv"
+      },
+      {
+        "input": "w=Ww/Ws"
+      },
+      {
+        "input": "Gs=ys/yw"
+      },
+      {
+        "input": "ys=Ws/Vs"
+      },
+      {
+        "input": "yw=Ww/Vw"
+      },
+      {
+        "input": "yd=Ws/V"
+      },
+      {
+        "input": "y=W/V"
+      },
+      {
+        "input": "W=Ws+Ww"
+      },
+      {
+        "input": "V=Vs+Vv"
+      }
+    ]
+  },
+  {
+    "name": "Problem",
+    "eqns": [
+      {
+        "input": "SoilProps sub",
+        "sub_table": [
+          [
+            "e",
+            "Vv",
+            "Vs",
+            "n",
+            "V",
+            "S",
+            "Vw",
+            "w",
+            "Ww",
+            "Ws",
+            "Gs",
+            "ys",
+            "yw",
+            "yd",
+            "y",
+            "W"
+          ],
+          [
+            "e",
+            "",
+            "",
+            "n",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Sol",
+    "eqns": [
+      {
+        "input": "solve Problem"
+      }
+    ]
+  }
+]

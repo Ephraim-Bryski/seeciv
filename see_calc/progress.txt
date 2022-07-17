@@ -1,3 +1,59 @@
+Goal for end of summer: have something ready for use by others, don't worry about other stuff (e.g. lists, function, units, visualizations)
+	visuald would be nice though, if there's time
+
+
+symplify in beginning
+format result in display
+	rounding
+	replace ** with ^
+	latex?
+display equations each in their own div 
+each block has their own description
+documentation
+default to sub
+implement solve for again
+improve sub table
+	look pretty
+	option to clear row (and column?)
+	duplicate row?
+	refresh table
+		should it just base it off of past results (so if the referenced blocks is modified it updates, but if it has its own reference which was modified, it's not updated)
+		back propagate?? (would be hard)
+
+don't resolve entire sheet when just the end of it changes (already wrote test.js which compares data structures)
+
+button to add new block (probably wouldn't be clear otherwise)
+	button to add line? (or pale line)
+
+error messages
+	invalid equation
+	contradiction message might want to show both equations
+
+working with greek letters?
+	\w would be omega for example (https://www.tutorialspoint.com/converting-alphabets-to-greek-letters-in-javascript)
+	could convert the input as well and unconvert when focused on it
+
+
+	
+
+
+block is deleted when name is empty (i thought i already fixed this O: )
+
+
+allow user to download?
+	ideally have a backend, but i dont think ill have enough time
+
+when your cursor is on a variable it colors it and all other instances of that variable in the block
+
+computations
+	nsolve doesn't check negative yet
+
+Option to either add blocks to sheet or replace
+
+remove unnecessary parentheses (sub_all_vars should only add parentheses if there's an operation)
+
+
+
 Sheet UI
 	BUG: when you save a sheet it goes back to the home sheet
 	Option to clear sheet
@@ -11,53 +67,33 @@ Sheet UI
 
 Sheet computation
 	Variables in an equation can’t have any block names (would be super confusing)
-	Easy way to move lines to other blocks (maybe with autorefactoring?)
 
 Line Notation/UI
 	Latex result
 	Greek letters
 	Make substitution tabular
-		makes it much easier to see how variables are flowing, much easier to catch mistakes
-		if cell is empty it would remove that variable by solving (e.g. [a+b=c, a+4=7] if a sub is empty, produces [7-4+b=c])
-		initializes with table with all variables in the referenced block and the output is the same (i.e. no substitution)
-		tabular sub getting a bit tricky because it would have to figure out whether to reset the table 
-			if the reference stays the same but the referenced block changes, ideally it shouldn't reset the table (so you keep all your subs), just adds/removes variables
-			maybe there could be a reset table option, if you hit Ctrl+Etr and the referenced block changes, you just get an error, idk
-		if multiple substitutions in block, creates bigger table
-		color coded
-			gray: in and out same (no substitution)
-			black: out is empty (solved to remove variable)
-			green: in out different (just substitute the variable)
-			grayed out (can't type in it): variable is in a different reference so part of the table not this reference
-				i think lines should only share a table if the reference is the same (so you wouldn't need grayed out)
 	Expand output when multiple equations
 	Expand input box to fit input
 	Red border around input when error reached
 
 Line computation
+
 	Trig function should be degrees
-	Input for substitution should have to be variable
-	Nerdamer should check all lines (a=b++3 doesn’t throw an error until you solve with it)
-	Order shouldn’t matter for substitution
-	Check all variables being substituted are part of the block (won't be relevant if i'm using tabular substitution)
-	Partial solving (soil properties) might need to use the code for algebraic solving I wrote before
-		Maybe construct a graph of variables in equations and see if there’s any thing you don’t need (e.g. a=b,b=c*f     if you only want a and b you can remove the second eqn)
-		partial solving done with tabular substitution
-	Handle infinity and complex
-	Assume positive values?
 	Solve in terms of with steps
 	More helpful guidance when it can’t solve would be nice
 
 
 Error handling
-	Investigate errors for solving
 
 Saving/sharing/library
 	Saving something with period in name no good 
-	Give an error if you try to save it with an existing name
-	Create library of blocks
-	Loading blocks should add to sheet instead of replacing 
-	User accounts
+
+
+
+
+
+
+
 
 Stuff to make with calculator
 	Node_edge for pipe networks
