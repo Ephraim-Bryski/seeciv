@@ -11,55 +11,50 @@
     ]
   },
   {
-    "name": "LateralForce",
-    "eqns": [{
-      "input": "Fh=Ka*Fv"
-    }]
-  },
-  {
-    "name": "VerForce",
+    "name": "LatForceFull",
     "eqns": [
       {
-        "input": "Feff=0.5*(y-yw)*H^2"
+        "input": "Fh=(s1+s2)/2*Ka*H"
       },
-      {
-        "input": "Fw=0.5*yw*H^2"
-      }
-    ]
-  },
-  {
-    "name": "Problem",
-    "eqns": [
       {
         "input": "LateralFactors"
-      },
-      {
-        "input": "LateralForce sub Fv:Feff,Fh:Fsoil"
-      },
-      {
-        "input": "VerForce"
-      },
-      {
-        "input": "Ftot=Fw+Fsoil"
-      },
-      {
-        "input": "H=1"
-      },
-      {
-        "input": "y=1"
-      },
-      {
-        "input": "yw=.5"
-      },
-      {
-        "input": "phi=.1"
       }
     ]
   },
   {
-    "name": "Sol",
-    "eqns": [{
-      "input": "solve Problem"
-    }]
+    "name": "Stress",
+    "eqns": [
+      {
+        "input": "s=y*H"
+      }
+    ]
+  },
+  {
+    "name": "LatForce",
+    "eqns": [
+      {
+        "input": "LatForceFull sub",
+        "sub_table": [
+          [
+            "Fh",
+            "s1",
+            "s2",
+            "Ka",
+            "H",
+            "Kp",
+            "phi"
+          ],
+          [
+            "Fh",
+            "s1",
+            "s2",
+            "Ka",
+            "H",
+            "Kp",
+            "phi"
+          ]
+        ]
+      }
+    ]
   }
 ]

@@ -47,6 +47,10 @@ body{
     align-items: center;
 }
 
+.line-output {
+    padding-left: 5px;
+}
+
 .sub-table{
     border: 2px;
     border-style: solid;

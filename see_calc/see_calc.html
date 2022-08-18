@@ -35,18 +35,65 @@
     <div style="color:white">Etr to make new line</div>
     
     
-    
+    <div id="test" style="color:white"></div>
 
     <div id="root"></div>
+
+
+
+    <div style="position: absolute;background-color: red; display: none;" id="loading">LOADING</div>
     
 </body>
+
+<script>
+    var MQ = MathQuill.getInterface(2);
+    var field = document.getElementById("test")
+    console.log(field)
+    field.innerHTML = "hi"
+    MQ.StaticMath(field)
+    
+</script>
+
 
 
 <script src="solver.js"></script>
 
+
 <script src="compute_sheet.js"></script>
 <script src="see_calc.js"></script>
 
+
+<style>
+    .meter { 
+        height: 5px;
+        position: relative;
+        top: 50%;
+        background: #f3efe6;
+        overflow: hidden;
+    }
+
+
+
+    .progress {
+        display: block;
+        height: 100%;
+        background-color: #e4c465;
+        -webkit-animation: progressBar 10s ease-in-out;
+        -webkit-animation-fill-mode:both; 
+        -moz-animation: progressBar 10s ease-in-out;
+        -moz-animation-fill-mode:both; 
+    }
+
+    @-webkit-keyframes progressBar {
+    0% { width: 0; }
+    100% { width: 100%; }
+    }
+
+    @-moz-keyframes progressBar {
+    0% { width: 0; }
+    100% { width: 100%; }
+    }
+</style>
 
 
 

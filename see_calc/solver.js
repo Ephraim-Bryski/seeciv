@@ -4,7 +4,7 @@
 function remove_vars(eqns,remove_vars){
     var stuff = back_solve(eqns,remove_vars)
     if(get_all_vars(stuff[2]).length===0){
-        console.log(stuff)
+        console.warn("Left over: "+stuff)
         throw "removed too much"
     }else{
         return stuff[2] // the third element has all the remaining equations
@@ -77,6 +77,7 @@ function my_solve_eqns(eqns,solve_var){
 
 
     //! if im not using nerdamer i need some other way to check for contradictions (could just send it over to solve_eqn OR check in backsolve)
+
     extra.forEach((extra_eqn)=>{
         var simp_exp = sympy_simplify(extra_eqn)
         if (get_all_vars(simp_exp).length!==0){throw "solution has variables??"}
@@ -87,7 +88,7 @@ function my_solve_eqns(eqns,solve_var){
         }
     })
 
-    return forward_solve(stuff[0],stuff[1])
+    return forward_solve(stuff[0],stuff[1],solve_var)
 }
 
 function back_solve(eqns,sub_vars){
@@ -112,8 +113,6 @@ function back_solve(eqns,sub_vars){
 
         var new_vars = unordered_eqns.map(eqn=>get_all_vars(eqn)) 
 
-
-        unordered_eqns = unordered_eqns.map(eqn=>remove_zero_terms(eqn))    // e.g.: a*(b-c)/d=0 --> b-c=0 (and gives warning)
 
         if(is_done()){return to_return()}
 
@@ -152,8 +151,11 @@ function back_solve(eqns,sub_vars){
         var start_time = Date.now()
         if (get_all_vars(eqn).length===1){// && [...eqn.matchAll(var_sel)].length>1){
             console.log('Performing numeric solve on '+eqn)
-            for (let i=25;i>-25;i--){
-                var init_guess = 10**(i/4)
+            var ascend = [...Array(100).keys()]
+            var descend = ascend.map(val=>-val)
+            var guesses = ascend.concat(descend)
+            for (let i=0;i<guesses.length;i++){
+                var init_guess = guesses[i]
                 var found = false
                 try{
                     var eqn_sol = sympy_n_solve(eqn,var_sel,init_guess)
@@ -177,7 +179,6 @@ function back_solve(eqns,sub_vars){
 
 
 
-
         ordered_vars.push(var_sel)
         ordered_sols.push(eqn_sol)
         unordered_eqns.splice(unordered_eqns.indexOf(eqn),1)        // don't really need indexOf (should be 0)
@@ -191,8 +192,12 @@ function back_solve(eqns,sub_vars){
             if (eqn!==eqn_subbed){
 
                 var start_time = Date.now()
-                var exp_simp = sympy_simplify(eqn_subbed)
+                console.log("Original: "+eqn_subbed)
+                console.log("Simplified: "+sympy_simplify(eqn_subbed))
+                console.log("Cancelled: "+cancel_terms(sympy_simplify(eqn_subbed)))
+                var exp_simp = cancel_terms(sympy_simplify(eqn_subbed))    
                 simp_time += Date.now()-start_time
+                //! BUG: cancel_terms("0") outputs 1
                 var eqn_vars = get_all_vars([exp_simp])
                 if (Math.abs(parseFloat(exp_simp))>10**-10 && eqn_vars.length===0){
                     throw "contradiction with equation: "+eqn
@@ -200,12 +205,12 @@ function back_solve(eqns,sub_vars){
                 var eqn_subbed = exp_simp+"=0"
             }
 
-            console.log("subbed eqn: "+eqn_subbed)
             unordered_eqns[j] = eqn_subbed
         }
 
         unordered_eqns = unordered_eqns.filter(eqn=>get_all_vars(eqn).length!==0)   // discards useless equations
 
+        console.log("substituted using the equation: "+var_sel+"="+eqn_sol)
         console.log(unordered_eqns)
 
         //! do checks with sympy_package (in make_py_solve file)
@@ -230,7 +235,8 @@ function back_solve(eqns,sub_vars){
 }
 
 
-function forward_solve(ordered_sols,ordered_vars){
+function forward_solve(ordered_sols,ordered_vars,solve_for){
+    solve_for = solve_for.replaceAll(" ","")
     // this would be called after order_solve, used to get numeric values only
 
     // reverse arrays since you end with a numeric solution in order solve
@@ -249,15 +255,21 @@ function forward_solve(ordered_sols,ordered_vars){
         }
     }
     
+    if (solve_for.length!==0 && !ordered_vars.includes(solve_for)){
+        throw solve_for+" is not a variable"
+    }
 
     var sol_eqns = []
     // final step is just to solve for the variable:
     for (let i=0;i<ordered_sols.length;i++){
         var sol = smypy_evaluate(ordered_sols[i])
-        var dec_places = 3
-        var rounded_sol = (Math.round(parseFloat(sol)*10**dec_places)/10**dec_places).toString()
         var solve_var = ordered_vars[i]
-        sol_eqns[i] = solve_var+"="+rounded_sol
+
+
+        if(solve_for.length === 0 || solve_for === solve_var ){
+            sol_eqns.push(solve_var+"="+sol)
+
+        }
     }
     return sol_eqns
 }
@@ -274,7 +286,7 @@ function smypy_evaluate(exp){
 
 function sympy_simplify(eqn){
     var exp = make_py_exp(eqn)
-    var command="simp=simplify("+exp+");"
+    var command="simp=expand("+exp+");"
     command+="simp"
 
     var result = sympy_compute(command,get_all_vars([eqn])) 
@@ -288,15 +300,24 @@ function sympy_simplify(eqn){
     return result
 }
 
+function sympy_display(exp){
+    //var exp = make_py_exp(exp)
+
+    var command = "display=latex(N("+exp+",3),mul_symbol='dot');"
+    command+="display"
+
+    var old_disp = sympy_compute(command,get_all_vars(exp))
+    var new_disp = old_disp.replaceAll("(","\left(").replaceAll(")","\right)")
+    console.log("OLD: "+old_disp)
+    console.log("NEW: "+new_disp)
+    return new_disp
+}
 
 function sympy_n_solve(eqn,solve_var,init){
     var exp = make_py_exp(eqn)
-    console.log(eqn)
-    console.log(exp)
     var command = "sol=nsolve("+exp+","+solve_var+","+init+");"
     command+= "val=N(sol,chop=True);"
     command+="val"
-    console.log(command)
     return sympy_compute(command,[solve_var]) 
 }
 
@@ -307,7 +328,6 @@ function sympy_solve(eqn,solve_for){
 
     //! now that i'm specifiying the variables should be real in sympy_compute, I don't need to check if the solution's complex
     var exp = make_py_exp(eqn)
-    console.log("solve: "+exp+" for: "+solve_for)
     var command="sol=solve("+exp+","+solve_for+");"
     command+="last_sol=sol[-1];"
     command+="val=N(last_sol,chop=True);"
@@ -315,7 +335,6 @@ function sympy_solve(eqn,solve_for){
     command+="result=[val,is_complex];"
     command+="result"
 
-    console.log(command)
     var result = sympy_compute(command,get_all_vars(eqn))
 
     var split_result = result.replaceAll("[","").replace("]","").replaceAll("'","").replaceAll(" ","").split(",")
@@ -329,7 +348,6 @@ function sympy_solve(eqn,solve_for){
     }
 
 
-    console.log("result: "+split_result[0])
     return split_result
 }
 
@@ -364,11 +382,14 @@ function sympy_compute(command_op_specific,vars) {
         command+=line
     })
     command+=command_op_specific
-    // feed the commands to pyodide:
 
-    console.log(command)
-
-    var result = pyodide.runPython(command);   
+    try{
+        var result = pyodide.runPython(command);   
+    }catch(err){
+        console.log(command)
+        console.warn(err)
+        throw "Currently too difficult for program to solve"
+    }
     result = result.toString()
     return result
 
@@ -402,31 +423,35 @@ function intersection(A,B){
 
 
 
-
-
 function sub_all_vars(exp,sub_in,sub_out){
 
-    // could be done using regexp since matchAll also gives you the indices (didn't know that when i wrote it)
-    var in_len = sub_in.length
-    for (let i=-1;i<exp.length;i++){
-        if (i==-1){
-            var start = "-" // just some character that's not alphanumeric
-        }else{
-            var start = exp[i]
-        }
-        var str = exp.substring(i+1,i+1+in_len)
-
-        if (i+1+in_len===exp.length){
-            var end = "-"
-        }else{
-            var end = exp[i+1+in_len]
-        }
-        
-        if (/\W/.test(start) && /\W/.test(end) && str===sub_in){
-            var exp = exp.substring(0,i+1)+"("+sub_out+")"+exp.substring(i+1+in_len,exp.length)
-        }
+    // if there's an operation, it must be enclosed in parentheses first:
+    if (sub_out.match(/\W/)!==null){
+        var sub_out = "("+sub_out+")"
     }
-    return exp
+
+    var regex = /\W[a-zA-Z](\w?)+/g
+    var txt = "-"+exp+"-"
+    var matches = [...txt.matchAll(regex)]
+
+    matches = matches.map(match=>[match[0].substring(1), match["index"]])
+    matches = matches.filter(match=>match[0]===sub_in)
+    match_idxs = matches.map(match=>match[1])
+
+    txt = txt.substring(1,txt.length-1)
+    
+    var old_len = sub_in.length
+    var new_len = sub_out.length
+    var change_len = new_len-old_len
+
+
+    for (let i=0;i<match_idxs.length;i++){
+        var old_idx = match_idxs[i]
+        var new_idx = old_idx+i*change_len
+        var txt = txt.substring(0,new_idx)+sub_out+txt.substring(new_idx+old_len)
+    }
+
+    return txt
 }
 
 function get_all_vars(eqns){
@@ -453,41 +478,101 @@ function get_all_vars(eqns){
 
 
 
-function remove_zero_terms(eqn){
-    var exp = make_py_exp(eqn).replaceAll("**","^")
-    console.log(exp)
-    var product_terms = []
-    var quotient_terms = []
+function cancel_terms(exp){
+    // this is used so variables in terms that can be cancelled out aren't solved for
+    var exp = make_py_exp(exp).replaceAll("**","^")
+    var sum_terms = split_terms(exp,"sum")
 
+    // a bit of a quick hack, cancel_terms("0") returns "1" (not exactly sure why)
+    if (sum_terms.length === 1){
+        return exp.replaceAll("^","**")
+    }
+
+
+    var all_terms = sum_terms.map(term=>{
+        if (term[0]==="-"){
+            term = "-1 * ("+term.slice(1)+")"
+        }
+        return split_terms(term,"product")
+    })
+
+    var sample_terms = all_terms[0]     // looking for match across all sum terms, so I can just use the first one as a sample
+
+    var like_terms = sample_terms.filter(compare_term=>
+        all_terms.filter(blah=>
+            blah.includes(compare_term)
+        ).length === all_terms.length
+    )
+
+
+    // cancel like terms:
+    var all_terms_simp = all_terms.map(product_terms=>{
+
+
+        for (let i=0;i<like_terms.length;i++){
+            var like_term = like_terms[i]
+            var idx = product_terms.indexOf(like_term)
+            product_terms.splice(idx,1)
+        }
+        var combined_terms = combine_terms(product_terms,"product")
+        if (combined_terms===""){
+            combined_terms = "1"
+        }
+        return combined_terms
+    })
+
+
+    var new_exp = combine_terms(all_terms_simp,"sum")
+    return new_exp.replaceAll("^","**")
+
+}
+
+
+function combine_terms(terms,type){
+    if (type==="sum"){var op = "+"}
+    else if (type==="product"){var op = "*"}
+    else{throw "invalid op"}
+
+    var combined = ""
+
+    terms.forEach(term=>{
+        combined+=term+op
+    })
+
+    combined = combined.slice(0,-1)
+
+    return combined
+}
+
+function split_terms(exp,type,include_sign=true){
+
+/*
+    if (exp[0]==="-"){
+        exp = "0"+exp
+    }
+*/
+    if (type==="sum"){
+        var ops = ["+","-","*"]
+    }else if(type==="product"){
+        var ops = ["*","/","^"]
+    }else{
+        throw "invalid type"
+    }
+
+    var terms = []
+    var neg_terms = []
     search_tree(exp,1)
 
-    var filtered_terms = product_terms.filter(term=>get_all_vars(term).length>1)
 
-    if (filtered_terms.length === 0){
-        return product_terms[0]+"=0"
+
+    if (include_sign){
+        return terms
+    }else{
+        return [terms,neg_terms]
     }
 
-    if (product_terms.length>filtered_terms.length){
-        console.warn("terms that could be zero were eliminated: "+excess(product_terms,filtered_terms))
-    }
-
-    if (quotient_terms.length!==0){
-        console.warn("terms that would blow up the eqn if they were zero were eliminated: "+quotient_terms)
-    }
-
-    if (filtered_terms.length!==1){
-        var error_msg = "multiple terms could be zero: "
-        if (filtered_terms.length===0){var terms = product_terms}else{var terms = filtered_terms}
-        terms.forEach(term=>{error_msg+=term+", "})
-        throw error_msg
-    }
-
-
-    return filtered_terms[0]+"=0"
-
-    
     function search_tree(exp,exp_sign){
-        console.log(exp)
+        console.log("EXP: "+exp)
         var exp_tree = math.parse(exp)
 
 
@@ -500,79 +585,64 @@ function remove_zero_terms(eqn){
         var op = exp_tree.op
 
 
-        if (op!=="*" && op!=="/"){
+        if (op!==ops[0] && op!==ops[1]){
             add_term(exp,exp_sign)
             return
         }
 
+       
+
         arg_trees.forEach((arg_tree,idx)=>{
             var arg = arg_tree.toString()
-            if (get_all_vars(arg).length<2){
-                if (op==="/" && idx===1){add_term(arg,-exp_sign)}
+            console.log("INPUT: "+arg)
+            //! this doesn't work for something like a-4 (commented code doesnt work with parentheses)
+            if (get_all_vars(arg).length===0){//c=(arg_tree.op===undefined || arg_tree.fn === "unaryMinus"){//
+                if (op===ops[1] && idx===1){add_term(arg,-exp_sign)}
                 else{add_term(arg,exp_sign)}
             }else{
-                if (op==="/" && idx===1){search_tree(arg,-exp_sign)}
+                if (op===ops[1] && idx===1){search_tree(arg,-exp_sign)}
                 else{search_tree(arg,exp_sign)}
             }
 
         })
 
 
-        function add_term(term,exp_sign){
+        function add_term(term,exp_sign){  
+            if (term==="0"){return}   
             if (exp_sign===1){
-                product_terms.push(term)
+                terms.push(term)
+            }else if (include_sign){
+                terms.push("("+term+")"+ops[2]+"(-1)")
             }else{
-                quotient_terms.push(term)
+                neg_terms.push(term)
             }
         }
     }
 }
 
 
-// not used (yet)
-function format_sol(sols,vars,solve_for){
-    //! rounding should just happen for display, so there isn't rounding error from the solution
+function move_terms(exp){
+    //! numbers aren't moved over (a-4 is lumped into a single term)
+    exp = exp.replaceAll("**","^")
+    var all_terms = split_terms(exp,"sum",false)
+    var pos_terms = all_terms[0]
+    var neg_terms = all_terms[1]
+    
+    var LHS = ""
+    var RHS = ""
+    
+    pos_terms.forEach(term=>{LHS+=term+"+"})
+    neg_terms.forEach(term=>{RHS+=term+"+"})
 
-    var dec_places = 3
-    // round answers and get rid of unnecessary parentheses
+    
+    LHS = LHS.slice(0,-1)
+    RHS = RHS.slice(0,-1)
 
-    var regexp = /[0-9|.]+/g
-    var results = [...sols.matchAll(regexp)]
-
-    var eqn_sols = []
-
-    if (results.length!==vars.length){
-        console.log(sols)
-        console.log(results)
-        throw "different number of variables and found numbers??"
+    if (LHS.length===0 || RHS.length===0){
+        return exp+"=0"
     }
-
-    results.forEach((result,i)=>{
-        var number_txt = result[0]
-        var number = parseFloat(number_txt)
-        if (isNaN(number)){throw "solution isn't a valid number ?? solution: "+number_txt}
-
-        var rounded_val = Math.round(number*10**dec_places)/10**dec_places
-        var replacement = rounded_val.toString()
-
-        if (solve_for==="" || solve_for===vars[i]){
-            eqn_sols.push(vars[i]+"="+replacement)   
-        }
-
-
-    })
-
-    if (eqn_sols.length===0){
-        throw "variable to solve for not in the solution?? solve for: "+solve_for
-    }
-
-    return eqn_sols
+    
+    return LHS+"="+RHS
 }
-
-
-
-
-
-
 
 

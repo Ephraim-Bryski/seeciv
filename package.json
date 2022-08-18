@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "mathjs": "^10.6.4"
+  }
+}

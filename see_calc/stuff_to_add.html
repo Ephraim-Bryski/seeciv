@@ -1,0 +1,176 @@
+<!--
+    sandbox for html components i want to add in
+        collapsible blocks
+        lines that expand to text
+        equations in own div
+        blocks with info pop-up
+
+-->
+
+<link rel="stylesheet" href="main.css"/>
+
+<div class="block">
+    <div class="block-name" style="position: relative;">
+        <button class="block-remove remove-btn">X</button>
+        <input class="block-name-txt">
+        <!-- button must be added in with JS (this may change the indexing for the other elements)-->
+        <button onclick="hide_show(event)">hide</button>
+        <div class="popup" style="background-color: white; position:absolute;right:-50px;top:20px">
+            HIx
+        </div>
+
+        <button onclick="toggle()">INFO</button>
+        
+        <span></span>
+    </div>
+    <div class="line">
+        <button class="line-btn remove-btn">X</button>
+        <input class="line-input">
+        <span></span>
+        <span class="line-output">b=0.828,a=4.828</span>
+    </div>
+    <div class="line">
+        <button class="line-btn remove-btn">X</button>
+        <input class="line-input">
+        <span></span>
+        <span class="line-output">b=0.828,a=4.828</span>
+    </div>
+</div>
+
+<div id="loading" style="background-color: white;display: none;">LOADING</div>
+
+<div style="background-color: white;display: none;">
+    OUTER
+    <div>
+INNER
+    </div>
+</div>
+
+
+
+
+<script>
+
+    add_eqns(["a","lskdjf","lks"])
+    function add_eqns(eqns){
+        // add eqns to the block specified by the idx, each eqn in their own div
+        // this would be inside make_line (directly inside or internal function)
+        var line_out = document.getElementsByClassName("line-output")[0]    // in reality the make_line function returns an HTML element which is then appended
+        console.log("line output: "+line_out)
+        eqns.forEach((eqn)=>{
+            var eqn_field = document.createElement("div")
+            eqn_field.innerHTML = eqn
+            line_out.appendChild(eqn_field)
+
+        })
+
+    }
+
+    function hide_show(event){
+        console.log(event)
+        var hide_btn = event.target
+        var block = hide_btn.parentNode.parentNode
+        var lines = block.querySelectorAll(".line")
+
+        console.log(block)
+        console.log(lines)
+
+        if (lines[0].style.display==="none"){   // the zeroth one is chosen arbitrarily
+            var state = "hidden"
+        }else{
+            var state = "shown"
+        }
+
+
+        if (state==="hidden"){
+            hide_btn.innerHTML = "hide"
+        }else{
+            hide_btn.innerHTML = "show"
+        }
+
+        lines.forEach((line)=>{
+            console.log(line)
+            if (state === "hidden"){
+                line.style.display="flex"
+            }else{
+                line.style.display="none"
+            }
+        }) 
+    }
+
+
+    async function test_load() {
+
+        var load_symbol = document.getElementById("loading")
+        load_symbol.style.display = "block"
+        console.log('LOADING')
+        for (let i=0;i<2*10**3;i++){
+            console.log()
+        }
+        console.log('done loading')
+            load_symbol.style.display = "none"
+        setTimeout(()=>{
+            
+        },500)
+
+        
+       // await pyodide.loadPackage("sympy");
+    }
+    test_load().then(()=>{
+        console.log('done?')
+    });
+
+
+
+
+/*
+
+
+loading
+
+doesn't require aync function
+
+*/
+</script>
+
+
+
+
+<script>
+    function toggle(){
+        console.log(event.target)   // use target to get correct popup
+        var popup = document.getElementsByClassName("popup")[0]
+
+        if (popup.style.display==="none"){
+            popup.style.display = "block"
+        }else{
+            popup.style.display = "none"
+        }
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

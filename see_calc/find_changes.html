@@ -1,0 +1,96 @@
+
+<body></body>
+<script>
+
+    document.body.stuff = [[1,2],[5],[2,3]]
+
+    console.log(document.body)
+
+
+    on_enter()
+
+    console.log(document.body.stuff)
+
+    function on_enter(){
+        var stuff = DOM2data()
+    }
+
+    function DOM2data(){
+        // get it from DOM:
+        var data =  [[1,3],[3],[2,3]]
+
+
+
+        document.body.stuff = data
+        return data
+    }
+
+
+/*
+
+
+DOM2data()
+
+comparing would be done in data2DOM
+
+
+*/
+
+
+/*
+
+PROBLEM: DOM2data() only returns the input, so it won't be the same
+
+it would need to save the structure to the body before any calculations are done
+
+*/
+
+
+
+    function get_change_start(A,B){
+        for (let i=0;i<A.length;i++){
+            if(!structures_same(A[i],B[i])){
+                return i
+            }
+        }
+        return 0
+
+
+        function structures_same(A,B){
+            // checks if two nested arrays have the same data
+            var Akeys = Object.keys(A)
+            var Bkeys = Object.keys(B)
+
+            if (Akeys.length>Bkeys.length){var ref_keys = Akeys}
+            else{var ref_keys = Bkeys}
+
+
+            var match = true
+
+            ref_keys.forEach(key=>{
+                A_in = A[key]
+                B_in = B[key]
+                if (typeof A_in === "object" && typeof B_in === "object"){
+                    if(structures_same(A_in,B_in)){
+                    }else{
+                        match = false
+                    }
+                }else if(A_in===B_in){
+                }else{
+                    match = false
+                }
+            })
+            return match
+        }
+
+    }
+
+
+
+
+    
+
+
+
+</script>
+

@@ -2,39 +2,63 @@ Goal for end of summer: have something ready for use by others, don't worry abou
 	visuald would be nice though, if there's time
 
 
-symplify in beginning
+STUPID JS IS MAKING IT HARD TO DO THE ONLY COMPUTE NEW STUFF SO IM MOVING ON TO OTHER STUFF FOR NOW
+
+check for complex following a substitution
+
+solve is initially undefined
+
+loading bar
+
+descriptions of variables
+
+default to sub
+
 format result in display
 	rounding
+	remove parentheses
 	replace ** with ^
 	latex?
+symplify in beginning (if an eqn has a=a, it will throw an error since "a" will be considered a variable)
+don't resolve entire sheet when just the end of it changes (already wrote test.js which compares data structures)
+button to add new block (probably wouldn't be clear otherwise)
+	button to add line? (or pale line)
+
+
+line should expand with text
+
 display equations each in their own div 
 each block has their own description
 documentation
-default to sub
-implement solve for again
-improve sub table
-	look pretty
-	option to clear row (and column?)
-	duplicate row?
-	refresh table
-		should it just base it off of past results (so if the referenced blocks is modified it updates, but if it has its own reference which was modified, it's not updated)
-		back propagate?? (would be hard)
 
-don't resolve entire sheet when just the end of it changes (already wrote test.js which compares data structures)
-
-button to add new block (probably wouldn't be clear otherwise)
-	button to add line? (or pale line)
+make sub table pretty
 
 error messages
 	invalid equation
 	contradiction message might want to show both equations
+	variable is the name of a system
 
 working with greek letters?
 	\w would be omega for example (https://www.tutorialspoint.com/converting-alphabets-to-greek-letters-in-javascript)
 	could convert the input as well and unconvert when focused on it
 
 
+
+angle default to degrees
+
+
+
+info on hover
+
+
+what has to be done in display
+	evaluate
+	round
+	(optional: move negative stuff to the other side of the equal sign)
+
+	convert to latex
 	
+	latex(N(exp,3)) where 3 is the number of decimal places
 
 
 block is deleted when name is empty (i thought i already fixed this O: )
@@ -45,19 +69,15 @@ allow user to download?
 
 when your cursor is on a variable it colors it and all other instances of that variable in the block
 
-computations
-	nsolve doesn't check negative yet
 
 Option to either add blocks to sheet or replace
 
-remove unnecessary parentheses (sub_all_vars should only add parentheses if there's an operation)
 
 
 
 Sheet UI
 	BUG: when you save a sheet it goes back to the home sheet
 	Option to clear sheet
-	Collapsible blocks
 	Draggable blocks
 	Some way to guide user, possible options:
 		Prompts on the bottom with what can be done
@@ -65,13 +85,11 @@ Sheet UI
 		Just seeing examples could helpful
 		Little question mark buttons you can click on with info
 
-Sheet computation
-	Variables in an equation can’t have any block names (would be super confusing)
+
 
 Line Notation/UI
 	Latex result
 	Greek letters
-	Make substitution tabular
 	Expand output when multiple equations
 	Expand input box to fit input
 	Red border around input when error reached
@@ -79,7 +97,6 @@ Line Notation/UI
 Line computation
 
 	Trig function should be degrees
-	Solve in terms of with steps
 	More helpful guidance when it can’t solve would be nice
 
 

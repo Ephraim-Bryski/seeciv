@@ -6,19 +6,16 @@
         "input": "sav=(sx+sy)/2"
       },
       {
-        "input": "R=sqrt(((sx-sy)/2)^2+T^2)"
+        "input": "Tmax=sqrt(((sx-sy)/2)^2+T^2)"
       },
       {
-        "input": "smax=sav+R"
+        "input": "smax=sav+Tmax"
       },
       {
-        "input": "smin=sav-R"
+        "input": "smin=sav-Tmax"
       },
       {
         "input": "tan(2*a)=2*T/(sx-sy)"
-      },
-      {
-        "input": "Tmax=1/2*(smax-smin)"
       }
     ]
   },
@@ -32,34 +29,31 @@
             "sav",
             "sx",
             "sy",
-            "R",
+            "Tmax",
             "T",
             "smax",
             "smin",
-            "a",
-            "Tmax"
+            "a"
           ],
           [
             "sav",
             "20",
             "100",
-            "R",
+            "Tmax",
             "35",
             "smax",
             "smin",
-            "a",
-            "Tmax"
+            "a"
           ],
           [
             "sav",
             "sx",
             "sy",
-            "R",
+            "Tmax",
             "T",
             "smax",
             "smin",
-            "30*3.14/180",
-            "Tmax"
+            "30*3.14/180"
           ]
         ]
       }

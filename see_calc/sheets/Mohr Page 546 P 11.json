@@ -6,7 +6,7 @@
         "input": "sav=(sx+sy)/2"
       },
       {
-        "input": "R=sqrt(((sx-sy)/2)^2+T^2)"
+        "input": "R=(((sx-sy)/2)^2+T^2)^(1/2)"
       },
       {
         "input": "smax=sav+R"

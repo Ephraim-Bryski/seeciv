@@ -1,4 +1,7 @@
-function calc(SoEs){
+function calc(SoEs,SoEs_computed,change_idx){
+    console.log("change index: "+change_idx)
+
+    // change_idx is passed as the starting position of the loop
 
     // getting all block names to check if a variable is called the same thing as any block, and to give different type of error if reference to future block:
     var all_SoE_names = []
@@ -9,9 +12,18 @@ function calc(SoEs){
 
 
     var known_SoEs=[];
+    for (let i=0;i<change_idx;i++){
+        known_SoEs.push(SoEs[i].name)
+    }
+    console.log("past soes added to known:")
+    console.log(known_SoEs)
+
+
     var known_SoEs_idx=[];
 
-    for (var SoE_i=0;SoE_i<SoEs.length;SoE_i++){
+    console.log("new change index: "+change_idx)
+
+    for (var SoE_i=change_idx;SoE_i<SoEs.length;SoE_i++){
         var SoE_struct=SoEs[SoE_i];
         var name=SoE_struct.name;
         var SoE=SoE_struct.eqns;
@@ -37,7 +49,7 @@ function calc(SoEs){
             }
         }
         known_SoEs.push(name)
-        known_SoEs_idx.push(SoE_i)
+        known_SoEs_idx.push(SoE_i)  //! never used
     }
 
 
@@ -82,11 +94,19 @@ function calc(SoEs){
 
             var ref_idx = known_SoEs.findIndex((element) => element === ref)
             
-            ref_SoE=SoEs[ref_idx].eqns;
+
+
+            if (ref_idx<change_idx){
+                var ref_SoEs = SoEs_computed
+            }else{
+                var ref_SoEs = SoEs
+            }
+
+            var ref_SoE=ref_SoEs[ref_idx].eqns;
 
             var eqns = []
 
-            if (SoEs[ref_idx].result==="ERROR"){throw ref+" has an error"}
+            if (ref_SoEs[ref_idx].result==="ERROR"){throw ref+" has an error"}
             ref_SoE.forEach(ref_line => {
                 var ref_eqns = ref_line.result
                 if (ref_eqns==="ERROR"){throw ref+" has an error"}
@@ -102,21 +122,35 @@ function calc(SoEs){
             }
             
         }
-        
-        if (solve_eqn){
-            var result = my_solve_eqns(eqns,solve_var)
-        }else{
-            var result = eqns
-        }
 
-
+        //! will need 
+        //! will need code in see_calc (data2DOM) to take the array and construct divs with it
         var display = []
 
+        if (solve_eqn){
+            var result = my_solve_eqns(eqns,solve_var)
+            result.forEach(eqn=>{
+                var sides = eqn.split("=")
+                var LHS = sides[0]
+                var RHS = sides[1]
+                display.push(LHS+"="+sympy_display(RHS))
+            })
+        }else{
+            var result = eqns
+            result.forEach(eqn=>{
+                //var exp = eqn.split("=")[0]
+                var moved_eqn = (move_terms(make_py_exp(eqn)))
+                var exps = moved_eqn.split("=")
+                exps = exps.map(exp=>sympy_display(make_py_exp(exp)))
+                var new_eqn = exps[0]+"="+exps[1]
+                console.log("NEW EQN "+new_eqn)
+                //new_eqn = sympy_display(new_eqn)
+                //new_eqn = new_eqn.concat("=0")
 
-        result.forEach(eqn => {
-            display = display+eqn+","
-        })
-        display = display.slice(0, -1)
+                display.push(new_eqn)
+            })
+        }
+
         SoEs[SoE_i].eqns[line_i].result=result;
         SoEs[SoE_i].eqns[line_i].sub_table = new_table
         SoEs[SoE_i].eqns[line_i].display=display;
@@ -166,12 +200,12 @@ function compute_sub_table(eqns,old_table){
         for (let j=0;j<sub_row.length;j++){
             var sub_in = var_row[j]
             var sub_out = sub_row[j]
-            if (sub_out===""){
+            if (sub_out === ""){
                 removed_vars.push(var_row[j])
-            }else if(sub_in===sub_out){
+            }else if(sub_in === sub_out){
                 // do nothing since it's being subbed for the same value      
             }else if(var_row.indexOf(sub_out)!==-1){  // the new variable name is already a variable, not gonna allow that (could get very confusing)  
-                throw "cannot sub "+sub_in+" for "+sub_out+", "+sub_out+" already variable"
+                throw "cannot sub "+sub_in+" for "+sub_out+", "+sub_out+" is already a variable"
 
             }else{
                 for (let k=0;k<eqns.length;k++){

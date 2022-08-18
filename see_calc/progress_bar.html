@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+	<head>
+		<meta chatset="UTF-8" />
+		<title>CSS Progress Bar</title>
+		
+		<style>
+			.wrapper {
+				width: 500px;
+			}
+			
+			.progress-bar {
+				width: 100%;
+				background-color: #e0e0e0;
+				padding: 3px;
+				border-radius: 3px;
+				box-shadow: inset 0 1px 3px rgba(0, 0, 0, .2);
+			}
+			
+			.progress-bar-fill {
+				display: block;
+				height: 22px;
+				background-color: #659cef;
+				border-radius: 3px;
+				
+				transition: width 500ms ease-in-out;
+			}
+		</style>
+		
+	</head>
+	<body>
+		<div class="wrapper">
+			<div class="progress-bar">
+				<span class="progress-bar-fill" style="width: 70%;"></span>
+			</div>
+		</div>
+	</body>
+</html>
