@@ -1,0 +1,34 @@
+<body></body>
+<div id="counter"></div>
+
+<input>
+<button onclick="tell_worker()">CLICK</button>
+<script>
+
+const worker = new Worker('worker_test.js');
+worker.postMessage("not load")
+
+
+
+// this would by sympy_compute
+function tell_worker(){
+  worker.postMessage(document.body)
+}
+
+worker.onmessage = (m)=>{
+  console.log(m)
+  if (m.data === "loaded"){
+    document.getElementById("counter").innerHTML = "done loading"
+  }else{
+    // would 
+  }
+}
+
+
+
+
+
+
+
+
+</script>

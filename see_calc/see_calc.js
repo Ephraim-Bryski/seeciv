@@ -9,7 +9,7 @@ set_up()
 var SoEs= [
     {
         name:"System",
-        
+        info: "hi",
         eqns: [
         {input: "a=4+b", result: "",display:""},
         {input: "a*b=4", result: "",display:""}
@@ -33,39 +33,25 @@ data2DOM(SoEs)
 
 let pyodide;
 async function get_py() {
-    document.getElementById("loading").style.display = "block"
     pyodide = await loadPyodide();
     await pyodide.loadPackage("sympy");
     
 }
-get_py().then(()=>{});
-
-
-// not used
-function animate_load(){
-    var load_bar = document.getElementById("load_bar")
-
-    setInterval(move,100)
-
-    var i = 0
-    function move() {
-        if (i == 0) {
-          i = 1;
-          var elem = document.getElementById("load_bar");
-          var width = 1;
-          var id = setInterval(frame, 10);
-          function frame() {
-            if (width >= 100) {
-              clearInterval(id);
-              i = 0;
-            } else {
-              width++;
-              elem.style.width = width + "%";
-            }
-          }
+get_py().then(()=>{
+    console.log(pyodide)
+    // Ctrl + Etr event listener should only be added after it's finished loading
+    //sympy_compute("a=1;a",[])    // this just runs "from sympy import *" so there's no lag when you solve for the first time ("a=1;a" is just so there's something to return)
+    sympy_solve("a+3=4","a")
+    document.addEventListener('keyup', (e)=>{
+        if (e.code==="Enter" && e.ctrlKey){
+            var sheet_data=DOM2data()       
+            data2DOM(sheet_data,true)
+            document.getElementById("library-loaded").style.display = "none"
         }
-    }
-}
+    })
+    document.getElementById("library-loaded").innerHTML = "Loaded computation library.<br>Press Ctrl+Etr to update calculations.<br>Press Etr to make new line."
+});
+
 
 function set_up(){
     if (publish){
@@ -77,23 +63,20 @@ function set_up(){
     }
     
     
-    document.getElementById("loading").style.display = "none"
     var load_btn = document.getElementById("load-btn") 
     load_btn.onclick=()=>{
         var sheet_btns = document.getElementsByClassName("sheet-load-btn")
-            for (let i=0;i<sheet_btns.length;i++){
-                var sheet_btn = sheet_btns[i]
-                if (load_btn.innerHTML==="Library"){     
-                    sheet_btn.style.display = "block"
-                    var new_txt = "Close"
-                }else if(load_btn.innerHTML==="Close"){
-                    sheet_btn.style.display = "none"
-                    var new_txt = "Library"
-                }
+        for (let i=0;i<sheet_btns.length;i++){
+            var sheet_btn = sheet_btns[i]
+            if (load_btn.innerHTML==="Library"){     
+                sheet_btn.style.display = "block"
+                var new_txt = "Close"
+            }else if(load_btn.innerHTML==="Close"){
+                sheet_btn.style.display = "none"
+                var new_txt = "Library"
             }
-            load_btn.innerHTML = new_txt
-    
-        
+        }
+        load_btn.innerHTML = new_txt  
     }
     load(sheet_name_file,create_load_btns)
     
@@ -107,8 +90,7 @@ function set_up(){
         if (e.code==="Enter"){
             var in_field=document.activeElement
             if (e.ctrlKey){
-                var sheet_data=DOM2data()       
-                data2DOM(sheet_data)
+
             }else if(in_field.className=="line-input"){
                 var line=in_field.parentNode
                 var block=line.parentNode
@@ -134,7 +116,7 @@ function load(name,func){
     .then(response => {
     return response.json();
     })
-    .then(jsondata => func(jsondata))
+    .then(jsondata => func(jsondata,true))
     /*
     .catch(error =>{
         console.log(error)
@@ -182,7 +164,7 @@ function DOM2data(){
             data[not_empty_box_count].name=name_field
             data[not_empty_box_count].eqns=[]
             var not_empty_line_count=0
-            for (let j=1;j<SoE_box.children.length;j++){
+            for (let j=2;j<SoE_box.children.length;j++){
                 var eqn_row=SoE_box.children[j]
                 var input=eqn_row.children[1].value
                 var sub_table = eqn_row.children[2]
@@ -201,6 +183,28 @@ function DOM2data(){
 }
 
 function data2DOM(SoEs,calculate = false){
+
+    /*
+    // the first half of it should be done in the worker
+    // input: document.body.SoEs, document.body.computed_SoEs
+    // figures out where to start calculating and runs calc (would have to be imported in worker)
+    // output: SoEs_cleaned and computed_SoEs (SoEs_cleaned is just deep_cloned, called that bc it removes undefined properties, outdated name)
+    // they're the stored in document.body.SoEs and document.body.computed_SoEs 
+    // the DOM is then removed and recreated based on it
+
+
+    // instead of Ctrl+Etr calling just data2DOM, it will
+    - postmessage to the worker with SoEs and computed_SoEs (taken from document.body)
+    - the woker then
+        imports calc (and maybe wherever deepclone is in)
+        does the computation
+        sends message back
+    
+    there will be a readmessage
+        if "loaded", then send message for user saying it's done loading
+        if it's an array, then call data2DOM (the second half of the function)
+    */
+
 
     //! I think is obsolate (used for ML)
     if(!Array.isArray(SoEs)){
@@ -254,7 +258,7 @@ function data2DOM(SoEs,calculate = false){
     //
     
 
-    document.body.SoEs = deep_clone(SoEs_cleaned)   // JSON used to create a deep clone
+    document.body.SoEs = deep_clone(SoEs_cleaned)   
 
     var SoEs_computed = SoEs_old_computed.slice(0,change_idx).concat(SoEs_new_computed.slice(change_idx))
 
@@ -307,7 +311,13 @@ function make_line(eqn){
     if (eqn!=undefined){
         in_field.value=eqn.input
 
+        
         var display_eqns = eqn.display
+
+        if (display_eqns === undefined){
+            display_eqns = ""
+        }
+
 
         if (typeof display_eqns === "string"){
             out_field.innerHTML = display_eqns  // this occurs only when it's an error
@@ -363,14 +373,19 @@ function make_block(SoE){
     remove_button.className="block-remove"
     remove_button.classList.add("remove-btn")
 
+    var info_btn = document.createElement("button")
+    info_btn.classList = "empty-info-btn"
+
+
     var name_field=document.createElement('input')
     name_field.className="block-name-txt"
 
     var error_field = document.createElement('span')
-    if(SoE!==undefined){   
-        error_field.innerHTML = SoE.display
-    }else{
+
+    if (SoE===undefined || SoE.display===undefined){
         error_field.innerHTML = ""
+    }else{
+        error_field.innerHTML = SoE.display
     }
     block.appendChild(error_field)
 
@@ -379,9 +394,14 @@ function make_block(SoE){
     name_line.appendChild(remove_button)
     name_line.appendChild(name_field)
     name_line.appendChild(error_field)
+    name_line.appendChild(info_btn)
     block.appendChild(name_line)
 
 
+    var info_box = document.createElement("div")
+    info_box.classList = "info-box"
+    info_box.innerHTML = SoE.info    
+    block.appendChild(info_box)
 
 
 
@@ -401,6 +421,21 @@ function make_block(SoE){
             
     
         }
+
+
+        if (SoE.info!==undefined){
+            info_btn.innerHTML = "info"
+            info_btn.classList = "info-btn"
+            info_btn.onclick = (e)=>{
+                var popup = e.target.parentNode.parentNode.children[1]
+                if (popup.style.display==="block"){
+                    popup.style.display = "none"
+                }else{
+                    popup.style.display = "block"
+                }
+            }
+        }
+
     }else{
         block.appendChild(make_line())
     }
@@ -569,17 +604,3 @@ function deep_clone(nested){
     return JSON.parse(JSON.stringify(nested))
 }
 
-
-function show_loading() {
-    var elem = document.getElementById("myBar");   
-    var width = 1;
-    var id = setInterval(frame, 1000);
-    function frame() {
-      if (width >= 100) {
-        clearInterval(id);
-      } else {
-        width++; 
-        elem.style.width = width + '%'; 
-      }
-    }
-  }
