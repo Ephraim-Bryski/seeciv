@@ -1,12 +1,19 @@
+<link rel="stylesheet" href="mathquill.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="mathquill.js"></script>
 <body></body>
+<span id="eqn-field"></span>
+<input id="a">
+<button onclick="get()">CLICK</button>
+<div id="parent"><div><div class="blah"></div></div></div>
 <script>
-    var divs = []
-    for (let i=0;i<4;i++){
-        var my_div = document.createElement('div')
-        my_div.innerHTML = i
-        divs.push(my_div)
+    function get(){
+        var field = document.getElementById("a")
+        var txt = field.value
+        var regex = /\W[a-zA-Z](\w?)+/g
+        var txt = "-"+txt+"-"
+        var matches = [...txt.matchAll(regex)]
+        console.log(matches)
     }
 
-    divs.forEach(div=>{document.body.appendChild(div)})
-    document.body.appendChild(divs)
 </script>

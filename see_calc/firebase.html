@@ -1,0 +1,98 @@
+<script src="https://www.gstatic.com/firebasejs/3.5.2/firebase.js"></script>
+<button id="get-data">GET DATA</button>
+<button id="add-data">ADD DATA</button>
+<input id="sheet-name" value="a">Sheet Name</input>
+<input id="sheet" value="b">Sheet</input>
+<div id="data"></div>
+
+<script>
+    setup() // sets it up so create_callbacks is called everytime the data changes (and in the very beginning), this allows the callbacks to change with the new data
+
+    const user = "eph"    // for now i can just have the user as global since im the only one using it
+
+
+
+
+    function create_callbacks(database,data){
+        // would also have to update the links shown in the library
+
+        console.log(database)
+        console.log(data)
+        console.log("data came in!")
+        const get_data_btn = document.getElementById("get-data")
+        get_data_btn.onclick = ()=>{
+            console.log(data)
+            document.getElementById("data").innerHTML = data
+            const users = Object.keys(data)
+
+           // const data = Object.keys(data).map((key)=>{return data[key]});
+
+        }
+        const add_data_btn = document.getElementById("add-data")
+        add_data_btn.onclick = ()=>{
+            console.log(data)
+
+
+            const sheet_name = document.getElementById("sheet-name").value
+            const sheet = document.getElementById("sheet").value
+
+            //database.update({user:sheet_name})
+            database.child(user).child(sheet_name).set(sheet)
+
+
+            /*
+
+            will use set() and remove() to do everything i want
+
+            to add a user:
+            database.set("new user")
+
+            to remove a user:
+            database.child("eph").remove()
+
+            to add a sheet to a user, or modify the sheet:
+            database.child("eph").child("some sheet").set(data for sheet)
+
+            to delete a sheet:
+            database.child("eph").child("some sheet").remove()
+
+            */
+
+
+        }
+        // set and update are other commands to use
+
+        
+    }
+
+    function setup() {
+        const fb_config = {
+            apiKey: "AIzaSyCuxcmJLVLR02LNXx6Ep_diD7q7orHCfmM",
+            authDomain: "see-calc.firebaseapp.com",
+            projectId: "see-calc",
+            storageBucket: "see-calc.appspot.com",
+            messagingSenderId: "12119172863",
+            appId: "1:12119172863:web:b7a71ebd11f9c0c2a90eca",
+            databaseURL: "https://see-calc-default-rtdb.firebaseio.com/",
+            measurementId: "G-396DG1Y9Q2"
+        };
+        firebase.initializeApp(fb_config);
+        const database = firebase.database().ref();
+
+        database.on("value", (package)=>{
+            const data = package.val()
+            // with push it would create these annoying keys, but with update it doesn't
+            // const data = Object.keys(data_with_ids).map((key)=>{return data_with_ids[key]});
+
+            create_callbacks(database,data)
+
+            //func(stuff,params)
+        },
+        ()=>{}  //function if there's an error
+        );
+
+
+    }
+
+ 
+  </script>

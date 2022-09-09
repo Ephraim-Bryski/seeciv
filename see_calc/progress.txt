@@ -1,40 +1,17 @@
-Goal for end of summer: have something ready for use by others, don't worry about other stuff (e.g. lists, function, units, visualizations)
-	visuald would be nice though, if there's time
-
-
-STUPID JS IS MAKING IT HARD TO DO THE ONLY COMPUTE NEW STUFF SO IM MOVING ON TO OTHER STUFF FOR NOW
-
-check for complex following a substitution
-
-solve is initially undefined
-
-loading bar
-
-descriptions of variables
-
-default to sub
-
-format result in display
-	rounding
-	remove parentheses
-	replace ** with ^
-	latex?
-symplify in beginning (if an eqn has a=a, it will throw an error since "a" will be considered a variable)
-don't resolve entire sheet when just the end of it changes (already wrote test.js which compares data structures)
-button to add new block (probably wouldn't be clear otherwise)
 	button to add line? (or pale line)
 
+break up equations from sub_table into columns
+
+backslash in variable leads to "too difficult for program to solve"
 
 line should expand with text
 
-display equations each in their own div 
 each block has their own description
 documentation
 
 make sub table pretty
 
 error messages
-	invalid equation
 	contradiction message might want to show both equations
 	variable is the name of a system
 
@@ -46,22 +23,18 @@ working with greek letters?
 
 angle default to degrees
 
+calculations
+	divide by 0 error leads to it saying it's too difficult to solve
 
-
-info on hover
 
 
 what has to be done in display
-	evaluate
-	round
+
 	(optional: move negative stuff to the other side of the equal sign)
 
-	convert to latex
-	
-	latex(N(exp,3)) where 3 is the number of decimal places
 
 
-block is deleted when name is empty (i thought i already fixed this O: )
+
 
 
 allow user to download?

@@ -1,6 +1,9 @@
-var publish = false
+// i switched from var to const, so rn its just arbitrary which on i use
+
+const user = "eph"    // for now i can just have the user as global since im the only one using it
 var MQ = MathQuill.getInterface(2);
 
+document.body.loaded = false    // this keeps track of whether sympy has been loaded, it's only used for when loading a sheet from the library -- if sympy's loaded it should compute, but if not it should just display
 
 set_up()
 
@@ -11,9 +14,9 @@ var SoEs= [
         name:"System",
         info: "hi",
         eqns: [
-        {input: "a=4+b", result: "",display:""},
-        {input: "a*b=4", result: "",display:""}
-        
+        {input: "c=a+b", result: "",display:""},
+        {input: "a=3", result: "",display:""},
+        {input: "b=4", result: "",display:""}
         ]
     },
     {
@@ -26,41 +29,43 @@ var SoEs= [
 
 ]
 
-document.body.SoEs = [] //deep_clone(SoEs)
-document.body.computed_SoEs = [] //deep_clone(SoEs)
 
-data2DOM(SoEs)
 
-let pyodide;
-async function get_py() {
-    pyodide = await loadPyodide();
-    await pyodide.loadPackage("sympy");
-    
+const worker = new Worker('py_worker.js');
+worker.postMessage("load")
+
+
+
+worker.onmessage = (m)=>{
+    if (m.data === "loaded"){
+        document.addEventListener('keyup', (e)=>{
+            if (e.code==="Enter" && e.ctrlKey){
+                var sheet_data=DOM2data()
+                send_to_worker(sheet_data)
+            }
+        })
+        document.body.loaded = true
+        document.getElementById("library-loaded").innerHTML = "Loaded computation library!<br>Press Ctrl+Etr to update calculations."
+    }else{  // this means it finished computing
+        document.getElementById("library-loaded").innerHTML = ""
+        data2DOM(m.data)
+    }
 }
-get_py().then(()=>{
-    console.log(pyodide)
-    // Ctrl + Etr event listener should only be added after it's finished loading
-    //sympy_compute("a=1;a",[])    // this just runs "from sympy import *" so there's no lag when you solve for the first time ("a=1;a" is just so there's something to return)
-    sympy_solve("a+3=4","a")
-    document.addEventListener('keyup', (e)=>{
-        if (e.code==="Enter" && e.ctrlKey){
-            var sheet_data=DOM2data()       
-            data2DOM(sheet_data,true)
-            document.getElementById("library-loaded").style.display = "none"
-        }
-    })
-    document.getElementById("library-loaded").innerHTML = "Loaded computation library.<br>Press Ctrl+Etr to update calculations.<br>Press Etr to make new line."
-});
+
+
+
+data2DOM(SoEs)  // performed without calculations
+
+
+
+// this would be done onmessage loaded
+
+
+
 
 
 function set_up(){
-    if (publish){
-        document.getElementById("save-field").style.display = "none"
-        document.getElementById("save-btn").style.display = "none"
-        var sheet_name_file = "Publish Sheet Names"
-    }else{
-        var sheet_name_file = "Sheet Names"
-    }
+
     
     
     var load_btn = document.getElementById("load-btn") 
@@ -78,14 +83,8 @@ function set_up(){
         }
         load_btn.innerHTML = new_txt  
     }
-    load(sheet_name_file,create_load_btns)
-    
-    
-    var save_btn = document.getElementById("save-btn")
-    save_btn.onclick=()=>{
-        save(DOM2data(),document.getElementById("save-field").value)
-    }
-    
+
+
     document.addEventListener('keyup', (e)=>{
         if (e.code==="Enter"){
             var in_field=document.activeElement
@@ -108,60 +107,124 @@ function set_up(){
             }
         }          
     })
+
+
+    const fb_config = {
+        apiKey: "AIzaSyCuxcmJLVLR02LNXx6Ep_diD7q7orHCfmM",
+        authDomain: "see-calc.firebaseapp.com",
+        projectId: "see-calc",
+        storageBucket: "see-calc.appspot.com",
+        messagingSenderId: "12119172863",
+        appId: "1:12119172863:web:b7a71ebd11f9c0c2a90eca",
+        databaseURL: "https://see-calc-default-rtdb.firebaseio.com/",
+        measurementId: "G-396DG1Y9Q2"
+    };
+    firebase.initializeApp(fb_config);
+    const database = firebase.database().ref();
+
+    database.on("value", (package)=>{
+        const data = package.val()
+        create_callbacks(database,data)
+    },
+    ()=>{throw "ERROR WITH FIREBASE????"} 
+    );
+
+    function create_callbacks(database,data){
+
+        const save_btn = document.getElementById("save-btn")
+        save_btn.onclick = ()=>{
+            const sheet_name = document.getElementById("save-field").value
+            database.child(user).child(sheet_name).set(JSON.parse(JSON.stringify((DOM2data()))))  // parse and stringify is just to remove undefined, since firebase cant handle them
+        }
+    
+    
+        const user_data = data[user]
+        const current_btns = document.getElementsByClassName("sheet-load-btn")
+        const current_names = [...current_btns].map(btn=>{return btn.innerHTML})
+
+        if (current_btns.length === 0){
+            var display_type = "none"
+        }else{
+            var display_type = current_btns[0].style.display
+        }
+
+        const sheet_names = Object.keys(user_data)
+
+
+        const new_names = sheet_names.filter(sheet_name=>{return !current_names.includes(sheet_name)})
+
+        new_names.forEach(sheet_name => {
+            var root = document.getElementById("load")
+            var btn = document.createElement('button')
+            btn.classList.add("sheet-load-btn")
+            btn.style.display=display_type
+            btn.innerHTML=sheet_name
+            btn.onclick=()=>{
+                document.getElementById("save-field").value=sheet_name
+                const sheet_data = user_data[sheet_name]
+                if (document.body.loaded){
+                    send_to_worker(sheet_data)
+                }else{
+                    data2DOM(sheet_data)
+                }
+            }
+            root.appendChild(btn)        
+        });
+    }
+    
+
 }
 
-
-function load(name,func){
+ /*  approach before using firebase:
+function load_files(name,func){
+   
     fetch(name+".json")
     .then(response => {
     return response.json();
     })
-    .then(jsondata => func(jsondata,true))
-    /*
-    .catch(error =>{
-        console.log(error)
-    })*/  
+    .then(jsondata =>func(jsondata))
+
 }
-    
+
+
 function save(data, fileName) {
     var content = JSON.stringify(data,null,2)
     var a = document.createElement("a")
     var file = new Blob([content], {type: 'text/plain'})
-    a.href = URL.createObjectURL(file)
+    var url = URL.createObjectURL(file)
+    a.href = url
     a.download = fileName+".json"
     a.click()
+    URL.revokeObjectURL(url)
 }
+*/
 
-function create_load_btns(data){ // this would be data2DOM(data)
-    data.forEach(name => {
-        var root = document.getElementById("load")
-        var btn = document.createElement('button')
-        btn.classList.add("sheet-load-btn")
-        btn.style.display="none"
-        btn.innerHTML=name
-        btn.onclick=()=>{
-            document.getElementById("save-field").value=name
-            load("sheets/"+name,data2DOM)
-        }
-        root.appendChild(btn)
 
-        
-    });
+
+
+function send_to_worker(sheet){
+    document.getElementById("library-loaded").innerHTML = "Computing..."
+    worker.postMessage(sheet)
 }
-
 
 
 
 function DOM2data(){
     var data=[]
-    var outer=document.getElementById('root')
     var not_empty_box_count = 0
-    for (let i=0;i<outer.children.length;i++){
-        var SoE_box=document.getElementsByClassName('block')[i]
-        var name_field = document.getElementsByClassName('block-name-txt')[i].value
+    var SoE_boxes = document.getElementsByClassName('block')
+    var name_fields = document.getElementsByClassName('block-name-txt')
+    var info_blocks = document.getElementsByClassName('info-box')
+    for (let i=0;i<SoE_boxes.length;i++){
+        var SoE_box=SoE_boxes[i]
+        var name_field = name_fields[i].value
+        var info = info_blocks[i].innerHTML
         if(name_field.length!==0 || i===0){
             data[not_empty_box_count]={}
             data[not_empty_box_count].name=name_field
+            if (info!=="undefined" && info!==""){
+                data[not_empty_box_count].info=info
+            }
             data[not_empty_box_count].eqns=[]
             var not_empty_line_count=0
             for (let j=2;j<SoE_box.children.length;j++){
@@ -182,88 +245,9 @@ function DOM2data(){
     return data
 }
 
-function data2DOM(SoEs,calculate = false){
+function data2DOM(SoEs){
 
-    /*
-    // the first half of it should be done in the worker
-    // input: document.body.SoEs, document.body.computed_SoEs
-    // figures out where to start calculating and runs calc (would have to be imported in worker)
-    // output: SoEs_cleaned and computed_SoEs (SoEs_cleaned is just deep_cloned, called that bc it removes undefined properties, outdated name)
-    // they're the stored in document.body.SoEs and document.body.computed_SoEs 
-    // the DOM is then removed and recreated based on it
-
-
-    // instead of Ctrl+Etr calling just data2DOM, it will
-    - postmessage to the worker with SoEs and computed_SoEs (taken from document.body)
-    - the woker then
-        imports calc (and maybe wherever deepclone is in)
-        does the computation
-        sends message back
-    
-    there will be a readmessage
-        if "loaded", then send message for user saying it's done loading
-        if it's an array, then call data2DOM (the second half of the function)
-    */
-
-
-    //! I think is obsolate (used for ML)
-    if(!Array.isArray(SoEs)){
-        SoEs=[SoEs]
-    }
-
-
-    var old_SoEs = document.body.SoEs
-
-    // compute where the difference is and pass it over to calc
-    console.log("before: ")
-    console.log(SoEs)
-
-    var SoEs_cleaned = deep_clone(SoEs)
-
-
-    console.log(SoEs_cleaned)
-
-
-   // var SoEs = JSON.parse(JSON.stringify(SoEs)) // a deep clone isn't needed, BUT this eliminates undefined properties so the two match (sub_table is undefined)
-
-
-    
-
-    console.log("Old: ")
-    console.log(old_SoEs)
-    console.log("New: ")
-    console.log(SoEs_cleaned)
-
-
-    if (old_SoEs.length === 0){
-        var change_idx = 0  // document.body.SoEs is initiated as an empty array
-    }else{
-        var change_idx = get_change_start(old_SoEs,deep_clone(SoEs_cleaned))
-    }
-    
-    if (change_idx===undefined){
-        change_idx = SoEs.length
-    }
-
-
-
-    var SoEs_old_computed = document.body.computed_SoEs
-
-
-    if (calculate){
-        var SoEs_new_computed = calc(deep_clone(SoEs_cleaned),SoEs_old_computed,change_idx)
-    }else{
-        var SoEs_new_computed = deep_clone(SoEs_cleaned)
-    }
-    //
-    
-
-    document.body.SoEs = deep_clone(SoEs_cleaned)   
-
-    var SoEs_computed = SoEs_old_computed.slice(0,change_idx).concat(SoEs_new_computed.slice(change_idx))
-
-    document.body.computed_SoEs = deep_clone(SoEs_computed)
-
+    // would just pass in SoEs, but would have to be deepcloned at some point
 
 
     var main = document.getElementById('root');
@@ -271,11 +255,34 @@ function data2DOM(SoEs,calculate = false){
         main.removeChild(main.firstChild);
     }
 
-    for (let i=0;i<SoEs_computed.length;i++){    
-        main.appendChild(make_block(SoEs_computed[i]))  
+    for (let i=0;i<SoEs.length;i++){    
+        main.appendChild(make_block(SoEs[i]))  
     }
 
+    main.appendChild(make_new_block_btn())
 
+    // weird MQ bug, parentheses messed up if you apply staticfield prior to appending to document.body, so this must be done after:
+    var mq_fields = main.querySelectorAll('.eqn-field')
+    
+    mq_fields.forEach((mq_field)=>{
+        MQ.StaticMath(mq_field)
+    })
+
+
+}
+
+function make_new_block_btn(){
+    var add_btn = document.createElement("button")
+    add_btn.className = "info-btn"
+    add_btn.innerHTML = "create new block"
+    add_btn.onclick = (()=>{
+        console.log('clicked!')
+        var parent = document.getElementById("root")
+        var new_block = make_block()
+        parent.insertBefore(new_block,add_btn)
+
+    })
+    return add_btn
 }
 
 
@@ -326,10 +333,12 @@ function make_line(eqn){
                 var eqn_wrapper = document.createElement("div") // needed since MQ turns the div into a span
                 var eqn_field = document.createElement("div")
                 eqn_field.innerHTML = eqn
-                MQ.StaticMath(eqn_field)
+                eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
                 eqn_wrapper.appendChild(eqn_field)
                 out_field.appendChild(eqn_wrapper)
-    
+                //MQ.StaticMath(eqn_field)
+
+                
         
             })
         }
@@ -400,7 +409,10 @@ function make_block(SoE){
 
     var info_box = document.createElement("div")
     info_box.classList = "info-box"
-    info_box.innerHTML = SoE.info    
+    if (SoE!==undefined){
+        info_box.innerHTML = SoE.info    
+
+    }
     block.appendChild(info_box)
 
 
@@ -423,6 +435,8 @@ function make_block(SoE){
         }
 
 
+ 
+
         if (SoE.info!==undefined){
             info_btn.innerHTML = "info"
             info_btn.classList = "info-btn"
@@ -436,7 +450,10 @@ function make_block(SoE){
             }
         }
 
+
+
     }else{
+        //! not sure if this is ever reached
         block.appendChild(make_line())
     }
     
@@ -533,74 +550,4 @@ function get_sub_data(table){
 
 
 
-
-
-function get_change_start(A,B){
-
-
-    var same_length = false
-    if (A.length>B.length){
-        var larger = A
-        var smaller = B
-    }else if(B.length>A.length){
-        var larger = B
-        var smaller = A
-    }else{
-        same_length = true
-    }
-
-    if(!same_length){
-        len_diff = larger.length-smaller.length
-        for (let i=0;i<len_diff;i++){
-            smaller.push([])
-        }
-    }
-
-    console.log("AAAAAAAAAAAAAAAA: ")
-    console.log(A)
-    console.log("BBBBBBBBBBBBB: ")
-    console.log(B)
-
-    for (let i=0;i<A.length;i++){
-        if(!structures_same(A[i],B[i])){
-            return i
-        }
-        console.log("Same: "+A[i]+" and "+B[i])
-    }
-
-
-    function structures_same(A,B){
-// non-nested arrays dont work
-        // checks if two nested arrays have the same data
-        var Akeys = Object.keys(A)
-        var Bkeys = Object.keys(B)
-
-        if (Akeys.length>Bkeys.length){var ref_keys = Akeys}
-        else{var ref_keys = Bkeys}
-
-
-        var match = true
-
-        ref_keys.forEach(key=>{
-            A_in = A[key]
-            B_in = B[key]
-
-            if (typeof A_in === "object" && typeof B_in === "object"){
-                if(structures_same(A_in,B_in)){
-                }else{
-                    match = false
-                }
-            }else if(A_in===B_in){
-            }else{
-                match = false
-            }
-        })
-        return match
-    }
-
-}
-
-function deep_clone(nested){
-    return JSON.parse(JSON.stringify(nested))
-}
 

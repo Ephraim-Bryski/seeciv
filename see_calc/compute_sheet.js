@@ -1,5 +1,8 @@
 function calc(SoEs,SoEs_computed,change_idx){
-    console.log("change index: "+change_idx)
+    
+
+
+
 
     // change_idx is passed as the starting position of the loop
 
@@ -15,13 +18,10 @@ function calc(SoEs,SoEs_computed,change_idx){
     for (let i=0;i<change_idx;i++){
         known_SoEs.push(SoEs[i].name)
     }
-    console.log("past soes added to known:")
-    console.log(known_SoEs)
 
 
     var known_SoEs_idx=[];
 
-    console.log("new change index: "+change_idx)
 
     for (var SoE_i=change_idx;SoE_i<SoEs.length;SoE_i++){
         var SoE_struct=SoEs[SoE_i];
@@ -78,8 +78,9 @@ function calc(SoEs,SoEs_computed,change_idx){
             //try{(nerdamer(line))}catch{throw line+" is not a valid equation"}
             var eqns = [line]
         }else{
-            var ref_and_sub = line.split(" sub")
-            ref = ref_and_sub[0].replace(" ","") // remove any extra spaces
+            var ref = line.replace(" ","")
+            // var ref_and_sub = line.split(" sub")
+            // ref = ref_and_sub[0].replace(" ","") // remove any extra spaces
 
             if (block_name===ref){
                 throw "Cannot reference own block"
@@ -88,7 +89,7 @@ function calc(SoEs,SoEs_computed,change_idx){
                 if(all_SoE_names.includes(ref)){
                     throw "Cannot reference future block"
                 }else{
-                    throw "Must be an equation or block name"
+                    throw ref+" is not an equation or block name"
                 } 
             }
 
@@ -114,13 +115,14 @@ function calc(SoEs,SoEs_computed,change_idx){
                 eqns = eqns.flat()
   
             });
-            
-            if (ref_and_sub.length>1){
+
+            if (!solve_eqn){
                 var new_stuff = compute_sub_table(eqns,old_table)
                 var eqns = new_stuff[0]
                 var new_table = new_stuff[1]
             }
-            
+
+                        
         }
 
         //! will need 
@@ -139,11 +141,20 @@ function calc(SoEs,SoEs_computed,change_idx){
             var result = eqns
             result.forEach(eqn=>{
                 //var exp = eqn.split("=")[0]
+                var simp_eqn = sympy_simplify(eqn)
+                console.log("SIMPLIFED: "+simp_eqn)
+                if (get_all_vars(simp_eqn).length === 0){
+                    if(simp_eqn==="0"){
+                        throw "equation reduces to "+simp_eqn+"=0"
+                    }else{
+                        throw "equation has a contradiction"
+                    }
+                }
                 var moved_eqn = (move_terms(make_py_exp(eqn)))
                 var exps = moved_eqn.split("=")
                 exps = exps.map(exp=>sympy_display(make_py_exp(exp)))
+
                 var new_eqn = exps[0]+"="+exps[1]
-                console.log("NEW EQN "+new_eqn)
                 //new_eqn = sympy_display(new_eqn)
                 //new_eqn = new_eqn.concat("=0")
 

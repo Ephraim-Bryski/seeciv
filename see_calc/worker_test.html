@@ -6,13 +6,13 @@
 <script>
 
 const worker = new Worker('worker_test.js');
-worker.postMessage("not load")
+worker.postMessage("load")
 
 
 
 // this would by sympy_compute
 function tell_worker(){
-  worker.postMessage(document.body)
+  worker.postMessage([3,4])
 }
 
 worker.onmessage = (m)=>{

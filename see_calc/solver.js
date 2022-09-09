@@ -306,11 +306,7 @@ function sympy_display(exp){
     var command = "display=latex(N("+exp+",3),mul_symbol='dot');"
     command+="display"
 
-    var old_disp = sympy_compute(command,get_all_vars(exp))
-    var new_disp = old_disp.replaceAll("(","\left(").replaceAll(")","\right)")
-    console.log("OLD: "+old_disp)
-    console.log("NEW: "+new_disp)
-    return new_disp
+    return sympy_compute(command,get_all_vars(exp))
 }
 
 function sympy_n_solve(eqn,solve_var,init){
@@ -484,7 +480,7 @@ function cancel_terms(exp){
     var sum_terms = split_terms(exp,"sum")
 
     // a bit of a quick hack, cancel_terms("0") returns "1" (not exactly sure why)
-    if (sum_terms.length === 1){
+    if (sum_terms.length <= 1){
         return exp.replaceAll("^","**")
     }
 
@@ -546,11 +542,11 @@ function combine_terms(terms,type){
 
 function split_terms(exp,type,include_sign=true){
 
-/*
+    //! this was commented out before, dont know why
     if (exp[0]==="-"){
         exp = "0"+exp
     }
-*/
+
     if (type==="sum"){
         var ops = ["+","-","*"]
     }else if(type==="product"){
@@ -572,8 +568,11 @@ function split_terms(exp,type,include_sign=true){
     }
 
     function search_tree(exp,exp_sign){
-        console.log("EXP: "+exp)
-        var exp_tree = math.parse(exp)
+        try{
+            var exp_tree = math.parse(exp)
+        }catch{
+            throw "could not parse equation"
+        }
 
 
         if (exp_tree.content!==undefined){   // if it's in parentheses you have to get the content property first
@@ -594,7 +593,6 @@ function split_terms(exp,type,include_sign=true){
 
         arg_trees.forEach((arg_tree,idx)=>{
             var arg = arg_tree.toString()
-            console.log("INPUT: "+arg)
             //! this doesn't work for something like a-4 (commented code doesnt work with parentheses)
             if (get_all_vars(arg).length===0){//c=(arg_tree.op===undefined || arg_tree.fn === "unaryMinus"){//
                 if (op===ops[1] && idx===1){add_term(arg,-exp_sign)}
