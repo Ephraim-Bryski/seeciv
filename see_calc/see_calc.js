@@ -121,8 +121,34 @@ function set_up(){
     };
     firebase.initializeApp(fb_config);
     const database = firebase.database().ref();
+    
+    function add_to_fb(name){
+
+        fetch("sheets/"+name+".json")
+        .then(response => {
+        return response.json();
+        })
+        .then(jsondata => {
+
+
+
+            database.child(user).child(name).set(JSON.parse(JSON.stringify((jsondata))))  // parse and stringify is just to remove undefined, since firebase cant handle them
+
+
+
+        })
+        .catch(error =>{
+            throw error
+        });
+    
+    
+    }
+
+
+
 
     database.on("value", (package)=>{
+        console.log('hi')
         const data = package.val()
         create_callbacks(database,data)
     },

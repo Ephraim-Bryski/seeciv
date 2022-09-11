@@ -25,6 +25,7 @@ angle default to degrees
 
 calculations
 	divide by 0 error leads to it saying it's too difficult to solve
+	contradiction can lead to numeric solve error
 
 
 
@@ -49,7 +50,6 @@ Option to either add blocks to sheet or replace
 
 
 Sheet UI
-	BUG: when you save a sheet it goes back to the home sheet
 	Option to clear sheet
 	Draggable blocks
 	Some way to guide user, possible options:
@@ -63,17 +63,9 @@ Sheet UI
 Line Notation/UI
 	Latex result
 	Greek letters
-	Expand output when multiple equations
 	Expand input box to fit input
 	Red border around input when error reached
 
-Line computation
-
-	Trig function should be degrees
-	More helpful guidance when it can’t solve would be nice
-
-
-Error handling
 
 Saving/sharing/library
 	Saving something with period in name no good 

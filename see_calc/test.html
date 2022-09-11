@@ -4,16 +4,12 @@
 <body></body>
 <span id="eqn-field"></span>
 <input id="a">
-<button onclick="get()">CLICK</button>
+<button onclick="get()">CLIsCK</button>
 <div id="parent"><div><div class="blah"></div></div></div>
 <script>
-    function get(){
-        var field = document.getElementById("a")
-        var txt = field.value
-        var regex = /\W[a-zA-Z](\w?)+/g
-        var txt = "-"+txt+"-"
-        var matches = [...txt.matchAll(regex)]
-        console.log(matches)
-    }
+
+    window.history.replaceState({},null,"boops")
+
+
 
 </script>
