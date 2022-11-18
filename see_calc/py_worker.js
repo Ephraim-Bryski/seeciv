@@ -47,12 +47,16 @@ function update_sheet(SoEs){
         change_idx = SoEs.length
     }
 
+
+    displays = SoEs.map(SoE=>{return SoE.style_display})
     var SoEs_new_computed = calc(deep_clone(SoEs_cleaned),deep_clone(SoEs_old_computed),change_idx)
 
     
 
     var SoEs_computed = deep_clone(SoEs_old_computed.slice(0,change_idx).concat(SoEs_new_computed.slice(change_idx)))
 
+
+    displays.forEach((display,idx)=>{SoEs_computed[idx].style_display=display})
 
     postMessage(SoEs_computed)
 

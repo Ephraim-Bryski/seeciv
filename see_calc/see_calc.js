@@ -176,10 +176,13 @@ function set_up(){
 
         const sheet_names = Object.keys(user_data)
 
+        const load_btns = [...document.getElementsByClassName("sheet-load-btn")]
+        load_btns.forEach((btn)=>{btn.remove()})
 
-        const new_names = sheet_names.filter(sheet_name=>{return !current_names.includes(sheet_name)})
 
-        new_names.forEach(sheet_name => {
+        //const new_names = sheet_names.filter(sheet_name=>{return !current_names.includes(sheet_name)})
+
+        sheet_names.forEach(sheet_name => {
             var root = document.getElementById("load")
             var btn = document.createElement('button')
             btn.classList.add("sheet-load-btn")
@@ -200,32 +203,6 @@ function set_up(){
     
 
 }
-
- /*  approach before using firebase:
-function load_files(name,func){
-   
-    fetch(name+".json")
-    .then(response => {
-    return response.json();
-    })
-    .then(jsondata =>func(jsondata))
-
-}
-
-
-function save(data, fileName) {
-    var content = JSON.stringify(data,null,2)
-    var a = document.createElement("a")
-    var file = new Blob([content], {type: 'text/plain'})
-    var url = URL.createObjectURL(file)
-    a.href = url
-    a.download = fileName+".json"
-    a.click()
-    URL.revokeObjectURL(url)
-}
-*/
-
-
 
 
 function send_to_worker(sheet){
@@ -248,6 +225,9 @@ function DOM2data(){
         if(name_field.length!==0 || i===0){
             data[not_empty_box_count]={}
             data[not_empty_box_count].name=name_field
+
+            data[not_empty_box_count].style_display = SoE_box.children[2].style.display
+
             if (info!=="undefined" && info!==""){
                 data[not_empty_box_count].info=info
             }
@@ -255,6 +235,8 @@ function DOM2data(){
             var not_empty_line_count=0
             for (let j=2;j<SoE_box.children.length;j++){
                 var eqn_row=SoE_box.children[j]
+                console.log(eqn_row)
+                data[not_empty_box_count].display = eqn_row.style.display
                 var input=eqn_row.children[1].value
                 var sub_table = eqn_row.children[2]
                 if(input.length!==0 || j===1){
@@ -262,6 +244,7 @@ function DOM2data(){
                     data[not_empty_box_count].eqns[not_empty_line_count].input=input
                     data[not_empty_box_count].eqns[not_empty_line_count].sub_table = get_sub_data(sub_table)
                     not_empty_line_count+=1
+
                 }
             } 
             not_empty_box_count+=1 
@@ -269,10 +252,9 @@ function DOM2data(){
         
     }
     return data
-}
+} 
 
 function data2DOM(SoEs){
-
     // would just pass in SoEs, but would have to be deepcloned at some point
 
 
@@ -281,8 +263,20 @@ function data2DOM(SoEs){
         main.removeChild(main.firstChild);
     }
 
-    for (let i=0;i<SoEs.length;i++){    
-        main.appendChild(make_block(SoEs[i]))  
+    for (let i=0;i<SoEs.length;i++){
+        if (i+1==SoEs.length){
+            // calls draw_rectangles every time, but only actually draws if blah is in the variable names (which is done in compute_sub_table)
+            eqns = SoEs[i]["eqns"][0]["result"]
+            draw_rectangles([eqns].flat())
+        }   
+        block = make_block(SoEs[i])
+        if (SoEs[i].style_display == "none"){
+            lines = [...block.querySelectorAll(".line")]
+            lines.forEach((line)=>{line.style.display = "none"})
+            display_btn = [...block.querySelectorAll(".info-btn")].at(-1) // last element
+            display_btn.innerHTML = "show"
+        }
+        main.appendChild(block)
     }
 
     main.appendChild(make_new_block_btn())
@@ -296,6 +290,43 @@ function data2DOM(SoEs){
 
 
 }
+
+function get_vis_vals(all_eqns){
+    all_vals = []
+
+    eqns_vis = all_eqns.filter((eqn)=>{return eqn.includes("blah")})
+    eqns_vis.forEach((eqn) => {
+        eqn = eqn.replace("blah_","")
+        var_val = eqn.split("=")
+        vis_var = var_val[0]
+        val = var_val[1]
+        var_idx = vis_var.split("_")
+        base_var = var_idx[0]
+        idx = parseInt(var_idx[1])
+
+        info_cell = all_vals[idx-1]
+        if (info_cell===undefined){
+            info_cell = {}
+        }
+        info_cell[base_var] = val
+        all_vals[idx-1] = info_cell
+
+
+
+    })
+
+    console.log(all_vals)
+    return all_vals
+}
+
+function draw_rectangles(eqns){
+    rect_vals = get_vis_vals(eqns)
+    ctx.clear(true)
+    rect_vals.forEach(v=>{
+        ctx.fillRect(v["x"]-v["b"]/2, v["y"]-v["h"]/2, v["b"], v["h"]);
+    })
+}
+
 
 function make_new_block_btn(){
     var add_btn = document.createElement("button")
@@ -351,21 +382,21 @@ function make_line(eqn){
             display_eqns = ""
         }
 
+        
+
 
         if (typeof display_eqns === "string"){
             out_field.innerHTML = display_eqns  // this occurs only when it's an error
         }else{
+            display_eqns = display_eqns.filter((eqn)=>{return !eqn.includes("blah")})
+
             display_eqns.forEach((eqn)=>{
                 var eqn_wrapper = document.createElement("div") // needed since MQ turns the div into a span
                 var eqn_field = document.createElement("div")
                 eqn_field.innerHTML = eqn
                 eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
                 eqn_wrapper.appendChild(eqn_field)
-                out_field.appendChild(eqn_wrapper)
-                //MQ.StaticMath(eqn_field)
-
-                
-        
+                out_field.appendChild(eqn_wrapper)        
             })
         }
 
@@ -408,8 +439,23 @@ function make_block(SoE){
     remove_button.className="block-remove"
     remove_button.classList.add("remove-btn")
 
+    var add_btn = document.createElement("button")
+    add_btn.onclick = function(event){
+        var block=event.target.parentNode.parentNode
+        var main=block.parentNode
+        var next_block=block.nextElementSibling
+        var new_block=make_block()
+        main.insertBefore(new_block,next_block)
+        new_block.children[0].children[1].focus()
+    }
+    add_btn.innerHTML = "+"
+
     var info_btn = document.createElement("button")
     info_btn.classList = "empty-info-btn"
+
+    var close_btn = document.createElement("button")
+    close_btn.innerHTML = "close"
+    close_btn.classList = "info-btn"
 
 
     var name_field=document.createElement('input')
@@ -427,9 +473,11 @@ function make_block(SoE){
     name_line=document.createElement('div')
     name_line.className="block-name"
     name_line.appendChild(remove_button)
+    name_line.appendChild(add_btn)
     name_line.appendChild(name_field)
     name_line.appendChild(error_field)
     name_line.appendChild(info_btn)
+    name_line.appendChild(close_btn)
     block.appendChild(name_line)
 
 
@@ -439,6 +487,8 @@ function make_block(SoE){
         info_box.innerHTML = SoE.info    
 
     }
+
+
     block.appendChild(info_box)
 
 
@@ -461,7 +511,21 @@ function make_block(SoE){
         }
 
 
- 
+        close_btn.onclick = (e)=>{
+            var block = e.target.parentNode.parentNode
+            const lines = [...block.getElementsByClassName("line")]
+            const display = lines[0].style.display
+            if (display === "none"){
+                txt = "close"
+                var new_display = ""
+            }else{
+                txt = "show"
+                var new_display = "none"
+            }
+            lines.forEach((line)=>{line.style.display = new_display})
+            e.target.innerHTML = txt
+
+        }
 
         if (SoE.info!==undefined){
             info_btn.innerHTML = "info"
@@ -477,14 +541,20 @@ function make_block(SoE){
         }
 
 
-
     }else{
-        //! not sure if this is ever reached
+      //  console.error("SHOULD NOT BE REACHED")
         block.appendChild(make_line())
     }
-    
+
+    const lines = [...block.getElementsByClassName("line")]
+
+    //if (SoE.display===undefined){SoE.display = "block"}
+
+    //lines.forEach((line)=>{line.style.display = SoE.display})
 
     return block
+
+
 }
 
 
@@ -534,15 +604,17 @@ function make_sub_table(table_data){
     function make_row(vars,editable){
         var row = document.createElement("tr")
         vars.forEach((var_name)=>{
-            var in_field = document.createElement("input")
-            in_field.className = "sub-input"
-            if(!editable){
-                in_field.disabled = true
+            if (!var_name.includes("blah")){
+                var in_field = document.createElement("input")
+                in_field.className = "sub-input"
+                if(!editable){
+                    in_field.disabled = true
+                }
+                in_field.value = var_name
+                var cell = document.createElement("td")
+                cell.appendChild(in_field)
+                row.appendChild(cell)
             }
-            in_field.value = var_name
-            var cell = document.createElement("td")
-            cell.appendChild(in_field)
-            row.appendChild(cell)
         })
         return row
     }

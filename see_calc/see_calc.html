@@ -34,6 +34,42 @@
     <div id="root"></div>
 
     <div class="center-msg" id="library-loaded">Loading computation library...</div>
+    <div style = "text-align:center;top:100px;position: absolute;left:40%">
+        <canvas class="visual" id="myCanvas" width="1000" height="1000"></canvas>
+    </div>
+    
+
+
+    <script>
+
+        // found on stackoverflow for clearing canvas:
+        CanvasRenderingContext2D.prototype.clear = 
+        CanvasRenderingContext2D.prototype.clear || function (preserveTransform) {
+        if (preserveTransform) {
+            this.save();
+            this.setTransform(1, 0, 0, 1, 0, 0);
+        }
+
+        this.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        if (preserveTransform) {
+            this.restore();
+        }           
+        };
+
+
+        
+        var c = document.getElementById("myCanvas");
+        console.log(c)
+        var ctx = c.getContext("2d");
+        ctx.beginPath();
+        ctx.fillStyle = "#FFFFFF";
+        
+        ctx.translate(c.width/2, c.height/2);
+        ctx.scale(10, -10);
+    </script>
+    
+
 
 
 

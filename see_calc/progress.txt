@@ -1,3 +1,17 @@
+Calculating... text should be much more obvious (in center on top)   
+
+would be nice to allow solve for to be symbolic if there's only one equation
+
+sub table buttons for rows and columns (rows: clear and reset) (columns: reset and number)
+
+add info to sheets
+
+	for new users it could be confusing that it deletes the block if there's no block name or no equations (it would get frustrating having it get deleted over and over again)
+	make default SoE name
+
+
+name of the opened sheet should be highlighted in the library
+	
 	button to add line? (or pale line)
 
 break up equations from sub_table into columns
@@ -32,6 +46,8 @@ calculations
 what has to be done in display
 
 	(optional: move negative stuff to the other side of the equal sign)
+
+
 
 
 

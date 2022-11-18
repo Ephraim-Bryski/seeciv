@@ -1,3 +1,5 @@
+#canvas { pointer-events:none; }
+
 body{
     background-color: black;
     border: 5px;
@@ -86,6 +88,13 @@ body{
     color: white
 }
 
+.visual {
+    color: white;
+
+    border-style:solid;
+    border-color:red
+}
+
 .info-box {
     background-color: white;
     position: absolute;
@@ -148,4 +157,12 @@ body{
 
 #load{
     float: right;
+}
+
+.arrow-down {
+    width: 0;
+height: 0;
+border-style: solid;
+border-width: 0 100px 100px 100px;
+border-color: transparent transparent #007bff transparent;
 }

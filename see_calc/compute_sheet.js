@@ -117,7 +117,13 @@ function calc(SoEs,SoEs_computed,change_idx){
             });
 
             if (!solve_eqn){
-                var new_stuff = compute_sub_table(eqns,old_table)
+                //! OBVIOUSLY JUST TEMPORARY CODE SO I JUST USE IBEAM
+                if(line.includes("Rect")){
+                    visualize = true
+                }else{
+                    visualize = false
+                }
+                var new_stuff = compute_sub_table(eqns,old_table,visualize)
                 var eqns = new_stuff[0]
                 var new_table = new_stuff[1]
             }
@@ -172,7 +178,7 @@ function calc(SoEs,SoEs_computed,change_idx){
 
 
 
-function compute_sub_table(eqns,old_table){
+function compute_sub_table(eqns,old_table,vis_keep){
     // takes the new eqns and the current table, replaces the columns to match the variables in the new eqns, then performs substitutions
 
     if(old_table===undefined){  // the table hasn't been created yet
@@ -211,8 +217,10 @@ function compute_sub_table(eqns,old_table){
         for (let j=0;j<sub_row.length;j++){
             var sub_in = var_row[j]
             var sub_out = sub_row[j]
+            vis_sub = true
             if (sub_out === ""){
                 removed_vars.push(var_row[j])
+                vis_sub = false
             }else if(sub_in === sub_out){
                 // do nothing since it's being subbed for the same value      
             }else if(var_row.indexOf(sub_out)!==-1){  // the new variable name is already a variable, not gonna allow that (could get very confusing)  
@@ -223,7 +231,14 @@ function compute_sub_table(eqns,old_table){
                     // eqns_subbed[k]=nerdamer(eqns[k]).sub(sub_in,sub_out).toString()
                     eqns_subbed[k] = sub_all_vars(eqns_subbed[k],sub_in,sub_out)
                 }
-            }         
+            }
+            
+            if (vis_sub && vis_keep){
+                all_eqns.push("blah_"+sub_in+"_"+i+"="+sub_out)
+
+
+
+            }
         }
         all_eqns.push(remove_vars(eqns_subbed,removed_vars))
     }
