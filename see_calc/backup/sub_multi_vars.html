@@ -1,0 +1,41 @@
+<script>
+
+    /*
+
+
+    NOT USED RIGHT NOW
+
+    allows for multiple substitutions simultaneously that dont interfere
+
+    however i would have to incorporate it with sub_all_vars so ill work on that later
+    */
+    var str = "I have a cat, a dog, and a goat.";
+
+var old_vars = ["cat","boop","goat","bop"]
+var new_vars = ["dog","","cat",""]
+var remove_vars = []
+new_vars.forEach((new_var,idx)=>{
+    if (new_var===""){
+        remove_vars.push(old_vars[idx])
+        old_vars.splice(idx,1)
+        new_vars.splice(idx,1)
+    }
+})
+
+console.log(old_vars)
+console.log(new_vars)
+console.log(remove_vars)
+var mapObj = {}
+
+old_vars.forEach((old_var,idx)=>{
+    var new_var = new_vars[idx]
+    mapObj[old_var] = new_var
+})
+var re = new RegExp(Object.keys(mapObj).join("|"),"gi");
+
+str = str.replace(re, function(matched){
+    return mapObj[matched];
+});
+
+    console.log(str)
+</script>

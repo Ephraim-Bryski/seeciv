@@ -1,14 +1,17 @@
 importScripts('https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js');
 importScripts("solver.js")
 importScripts("compute_sheet.js")
+importScripts("vis_database.js")
 importScripts("https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.js")// integrity="sha512-BbVEDjbqdN3Eow8+empLMrJlxXRj5nEitiCAK5A1pUr66+jLVejo3PmjIaucRnjlB0P9R3rBUs3g5jXc8ti+fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+importScripts("nerdamer/all.min.js")
 // need to import stuff to get_change_start
+
+importScripts("worker_shared.js")
+importScripts("latex-to-js.js")
+
 
 let pyodide;
 
-var old_SoEs = []
-var SoEs_old_computed = []
 
 self.onmessage=(m)=>{
     var msg = m.data
@@ -17,24 +20,28 @@ self.onmessage=(m)=>{
         get_py().then(()=>{
             sympy_solve("a+3=4","a")
             postMessage('loaded')
-        })
+        }) 
     }else if (typeof msg === 'object'){
-        update_sheet(msg)
+        console.log(msg)
+        var package = calc(msg.sheet,msg.start,msg.end)
+        postMessage(package)
+
     }
 }
 
 
-async function get_py() {
-    pyodide = await loadPyodide();
-    await pyodide.loadPackage("sympy");
-    
-}
+
+/*
 
 
 
-function update_sheet(SoEs){
+function update_sheet_old(sheet_info){
+
+    var SoEs = sheet_info.sheet
+
     // finds where the last change was made, calls calc to compute the sheet, then postMessage hands the computed sheet back to see_calc.js
 
+    
     var SoEs_cleaned = deep_clone(SoEs)
 
     if (old_SoEs.length === 0){
@@ -46,19 +53,21 @@ function update_sheet(SoEs){
     if (change_idx===undefined){
         change_idx = SoEs.length
     }
-
+    
 
     displays = SoEs.map(SoE=>{return SoE.style_display})
-    var SoEs_new_computed = calc(deep_clone(SoEs_cleaned),deep_clone(SoEs_old_computed),change_idx)
+    var package = calc(deep_clone(SoEs_cleaned),deep_clone(SoEs_old_computed),change_idx)   // contains SoEs, as well as functions and inputs for visualization
 
-    
+    var SoEs_new_computed = package[0]
 
     var SoEs_computed = deep_clone(SoEs_old_computed.slice(0,change_idx).concat(SoEs_new_computed.slice(change_idx)))
 
 
     displays.forEach((display,idx)=>{SoEs_computed[idx].style_display=display})
 
-    postMessage(SoEs_computed)
+    package[0] = SoEs_computed
+
+    postMessage(package)
 
     old_SoEs = deep_clone(SoEs_cleaned)
     SoEs_old_computed = deep_clone(SoEs_computed)
@@ -68,6 +77,7 @@ function update_sheet(SoEs){
 
 
 }
+
 
 
 
@@ -136,3 +146,4 @@ function deep_clone(nested){
 }
 
 
+*/

@@ -1,0 +1,149 @@
+<body></body>
+
+<script src="solver.js"></script>
+
+<script>
+
+// this is keeping track of variables for visuals, should already all be in code
+
+vis_blocks = [
+        {
+            "name":"A",
+            "vars":["x","y"],
+
+            // to be called one numeric values have been subbed in for all (check at end?)
+            "vis":(input)=>{
+                console.log("IN A! :)")
+                console.log(input)
+            }
+        },
+        {
+            "name":"C",
+            "vars":["g"],
+
+            // to be called one numeric values have been subbed in for all (check at end?)
+            "vis":(input)=>{
+                console.log("CCCCCCCCC")
+                console.log(input)
+            }
+        }
+    
+    ]
+    function combine_vis_vars(all_eqns){
+        /*
+            called after solving
+            goes through all variables, finds all visual ones, matches them up, displays results using visual funcs
+            doesn't return anything, just calls the visualize functions
+        */
+
+        // these will be populated for each visual variable:
+        var roots = []
+        var vals = []
+        var vis_names = []
+        var end_vars = []
+
+
+        all_eqns.forEach((eqn)=>{
+            if(!eqn.includes("dummy")){return}
+
+            var raw_var = eqn.split("=")[0]
+
+            vals.push(eqn.split("=")[1])
+
+            var broken_var = raw_var.split("_")
+
+            end_vars.push(broken_var.pop())
+            broken_var.shift()
+            roots.push(broken_var.join("_"))
+
+            vis_names.push(broken_var[broken_var.length-1].replace(/[0-9]/g, ''))// last element of common stuff (without number), which is the name of the primitive visual
+
+        })
+
+
+        var unique_roots = [...new Set(roots)]
+      
+        var input_info = []
+        var input_vis_names = []
+        unique_roots.forEach((unique_root)=>{
+            input_info.push({})
+        })
+
+
+        roots.forEach((root,i)=>{
+            unique_idx = unique_roots.indexOf(root)
+
+            input_info[unique_idx][end_vars[i]] = vals[i]
+            input_vis_names[unique_idx] = vis_names[i]
+        })
+
+
+    
+        input_info.forEach((input,idx)=>{
+
+            vis_block = vis_blocks.filter((block)=>{return block["name"]===input_vis_names[idx]})[0]
+            if(vis_block===undefined){
+                throw input_vis_names[idx]+" is not a known visual name"
+            }else if(vis_block["vars"].sort().join(",")!==Object.keys(input).sort().join(",")){
+                throw "found visual variables dont match listed"
+            }
+            
+            vis_block["vis"](input)
+        })
+
+
+    
+
+    }
+
+    function build_vis_vars(eqns,block_name,sub_idx){
+        
+
+        var all_vars = get_all_vars(eqns)
+
+
+        var new_eqns = []
+
+        eqns.forEach(eqn=>{
+            var vars = get_all_vars(eqn)
+            var vis_vars = vars.filter((test_var)=>{return test_var.includes("dummy")})
+            vis_vars.forEach(vis_var_in=>{
+                // adds a new part to the visual variable name
+                var broken_var = vis_var_in.split("_")
+                broken_var.splice(1,0,block_name+sub_idx)
+                var vis_var_out = broken_var.join("_")
+                eqn = sub_all_vars(eqn,vis_var_in,vis_var_out)
+            })
+
+            new_eqns.push(eqn)
+        })
+
+        return new_eqns
+    }
+
+    many_eqns = [
+            "dummy_A1_x=3",
+            "dummy_C_g=7",
+            "dummy_A1_y=4",
+            "dummy_boop_A_x=9",
+            "dummy_boop_A_y=10",
+            "c_d=8",
+        ]
+
+        one_eqn = ["dummy_a=dummy_b","c=dummy_4"]
+
+    build_vis_vars(
+        one_eqn,"boop",3
+    )
+
+
+
+
+
+
+
+
+
+
+
+</script>

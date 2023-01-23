@@ -1,29 +1,70 @@
-Calculating... text should be much more obvious (in center on top)   
+too much unknown being solved can lead to uncaught error where the remaining expressions is an empty array
 
-would be nice to allow solve for to be symbolic if there's only one equation
+need to do a check (same check as keeping it in the while loop: one eqn or nothing to sub out) after the unnecessary equations are removed, otherwise uncaught error in sub_out
 
-sub table buttons for rows and columns (rows: clear and reset) (columns: reset and number)
+autooperatornames in mathquill config can be used to make text keywords
+
+round, including rounding in equations with long fractions
+
+dummy visual variables are being combined with commas in a string
+
+says its a contradiction when its not
+
+
+alphabetize variables
+
+Pr gets textified no idea why
+
+((a-b)/2)^2 cant be parsed in latex-to-js
+
+
+
+if one substitution fails but the others dont it doesnt return an error
+
+
+
+remove_uneeded_exps can delete all equations
+
+specify if failure is due to contradiction or something else
+
+substitute group terms if it's shared across equations, would allow it to get S*e=Gs*w by cancelling out v
+	tries to find biggest term to sub across equations
+		maybe only when there's only 2 eqns, would get too complex otherwise
+
+
+
+
+when new sheet is loaded it still takes info from previous sheet when solving --> reset start index to 0
+	also loading a sheet has to have a callback to update the variable tracker
+
+
+sub_table doesn't get removed when it's no longer relevant for the input
+	not sure how it should behave though
+
+
+
+infrastructure:
+	right now:
+		calc creates both sheet and visual eqns, they are then passed to a use_calc_results function which calls d2D and make_visuals
+			this is confusing, and requires calc to be called when loaded (visual equations can't be stored, because you cant get them from D2d)
+	instead you should:
+		calc just creates sheet, passed to d2D which finds the visual eqns, calls make_visuals
+			or maybe the visual eqns could be global??
+
 
 add info to sheets
-
-	for new users it could be confusing that it deletes the block if there's no block name or no equations (it would get frustrating having it get deleted over and over again)
-	make default SoE name
 
 
 name of the opened sheet should be highlighted in the library
 	
-	button to add line? (or pale line)
 
-break up equations from sub_table into columns
 
-backslash in variable leads to "too difficult for program to solve"
 
 line should expand with text
 
 each block has their own description
 documentation
 
-make sub table pretty
 
 error messages
 	contradiction message might want to show both equations
@@ -49,13 +90,6 @@ what has to be done in display
 
 
 
-
-
-
-
-
-allow user to download?
-	ideally have a backend, but i dont think ill have enough time
 
 when your cursor is on a variable it colors it and all other instances of that variable in the block
 

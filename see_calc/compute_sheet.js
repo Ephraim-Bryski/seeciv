@@ -1,5 +1,28 @@
-function calc(SoEs,SoEs_computed,change_idx){
-    
+var prev_SoEs   // this variable is global EVERYWHERE (even outside this script), so justta make sure not to use it elsewhere
+
+function calc(SoEs,start_idx,end_idx){
+
+    if (prev_SoEs===undefined && start_idx!==0){
+        throw "THIS IS WEIRD, is this the first run???"
+    }
+
+    if (prev_SoEs===undefined){
+        var SoEs_before = []
+    }else{
+        var SoEs_before = prev_SoEs.slice(0,start_idx)
+
+        // add in the previous SoEs before the start so you can get the results
+        first = prev_SoEs.slice(0,start_idx)
+        second = SoEs.slice(start_idx-SoEs.length)
+        SoEs = [first,second].flat()
+    }
+
+    var SoEs_edit = SoEs.slice(start_idx,end_idx)
+    var SoEs_after = SoEs.slice(end_idx,SoEs.length+1)
+
+
+    // these will be filled if solve is called, and will be returned (can't actually display here since calc is called in a worker)
+    var vis_eqns = []
 
 
 
@@ -8,29 +31,30 @@ function calc(SoEs,SoEs_computed,change_idx){
 
     // getting all block names to check if a variable is called the same thing as any block, and to give different type of error if reference to future block:
     var all_SoE_names = []
-    SoEs.forEach((SoE)=>{
-        all_SoE_names.push(SoE.name)
-    })
-    //! once im back online i can use nerdamer to get the variables
+    SoEs.forEach((SoE)=>{all_SoE_names.push(SoE.name)})
 
 
-    var known_SoEs=[];
-    for (let i=0;i<change_idx;i++){
-        known_SoEs.push(SoEs[i].name)
-    }
+    var known_SoEs=SoEs_before.map((SoE)=>{return SoE.name})
 
 
-    var known_SoEs_idx=[];
 
 
-    for (var SoE_i=change_idx;SoE_i<SoEs.length;SoE_i++){
+    for (var SoE_i=start_idx;SoE_i<end_idx;SoE_i++){
         var SoE_struct=SoEs[SoE_i];
         var name=SoE_struct.name;
         var SoE=SoE_struct.eqns;
 
         if (known_SoEs.includes(name)){
             SoE_struct.result = "ERROR"
-            SoE_struct.display = name+" is already a block name"
+            SoE_struct.display = '"'+name+'"'+' is already a block name'
+        }else if(name.length===0){
+            SoE_struct.result = "ERROR"
+            SoE_struct.display = "Block name cannot be blank"
+        }else if(name.includes("_")){
+            SoE_struct.result = "ERROR"
+            SoE_struct.display = "Block name cannot include underscores"
+        }else if(/\d/.test(name)){
+            SoE_struct.display = "Block name cannot include numbers"
         }else{
             SoE_struct.result = ""
             SoE_struct.display = ""
@@ -44,141 +68,192 @@ function calc(SoEs,SoEs_computed,change_idx){
                     SoEs[SoE_i].eqns[line_i].result="ERROR";
                     SoEs[SoE_i].eqns[line_i].display=error;
                 }else{
+                    if (typeof error==="object"){console.log(error.msg)}
                     throw error
                 }
             }
         }
         known_SoEs.push(name)
-        known_SoEs_idx.push(SoE_i)  //! never used
     }
 
 
+    prev_SoEs = SoEs
 
+    // vis_eqns are the eqns to visualize, will figure out the visual by the variable names
+    return [SoEs,vis_eqns]
+
+
+    
 
     function parse_eqn_input(line,old_table,block_name){
-        if (line.includes("solve ")){
-            var solve_eqn = true
-            line = line.replace("solve ","")
-            if (line.includes(" for ")){
-                var line_var = line.split(" for ")
-                var line = line_var[0]
-                var solve_var = line_var[1]
-            }else{
-                var solve_var = ""
-            }
-        }else{
-            var solve_eqn = false
-        }
 
+        function get_ref_eqns(ref){
 
-        //! easer to catch errors with regexp i think but for now it's ok
+            // gets the equations of a block, ref is the name of the block
 
-        if (line.includes("=")){
-            //! need other way to check
-            //try{(nerdamer(line))}catch{throw line+" is not a valid equation"}
-            var eqns = [line]
-        }else{
-            var ref = line.replace(" ","")
-            // var ref_and_sub = line.split(" sub")
-            // ref = ref_and_sub[0].replace(" ","") // remove any extra spaces
+            var ref_idx = known_SoEs.findIndex((element) => element === ref)
 
             if (block_name===ref){
                 throw "Cannot reference own block"
-            }
-            if(!known_SoEs.includes(ref)){
+            }else if(ref_idx===-1){
                 if(all_SoE_names.includes(ref)){
-                    throw "Cannot reference future block"
+                    throw "Cannot reference future block"   
                 }else{
-                    throw ref+" is not an equation or block name"
-                } 
+                    throw '"'+ref+'"'+' is not an equation or block name'
+                }
             }
-
-            var ref_idx = known_SoEs.findIndex((element) => element === ref)
+            
             
 
 
-            if (ref_idx<change_idx){
-                var ref_SoEs = SoEs_computed
+            if (ref_idx<start_idx){
+                var ref_SoEs = prev_SoEs
             }else{
                 var ref_SoEs = SoEs
             }
-
-            var ref_SoE=ref_SoEs[ref_idx].eqns;
-
+            var ref_SoE=ref_SoEs[ref_idx].eqns
             var eqns = []
-
             if (ref_SoEs[ref_idx].result==="ERROR"){throw ref+" has an error"}
             ref_SoE.forEach(ref_line => {
                 var ref_eqns = ref_line.result
+                if (ref_eqns===undefined){
+                    boop
+                }
                 if (ref_eqns==="ERROR"){throw ref+" has an error"}
+    
+    
                 eqns.push(ref_eqns)
                 eqns = eqns.flat()
-  
             });
-
-            if (!solve_eqn){
-                //! OBVIOUSLY JUST TEMPORARY CODE SO I JUST USE IBEAM
-                if(line.includes("Rect")){
-                    visualize = true
-                }else{
-                    visualize = false
-                }
-                var new_stuff = compute_sub_table(eqns,old_table,visualize)
-                var eqns = new_stuff[0]
-                var new_table = new_stuff[1]
-            }
-
-                        
+            return eqns
         }
 
-        //! will need 
-        //! will need code in see_calc (data2DOM) to take the array and construct divs with it
-        var display = []
+        
+        line = line.replaceAll("\\ ","").replaceAll(" ","")
+        line = strip_text(line)
+        var vis_vars = []
+        match_vis_blocks = vis_blocks.filter((vis_block)=>{return vis_block["name"]===line})
 
-        if (solve_eqn){
-            var result = my_solve_eqns(eqns,solve_var)
+        var display = []
+        var new_table = undefined // removes table unless there is a substitution (removes if obsolete)
+
+
+
+        if (line.length===0){
+            throw "Line cannot be blank"
+        }if (line.includes("_")){
+            throw "Underscores not allowed"
+        }else if(!(/^\w+$/.test(line))){    // checks if alphanumeric (also allows underscores)
+
+            var eqn_split = line.split("=")
+
+            if (eqn_split.length===1){
+                throw "Expression not allowed, only equation or block reference"
+            }else if (eqn_split.length>2){
+                throw "Only single equation allowed"
+            }else if (eqn_split.some((exp)=>{return exp.length==0})){
+                throw "Terms on both side of equal sign required"
+            }else{
+                try{
+                    var line_math = ltx_to_math(line)
+                }catch{
+                    throw "could not be parsed"
+                }
+                if (get_all_vars(line_math).length===0){
+                    throw "Equation must have variables"
+                }
+                var result = [line_math]
+                display = [line]
+            }
+
+        }else if(match_vis_blocks.length!==0){
+            // primitive visual
+            var result = [] // no result or display
+
+            vis_block = match_vis_blocks[0]
+
+            vis_vars = vis_block["vars"]
+
+            vis_eqns = vis_vars.map((vis_var,idx)=>{
+                return "dummy_"+vis_block["name"]+"_"+vis_var+"="+vis_var
+            })
+
+            var new_stuff = compute_sub_table(vis_eqns,old_table,block_name)
+
+            var result = new_stuff[0].flat()
+            var new_table = new_stuff[1]
+
+        }else if(line.includes("solve")){
+            line = line.replace("solve","")
+            if (line.includes(" for ")){
+                var line_var = line.split(" for ")
+                var line = line_var[0]
+                var solve_var = line_var[1]      
+            }else{
+                var solve_var = ""
+            }
+            var eqns = get_ref_eqns(line)
+            var result = solve_eqns(eqns,solve_var)
+            vis_eqns = result
             result.forEach(eqn=>{
                 var sides = eqn.split("=")
                 var LHS = sides[0]
                 var RHS = sides[1]
-                display.push(LHS+"="+sympy_display(RHS))
+                if(LHS.includes("dummy")){return}
+                display.push(LHS+"="+RHS)
             })
         }else{
-            var result = eqns
-            result.forEach(eqn=>{
-                //var exp = eqn.split("=")[0]
-                var simp_eqn = sympy_simplify(eqn)
-                console.log("SIMPLIFED: "+simp_eqn)
-                if (get_all_vars(simp_eqn).length === 0){
-                    if(simp_eqn==="0"){
-                        throw "equation reduces to "+simp_eqn+"=0"
+            // nonvisual reference without solve, so substitute:
+            var eqns = get_ref_eqns(line)
+            var new_stuff = compute_sub_table(eqns,old_table,block_name)
+            var eqns = new_stuff[0]
+            var new_table = new_stuff[1]
+            var result = []
+
+            eqns.forEach(eqn_row=>{
+                var display_row = []
+                display.push(display_row)
+                eqn_row.forEach(eqn=>{
+                    //var exp = eqn.split("=")[0]
+
+                    // use_sympy is undefined if a worker's being used
+                    if(typeof use_sympy==="undefined" || use_sympy){
+                        var simp_exp = sympy_simplify(eqn)
+                        var rounded_exp = RHS
+                        var js_exp = make_js_exp(rounded_exp,false)
+
+                        var simp_eqn = simp_exp+"=0"
+                        var disp_eqn = js_exp+"=0"
                     }else{
-                        throw "equation has a contradiction"
+                        var simp_eqn = eqn
+                        var disp_eqn = eqn
                     }
-                }
-                var moved_eqn = (move_terms(make_py_exp(eqn)))
-                var exps = moved_eqn.split("=")
-                exps = exps.map(exp=>sympy_display(make_py_exp(exp)))
+                    if (get_all_vars(simp_eqn).length === 0){
+                        if(simp_eqn==="0"){throw "equation reduces to "+simp_eqn+"=0"
+                        }else{throw "equation has a contradiction"}
+                    }
+    
+                    result.push(simp_eqn)
+                    display_row.push(nerdamer.convertToLaTeX(disp_eqn))
 
-                var new_eqn = exps[0]+"="+exps[1]
-                //new_eqn = sympy_display(new_eqn)
-                //new_eqn = new_eqn.concat("=0")
-
-                display.push(new_eqn)
+                })
             })
         }
+
+        //! will need 
+        //! will need code in see_calc (data2DOM) to take the array and construct divs with it
 
         SoEs[SoE_i].eqns[line_i].result=result;
         SoEs[SoE_i].eqns[line_i].sub_table = new_table
         SoEs[SoE_i].eqns[line_i].display=display;
     }
 
-    return SoEs
+
 }
 
 
 
-function compute_sub_table(eqns,old_table,vis_keep){
+function compute_sub_table(eqns,old_table,block_name){
     // takes the new eqns and the current table, replaces the columns to match the variables in the new eqns, then performs substitutions
 
     if(old_table===undefined){  // the table hasn't been created yet
@@ -214,17 +289,33 @@ function compute_sub_table(eqns,old_table,vis_keep){
         var sub_row = table[i]
         var removed_vars = []
         var eqns_subbed = [...eqns]
+        eqns_subbed = sub_vis_vars(eqns_subbed,block_name,i) 
         for (let j=0;j<sub_row.length;j++){
             var sub_in = var_row[j]
-            var sub_out = sub_row[j]
+            var sub_out_ltx = sub_row[j]
             vis_sub = true
+
+
+
+            try{
+                var sub_out = ltx_to_math(sub_out_ltx)
+            }catch{
+                throw sub_out_ltx+" could not be parsed"
+            }
+
+            if (sub_out.includes("=")){
+                throw sub_out+" not allowed, cannot substitute an equation"
+            }
+
+
             if (sub_out === ""){
                 removed_vars.push(var_row[j])
                 vis_sub = false
             }else if(sub_in === sub_out){
                 // do nothing since it's being subbed for the same value      
             }else if(var_row.indexOf(sub_out)!==-1){  // the new variable name is already a variable, not gonna allow that (could get very confusing)  
-                throw "cannot sub "+sub_in+" for "+sub_out+", "+sub_out+" is already a variable"
+               // cant handle simultaneous substituions
+                throw "Cannot sub "+sub_in+" for "+sub_out+", "+sub_out+" is already a variable"
 
             }else{
                 for (let k=0;k<eqns.length;k++){
@@ -232,17 +323,10 @@ function compute_sub_table(eqns,old_table,vis_keep){
                     eqns_subbed[k] = sub_all_vars(eqns_subbed[k],sub_in,sub_out)
                 }
             }
-            
-            if (vis_sub && vis_keep){
-                all_eqns.push("blah_"+sub_in+"_"+i+"="+sub_out)
-
-
-
-            }
         }
         all_eqns.push(remove_vars(eqns_subbed,removed_vars))
     }
-    return [all_eqns.flat().flat(),table]
+    return [all_eqns,table]
 
     function transpose(matrix) {
         const rows = matrix.length, cols = matrix[0].length;
@@ -257,7 +341,32 @@ function compute_sub_table(eqns,old_table,vis_keep){
         }
         return grid;
     }
+
+
+
+    function sub_vis_vars(eqns,block_name,sub_idx){
+        // adds to visual variable to keep trace of all blocks it passed through
+
+        var new_eqns = []
+
+        eqns.forEach(eqn=>{
+            var vars = get_all_vars(eqn)
+            var vis_vars = vars.filter((test_var)=>{return test_var.includes("dummy")})
+            vis_vars.forEach(vis_var_in=>{
+                // adds a new part to the visual variable name
+                var broken_var = vis_var_in.split("_")
+                broken_var.splice(1,0,block_name+sub_idx)
+                var vis_var_out = broken_var.join("_")
+                eqn = sub_all_vars(eqn,vis_var_in,vis_var_out)
+            })
+            new_eqns.push(eqn)
+        })
+        return new_eqns
+    }
 }
+
+
+
 
 
 

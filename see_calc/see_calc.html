@@ -1,44 +1,158 @@
+<!-----------------Imports GlowScript Libraries and NumJs------------------------>
+<!--
+
+
+
+
+-->
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<link type="text/css" href="https://www.glowscript.org/css/redmond/2.1/jquery-ui.custom.css" rel="stylesheet" />
+<link type="text/css" href="https://www.glowscript.org/css/ide.css" rel="stylesheet" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+
+
+
+
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery-ui.custom.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/glow.3.0.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/RSrun.3.0.min.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>  
+
 
 <!-- not needed since its imported in worker, only including it so i can use it in the debugger-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.js"></script> <!-- math just used for parsing-->
-<script src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>    <!-- used for sympy-->
+
 
 
 <!-- firebase-->
 <script src="https://www.gstatic.com/firebasejs/3.5.2/firebase.js"></script>
 
-
 <!-- mathquill -->
-<link rel="stylesheet" href="mathquill.css"/>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="mathquill.js"></script>
+<link rel="stylesheet" href="mathquill/mathquill.css"/>
+<!-- interferes with GS and it looks like mathquill doesnt require it (i think as long as it has the other jquery version)-->
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>-->
+<script src="mathquill/mathquill.js"></script>
+
+
+<!-- nerdamer just used to convert from latex -->
+<script src="nerdamer/all.min.js"></script>
+
+<script>
+    console.log(canvas)
+</script>
+
+
+<script src="latex-to-js.js"></script>
 
 
 
+<!-- database of visuals -->
+<script src="vis_database.js"></script>
 
+
+
+<!-- functions need to be imported in the worker as well -->
+<script src="worker_shared.js"></script>
 
 <link rel="stylesheet" href="main.css"/>
 
 
 
+
 <body>
+
+<div id="top-menu" style="width:100%;height:5%;background-color: gray;">
+    <button  style="height: 100%" onclick="toggle_var_search()">Track Variables</button>
+    <button  style="height: 100%" onclick="undo()">Undo</button>
+    <button  style="height: 100%" onclick="redo()">Redo</button>
+
+
 
     <div id="load">
         <input id="save-field"><button id="save-btn">Save</button>
         <br>
         <button id="load-btn">Library</button>
     </div>
+    
+</div>
 
 
+<table id="search-box" style="display: none;">
 
-    <div id="root"></div>
+    <tr>
+        <td class="search-title">
+            Block Name
+        </td>
+        <td class="search-title">
+            Variable Name
+        </td>
+    </tr>
+    <tr>
+        <td id="search-block">
+        </td>
 
-    <div class="center-msg" id="library-loaded">Loading computation library...</div>
-    <div style = "text-align:center;top:100px;position: absolute;left:40%">
-        <canvas class="visual" id="myCanvas" width="1000" height="1000"></canvas>
+
+        <td id="search-var">
+
+        </td>
+    </tr>
+</tr>
+</table>
+
+
+<div id="root" style="position: absolute;top:5%;width:50%;height:95%;background-color: darkgray;z-index: 5;">
+    <div id="calc">
+
+    </div>
+    <div id="progress-container">
+
+        Loading...
+        <div id="progress-bar"><div id="progress"></div></div>
     </div>
     
 
+</div>
+
+<div>
+    <div id="vis" style="position:relative;left:20%;width:70%;height:95%;z-index: 0;background-color: black;"></div>
+
+</div>
+
+
+
+
+
+
+
+<script>
+
+</script>
+
+
+    
+</body>
+
+
+
+<script src="solver.js"></script>
+
+
+<script src="compute_sheet.js"></script>
+<script src="see_calc.js"></script>
+
+
+<!--
+    used for the 2d canvas, probably wont use now
+
+      <div style = "text-align:center;top:100px;position: absolute;left:40%">
+        <canvas class="visual" id="myCanvas" width="1000" height="1000"></canvas>
+    </div>
 
     <script>
 
@@ -69,21 +183,5 @@
         ctx.scale(10, -10);
     </script>
     
-
-
-
-
-    
-</body>
-
-
-
-<script src="solver.js"></script>
-
-
-<script src="compute_sheet.js"></script>
-<script src="see_calc.js"></script>
-
-
-
+-->
 

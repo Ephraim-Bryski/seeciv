@@ -1,0 +1,15 @@
+<!-- mathquill -->
+<link rel="stylesheet" href="mathquill/mathquill.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="mathquill/mathquill.js"></script>
+
+<body></body>
+
+<script>
+    var MQ = MathQuill.getInterface(2);
+    var math_field = document.createElement("div")
+    math_field.innerText = "(\\frac{x-2}{2})^2"
+    MQ.StaticMath(math_field)
+    document.body.appendChild(math_field)
+
+</script>

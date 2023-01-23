@@ -1,454 +1,648 @@
 
-// this would be used for substitution with blank outputs
-// this will NOT throw an error if the substitution leads to a contradiction
-function remove_vars(eqns,remove_vars){
-    var stuff = back_solve(eqns,remove_vars)
-    if(get_all_vars(stuff[2]).length===0){
-        console.warn("Left over: "+stuff)
-        throw "removed too much"
-    }else{
-        return stuff[2] // the third element has all the remaining equations
-    }
 
-}
+
 
 /*
 
-function solve_eqns(eqns,solve_for=""){
-    var eqns_simp = []
-    eqns.forEach(eqn=>{
-       // eqns_simp.push(sympy_simplify(eqn))
-       eqns_simp.push(eqn)
-    })
-    var eqns_unique = [...new Set(eqns_simp)];
-    var vars = get_all_vars(eqns_unique)
 
-    var n_vars = vars.length
-    var n_eqns = eqns_unique.length
+other things
 
-    
 
-    if (n_vars>n_eqns){
-        throw "more unknowns than equations"
-    }else if (n_eqns>n_vars){
-        throw "more equations than unknowns"
-    }
-    
+replace e (and maybe other variables, will have to check) with something else (e is taken as *10^ in some library, either math or nerdamer)
 
-    var sympy_sol = sympy_system_solve(eqns_unique,vars)   // returns a string from sympy containing all values in a Matrix
-    return format_sol(sympy_sol,vars,solve_for)          // returns a string like "x=3, y=4, z=2"
 
-}
+
 */
 
 
-function my_solve_eqns(eqns,solve_var){
+/*
+what do all the functions do:
+    sub_out: takes all the expressions at that step, calls solve exp for each of them, gets the simplest one, combines the factor tree into a dictionary and subs it out to the other expressions
+    solve_exp: takes the expressions and tests for variables to solve for, first one that works (doesnt cause an exception in factor), gets passed to sub_out
+    factor, given the expression and the variable, tries to factor the expression out+
+*/
 
-    var eqns_simp = []
-    eqns.forEach(eqn=>{
-       // eqns_simp.push(sympy_simplify(eqn))
-       eqns_simp.push(eqn)
-    })
-    var eqns_unique = [...new Set(eqns_simp)];
-    var vars = get_all_vars(eqns_unique)
 
-    var n_vars = vars.length
-    var n_eqns = eqns_unique.length
+
+var log_solve = true
+
+
+
+
+function numeric_solve(exp){
+
+
+    var exp_vars = get_all_vars(exp)
+    if (exp_vars.length!==1){throw "can only have one variable, has multiple: "+exp_vars}
+    var solve_var = exp_vars[0]
+
+
+
+    
+    // in case newton raphson doesnt work:
+
+    //var nerd_sols = nerdamer.solve(exp,solve_var).symbol.elements
+
+    // nerdamer can be a bit weird with complex solutions but if there's only one solution it should be ok
+    //if (nerd_sols.length===1){return nerd_sols[0].toString()}
+
+
+    // otherwise use newton raphson
+
+    var prev_guess
+    var guess = 1
+    var tol = 0.001
+
+    var f = (x)=>{
+        return math.evaluate(sub_all_vars(exp,solve_var,x.toString()))}
+
+    function fprime(x) {
+        var h = 0.001;
+        return math.divide(math.subtract(f(math.add(x,h)),f(math.subtract(x,h))),2*h)
+    }
+
+    while (prev_guess===undefined || math.abs(math.subtract(guess,prev_guess))>tol){
+        var new_guess = math.subtract(guess,math.divide(f(guess),fprime(guess)))
+        var prev_guess = guess
+        var guess = new_guess
+        console.log(guess)
+    }
+
+    var real_comp =  math.re(guess)
+    var im_comp = math.im(guess)
+
+    if (im_comp>1e-10){throw "No real solutions"}
+    
+    return real_comp.toString()
+}
+
+
+
+
+
+
+
+
+
+function log_solve_step(msg){
+    if (log_solve){console.log(msg)}
+}
+
+
+function remove_vars(eqns,vars_to_remove){
+
+    if (vars_to_remove.length===0){return eqns} // sub_table still calls it even if there's nothing to be removed, so im just putting this case in immediately
+
+
+    var exps = back_solve(eqns,vars_to_remove).sol
+    if (exps.length===0){throw "this shouldnt happen, there should always be at least one eqn remaining in backsolve"}
+    if (get_all_vars(exps).length===0){throw "removed too much"}
 
     /*
-    if (n_vars>n_eqns){
-        throw "more unknowns than equations"
-    }else if (n_eqns>n_vars){
-        throw "more equations than unknowns"
-    }
+
+
+    if there's only one equation, backsolve will terminate even if there's variables still left
+        this is for solving system can leave one equation with any variable at all
+
+    however, this should throw an error
+
+
     */
 
-    var stuff = back_solve(eqns,get_all_vars(eqns))      
-    var sols = stuff[0]
+    var all_sol_vars = get_all_vars(exps)
+    var extra_vars = all_sol_vars.filter(exp_var=>{return vars_to_remove.includes(exp_var)})
 
-    // in a situtation like a+3=a+3, back solve doesn't produce anything (just has extra) so have to check if there are sol
-    if (sols.length!==0){
-        var last_sol = sols[sols.length-1] // this is the last solution that will be back subbed into the rest
-        var last_vars = get_all_vars([last_sol])
-        if(last_vars.length!==0){throw "too much unknown"}
+    if (extra_vars.length!==0){
+        if (exps.length==1){throw "also removed too much"}
+        else{throw "this shouldnt happen, should only have extra if theres one equation (check how backsolve exited loop)"}
     }
 
-    var extra = stuff[2]    // these are the equations which are left over from substitutions, shouldn't have any variables    
 
 
-    //! if im not using nerdamer i need some other way to check for contradictions (could just send it over to solve_eqn OR check in backsolve)
-
-    extra.forEach((extra_eqn)=>{
-        var simp_exp = sympy_simplify(extra_eqn)
-        if (get_all_vars(simp_exp).length!==0){throw "solution has variables??"}
-
-
-        if (Math.abs(parseFloat(simp_exp))>10**-10 ){
-            throw "contradiction with equation: "+extra_eqn
-        }
+    var eqns = exps.map(exp=>{
+        return exp+"=0"
     })
-
-    return forward_solve(stuff[0],stuff[1],solve_var)
+    return eqns  
 }
 
-function back_solve(eqns,sub_vars){
+function solve_eqns(eqns){
 
-    var solve_time = 0
-    var simp_time = 0
+   /*
+    var non_vis_eqns = []
 
-    if (sub_vars.length===0){return [[],[],eqns]}   // shouldn't be needed
-
-    var ordered_vars = []
-    var unordered_eqns = [...eqns] // this syntax gets the values not a reference
-    var ordered_sols = []
-
-    if(is_done()){return to_return()}
+    var vis_sub = []
+    eqns.forEach(eqn=>{
+        var eqn_vars = get_all_vars(eqn)
 
 
-    for (let i=0;i<eqns.length;i++){
-        //check_if_done() // this is performed in the beginning and end
 
-        // get number of variables to solve in terms of for each 
+        var vis_vars = eqn_vars.filter(eqn=>{
+            return eqn_var.includes("dummy")
+        })
+
+        if (vis_vars.length>1){throw "eqn should only have one visual variable, not sure whats going on"}
 
 
-        var new_vars = unordered_eqns.map(eqn=>get_all_vars(eqn)) 
+        else if (vis_vars.length==1){
+            
+        }
+        else{non_vis_eqns.push(eqn)}
+    })
+
+    */
 
 
-        if(is_done()){return to_return()}
+    var result = back_solve(eqns,get_all_vars(eqns))
+    var final_exps = result.sol
+    var ordered_sub = result.sub_order
 
-        // sort equations by number of variables to substitute for
-        var new_vars_sorted = []
-        var unordered_eqns_sorted = []
-        // sort the eqns by the number of variables
-        for (let j=0;j<unordered_eqns.length;j++){
+    if (final_exps.length>1){throw "this shouldnt happen???"}   // this can happen with multiple equations that both reduce to 0
+    var final_exp = final_exps[0]
 
-            var idx = new_vars_sorted.findIndex(elem=>{return new_vars[j].length<elem.length})
+    var all_vars = get_all_vars(final_exp)
+    if (all_vars.length===0){throw "contradiction?"}    // i think you need to check if the value is 0
+    else if(all_vars.length>1){throw "too much unknown"}
+    var solve_var = all_vars[0]
 
-            if (idx===-1){idx=new_vars_sorted.length}
-            if (intersection(sub_vars,get_all_vars(new_vars[j])).length!==0){   // only add eqns that have variables to substitute
-                new_vars_sorted.splice(idx,0,new_vars[j])
-                unordered_eqns_sorted.splice(idx,0,unordered_eqns[j])
-        
+    var sol = numeric_solve(final_exp)
+
+    ordered_sub.push({var:solve_var,exp:sol})
+
+    var computed_sub = forward_solve(ordered_sub)
+
+    var sols = computed_sub.map(sol=>{
+        var frac = sol.exp
+        var frac_comps = frac.split("/")
+        if (frac_comps.length===1){var val = frac_comps[0]}
+        else{var val = frac_comps[0]/frac_comps[1]}
+        return sol.var+"="+val
+    })
+
+    // var sols = direct_sols.concat(sub_sols)
+
+    return sols
+
+
+}
+
+function forward_solve(ordered_sub){
+
+
+    /*
+
+    ordered_sub is returned in back_solve has the sub order
+    the last one created in solve_eqns with the final numeric value
+
+    */
+
+    ordered_sub.reverse()
+
+    for (let sub_i=0;sub_i<ordered_sub.length;sub_i++){
+        var sub = ordered_sub[sub_i]
+        var val = nerdamer.expand(sub.exp).toString()
+        if (get_all_vars(val).length!==0){throw "couldnt evaluate"}
+        sub.exp = math.evaluate(val).toString()    // this is necessary for trig functions
+        for (let replace_i=sub_i+1;replace_i<ordered_sub.length;replace_i++){
+            var next_sub = ordered_sub[replace_i]
+            next_sub.exp = sub_all_vars(next_sub.exp,sub.var,val)
+        }
+    }
+    return ordered_sub
+
+}
+
+function back_solve(eqns,remove_vars){
+
+    var exps = eqns.map(eqn=>{
+        sides = eqn.split("=")
+        return sides[0]+"-("+sides[1]+")"
+    })
+
+
+    var ordered = []
+    var all_vars = get_all_vars(exps)
+    var keep_vars = all_vars.filter(test_var=>{return !(remove_vars.includes(test_var))})
+    var substitutions = []      // this one will be added to (not strictly necessary though)
+    var exp_left = true
+    while (exp_left && exps.length>1){  // if its solving the system, all the variables are to remove but it should terminate after one equation
+        // i dont need to put it in a try block cause if it cant sub out that error can rise up to the user so it should just pass through here
+        var exps_cleaned = remove_uneeded_exps(exps)
+        var exps = sub_out(exps)
+        var exp_left = exps.some(exp=>{
+            var all_vars = get_all_vars(exp)
+            return all_vars.some(test_var=>{return remove_vars.includes(test_var)})
+        })
+    }
+    return {sol:exps,sub_order:ordered}
+
+    // this could be done repeatedly until theres no change
+    function remove_uneeded_exps(exps){
+        if (exps.length===1){return exps}    // if theres only one expression and only one variable to solve for, this function would remove it if it werent for this
+        var all_vars = get_all_vars(exps)
+        var vars_to_keep = []
+        var vars_to_remove = []
+        all_vars.forEach(test_var=>{
+            if (remove_vars.includes(test_var)){
+                vars_to_remove.push(test_var)
+            }else{
+                vars_to_keep.push(test_var)
             }
-        }
+        })
 
+        var needed_exps = exps.filter(exp=>{
+            var all_vars = get_all_vars(exp)
+            var exp_vars_remove = all_vars.filter(test_var=>{return vars_to_remove.includes(test_var)})
+            //if (exp_vars_remove.length===1){
+               
 
-        if (unordered_eqns_sorted.length===0){
-            throw "what"
-        }
-        
-        var eqn = unordered_eqns_sorted[0]
-        var eqn_vars = new_vars_sorted[0]
-        var eqn_sub_vars = intersection(sub_vars,eqn_vars)
-
-        if (eqn_sub_vars.length === 0){
-            throw "wut"
-        }
-
-        var var_sel = eqn_sub_vars[0]
-
-
-        var start_time = Date.now()
-        if (get_all_vars(eqn).length===1){// && [...eqn.matchAll(var_sel)].length>1){
-            console.log('Performing numeric solve on '+eqn)
-            var ascend = [...Array(100).keys()]
-            var descend = ascend.map(val=>-val)
-            var guesses = ascend.concat(descend)
-            for (let i=0;i<guesses.length;i++){
-                var init_guess = guesses[i]
-                var found = false
-                try{
-                    var eqn_sol = sympy_n_solve(eqn,var_sel,init_guess)
-                    console.log("solved numerically, solution: "+eqn_sol)
-                    var found = true
-                    break
-                }catch{continue}
-            }
-            if (!found){throw "could not solve numerically"}
-        }else{
-            var sympy_package = sympy_solve(eqn,var_sel)
-            var eqn_sol = sympy_package[0]
-            var is_complex = sympy_package[1]
-    
-            if (is_complex==="True"){
-                throw "complex: "+eqn_sol+", due to: "+eqn+" solving for "+var_sel
-            }
-    
-        }
-        solve_time += Date.now()-start_time
-
-
-
-        ordered_vars.push(var_sel)
-        ordered_sols.push(eqn_sol)
-        unordered_eqns.splice(unordered_eqns.indexOf(eqn),1)        // don't really need indexOf (should be 0)
-        // substitute the solution to all the other equations:
-        for (let j=0;j<unordered_eqns.length;j++){
-            var eqn = unordered_eqns[j]
-            var eqn_subbed = sub_all_vars(eqn,var_sel,eqn_sol)
-
-
-            // only simplify the equation if substitution changes it
-            if (eqn!==eqn_subbed){
-
-                var start_time = Date.now()
-                console.log("Original: "+eqn_subbed)
-                console.log("Simplified: "+sympy_simplify(eqn_subbed))
-                console.log("Cancelled: "+cancel_terms(sympy_simplify(eqn_subbed)))
-                var exp_simp = cancel_terms(sympy_simplify(eqn_subbed))    
-                simp_time += Date.now()-start_time
-                //! BUG: cancel_terms("0") outputs 1
-                var eqn_vars = get_all_vars([exp_simp])
-                if (Math.abs(parseFloat(exp_simp))>10**-10 && eqn_vars.length===0){
-                    throw "contradiction with equation: "+eqn
+            for (let var_i=0;var_i<exp_vars_remove.length;var_i++){
+                var exp_var_remove = exp_vars_remove[var_i]
+                var exps_including = exps.filter(exp=>{return get_all_vars(exp).includes(exp_var_remove)})
+                if (exps_including.length===1){
+                    log_solve_step(exp+" eliminated since it cant be subbed")
+                    return false
                 }
-                var eqn_subbed = exp_simp+"=0"
             }
+            return true
+        })
+        return needed_exps
+    }
 
-            unordered_eqns[j] = eqn_subbed
+    function sub_out(exps){
+        function get_exp_complex(exp){
+            // for now just bases complexity of number of operations
+            var exp_arr = exp.split("")
+            var op_arr = exp_arr.filter(char=>{return ["*","-","+","/","^"].includes(char)})
+            return op_arr.length
         }
-
-        unordered_eqns = unordered_eqns.filter(eqn=>get_all_vars(eqn).length!==0)   // discards useless equations
-
-        console.log("substituted using the equation: "+var_sel+"="+eqn_sol)
-        console.log(unordered_eqns)
-
-        //! do checks with sympy_package (in make_py_solve file)
-
-
-        if(is_done()){return to_return()}
-    }
-
-    throw "cannot finish solving after going through all eqns (SHOULD NOT HAPPEN)"
-
-
-
-    // moving these outside because they're called in the beginning and end of loop (keeps the behavior more consistent)
-    function is_done(){
-        return intersection(get_all_vars(unordered_eqns),sub_vars).length===0 // excess(sub_vars,ordered_vars).length===0  ||){
-    }
-    function to_return(){
-        console.log("TIME TO SOLVE: "+solve_time)
-        console.log("TIME TO SIMPLIFY: "+simp_time)
-        return [ordered_sols,ordered_vars,unordered_eqns]
-    }
-}
-
-
-function forward_solve(ordered_sols,ordered_vars,solve_for){
-    solve_for = solve_for.replaceAll(" ","")
-    // this would be called after order_solve, used to get numeric values only
-
-    // reverse arrays since you end with a numeric solution in order solve
-    ordered_sols.reverse()
-    ordered_vars.reverse()
-    // first step back substitute
-    for (let i=0;i<ordered_sols.length;i++){
-        var eqn = ordered_sols[i]
-        var var_sel = ordered_vars[i]
-        var sol = eqn 
-
-        for (let j=0;j<ordered_sols.length;j++){
-            if (i!==j){
-                ordered_sols[j] = sub_all_vars(ordered_sols[j],var_sel,sol)
+        var sorted_exps = exps.sort((a,b)=>{
+            var a_complex = get_exp_complex(a)
+            var b_complex = get_exp_complex(b)  
+            if (a_complex>b_complex){return 1}
+            if (b_complex>a_complex){return -1}
+            return 0
+        })
+        log_solve_step("remaining expressions sorted: ");log_solve_step(sorted_exps)
+        var factored
+        for (var exp_i=0;exp_i<sorted_exps.length;exp_i++){
+            try{
+                var factored = solve_exp(exps[exp_i])
+                break
+            }catch(e){
+                if (e.type==="solve for"){
+                    log_solve_step("couldnt solve for any variables in "+exps[exp_i])
+                    continue
+                }
+                else{
+                    throw e
+                }
             }
         }
-    }
+        if (factored===undefined){
+            // at this point i think solving would fail, and would send an error to the user
+            throw "no expressions could be subbed for"
+        }
+        
+        var exp_subbed = sorted_exps[exp_i]
+        var exps_removed_sub = deep_copy(sorted_exps)
+        exps_removed_sub.splice(exp_i,1)
+        var base_pow = factored["base"]
+        if (factored.other===[]){
+            // this is a case like 5*x=0 where x would just be 0
+            var unfactored = "0"
+        }else{
+            var unfactored = tree2exp(factored["other"])
+        }
+        if (factored["factored"][0].length===0){
+            var factored_out = 1
+        }else{
+            var factored_out = tree2exp(factored["factored"])
+        }
+        var subbed_var = base_pow[0]
+        var pow = nerdamer.expand(base_pow[1]).toString()
+        //if (Number(pow)!==1){throw "for now, i thought the power for the variable im factoring had to be 1????"}
+        if (!(get_all_vars(exp_subbed).includes(subbed_var))){throw "not solving for a variable??"}
+
+   
     
-    if (solve_for.length!==0 && !ordered_vars.includes(solve_for)){
-        throw solve_for+" is not a variable"
-    }
 
-    var sol_eqns = []
-    // final step is just to solve for the variable:
-    for (let i=0;i<ordered_sols.length;i++){
-        var sol = smypy_evaluate(ordered_sols[i])
-        var solve_var = ordered_vars[i]
+        // this could be done without a branch obviously but im afraid it would be harder to simplify
+
+        var inverse_pow = 1/pow
+        var solved_exp = "-1*("+unfactored+")^("+inverse_pow+")*("+factored_out+")^((-1)*"+inverse_pow+")"
 
 
-        if(solve_for.length === 0 || solve_for === solve_var ){
-            sol_eqns.push(solve_var+"="+sol)
-
+/*
+        if (pow==="1"){
+            var solved_exp = "-1*("+unfactored+")*("+factored_out+")^(-1)"
+        }else if (pow==="-1"){
+            var solved_exp = "-1*("+factored_out+")*("+unfactored+")^(-1)"
+        }else{
+            throw "Neither????"
         }
-    }
-    return sol_eqns
-}
+     */   
 
 
-function smypy_evaluate(exp){
-    var exp = make_py_exp(exp)
-    var command = "val=N("+exp+");"
-    command += "val"
-    var result = sympy_compute(command,get_all_vars(exp))
+        if (get_all_vars(solved_exp).includes(subbed_var)){
+            throw "solved expression cant include a subbed var"
+        }
 
-    return result
-}
-
-function sympy_simplify(eqn){
-    var exp = make_py_exp(eqn)
-    var command="simp=expand("+exp+");"
-    command+="simp"
-
-    var result = sympy_compute(command,get_all_vars([eqn])) 
-
-
-    var new_result = result.replaceAll("Abs","")
-    if (result!==new_result){
-        console.warn("Removed absolute value from: "+result)
-        result = new_result
-    }
-    return result
-}
-
-function sympy_display(exp){
-    //var exp = make_py_exp(exp)
-
-    var command = "display=latex(N("+exp+",3),mul_symbol='dot');"
-    command+="display"
-
-    return sympy_compute(command,get_all_vars(exp))
-}
-
-function sympy_n_solve(eqn,solve_var,init){
-    var exp = make_py_exp(eqn)
-    var command = "sol=nsolve("+exp+","+solve_var+","+init+");"
-    command+= "val=N(sol,chop=True);"
-    command+="val"
-    return sympy_compute(command,[solve_var]) 
-}
-
-
-
-function sympy_solve(eqn,solve_for){
-    // get variables add Symbol commands for each
-
-    //! now that i'm specifiying the variables should be real in sympy_compute, I don't need to check if the solution's complex
-    var exp = make_py_exp(eqn)
-    var command="sol=solve("+exp+","+solve_for+");"
-    command+="last_sol=sol[-1];"
-    command+="val=N(last_sol,chop=True);"
-    command+="is_complex=im(last_sol)!=0;"
-    command+="result=[val,is_complex];"
-    command+="result"
-
-    var result = sympy_compute(command,get_all_vars(eqn))
-
-    var split_result = result.replaceAll("[","").replace("]","").replaceAll("'","").replaceAll(" ","").split(",")
-    split_result[0] = make_js_exp(split_result[0])
-    split_result[1] = make_js_exp(split_result[1])
-
-    var sol = split_result[0]
-
-    if(sol.includes("oo")){
-        throw "infinity found in: "+sol
+        log_solve_step("solved for "+subbed_var+" : "+solved_exp)
+        ordered.push({var: subbed_var, exp: solved_exp})
+        var exps_subbed = exps_removed_sub.map(exp=>{
+            var subbed_out =  sub_all_vars(exp,subbed_var,solved_exp)
+            var start = Date.now()
+            var result = nerdamer.expand(subbed_out).toString()
+            var end = Date.now()
+            console.log(end-start)
+            console.log(subbed_out)
+            return result
+        })
+        return exps_subbed
     }
 
-
-    return split_result
-}
-
-
-function make_py_exp(eqn){
-    eqn = eqn.replaceAll("^","**")
-
-    if (eqn.slice(-2)==="=0"){      // im separating this case out so the function to remove zero terms recognizes it's a product (inputting "a-b" won't return zero terms even if b is 0 since subtraction is the outer-most operation)
-        return eqn.slice(0,eqn.length-2)
-    }else if (eqn.includes("=")){
-        eqn = eqn.replaceAll("=","-(")
-        eqn = eqn + ")"
-        var exp = eqn
-        return exp
-    }else{
-        return eqn
+    function solve_exp(exp){    
+        /*
+            returns the same factor dictionary, but for only the winning variable
+        */
+        var all_vars = get_all_vars(exp)
+        var all_vars_to_sub = all_vars.filter(eqn_var=>{return remove_vars.includes(eqn_var)})
+        var tree = exp2tree(exp)
+        var possible_factors = []
+        all_vars_to_sub.forEach(test_var=>{
+            try{
+                var copied_tree = deep_copy(tree)
+                possible_factors.push(factor(copied_tree,test_var))
+            }catch(e){
+                if (e.type==="factor"){
+                    log_solve_step("solving for "+test_var+" failed because: "+e.error)
+                    return
+                }
+                else{throw e}
+            }
+        })
+        if (possible_factors.length===0){
+            throw solve_for_error("could not solve for any variable")
+        }
+        //! an exponent of -1 is also fine
+        var no_exp_factors = possible_factors.filter(factor=>{
+            var exp_raw = factor["base"][1]
+            var start = Date.now()
+            var exp = Number(nerdamer.expand(exp_raw).toString())
+            var end = Date.now()
+            console.log(end-start)
+            console.log(exp_raw)
+            var simple_num = !(tree2exp(factor.other).includes("+"))
+            var simple_dem = !(tree2exp(factor.factored).includes("+"))
+            return ((simple_num && simple_dem) || (exp===1 || exp===2) && simple_dem)||(exp===-1 && simple_num)
+        })
+        if (no_exp_factors.length===0){
+            throw solve_for_error("solving for any requires negating an exponent")
+        }
+        return no_exp_factors[0]
     }
 }
 
-function make_js_exp(exp){
-    exp = exp.replaceAll("**","^")
-    exp = exp.replaceAll(" ","")
-    return "("+exp+")"
-}
-
-
-function sympy_compute(command_op_specific,vars) {   
-    var command = "from sympy import *;"
-
-    vars.forEach((variable)=>{
-        var line = variable+'=Symbol("'+variable+'",real=True);'
-        command+=line
+function factor(tree,sel_var){
+    var tree_without_term = []
+    var tree_with_term = []
+    tree.forEach(sum_term=>{
+        var sum_term_with_var = sum_term.filter(prod_term=>{
+            var exp_base = prod_term[0]
+            var exp = prod_term[1]
+            if (prod_term.length!==2 || typeof exp_base!=="string" || typeof exp!=="string"){throw "oops"}
+            var contains_sel_var = get_all_vars(exp_base).includes(sel_var)
+            if (contains_ops(exp_base) && contains_sel_var){throw factor_error("cant isolate variable: "+exp_base)}
+            return contains_sel_var
+        })
+        if (sum_term_with_var.length>1){
+            throw "this shouldnt happen at all, might not have been expanded properly: "+tree2exp(tree)
+        }
+        else if (sum_term_with_var.length===0){tree_without_term.push(sum_term)}
+        else if(sum_term_with_var.length===1){tree_with_term.push(sum_term)}
+        else{throw "wut"}
     })
-    command+=command_op_specific
-
-    try{
-        var result = pyodide.runPython(command);   
-    }catch(err){
-        console.log(command)
-        console.warn(err)
-        throw "Currently too difficult for program to solve"
+    if (tree_without_term.length===0 && contains_ops(tree2exp(tree_with_term))){
+        throw factor_error("factored everything out")}
+    if (tree_with_term.length===0){
+        throw factor_error("couldnt factor")
     }
-    result = result.toString()
+
+    var base
+    // this is modifying tree_with_term (factoring stuff out during splice)
+    tree_with_term = deep_copy(tree_with_term)
+    tree_with_term.forEach(sum_term=>{
+        sum_term.forEach((prod_term,idx)=>{
+            if (prod_term[0]!==sel_var){return}
+
+            if (base===undefined){
+                base = prod_term
+            }else if (JSON.stringify(base)!==JSON.stringify(prod_term)){
+                throw factor_error("different exponents: "+base+" vs "+prod_term)
+            }
+            sum_term.splice(idx,1) 
+        })
+    })
+    if (base===undefined){
+        throw "wut"
+    }
+    return {
+        "base": base,
+        "factored": tree_with_term,
+        "other": tree_without_term
+    }
+}
+
+function tree2exp(tree){
+    var sum_terms = tree.map(sum_term=>{
+        var str_prod_terms = sum_term.map(prod_term=>{
+            if (prod_term.length!==2){throw "incorrect number of exponent terms"}
+            return prod_term[0]+"^"+prod_term[1]
+        })
+        return str_prod_terms.join("*")
+    })
+    var exp0 = sum_terms.join("+")
+
+    var start = Date.now()
+    var result = nerdamer.expand(exp0).toString()
+    var end = Date.now()
+    console.log(end-start)
+    console.log(exp0)
     return result
-
-
-    // construct commands from the equation and what to solve for:
-    
-}
-
-
-function excess(A,B){
-    // if it's one variable, nerdamer doesn't use an array, so this puts it in an array:
-    if (typeof(A)==="string"){A=[A]}
-    if (typeof(B)==="string"){B=[B]}
-  
-    var extras = []
-  
-    var extras = A.filter(
-      function(i){
-        return this.indexOf(i)<0;
-  
-      },
-      B
-    )
-    return extras
-  }
-
-function intersection(A,B){
-    return A.filter(value => B.includes(value));
-
 }
 
 
 
-function sub_all_vars(exp,sub_in,sub_out){
+// obv have to replace - with (-1)* which ive already done
 
-    // if there's an operation, it must be enclosed in parentheses first:
-    if (sub_out.match(/\W/)!==null){
-        var sub_out = "("+sub_out+")"
+
+// the profiler says math is the main weight but the timer is saying this one (parsing without math) is actually slower, i dont get why :(
+function exp2tree(exp0){
+    var start = Date.now()
+    var exp = nerdamer.expand(exp0).toString()
+    var end = Date.now()
+    console.log(end-start)
+    console.log(exp0)
+
+    exp = exp.replaceAll("-","+(-1)*")
+
+    if (exp[0]==="+"){
+        exp=exp.slice(1)
     }
 
-    var regex = /\W[a-zA-Z](\w?)+/g
-    var txt = "-"+exp+"-"
-    var matches = [...txt.matchAll(regex)]
+    var sum_terms = exp_split(exp,"+")
 
-    matches = matches.map(match=>[match[0].substring(1), match["index"]])
-    matches = matches.filter(match=>match[0]===sub_in)
-    match_idxs = matches.map(match=>match[1])
+    var tree = sum_terms.map(term=>{
+        var prod_terms = exp_split(term,"*")
+        return prod_terms.map(term=>{
+            return exp_split(term,"^")
+        })
+    })
 
-    txt = txt.substring(1,txt.length-1)
+    tree.forEach(sum_term=>{
+        sum_term.forEach(prod_term=>{
+            if (prod_term.length!==2){throw "incorrect shape"}
+            prod_term.forEach(exp_term=>{
+                if (typeof exp_term!=="string"){throw "too many layers"}
+            })
+            if (get_all_vars(prod_term[1]).length!==0){throw "exponent cannot have variables"}
+
+        })
+    })   
+    return tree
+}
+
+function exp_split(str,op){
+    var str = strip_outer_paren(str)
+    var op_idxs = getAllIndexes(str,op)
+    var outer_op_idxs = op_idxs.filter(idx=>{return get_depth(str,idx)===0})
+    var split_str = []
+    for (let i=0;i<outer_op_idxs.length+1;i++){
+        var idx1,idx2
+        if (i===0){idx1 = 0}
+        else {idx1 = outer_op_idxs[i-1]+1}
+        if (i===outer_op_idxs.length){idx2 = str.length}
+        else {idx2 = outer_op_idxs[i]}   
+        split_str.push(str.slice(idx1,idx2))
+    }
+    if (split_str.length===1 && op!=="+"){split_str.push("1")}
+    return split_str
+}
+
+function getAllIndexes(arr, val) {
+    var indexes = []
+    for(let i = 0; i < arr.length; i++)
+        if (arr[i] === val)
+            indexes.push(i);
+    return indexes;
+}
+
+function strip_outer_paren(str){
+    if (str[0]!=="(" || str[str.length-1]!==")"){return str}
+    var depth = 0 
+    for (let i=0;i<str.length-1;i++){   // one less because at the last parentheses the depth would reach back to 0, want to check if it does before that
+        var char = str[i]
+        if (char==="("){depth = depth+1}
+        else if (char===")"){depth = depth-1}
+
+        if (depth===0){return str}
+    }
+    return str.slice(1,str.length-1)  // if it never returned back to 0 depth it means the parentheses enclose the expression so they should be stripped out
+}
+
+function get_depth(str,idx){
+    var depth = 0
+    for (let i=0;i<idx;i++){
+        var char = str[i]
+        if (char==="("){depth = depth+1}
+        else if (char===")"){depth = depth-1}
+    }
+    return depth
+}
+
+function exp2tree_with_math_parser_not_used(exp0){
+    /*
+     THIS WILL NOT WORK WHEN THE FRACTIONS GET TO LARGE
+
+     THE MATH PARSER WILL CONVERT THE NUMBERS TO SCI NOTATION, ADDING E
+
+     DO NOT USE AS IS
+
+     WITHOUT MATH ONE SHOULD ANYWAY BE MUCH FASTER
+
+    */
     
-    var old_len = sub_in.length
-    var new_len = sub_out.length
-    var change_len = new_len-old_len
+    
+    var exp = nerdamer.expand(exp0).toString()
+    exp = exp.replaceAll("-","+(-1)*")
+    if (exp[0]==="+"){
+        exp=exp.slice(1)
+    }
+    var math_tree = math.parse(exp)
+    var tree = pull_sum_terms(math_tree)
+    // this is just checking the structure, only throws errors
+    tree.forEach(sum_term=>{
+        sum_term.forEach(prod_term=>{
+            if (prod_term.length!==2){throw "incorrect shape"}
+            prod_term.forEach(exp_term=>{
+                if (typeof exp_term!=="string"){throw "too many layers"}
+            })
+            if (get_all_vars(prod_term[1]).length!==0){throw "exponent cannot have variables"}
+        })
+    })
+    return tree
+    function pull_sum_terms(tree0){
+        var sum_terms = []
+        step_down_tree(tree0)
+        function step_down_tree(tree){
+            var args = tree["args"]
+            if (["+","-"].includes(tree["op"])){
+                if (args.length!==2){throw "not two operations for sum??"}
+                args.forEach(sub_tree=>{
+                    step_down_tree(sub_tree)
+                }) 
+            }
+            else{
+                sum_terms.push(pull_product_terms(tree))
+            }
+        }
+        return sum_terms
+    }
+    function pull_product_terms(tree0){
+        var product_terms = []
+        step_down_tree(tree0)
+        function step_down_tree(tree){
+            if (tree["op"]==="*"){
+                var args = tree["args"]
+                if (args.length!==2){throw "not two operations for product??"}
 
+                args.forEach(sub_tree=>{
+                    step_down_tree(sub_tree)
+                }) 
+            }else{
+                product_terms.push(pull_exp_terms(tree))
+            }
+        }
+        return product_terms
+    }
+    function pull_exp_terms(tree){
 
-    for (let i=0;i<match_idxs.length;i++){
-        var old_idx = match_idxs[i]
-        var new_idx = old_idx+i*change_len
-        var txt = txt.substring(0,new_idx)+sub_out+txt.substring(new_idx+old_len)
+        if (tree["op"]==="^"){
+            var args = tree["args"]
+        }else{
+            var args = [tree,"1"]
+        }
+        var terms = args.map(arg=>{return arg.toString().replaceAll(" ","")})
+        return terms
     }
 
-    return txt
 }
+
+
+function contains_vars(exp){
+    return /[a-zA-Z]/g.test(exp)
+}
+
 
 function get_all_vars(eqns){
     var exclude = ["sqrt","pi","sin","cos","tan","sec","csc","cot","sinh","cosh","tanh"]
@@ -472,175 +666,76 @@ function get_all_vars(eqns){
 }
 
 
+function sub_all_vars(exp,sub_in,sub_out){
 
-
-function cancel_terms(exp){
-    // this is used so variables in terms that can be cancelled out aren't solved for
-    var exp = make_py_exp(exp).replaceAll("**","^")
-    var sum_terms = split_terms(exp,"sum")
-
-    // a bit of a quick hack, cancel_terms("0") returns "1" (not exactly sure why)
-    if (sum_terms.length <= 1){
-        return exp.replaceAll("^","**")
+    // if there's an operation, it must be enclosed in parentheses first:
+    if (sub_out.match(/\W/)!==null){
+        var sub_out = "("+sub_out+")"
     }
 
 
-    var all_terms = sum_terms.map(term=>{
-        if (term[0]==="-"){
-            term = "-1 * ("+term.slice(1)+")"
-        }
-        return split_terms(term,"product")
-    })
+    var regex = /\W[a-zA-Z](\w?)+/g
+    var txt = "-"+exp+"-"
+    var matches = [...txt.matchAll(regex)]
 
-    var sample_terms = all_terms[0]     // looking for match across all sum terms, so I can just use the first one as a sample
+    matches = matches.map(match=>[match[0].substring(1), match["index"]])
+    matches = matches.filter(match=>match[0]===sub_in)
+    match_idxs = matches.map(match=>match[1])
 
-    var like_terms = sample_terms.filter(compare_term=>
-        all_terms.filter(blah=>
-            blah.includes(compare_term)
-        ).length === all_terms.length
-    )
+    txt = txt.substring(1,txt.length-1)
 
-
-    // cancel like terms:
-    var all_terms_simp = all_terms.map(product_terms=>{
+    var old_len = sub_in.length
+    var new_len = sub_out.length
+    var change_len = new_len-old_len
 
 
-        for (let i=0;i<like_terms.length;i++){
-            var like_term = like_terms[i]
-            var idx = product_terms.indexOf(like_term)
-            product_terms.splice(idx,1)
-        }
-        var combined_terms = combine_terms(product_terms,"product")
-        if (combined_terms===""){
-            combined_terms = "1"
-        }
-        return combined_terms
-    })
+    for (let i=0;i<match_idxs.length;i++){
+        var old_idx = match_idxs[i]
+        var new_idx = old_idx+i*change_len
+        var txt = txt.substring(0,new_idx)+sub_out+txt.substring(new_idx+old_len)
+    }
 
+    return txt
+}
 
-    var new_exp = combine_terms(all_terms_simp,"sum")
-    return new_exp.replaceAll("^","**")
+function contains_ops(exp){
+    // returns true if any nonalphanumeric characters but there are also variables
+    if (!contains_vars(exp)){return false}
+    return !(/^[a-z0-9_]+$/i.test(exp))
+}
 
+function factor_error(msg){
+    return {type:"factor",error:msg}
+}
+
+function solve_for_error(msg){
+    return {type:"solve for",error:msg}
+}
+
+function sub_out_error(msg){
+    return {type:"sub out",error:msg}
 }
 
 
-function combine_terms(terms,type){
-    if (type==="sum"){var op = "+"}
-    else if (type==="product"){var op = "*"}
-    else{throw "invalid op"}
-
-    var combined = ""
-
-    terms.forEach(term=>{
-        combined+=term+op
-    })
-
-    combined = combined.slice(0,-1)
-
-    return combined
-}
-
-function split_terms(exp,type,include_sign=true){
-
-    //! this was commented out before, dont know why
-    if (exp[0]==="-"){
-        exp = "0"+exp
+function time_it(operation,parameters,n_times){
+    var start = Date.now()
+    for (let i=0;i<n_times;i++){
+        operation(...parameters)
     }
-
-    if (type==="sum"){
-        var ops = ["+","-","*"]
-    }else if(type==="product"){
-        var ops = ["*","/","^"]
-    }else{
-        throw "invalid type"
-    }
-
-    var terms = []
-    var neg_terms = []
-    search_tree(exp,1)
-
-
-
-    if (include_sign){
-        return terms
-    }else{
-        return [terms,neg_terms]
-    }
-
-    function search_tree(exp,exp_sign){
-        try{
-            var exp_tree = math.parse(exp)
-        }catch{
-            throw "could not parse equation"
-        }
-
-
-        if (exp_tree.content!==undefined){   // if it's in parentheses you have to get the content property first
-            search_tree(exp_tree.content.toString(),exp_sign)
-            return
-        }
-
-        var arg_trees = exp_tree.args
-        var op = exp_tree.op
-
-
-        if (op!==ops[0] && op!==ops[1]){
-            add_term(exp,exp_sign)
-            return
-        }
-
-       
-
-        arg_trees.forEach((arg_tree,idx)=>{
-            var arg = arg_tree.toString()
-            //! this doesn't work for something like a-4 (commented code doesnt work with parentheses)
-            if (get_all_vars(arg).length===0){//c=(arg_tree.op===undefined || arg_tree.fn === "unaryMinus"){//
-                if (op===ops[1] && idx===1){add_term(arg,-exp_sign)}
-                else{add_term(arg,exp_sign)}
-            }else{
-                if (op===ops[1] && idx===1){search_tree(arg,-exp_sign)}
-                else{search_tree(arg,exp_sign)}
-            }
-
-        })
-
-
-        function add_term(term,exp_sign){  
-            if (term==="0"){return}   
-            if (exp_sign===1){
-                terms.push(term)
-            }else if (include_sign){
-                terms.push("("+term+")"+ops[2]+"(-1)")
-            }else{
-                neg_terms.push(term)
-            }
-        }
-    }
+    var end = Date.now()
+    var time = (end-start)/1000/n_times
+    console.log("took "+time+" seconds for one operation")
 }
 
 
-function move_terms(exp){
-    //! numbers aren't moved over (a-4 is lumped into a single term)
-    exp = exp.replaceAll("**","^")
-    var all_terms = split_terms(exp,"sum",false)
-    var pos_terms = all_terms[0]
-    var neg_terms = all_terms[1]
-    
-    var LHS = ""
-    var RHS = ""
-    
-    pos_terms.forEach(term=>{LHS+=term+"+"})
-    neg_terms.forEach(term=>{RHS+=term+"+"})
 
-    
-    LHS = LHS.slice(0,-1)
-    RHS = RHS.slice(0,-1)
+function deep_copy(arr){
 
-    if (LHS.length===0 || RHS.length===0){
-        return exp+"=0"
-    }
-    
-    return LHS+"="+RHS
+    return JSON.parse(JSON.stringify(arr))
 }
+
+
+
+
 
 

@@ -1,4 +1,3 @@
-var a = [3,4,5]
-console.log(a)
-
-a[0]=7
+var a = 'go';
+var b = ["yo"];
+a = b[1];

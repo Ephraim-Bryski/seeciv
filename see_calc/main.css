@@ -1,4 +1,7 @@
 #canvas { pointer-events:none; }
+:root{
+    --load-sym-size:10px;
+}
 
 body{
     background-color: black;
@@ -6,9 +9,94 @@ body{
     border-color: red;
 }
 
+.calc-row {
+    /* large row containing block and arrows */
+    display: grid;
+    grid-template-columns: 0.03fr 0.97fr;
+    grid-gap: 0px;
+}
+
+.load-bar {
+    /* container for arrows */
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: column;
+    width: 20px;
+}
+
+
+
+.run-arrow {
+    z-index: 5;
+    border-top: calc(0.7*var(--load-sym-size)) solid transparent;
+    border-left: var(--load-sym-size) solid blue;
+    border-bottom: calc(0.7*var(--load-sym-size)) solid transparent;
+    margin-left: 5px;
+    padding-right: 5px;
+    margin-bottom: -5px;
+
+}
+
+.spinner {
+    bottom: 0;
+    width: var(--load-sym-size);
+    height: var(--load-sym-size);
+    --color: blue;
+    content: " ";
+    display: block;
+    border-radius: 50%;
+    border:  calc(0.3*var(--load-sym-size)) solid #fff;
+    border-color: var(--color) transparent var(--color) transparent;
+    animation: spinner 1.2s linear infinite;
+}
+
+@keyframes spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+
+
+.check {
+    bottom: 0;
+    --borderColor: #78b13f;
+    --borderWidth: calc(0.25*var(--load-sym-size));
+    display: inline-block;
+    transform: rotate(45deg);
+    height: var(--load-sym-size);
+    width: calc(var(--load-sym-size)*0.5);
+    margin-left: calc(var(--load-sym-size)*0.5);
+
+    border-bottom: var(--borderWidth) solid var(--borderColor);
+    border-right: var(--borderWidth) solid var(--borderColor);
+}
+
+
+
+.cross::after {
+    bottom: 0;
+    font-size: var(--load-sym-size);
+    content: "\274c"; /* use the hex value here... */
+    color: red;
+    text-align: center;
+}
+
+
+.run-arrow:hover{cursor: pointer;}
+
+
 .block{
+    border-style: solid;
+    border-width: 2.5px;
+    border-color: black;
     background-color: white;
-    margin-bottom: 25px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     width: fit-content; 
     padding: 10px;
     border-radius: 5px;
@@ -16,6 +104,9 @@ body{
 }
 
 .remove-btn{
+    /*
+    ALSO USED FOR ADD BUTTONS, NEED TO CHANGE ITS NAME
+    */
     font-size: inherit;
     border:none;
     background-color: white;
@@ -35,13 +126,14 @@ body{
 }
 
 .block-name-txt{
+    margin-right:50px;
     font-size: inherit;
+    width: 100px;
+    
+    font-family: "Times New Roman", serif;
+    
 }
 
-
-.block-remove{
-    float:right;
-}
 
 
 
@@ -50,43 +142,79 @@ body{
     align-items: center;
 }
 
+.line-input {
+    width: 200px;
+    margin: 2px;
+}
+
+.input-error {
+    border-color:red;
+}
+
+.field-sel{
+    /* for searching for variables, could be a line or a sub table substitution */
+    border-color:blue;
+    border-width: 3px;
+}
+
 .line-output {
+    display: none;
     padding-left: 5px;
 }
 
-.sub-table{
-    border: 2px;
-    border-style: solid;
-    margin: 5px;
+.error-msg {
+    padding-left: 5px;
+
 }
 
-.sub-input{
-    width: 50px;
-    
+.sub-table{
+    border:1px solid;
+    border-radius: 5px;
+    margin: 5px;
+    padding: 5px;
 }
+
+
+
+.table-btn{
+    
+    margin:auto;
+    font-size: 10px;
+    padding: 3px;
+    border:none;
+    background-color: white;
+    color:darkgray;
+    text-align: center;
+    
+    display: inline-block;
+}
+
+.table-btn:hover{
+color:black;
+cursor: pointer;
+}
+
+
+.display-eqn-cell{
+    padding-right:10px;
+}
+
 
 .sheet-load-btn{
-    background-color: black;
-    color: white;
+    background-color: white;
+    color: black;
     width: fit-content; 
     padding: 2px;
     display: block;
     border: none;
-    color: gray;
+    z-index: 999;
 }
 
 .sheet-load-btn:hover{
-    color:white;
+    color:black;
     cursor: pointer;
 }
 
-.center-msg {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    color: white
-}
 
 .visual {
     color: white;
@@ -161,8 +289,143 @@ body{
 
 .arrow-down {
     width: 0;
-height: 0;
-border-style: solid;
-border-width: 0 100px 100px 100px;
-border-color: transparent transparent #007bff transparent;
+    height: 0;
+    border-style: solid;
+    border-width: 0 100px 100px 100px;
+    border-color: transparent transparent #007bff transparent;
 }
+
+
+.add-block-btn{
+    float:right;
+    position: relative;
+}
+
+.remove-block-btn{
+    float:right;
+    position: relative;
+}
+
+.run-arrow:hover .tooltip {display: block;--tooltip-text: "Run to here";}
+.remove-block-btn:hover .tooltip {display: block;--tooltip-text:"Delete block";}
+.remove-line-btn:hover .tooltip {display: block;--tooltip-text:"Delete line";}
+.add-block-btn:hover .tooltip {display: block;--tooltip-text:"Create new block";}
+.add-line-btn:hover .tooltip {display: block;--tooltip-text:"Create new line";}
+.table-add:hover .tooltip {display: block;--tooltip-text:"Create new row";}
+.table-remove:hover .tooltip {display: block;--tooltip-text:"Delete row";}
+.table-clear:hover .tooltip {display: block;--tooltip-text:"Clear row";}
+.table-copy:hover .tooltip {display: block;--tooltip-text:"Duplicate row";}
+
+
+
+.tooltip {
+    display: none;
+    background: #C8C8C8;
+    border-radius: 5px;
+    margin-left: 10px;
+    padding: 10px;
+    width: fit-content;
+    position: absolute;
+    z-index: 1000;
+    --tooltip-text: inherit;
+}
+
+.tooltip::after{
+    content: var(--tooltip-text);
+}
+
+#progress-container{
+    bottom: 50px;
+    width: 100%;
+    position: absolute;
+    text-align: center;
+    
+}
+
+#progress-bar {
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 10px;
+    background-color: #ddd;
+    border-radius: 10px;
+
+    
+  }
+  
+  #progress {
+    width: 0%;
+    height: 20px;
+    background-color: darkblue;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+  }
+
+
+  .collapse-arrow {
+    position: relative;
+    top:5px;
+    right:5px;
+    border: solid gray;
+    border-width: 0 3px 3px 0;
+    padding: 3px;
+    margin: 10px;
+  }
+
+  .collapse-arrow:hover{
+    border-color:black;
+    cursor: pointer;
+}
+
+  .collapse-right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+  }
+  
+  .collapse-left {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+  }
+  
+  .collapse-up {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+  }
+  
+  .collapse-down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+  }
+
+
+  #search-box{
+    background-color: white;
+    position: absolute;
+    right:0px;
+    top:10%;
+    z-index: 10000000;
+}
+
+
+
+#search-box {
+    border-radius: 5px;
+}
+#search-box td{
+    padding-left: 10px;
+}
+
+
+.search-btn {
+    border: none;
+    display: block;
+    background-color: white;
+    text-align: center;
+
+
+}
+
+.search-sel{
+    background-color: lightgray;
+}
+
+
