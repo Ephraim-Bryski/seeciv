@@ -1,35 +1,54 @@
-too much unknown being solved can lead to uncaught error where the remaining expressions is an empty array
-
-need to do a check (same check as keeping it in the while loop: one eqn or nothing to sub out) after the unnecessary equations are removed, otherwise uncaught error in sub_out
-
-autooperatornames in mathquill config can be used to make text keywords
-
-round, including rounding in equations with long fractions
-
-dummy visual variables are being combined with commas in a string
-
-says its a contradiction when its not
 
 
-alphabetize variables
+Popup menu options
+	Track variables
+	Show solve steps
+	Library
+	Account
+	Help/Info?
+		description of sheet and of blocks <-- instead of info btn 
+		overall description of sheet
 
-Pr gets textified no idea why
-
-((a-b)/2)^2 cant be parsed in latex-to-js
+Solver Bugs
 
 
 
-if one substitution fails but the others dont it doesnt return an error
 
 
 
-remove_uneeded_exps can delete all equations
+	dummy visual variables are being combined with commas in a string <-- not even sure if this is a bug
 
-specify if failure is due to contradiction or something else
 
-substitute group terms if it's shared across equations, would allow it to get S*e=Gs*w by cancelling out v
-	tries to find biggest term to sub across equations
-		maybe only when there's only 2 eqns, would get too complex otherwise
+
+
+Solving features
+
+
+	autooperatornames in mathquill config can be used to make text keywords
+
+	round, including rounding in equations with long fractions
+
+
+
+	specify if failure is due to contradiction or something else
+
+	alphabetize variables <-- think this is for track variables
+
+
+	substitute group terms if it's shared across equations, would allow it to get S*e=Gs*w by cancelling out v
+		tries to find biggest term to sub across equations
+			maybe only when there's only 2 eqns, would get too complex otherwise
+
+
+
+
+issues with remove_uneeded_exps (currently not using)
+
+
+	remove_uneeded_exps can delete all equations
+	need to do a check (same check as keeping it in the while loop: one eqn or nothing to sub out) after the unnecessary equations are removed, otherwise uncaught error in sub_out
+
+
 
 
 

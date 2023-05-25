@@ -1,0 +1,15 @@
+{
+  "name": "see_calc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "see_calc.js",
+  "scripts": {
+    "test": "jest solver_test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mathjs": "^11.8.0"
+  }
+}

@@ -1,3 +1,9 @@
+/* 
+
+SHOULD NO LONGER BE NEEDED
+
+*/
+
 importScripts('https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js');
 importScripts("solver.js")
 importScripts("compute_sheet.js")

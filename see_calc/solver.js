@@ -1,5 +1,11 @@
 
+// for performing unit tests
+const testing = false
 
+if (testing){
+    var nerdamer = require('nerdamer/all.min.js')
+    var math = require("mathjs")
+}
 
 
 /*
@@ -31,41 +37,46 @@ var log_solve = true
 
 function numeric_solve(exp){
 
-
     var exp_vars = get_all_vars(exp)
     if (exp_vars.length!==1){throw "can only have one variable, has multiple: "+exp_vars}
     var solve_var = exp_vars[0]
-
-
-
     
     // in case newton raphson doesnt work:
 
     //var nerd_sols = nerdamer.solve(exp,solve_var).symbol.elements
-
     // nerdamer can be a bit weird with complex solutions but if there's only one solution it should be ok
     //if (nerd_sols.length===1){return nerd_sols[0].toString()}
-
 
     // otherwise use newton raphson
 
     var prev_guess
     var guess = 1
+
     var tol = 0.001
+    const max_count = 100
 
     var f = (x)=>{
-        return math.evaluate(sub_all_vars(exp,solve_var,x.toString()))}
+        return math.evaluate(
+            sub_all_vars(exp,solve_var,x.toString())
+        )
+    }
 
     function fprime(x) {
         var h = 0.001;
         return math.divide(math.subtract(f(math.add(x,h)),f(math.subtract(x,h))),2*h)
     }
 
+    var iter_count = 0
     while (prev_guess===undefined || math.abs(math.subtract(guess,prev_guess))>tol){
         var new_guess = math.subtract(guess,math.divide(f(guess),fprime(guess)))
         var prev_guess = guess
         var guess = new_guess
         console.log(guess)
+        iter_count+=1
+
+        if (iter_count>max_count || isNaN(guess)){
+            throw "Cannot find solution, possibly no real solutions"
+        }
     }
 
     var real_comp =  math.re(guess)
@@ -74,29 +85,84 @@ function numeric_solve(exp){
     if (im_comp>1e-10){throw "No real solutions"}
     
     return real_comp.toString()
+
 }
-
-
-
-
-
-
-
-
 
 function log_solve_step(msg){
     if (log_solve){console.log(msg)}
 }
-
 
 function remove_vars(eqns,vars_to_remove){
 
     if (vars_to_remove.length===0){return eqns} // sub_table still calls it even if there's nothing to be removed, so im just putting this case in immediately
 
 
-    var exps = back_solve(eqns,vars_to_remove).sol
-    if (exps.length===0){throw "this shouldnt happen, there should always be at least one eqn remaining in backsolve"}
-    if (get_all_vars(exps).length===0){throw "removed too much"}
+
+    let exps = eqns_to_exps(eqns)
+    let ordered_sub = []
+
+
+    let remove_var_exps
+
+    while (true){
+
+
+        // instead checking if the variables share any of vars_to_remove
+
+        
+
+        let other_exps
+
+        let remove_var_exps = []
+
+        let needed_exps = []
+
+        exps.forEach((exp,idx)=>{
+
+            const exp_vars = get_all_vars(exp)
+
+
+            other_exps = exps
+
+            other_exps.splice(idx,1)
+
+
+            const other_vars = get_all_vars(other_exps)
+
+
+            const has_common_vars = arr_share_values(exp_vars, other_vars)
+
+            const has_remove_vars = arr_share_values(exp_vars,vars_to_remove)
+
+            const sub_out_exp = has_common_vars && has_remove_vars
+
+
+            if (sub_out_exp){
+                remove_var_exps.push(exp)
+            }
+
+            if (sub_out_exp || !has_remove_vars){
+                needed_exps.push(exp)
+            }
+
+        })
+    
+
+        exps = needed_exps
+
+
+        if (remove_var_exps.length === 0){   // checking before sub_out since it's possible they're all single variable equations which can't be solved for at the beginning
+            break
+        }
+
+        [exps,ordered_sub] = sub_out(exps, ordered_sub, vars_to_remove)
+
+    }
+
+
+
+
+    if (exps.length===0){throw "no equations left"}
 
     /*
 
@@ -113,8 +179,7 @@ function remove_vars(eqns,vars_to_remove){
     var extra_vars = all_sol_vars.filter(exp_var=>{return vars_to_remove.includes(exp_var)})
 
     if (extra_vars.length!==0){
-        if (exps.length==1){throw "also removed too much"}
-        else{throw "this shouldnt happen, should only have extra if theres one equation (check how backsolve exited loop)"}
+        throw "this shouldnt happen, should not have exited loop if there's variables to remove remaining"
     }
 
 
@@ -127,50 +192,107 @@ function remove_vars(eqns,vars_to_remove){
 
 function solve_eqns(eqns){
 
-   /*
-    var non_vis_eqns = []
-
-    var vis_sub = []
-    eqns.forEach(eqn=>{
-        var eqn_vars = get_all_vars(eqn)
-
+    // var result = back_solve(eqns,get_all_vars(eqns))
+    // var final_exps = result.sol
+    // var ordered_sub = result.sub_order
+    
+    // if (final_exps.length>1){throw "this shouldnt happen???"}   // this can happen with multiple equations that both reduce to 0
 
 
-        var vis_vars = eqn_vars.filter(eqn=>{
-            return eqn_var.includes("dummy")
+    // instead of calling back_solve:
+
+    // some of this will have to be done in remove_vars as well, but i think it's ok
+
+    let exps = eqns_to_exps(eqns)
+    let ordered_sub = []
+
+
+    const all_vars = get_all_vars(eqns)
+
+    while (true){
+
+        multi_var_exps = exps.some(exp=>{
+            const n_vars = get_all_vars(exp).length
+            if (n_vars===0){throw "SHOULD NOT HAPPEND -- should have been removed in sub_out"}
+            return n_vars > 1
         })
 
-        if (vis_vars.length>1){throw "eqn should only have one visual variable, not sure whats going on"}
-
-
-        else if (vis_vars.length==1){
-            
+        if (!multi_var_exps){   // checking before sub_out since it's possible they're all single variable equations which can't be solved for at the beginning
+            break
         }
-        else{non_vis_eqns.push(eqn)}
+
+        [exps,ordered_sub] = sub_out(exps,ordered_sub, all_vars)
+
+    }
+
+    const final_exps = exps
+
+
+
+    // wont necessarily be the first one, could have multiple
+
+    // can map over all final exps instead
+
+    // final exps --> final_sub
+    //      then push to ordered_sub
+
+
+    const final_sub = final_exps.map(exp=>{
+
+        const all_vars = get_all_vars(exp)
+
+        if(all_vars.length !== 1){
+            throw "too many or too few unknowns SHOULD NOT HAPPEN -- should have not escaped while loop"
+        }
+
+
+        const solve_var = all_vars[0]
+        
+        const sol = numeric_solve(exp)
+
+        return {var: solve_var, exp: sol}
     })
+
+
+    /*
+    
+    check for contradictions between the results if there's multiple numeric solves:
+
+
+    could group into vars and then check if they all match for each
+
+    or could just loop through and check for override
+        create array of vars
 
     */
 
 
-    var result = back_solve(eqns,get_all_vars(eqns))
-    var final_exps = result.sol
-    var ordered_sub = result.sub_order
+    let subbed = {}
 
-    if (final_exps.length>1){throw "this shouldnt happen???"}   // this can happen with multiple equations that both reduce to 0
-    var final_exp = final_exps[0]
+    final_sub.forEach(sub=>{
 
-    var all_vars = get_all_vars(final_exp)
-    if (all_vars.length===0){throw "contradiction?"}    // i think you need to check if the value is 0
-    else if(all_vars.length>1){throw "too much unknown"}
-    var solve_var = all_vars[0]
+        const sub_var = sub.var
+        const sub_value = sub.exp
 
-    var sol = numeric_solve(final_exp)
+        const subbed_vars = Object.keys(subbed)
+        const already_subbed = subbed_vars.some((subbed_var)=>{return subbed_var===sub_var})
+    
+        if (already_subbed){
+            if (subbed[sub_var] !== sub_value){
+                throw "contradiction"
+            }
+        }else{
+            subbed[sub_var] = sub_value
+        }
+    })
 
-    ordered_sub.push({var:solve_var,exp:sol})
 
-    var computed_sub = forward_solve(ordered_sub)
+    ordered_sub = ordered_sub.concat(final_sub)
 
-    var sols = computed_sub.map(sol=>{
+
+    const computed_sub = forward_solve(ordered_sub)
+
+    const sols = computed_sub.map(sol=>{
         var frac = sol.exp
         var frac_comps = frac.split("/")
         if (frac_comps.length===1){var val = frac_comps[0]}
@@ -200,7 +322,7 @@ function forward_solve(ordered_sub){
     for (let sub_i=0;sub_i<ordered_sub.length;sub_i++){
         var sub = ordered_sub[sub_i]
         var val = nerdamer.expand(sub.exp).toString()
-        if (get_all_vars(val).length!==0){throw "couldnt evaluate"}
+        if (get_all_vars(val).length!==0){throw "cannot solve (error on forward solve)"}
         sub.exp = math.evaluate(val).toString()    // this is necessary for trig functions
         for (let replace_i=sub_i+1;replace_i<ordered_sub.length;replace_i++){
             var next_sub = ordered_sub[replace_i]
@@ -211,197 +333,264 @@ function forward_solve(ordered_sub){
 
 }
 
-function back_solve(eqns,remove_vars){
-
-    var exps = eqns.map(eqn=>{
+function eqns_to_exps(eqns){
+    let exps = eqns.map(eqn=>{
         sides = eqn.split("=")
         return sides[0]+"-("+sides[1]+")"
     })
+    return exps
+}
+
+function NOT_USED_back_solve(eqns,vars_to_remove){
+
+    /*
+
+    delete this function
+
+    */
+
+    let exps = eqns_to_exps(eqns)
+
+    // would be separate function, eqns_to_exps:
 
 
     var ordered = []
-    var all_vars = get_all_vars(exps)
-    var keep_vars = all_vars.filter(test_var=>{return !(remove_vars.includes(test_var))})
-    var substitutions = []      // this one will be added to (not strictly necessary though)
     var exp_left = true
-    while (exp_left && exps.length>1){  // if its solving the system, all the variables are to remove but it should terminate after one equation
-        // i dont need to put it in a try block cause if it cant sub out that error can rise up to the user so it should just pass through here
-        var exps_cleaned = remove_uneeded_exps(exps)
-        var exps = sub_out(exps)
-        var exp_left = exps.some(exp=>{
-            var all_vars = get_all_vars(exp)
-            return all_vars.some(test_var=>{return remove_vars.includes(test_var)})
-        })
-    }
-    return {sol:exps,sub_order:ordered}
-
-    // this could be done repeatedly until theres no change
-    function remove_uneeded_exps(exps){
-        if (exps.length===1){return exps}    // if theres only one expression and only one variable to solve for, this function would remove it if it werent for this
-        var all_vars = get_all_vars(exps)
-        var vars_to_keep = []
-        var vars_to_remove = []
-        all_vars.forEach(test_var=>{
-            if (remove_vars.includes(test_var)){
-                vars_to_remove.push(test_var)
-            }else{
-                vars_to_keep.push(test_var)
-            }
-        })
-
-        var needed_exps = exps.filter(exp=>{
-            var all_vars = get_all_vars(exp)
-            var exp_vars_remove = all_vars.filter(test_var=>{return vars_to_remove.includes(test_var)})
-            //if (exp_vars_remove.length===1){
-               
-
-            for (let var_i=0;var_i<exp_vars_remove.length;var_i++){
-                var exp_var_remove = exp_vars_remove[var_i]
-                var exps_including = exps.filter(exp=>{return get_all_vars(exp).includes(exp_var_remove)})
-                if (exps_including.length===1){
-                    log_solve_step(exp+" eliminated since it cant be subbed")
-                    return false
-                }
-            }
-            return true
-        })
-        return needed_exps
-    }
-
-    function sub_out(exps){
-        function get_exp_complex(exp){
-            // for now just bases complexity of number of operations
-            var exp_arr = exp.split("")
-            var op_arr = exp_arr.filter(char=>{return ["*","-","+","/","^"].includes(char)})
-            return op_arr.length
-        }
-        var sorted_exps = exps.sort((a,b)=>{
-            var a_complex = get_exp_complex(a)
-            var b_complex = get_exp_complex(b)  
-            if (a_complex>b_complex){return 1}
-            if (b_complex>a_complex){return -1}
-            return 0
-        })
-        log_solve_step("remaining expressions sorted: ");log_solve_step(sorted_exps)
-        var factored
-        for (var exp_i=0;exp_i<sorted_exps.length;exp_i++){
-            try{
-                var factored = solve_exp(exps[exp_i])
-                break
-            }catch(e){
-                if (e.type==="solve for"){
-                    log_solve_step("couldnt solve for any variables in "+exps[exp_i])
-                    continue
-                }
-                else{
-                    throw e
-                }
-            }
-        }
-        if (factored===undefined){
-            // at this point i think solving would fail, and would send an error to the user
-            throw "no expressions could be subbed for"
-        }
-        
-        var exp_subbed = sorted_exps[exp_i]
-        var exps_removed_sub = deep_copy(sorted_exps)
-        exps_removed_sub.splice(exp_i,1)
-        var base_pow = factored["base"]
-        if (factored.other===[]){
-            // this is a case like 5*x=0 where x would just be 0
-            var unfactored = "0"
-        }else{
-            var unfactored = tree2exp(factored["other"])
-        }
-        if (factored["factored"][0].length===0){
-            var factored_out = 1
-        }else{
-            var factored_out = tree2exp(factored["factored"])
-        }
-        var subbed_var = base_pow[0]
-        var pow = nerdamer.expand(base_pow[1]).toString()
-        //if (Number(pow)!==1){throw "for now, i thought the power for the variable im factoring had to be 1????"}
-        if (!(get_all_vars(exp_subbed).includes(subbed_var))){throw "not solving for a variable??"}
 
    
+    while (exp_left && exps.length>1){  // if its solving the system, all the variables are to remove but it should terminate after one equation
+        // i dont need to put it in a try block cause if it cant sub out that error can rise up to the user so it should just pass through here
+        // var exps_cleaned = remove_uneeded_exps(exps)
+        
+        // function call in both cases:
+        exps = sub_out(exps)
+
+        // would be using some on exps, but different criteria
+        var exp_left = exps.some(exp=>{
+            var all_vars = get_all_vars(exp)
+            return all_vars.some(test_var=>{return vars_to_remove.includes(test_var)})
+        })
+    }
     
 
-        // this could be done without a branch obviously but im afraid it would be harder to simplify
 
-        var inverse_pow = 1/pow
-        var solved_exp = "-1*("+unfactored+")^("+inverse_pow+")*("+factored_out+")^((-1)*"+inverse_pow+")"
-
-
-/*
-        if (pow==="1"){
-            var solved_exp = "-1*("+unfactored+")*("+factored_out+")^(-1)"
-        }else if (pow==="-1"){
-            var solved_exp = "-1*("+factored_out+")*("+unfactored+")^(-1)"
-        }else{
-            throw "Neither????"
-        }
-     */   
-
-
-        if (get_all_vars(solved_exp).includes(subbed_var)){
-            throw "solved expression cant include a subbed var"
-        }
-
-        log_solve_step("solved for "+subbed_var+" : "+solved_exp)
-        ordered.push({var: subbed_var, exp: solved_exp})
-        var exps_subbed = exps_removed_sub.map(exp=>{
-            var subbed_out =  sub_all_vars(exp,subbed_var,solved_exp)
-            var start = Date.now()
-            var result = nerdamer.expand(subbed_out).toString()
-            var end = Date.now()
-            console.log(end-start)
-            console.log(subbed_out)
-            return result
-        })
-        return exps_subbed
-    }
-
-    function solve_exp(exp){    
-        /*
-            returns the same factor dictionary, but for only the winning variable
-        */
-        var all_vars = get_all_vars(exp)
-        var all_vars_to_sub = all_vars.filter(eqn_var=>{return remove_vars.includes(eqn_var)})
-        var tree = exp2tree(exp)
-        var possible_factors = []
-        all_vars_to_sub.forEach(test_var=>{
-            try{
-                var copied_tree = deep_copy(tree)
-                possible_factors.push(factor(copied_tree,test_var))
-            }catch(e){
-                if (e.type==="factor"){
-                    log_solve_step("solving for "+test_var+" failed because: "+e.error)
-                    return
-                }
-                else{throw e}
-            }
-        })
-        if (possible_factors.length===0){
-            throw solve_for_error("could not solve for any variable")
-        }
-        //! an exponent of -1 is also fine
-        var no_exp_factors = possible_factors.filter(factor=>{
-            var exp_raw = factor["base"][1]
-            var start = Date.now()
-            var exp = Number(nerdamer.expand(exp_raw).toString())
-            var end = Date.now()
-            console.log(end-start)
-            console.log(exp_raw)
-            var simple_num = !(tree2exp(factor.other).includes("+"))
-            var simple_dem = !(tree2exp(factor.factored).includes("+"))
-            return ((simple_num && simple_dem) || (exp===1 || exp===2) && simple_dem)||(exp===-1 && simple_num)
-        })
-        if (no_exp_factors.length===0){
-            throw solve_for_error("solving for any requires negating an exponent")
-        }
-        return no_exp_factors[0]
-    }
+    return {sol:exps,sub_order:ordered}
 }
+
+
+
+
+function sub_out(exps, ordered, vars_to_remove){
+    function get_exp_complex(exp){
+        // for now just bases complexity of number of operations
+        var exp_arr = exp.split("")
+        var op_arr = exp_arr.filter(char=>{return ["*","-","+","/","^"].includes(char)})
+        return op_arr.length
+    }
+    var sorted_exps = exps.sort((a,b)=>{
+        var a_complex = get_exp_complex(a)
+        var b_complex = get_exp_complex(b)  
+        if (a_complex>b_complex){return 1}
+        if (b_complex>a_complex){return -1}
+        return 0
+    })
+    log_solve_step("remaining expressions sorted: ");log_solve_step(sorted_exps)
+    let factored
+    for (var exp_i=0;exp_i<sorted_exps.length;exp_i++){
+        try{
+            factored = solve_exp(exps[exp_i], vars_to_remove)
+            break
+        }catch(e){
+            if (e.type==="solve for"){
+                log_solve_step("couldnt solve for any variables in "+exps[exp_i])
+                continue
+            }
+            else{
+                throw e
+            }
+        }
+    }
+    if (factored===undefined){
+        // at this point i think solving would fail, and would send an error to the user
+        throw "cannot solve for any variables"
+    }
+    
+    var exp_subbed = sorted_exps[exp_i]
+    var exps_removed_sub = deep_copy(sorted_exps)
+    exps_removed_sub.splice(exp_i,1)
+    var base_pow = factored["base"]
+    if (factored.other===[]){
+        // this is a case like 5*x=0 where x would just be 0
+        var unfactored = "0"
+    }else{
+        var unfactored = tree2exp(factored["other"])
+    }
+    if (factored["factored"][0].length===0){
+        var factored_out = 1
+    }else{
+        var factored_out = tree2exp(factored["factored"])
+    }
+    var subbed_var = base_pow[0]
+    var pow = nerdamer.expand(base_pow[1]).toString()
+    //if (Number(pow)!==1){throw "for now, i thought the power for the variable im factoring had to be 1????"}
+    if (!(get_all_vars(exp_subbed).includes(subbed_var))){throw "not solving for a variable??"}
+
+
+
+
+    // this could be done without a branch obviously but im afraid it would be harder to simplify
+
+    var inverse_pow = 1/pow
+    var solved_exp = "-1*("+unfactored+")^("+inverse_pow+")*("+factored_out+")^((-1)*"+inverse_pow+")"
+
+    // TODO 
+    var display_eqn = subbed_var+"="+nerdamer.expand(solved_exp)
+
+    add_solve_step([display_eqn])
+/*
+    if (pow==="1"){
+        var solved_exp = "-1*("+unfactored+")*("+factored_out+")^(-1)"
+    }else if (pow==="-1"){
+        var solved_exp = "-1*("+factored_out+")*("+unfactored+")^(-1)"
+    }else{
+        throw "Neither????"
+    }
+    */   
+
+
+    if (get_all_vars(solved_exp).includes(subbed_var)){
+        throw "solved expression cant include a subbed var"
+    }
+
+    log_solve_step("solved for "+subbed_var+" : "+solved_exp)
+    ordered.push({var: subbed_var, exp: solved_exp})
+
+
+    let exps_subbed = exps_removed_sub.map(exp=>{
+        var subbed_out =  sub_all_vars(exp,subbed_var,solved_exp)
+        var start = Date.now()
+        var result = nerdamer.expand(subbed_out).toString()
+        var end = Date.now()
+        console.log(end-start)
+        console.log(subbed_out)
+        return result
+    })
+
+    exps_subbed = exps_subbed.filter(exp=>{
+
+        // this check can be done in sub_out
+
+        no_vars = get_all_vars(exp).length === 0
+
+        if (!no_vars){
+            return true
+        }
+
+
+        let tolerance = 5
+
+        let final_value = parseFloat(exp)
+        const rounded_value = Math.round(final_value * 10 ** tolerance) / 10 ** tolerance;
+
+        if (rounded_value !== 0){
+            throw "contradiction"
+        }
+
+
+
+        return false
+    })
+
+
+    add_solve_step(exps_subbed)
+
+    return [exps_subbed, ordered]
+
+
+
+}
+
+function solve_exp(exp, vars_to_remove){    
+    /*
+        returns the same factor dictionary, but for only the winning variable
+    */
+    var all_vars = get_all_vars(exp)
+    var all_vars_to_sub = all_vars.filter(eqn_var=>{return vars_to_remove.includes(eqn_var)})
+    var tree = exp2tree(exp)
+    var possible_factors = []
+    all_vars_to_sub.forEach(test_var=>{
+        try{
+            var copied_tree = deep_copy(tree)
+            possible_factors.push(factor(copied_tree,test_var))
+        }catch(e){
+            if (e.type==="factor"){
+                log_solve_step("solving for "+test_var+" failed because: "+e.error)
+                return
+            }
+            else{throw e}
+        }
+    })
+    if (possible_factors.length===0){
+        throw solve_for_error("could not solve for any variable")
+    }
+    //! an exponent of -1 is also fine
+    var no_exp_factors = possible_factors.filter(factor=>{
+        var exp_raw = factor["base"][1]
+        var start = Date.now()
+        var exp = Number(nerdamer.expand(exp_raw).toString())
+        var end = Date.now()
+        console.log(end-start)
+        console.log(exp_raw)
+        var simple_num = !(tree2exp(factor.other).includes("+"))
+        var simple_dem = !(tree2exp(factor.factored).includes("+"))
+        return ((simple_num && simple_dem) || (exp===1 || exp===2) && simple_dem)||(exp===-1 && simple_num)
+    })
+    if (no_exp_factors.length===0){
+        throw solve_for_error("solving for any requires negating an exponent")
+    }
+    return no_exp_factors[0]
+}
+
+
+
+
+
+
+function add_solve_step(array) {
+
+    if (testing){
+        return
+    }
+    
+
+    // Get reference to the table element in the DOM
+    //var table = $('#solve-steps')[0]
+
+    const table = $("#solve-steps")[0]
+    // Create a new row element
+    var newRow = table.insertRow();
+    
+    // Iterate over the array elements and populate the row cells
+    for (var i = 0; i < array.length; i++) {
+        // Create a new cell for each element in the array
+        var cell = newRow.insertCell();
+    
+        var field = document.createElement("div")
+        // Set the cell content to the array element
+        
+        var eqn = nerdamer.convertToLaTeX(array[i])
+        field.innerHTML = eqn;
+
+        field.className = "eqn-field"
+
+        cell.appendChild(field)
+        
+        
+    }
+
+}
+      
+
 
 function factor(tree,sel_var){
     var tree_without_term = []
@@ -728,6 +917,24 @@ function time_it(operation,parameters,n_times){
 }
 
 
+// probably wont use it
+function get_arr_excess(arr1,arr2){
+    const set1 = new Set(arr1)
+    const set2 = new Set(arr2)
+    // elements in set1 but not set2
+    return [...set1].filter(el=>{return !set2.has(el)})
+}
+
+
+function arr_share_values(array1, array2) {
+    for (let i = 0; i < array1.length; i++) {
+      if (array2.includes(array1[i])) {
+        return true; // Found a common value
+      }
+    }
+    return false; // No common values found
+  }
+  
 
 function deep_copy(arr){
 
@@ -738,4 +945,6 @@ function deep_copy(arr){
 
 
 
-
+if (testing){
+    module.exports = {solve_eqns}
+}

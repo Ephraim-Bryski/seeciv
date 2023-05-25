@@ -52,6 +52,7 @@
 
 
 
+
 <!-- database of visuals -->
 <script src="vis_database.js"></script>
 
@@ -61,7 +62,7 @@
 <script src="worker_shared.js"></script>
 
 <link rel="stylesheet" href="main.css"/>
-
+<link rel="stylesheet" href="calc_blocks.css"/>
 
 
 
@@ -71,56 +72,73 @@
     <button  style="height: 100%" onclick="toggle_var_search()">Track Variables</button>
     <button  style="height: 100%" onclick="undo()">Undo</button>
     <button  style="height: 100%" onclick="redo()">Redo</button>
+    <button  style="height: 100%" onclick="toggle_solve_steps()">Show Steps</button>
+    <button  style="height: 100%" onclick="toggle_library()">Library</button>
+
+    
 
 
 
-    <div id="load">
+    
+</div>
+
+
+
+
+
+
+
+
+<div id="popup">
+
+
+    <table id="search-box" style="display: none;">
+
+        <tr>
+            <td class="search-title">
+                Block Name
+            </td>
+            <td class="search-title">
+                Variable Name
+            </td>
+        </tr>
+        <tr>
+            <td id="search-block">
+            </td>
+    
+    
+            <td id="search-var">
+    
+            </td>
+        </tr>
+    </tr>
+    </table>
+    
+
+    <table id="solve-steps" style="display: none;">
+
+    </table>
+
+    <div id="load" style="display:none">
         <input id="save-field"><button id="save-btn">Save</button>
         <br>
-        <button id="load-btn">Library</button>
     </div>
-    
+
+
+
 </div>
 
 
-<table id="search-box" style="display: none;">
-
-    <tr>
-        <td class="search-title">
-            Block Name
-        </td>
-        <td class="search-title">
-            Variable Name
-        </td>
-    </tr>
-    <tr>
-        <td id="search-block">
-        </td>
 
 
-        <td id="search-var">
-
-        </td>
-    </tr>
-</tr>
-</table>
 
 
-<div id="root" style="position: absolute;top:5%;width:50%;height:95%;background-color: darkgray;z-index: 5;">
-    <div id="calc">
+<div id="calc"></div>
 
-    </div>
-    <div id="progress-container">
 
-        Loading...
-        <div id="progress-bar"><div id="progress"></div></div>
-    </div>
-    
-
-</div>
-
+<!-- not sure why vis is in a div, but there might be a reason-->
 <div>
-    <div id="vis" style="position:relative;left:20%;width:70%;height:95%;z-index: 0;background-color: black;"></div>
+    <div id="vis" style=></div>
 
 </div>
 
@@ -145,43 +163,4 @@
 
 <script src="compute_sheet.js"></script>
 <script src="see_calc.js"></script>
-
-
-<!--
-    used for the 2d canvas, probably wont use now
-
-      <div style = "text-align:center;top:100px;position: absolute;left:40%">
-        <canvas class="visual" id="myCanvas" width="1000" height="1000"></canvas>
-    </div>
-
-    <script>
-
-        // found on stackoverflow for clearing canvas:
-        CanvasRenderingContext2D.prototype.clear = 
-        CanvasRenderingContext2D.prototype.clear || function (preserveTransform) {
-        if (preserveTransform) {
-            this.save();
-            this.setTransform(1, 0, 0, 1, 0, 0);
-        }
-
-        this.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        if (preserveTransform) {
-            this.restore();
-        }           
-        };
-
-
-        
-        var c = document.getElementById("myCanvas");
-        console.log(c)
-        var ctx = c.getContext("2d");
-        ctx.beginPath();
-        ctx.fillStyle = "#FFFFFF";
-        
-        ctx.translate(c.width/2, c.height/2);
-        ctx.scale(10, -10);
-    </script>
-    
--->
 

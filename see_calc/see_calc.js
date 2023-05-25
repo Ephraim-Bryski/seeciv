@@ -28,34 +28,35 @@ document.body.loaded = false    // this keeps track of whether sympy has been lo
 var scene // this gives the scene global scope, that way I can get its view inside the setGSup function so the new canvas would have the same view
 
 
+
+var SoEs = [{"name":"Torsion","show_box":"","info":"hi","eqns":[{"show_output":"none","input":"af-ai=\\frac{T\\cdot L}{G\\cdot J}"},{"show_output":"none","input":"J=\\frac{1}{4}\\cdot R^4"},{"show_output":"none","input":"xR-xL=L"},{"show_output":"none","input":"Rod","sub_table":[["r","h","z0","a1","a2"],["R","L","xL","ai","af"]]}],"display":""},{"name":"Bo","show_box":"","eqns":[{"show_output":"none","input":"Torsion","sub_table":[["af","ai","T","L","G","J","R","xR","xL"],["a1","0","T","1","1","","1","x1","0"],["a2","a1","T","1","1","","1","x2","x1"]]},{"show_output":"none","input":"T=2"}],"display":""},{"name":"Sol","show_box":"","eqns":[{"show_output":"none","input":"\\text{solve Bo}"}],"display":""}]
+
+
+
 var SoEs= [
     {
         name:"System",
         info: "hi",
         eqns: [
-        {input: "a=b"}
+        {input: "a=4"},
+        {input: "a=b"},
+        {input: "b^2+3\\cdot b=9"}
+
 
         ]
     },
-    {
-        name:"Bo",
-        eqns: [
-        {input: "System"},
-               
-        ]
-    },
+
 
     {
         name:"Sol",
         eqns: [
-        {input: "solve\\ Bo"},
+        {input: "solve System"},
                
         ]
     }
 
 ]
 
-var SoEs = [{"name":"Torsion","show_box":"","info":"hi","eqns":[{"show_output":"none","input":"af-ai=\\frac{T\\cdot L}{G\\cdot J}"},{"show_output":"none","input":"J=\\frac{1}{4}\\cdot R^4"},{"show_output":"none","input":"xR-xL=L"},{"show_output":"none","input":"Rod","sub_table":[["r","h","z0","a1","a2"],["R","L","xL","ai","af"]]}],"display":""},{"name":"Bo","show_box":"","eqns":[{"show_output":"none","input":"Torsion","sub_table":[["af","ai","T","L","G","J","R","xR","xL"],["a1","0","T","1","1","","1","x1","0"],["a2","a1","T","1","1","","1","x2","x1"]]},{"show_output":"none","input":"T=2"}],"display":""},{"name":"Sol","show_box":"","eqns":[{"show_output":"none","input":"\\text{solve Bo}"}],"display":""}]
 
 var eqns_dict = [
     {
@@ -104,33 +105,6 @@ var test_vars_to_remove = all_vars.filter(test=>{return !(keep_vars.includes(tes
 var eqns = ['ee=Vv/Vs', 'n=Vv/V', 'S=Vw/Vv', 'w=Ww/Ws', 'Gs=ys/yw', 'ys=Ws/Vs', 'yw=Ww/Vw', 'yd=Ws/V', 'y=W/V', 'W=Ws+Ww', 'V=Vs+Vv']
 var vars_to_remove = ['ee', 'Vv', 'Vs', 'n', 'V', 'S', 'Vw', 'Ww', 'Ws', 'Gs', 'ys', 'y', 'W']
 
-remove_vars(test_eqns,test_vars_to_remove)
-
-
-if (use_worker){
-    var worker = new Worker('py_worker.js');
-    worker.postMessage("load")
-    worker.onmessage = (m)=>{
-        if (m.data === "loaded"){
-            add_solve_listener()
-            document.body.loaded = true
-        }else{  // this means it finished computing
-            use_calc_results(m.data)
-        }
-        document.getElementById("progress-container").innerText = "Finished Loading, Using Worker"
-    }
-}
-
-if (use_sympy && !use_worker){
-    get_py().then(()=>{
-        sympy_solve("a+3=4","a")
-        document.getElementById("progress-container").innerText = "Finished Loading, Not Using Worker"
-    })
-}
-
-if (!use_sympy){
-    document.getElementById("progress-container").innerText = "Did not load sympy (set use_sympy=true to load)."
-}
 
 if (!use_worker){
     add_solve_listener()
@@ -193,21 +167,6 @@ function set_up(){
 
     setUpGS()
     
-    var load_btn = document.getElementById("load-btn") 
-    load_btn.onclick=()=>{
-        var sheet_btns = document.getElementsByClassName("sheet-load-btn")
-        for (let i=0;i<sheet_btns.length;i++){
-            var sheet_btn = sheet_btns[i]
-            if (load_btn.innerHTML==="Library"){     
-                sheet_btn.style.display = "block"
-                var new_txt = "Close"
-            }else if(load_btn.innerHTML==="Close"){
-                sheet_btn.style.display = "none"
-                var new_txt = "Library"
-            }
-        }
-        load_btn.innerHTML = new_txt  
-    }
 
 
     document.addEventListener('keyup', (e)=>{
@@ -241,12 +200,12 @@ function set_up(){
     database.on("value", (package)=>{
         console.log('Firebase Loaded')
         const data = package.val()
-        create_callbacks(database,data)
+        create_fb_callbacks(database,data)
     },
     ()=>{throw "ERROR WITH FIREBASE????"} 
     );
 
-    function create_callbacks(database,data){
+    function create_fb_callbacks(database,data){
 
         const save_btn = document.getElementById("save-btn")
         save_btn.onclick = ()=>{
@@ -259,11 +218,7 @@ function set_up(){
         const current_btns = document.getElementsByClassName("sheet-load-btn")
         const current_names = [...current_btns].map(btn=>{return btn.innerHTML})
 
-        if (current_btns.length === 0){
-            var display_type = "none"
-        }else{
-            var display_type = current_btns[0].style.display
-        }
+        
 
         const sheet_names = Object.keys(user_data)
 
@@ -277,7 +232,6 @@ function set_up(){
             var root = document.getElementById("load")
             var btn = document.createElement('button')
             btn.classList.add("sheet-load-btn")
-            btn.style.display=display_type
             btn.innerHTML=sheet_name
             btn.onclick=()=>{
                 document.getElementById("save-field").value=sheet_name
@@ -478,7 +432,6 @@ function data2DOM(SoEs){
         main.appendChild(row)
     }
 
-
     var load_symbols = [...$(".load-indicator")]
 
     load_symbols.forEach((sym,idx)=>{
@@ -603,7 +556,7 @@ function make_line(eqn){
     add_btn.onclick = (e)=>{
         add_line(e.target)}
 
-    add_btn.classList.add("remove-btn")
+    add_btn.classList.add("add-remove-btn")
     add_btn.classList.add("add-line-btn")
     add_btn.appendChild(make_tooltip())
 
@@ -625,7 +578,7 @@ function make_line(eqn){
         
     }
     remove_button.className="line-btn"  // i dont think this is used
-    remove_button.classList.add("remove-btn")
+    remove_button.classList.add("add-remove-btn")
     remove_button.classList.add("remove-line-btn")
     remove_button.appendChild(make_tooltip())
 
@@ -638,7 +591,7 @@ function make_line(eqn){
     MQ.MathField(in_field, {handlers: {edit: function() {
 
         // i update it before appending it to the document when textifying solve
-        if($(in_field).parents("#root").length===0){return}
+        if($(in_field).parents("#calc").length===0){return}
 
 
         // for some reason, MQ runs it on creation, before there are parent elements ):<
@@ -828,7 +781,7 @@ function make_block(SoE){
     }
     remove_button.innerHTML="X"
     remove_button.className="block-remove"
-    remove_button.classList.add("remove-btn")
+    remove_button.classList.add("add-remove-btn")
     remove_button.classList.add("remove-block-btn")
     remove_button.appendChild(make_tooltip())
 
@@ -837,7 +790,7 @@ function make_block(SoE){
         add_block(e.target)
     }
     add_btn.innerHTML = "+"
-    add_btn.classList.add("remove-btn")
+    add_btn.classList.add("add-remove-btn")
     add_btn.classList.add("add-block-btn")
     add_btn.appendChild(make_tooltip())
 
@@ -1163,7 +1116,7 @@ function make_sub_table(table_data){
 			[add,remove,clear,copy].forEach((btn)=>{
                 btn.appendChild(make_tooltip())
 				ops.appendChild(btn)
-				btn.classList.add("table-btn")
+				btn.classList.add("sub-table-btn")
 
 
 			})
@@ -1179,10 +1132,6 @@ function make_sub_table(table_data){
 	
 }
 
-
-function make_MQ(){
-    // PROBABLY CAN JUST DELETE
-}
 
 
 
@@ -1394,7 +1343,7 @@ function redo(){
 
 
 document.addEventListener('keyup', (e)=>{
-
+     
     // every key stroke it updates the variable tracker and untextifies input keywords
 
     track_dom()
@@ -1432,16 +1381,6 @@ document.addEventListener('keyup', (e)=>{
     }
 })
 
-function toggle_var_search(){
-
-    var search_style = $("#search-box")[0].style
-    if(search_style.display==="none"){
-        search_style.display = "block"
-    }else{
-        search_style.display = "none"
-    }
-    search_for_vars()
-}
 
 
 function search_for_vars(){
@@ -1617,3 +1556,73 @@ function search_for_vars(){
 }
 
 
+function load_library(){
+
+    var sheet_btns = document.getElementsByClassName("sheet-load-btn")
+    for (let i=0;i<sheet_btns.length;i++){
+        var sheet_btn = sheet_btns[i]
+        if (load_btn.innerHTML==="Library"){     
+            sheet_btn.style.display = "block"
+            var new_txt = "Close"
+        }else if(load_btn.innerHTML==="Close"){
+            sheet_btn.style.display = "none"
+            var new_txt = "Library"
+        }
+    }
+    load_btn.innerHTML = new_txt  
+
+}
+/*
+
+things for popup:
+
+    library
+    variable search
+        requires search_for_vars() if im not searching each keystroke 
+            --> should be separate functions
+            --> call one main function
+    solve steps
+    (future) account
+    (future) help
+
+
+*/
+
+function toggle_library(){
+    switch_popup("load")
+    //load_library()
+}
+
+
+function toggle_var_search(){
+    switch_popup("search-box")
+    search_for_vars()
+}
+
+function toggle_solve_steps(){
+    switch_popup("solve-steps")
+}
+
+function switch_popup(sel_child_name){
+
+    const sel_child = $("#"+sel_child_name)[0]
+
+    const popup = sel_child.parentElement
+
+    const all_children = [...popup.children]
+
+    all_children.forEach(child=>{
+        
+        if (child===sel_child){return}
+
+        child.style.display = "none"
+        
+    })
+
+    if(sel_child.style.display==="block"){
+        sel_child.style.display = "none"
+    }else{
+        sel_child.style.display = "block"
+    }
+
+}
