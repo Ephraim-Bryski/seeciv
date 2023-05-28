@@ -1,73 +1,20 @@
-<!-- mathquill -->
-<link rel="stylesheet" href="mathquill/mathquill.css"/>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="mathquill/mathquill.js"></script>
-<script src="latex-to-js.js"></script>
-
-
-<body></body>
-
-<div class="parent">
-    <div class="relative-div">Relative Div 1</div>
-    <div class="relative-div">Relative Div 2</div>
-    <div class="covering-div">
-        Covering Div
-        <div>
-            Stuff
-        </div>
-        <div>
-            bop
-        </div>
-    </div>
-  </div>
-  
-
-<style>
-    .parent {
-    position: relative;
-    width: 100%;
-    height: 100%;
-
-    background-color: lightgray;
-    }
-
-    .relative-div {
-    position: relative;
-    background-color: lightblue;
-    padding: 10px;
-    margin-bottom: 10px;
-    }
-
-    .covering-div {
-    position: absolute;
-    right:0;
-    top: 10%;
-    bottom: 10%;
-
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    color: white;
-    padding:10px
-    }
-
-
-    #popup{
-    position:absolute;
-    right:10%;
-    z-index: 10000000;
-    background-color: white;
-    border-radius: 5px;
-    padding-left: 10px;
-
-}
-    
-
-      
-</style>
+<script src="test.js" type="module"></script>
 <script>
-    eqn = 'a=\\left(\\frac{c}{2}\\right)^2\\cdot\\frac{a}{b}'
+    // Initialize the FirebaseUI Widget using Firebase.
 
-    my_ltx_to_math(eqn)
+
+    /* email 
+    ui.start('#firebaseui-auth-container', {
+        signInOptions: [
+            {
+            provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+            requireDisplayName: false
+            }
+        ]
+    });
+    */
+
     
+
 
 </script>

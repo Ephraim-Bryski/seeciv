@@ -2,6 +2,11 @@ var prev_SoEs   // this variable is global EVERYWHERE (even outside this script)
 
 function calc(SoEs,start_idx,end_idx){
 
+
+    // clear the solve steps from the previous step
+    $("#solve-steps")[0].innerHTML = ""
+
+
     if (prev_SoEs===undefined && start_idx!==0){
         throw "THIS IS WEIRD, is this the first run???"
     }
@@ -128,9 +133,10 @@ function calc(SoEs,start_idx,end_idx){
             return eqns
         }
 
-        
+        /*
         line = line.replaceAll("\\ ","").replaceAll(" ","")
         line = strip_text(line)
+        */
         var vis_vars = []
         match_vis_blocks = vis_blocks.filter((vis_block)=>{return vis_block["name"]===line})
 
@@ -138,12 +144,25 @@ function calc(SoEs,start_idx,end_idx){
         var new_table = undefined // removes table unless there is a substitution (removes if obsolete)
 
 
+        const solve_txt = "\\operatorname{solve}"
 
+        const solve_line = line.startsWith(solve_txt)
+
+        const has_solve_txt = line.includes(solve_txt)
+
+        if (has_solve_txt && !solve_line){
+            throw "solve keyword must be at start of line"
+        }
+
+        line = line.replaceAll(solve_txt,"")
+
+    
         if (line.length===0){
-            throw "Line cannot be blank"
+            if(solve_line){throw "solve must be followed by block name"}
+            else{throw "Line cannot be blank"}
         }if (line.includes("_")){
             throw "Underscores not allowed"
-        }else if(!(/^\w+$/.test(line))){    // checks if alphanumeric (also allows underscores)
+        }else if(!(/^\w+$/.test(line))){    // checks if not alphanumeric (also allows underscores)
 
             var eqn_split = line.split("=")
 
@@ -154,11 +173,11 @@ function calc(SoEs,start_idx,end_idx){
             }else if (eqn_split.some((exp)=>{return exp.length==0})){
                 throw "Terms on both side of equal sign required"
             }else{
-                try{
-                    var line_math = ltx_to_math(line)
-                }catch{
-                    throw "could not be parsed"
-                }
+                
+                var line_math = ltx_to_math(line)
+
+                line_math = convert_to_degrees(line_math)
+                
                 if (get_all_vars(line_math).length===0){
                     throw "Equation must have variables"
                 }
@@ -183,17 +202,9 @@ function calc(SoEs,start_idx,end_idx){
             var result = new_stuff[0].flat()
             var new_table = new_stuff[1]
 
-        }else if(line.includes("solve")){
-            line = line.replace("solve","")
-            if (line.includes(" for ")){
-                var line_var = line.split(" for ")
-                var line = line_var[0]
-                var solve_var = line_var[1]      
-            }else{
-                var solve_var = ""
-            }
+        }else if(solve_line){
             var eqns = get_ref_eqns(line)
-            var result = solve_eqns(eqns,solve_var)
+            var result = solve_eqns(eqns)
             vis_eqns = result
             result.forEach(eqn=>{
                 var sides = eqn.split("=")
@@ -228,10 +239,6 @@ function calc(SoEs,start_idx,end_idx){
                         var simp_eqn = eqn
                         var disp_eqn = eqn
                     }
-                    if (get_all_vars(simp_eqn).length === 0){
-                        if(simp_eqn==="0"){throw "equation reduces to "+simp_eqn+"=0"
-                        }else{throw "equation has a contradiction"}
-                    }
     
                     result.push(simp_eqn)
                     display_row.push(nerdamer.convertToLaTeX(disp_eqn))
@@ -240,8 +247,6 @@ function calc(SoEs,start_idx,end_idx){
             })
         }
 
-        //! will need 
-        //! will need code in see_calc (data2DOM) to take the array and construct divs with it
 
         SoEs[SoE_i].eqns[line_i].result=result;
         SoEs[SoE_i].eqns[line_i].sub_table = new_table
@@ -299,8 +304,8 @@ function compute_sub_table(eqns,old_table,block_name){
 
             try{
                 var sub_out = ltx_to_math(sub_out_ltx)
-            }catch{
-                throw sub_out_ltx+" could not be parsed"
+            }catch(e){
+                throw "error with "+sub_out_ltx+": "+e
             }
 
             if (sub_out.includes("=")){
@@ -363,6 +368,55 @@ function compute_sub_table(eqns,old_table,block_name){
         })
         return new_eqns
     }
+}
+
+
+
+function convert_to_degrees(exp){
+    // perform evaluate converting trig arguments to radians
+    // also needs to convert inverse trig arguments to degrees
+
+
+    const trig_funcs = ["sin", "cos", "tan", "csc", "sec", "cot", "sinh", "cosh", "tanh", "csch", "sech", "coth"]
+
+    /*
+
+    sin(a+b) --> sin((a+b)) --> sin(pi/180*(a+b))
+
+    arcsin(a+b) --> sininv((a+b)) --> 180/pi*asin((a+b))
+
+    */
+
+
+    // keeps conversion at the outer order of operation
+    exp = exp.replaceAll("(","((")
+    exp = exp.replaceAll(")","))")
+    
+    const deg2rad = "pi/180"
+    const rad2deg = "180/pi"
+
+
+    // insterting "inv" so the noninverse trig replacement doesn't also replace inverse trig
+    trig_funcs.forEach(trig_func=>{
+        const before = "arc"+trig_func
+        const after = trig_func+"inv"
+        exp = exp.replaceAll(before,after)
+    })
+    
+
+    trig_funcs.forEach(trig_func=>{
+        const before = trig_func+"("
+        const after = trig_func+"("+deg2rad+"*"
+        exp = exp.replaceAll(before,after)
+    })
+
+    trig_funcs.forEach(trig_func=>{
+        const before = trig_func+"inv"
+        const after = rad2deg+"*"+"a"+trig_func
+        exp = exp.replaceAll(before,after)
+    })
+
+    return exp
 }
 
 

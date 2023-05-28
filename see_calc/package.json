@@ -7,9 +7,12 @@
     "test": "jest solver_test.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Ephraim Bryski",
   "license": "ISC",
   "dependencies": {
-    "mathjs": "^11.8.0"
+    "firebase": "^9.22.1",
+    "mathjs": "^11.8.0",
+    "webpack": "^5.84.1",
+    "webpack-cli": "^5.1.1"
   }
 }

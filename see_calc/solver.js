@@ -122,7 +122,7 @@ function remove_vars(eqns,vars_to_remove){
             const exp_vars = get_all_vars(exp)
 
 
-            other_exps = exps
+            other_exps = [...exps]
 
             other_exps.splice(idx,1)
 
@@ -162,7 +162,9 @@ function remove_vars(eqns,vars_to_remove){
 
 
 
-    if (exps.length===0){throw "no equations left"}
+    if (exps.length===0){
+        throw "no equations left"
+    }
 
     /*
 
@@ -341,44 +343,6 @@ function eqns_to_exps(eqns){
     return exps
 }
 
-function NOT_USED_back_solve(eqns,vars_to_remove){
-
-    /*
-
-    delete this function
-
-    */
-
-    let exps = eqns_to_exps(eqns)
-
-    // would be separate function, eqns_to_exps:
-
-
-    var ordered = []
-    var exp_left = true
-
-   
-    while (exp_left && exps.length>1){  // if its solving the system, all the variables are to remove but it should terminate after one equation
-        // i dont need to put it in a try block cause if it cant sub out that error can rise up to the user so it should just pass through here
-        // var exps_cleaned = remove_uneeded_exps(exps)
-        
-        // function call in both cases:
-        exps = sub_out(exps)
-
-        // would be using some on exps, but different criteria
-        var exp_left = exps.some(exp=>{
-            var all_vars = get_all_vars(exp)
-            return all_vars.some(test_var=>{return vars_to_remove.includes(test_var)})
-        })
-    }
-    
-
-
-    return {sol:exps,sub_order:ordered}
-}
-
-
-
 
 function sub_out(exps, ordered, vars_to_remove){
     function get_exp_complex(exp){
@@ -387,22 +351,45 @@ function sub_out(exps, ordered, vars_to_remove){
         var op_arr = exp_arr.filter(char=>{return ["*","-","+","/","^"].includes(char)})
         return op_arr.length
     }
-    var sorted_exps = exps.sort((a,b)=>{
+
+    function exp_complex_sort(a,b){
         var a_complex = get_exp_complex(a)
         var b_complex = get_exp_complex(b)  
         if (a_complex>b_complex){return 1}
         if (b_complex>a_complex){return -1}
         return 0
+    }
+
+    const keep_var_exps = []
+    const no_keep_var_exps = []
+
+    exps.forEach(exp=>{
+        const all_vars = get_all_vars(exp)
+
+        const has_vars_to_keep = all_vars.some(sel_var=>{return !vars_to_remove.includes(sel_var)})
+
+        if (has_vars_to_keep){
+            keep_var_exps.push(exp)
+        }else{
+            no_keep_var_exps.push(exp)
+        }
     })
+
+    const sorted_keep_exps = keep_var_exps.sort(exp_complex_sort)
+    const sorted_no_keep_exps = no_keep_var_exps.sort(exp_complex_sort)
+
+
+    //const sorted_exps = sorted_keep_exps.concat(sorted_no_keep_exps)
+    const sorted_exps = exps.sort(exp_complex_sort)
     log_solve_step("remaining expressions sorted: ");log_solve_step(sorted_exps)
     let factored
     for (var exp_i=0;exp_i<sorted_exps.length;exp_i++){
         try{
-            factored = solve_exp(exps[exp_i], vars_to_remove)
+            factored = solve_exp(sorted_exps[exp_i], vars_to_remove)
             break
         }catch(e){
             if (e.type==="solve for"){
-                log_solve_step("couldnt solve for any variables in "+exps[exp_i])
+                log_solve_step("couldnt solve for any variables in "+sorted_exps[exp_i])
                 continue
             }
             else{
@@ -433,7 +420,9 @@ function sub_out(exps, ordered, vars_to_remove){
     var subbed_var = base_pow[0]
     var pow = nerdamer.expand(base_pow[1]).toString()
     //if (Number(pow)!==1){throw "for now, i thought the power for the variable im factoring had to be 1????"}
-    if (!(get_all_vars(exp_subbed).includes(subbed_var))){throw "not solving for a variable??"}
+    if (!(get_all_vars(exp_subbed).includes(subbed_var))){
+        throw "not solving for a variable??"
+    }
 
 
 
@@ -486,7 +475,6 @@ function sub_out(exps, ordered, vars_to_remove){
             return true
         }
 
-
         let tolerance = 5
 
         let final_value = parseFloat(exp)
@@ -495,18 +483,16 @@ function sub_out(exps, ordered, vars_to_remove){
         if (rounded_value !== 0){
             throw "contradiction"
         }
-
-
-
         return false
     })
 
+    const eqns_subbed = exps_subbed.map(exp=>{
+        return exp+"=0"
+    })
 
-    add_solve_step(exps_subbed)
+    add_solve_step(eqns_subbed)
 
     return [exps_subbed, ordered]
-
-
 
 }
 
@@ -568,12 +554,17 @@ function add_solve_step(array) {
 
     const table = $("#solve-steps")[0]
     // Create a new row element
-    var newRow = table.insertRow();
+    const new_row = document.createElement("div")
+    new_row.style.display = "flex"
+    table.appendChild(new_row);
     
     // Iterate over the array elements and populate the row cells
     for (var i = 0; i < array.length; i++) {
         // Create a new cell for each element in the array
-        var cell = newRow.insertCell();
+        const cell = document.createElement("div")
+        new_row.appendChild(cell);
+
+        cell.style.padding = "10px"
     
         var field = document.createElement("div")
         // Set the cell content to the array element
@@ -833,8 +824,11 @@ function contains_vars(exp){
 }
 
 
-function get_all_vars(eqns){
-    var exclude = ["sqrt","pi","sin","cos","tan","sec","csc","cot","sinh","cosh","tanh"]
+function get_all_vars(eqns,check_imag = true){
+    const trig_funcs = ["sin", "cos", "tan", "csc", "sec", "cot", "sinh", "cosh", "tanh", "csch", "sech", "coth"]
+    const inv_trig_funcs = ["asin", "acos", "atan", "acsc", "asec", "acot", "asinh", "acosh", "atanh", "acsch", "asech", "acoth"]
+
+    var exclude = ["sqrt","pi"].concat(trig_funcs).concat(inv_trig_funcs)
     if (typeof eqns ==="string"){eqns = [eqns]}
     var regex = /\W[a-zA-Z](\w?)+/g
     var vars = []
@@ -851,7 +845,14 @@ function get_all_vars(eqns){
         })
         vars.push(eqn_vars)
     })
-    return [...new Set(vars.flat())]
+
+    const all_vars = [...new Set(vars.flat())]
+    
+    if (all_vars.includes("i") && check_imag){
+        throw "imaginary number i found"
+    }
+    
+    return all_vars
 }
 
 

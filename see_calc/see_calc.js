@@ -38,11 +38,8 @@ var SoEs= [
         name:"System",
         info: "hi",
         eqns: [
-        {input: "a=4"},
-        {input: "a=b"},
-        {input: "b^2+3\\cdot b=9"}
-
-
+        {input: "b=3\\cdot a"},
+        {input: "b=a+5"}
         ]
     },
 
@@ -184,15 +181,16 @@ function set_up(){
 
 
     const fb_config = {
-        apiKey: "AIzaSyCuxcmJLVLR02LNXx6Ep_diD7q7orHCfmM",
-        authDomain: "see-calc.firebaseapp.com",
-        projectId: "see-calc",
-        storageBucket: "see-calc.appspot.com",
-        messagingSenderId: "12119172863",
-        appId: "1:12119172863:web:b7a71ebd11f9c0c2a90eca",
-        databaseURL: "https://see-calc-default-rtdb.firebaseio.com/",
-        measurementId: "G-396DG1Y9Q2"
+        apiKey: "AIzaSyBrjMcMVh5Qe4i1wI28Hu6cWtlBLn-1Fpc",
+        authDomain: "see-calc-8d690.firebaseapp.com",
+        databaseURL: "https://see-calc-8d690-default-rtdb.firebaseio.com",
+        projectId: "see-calc-8d690",
+        storageBucket: "see-calc-8d690.appspot.com",
+        messagingSenderId: "712428414817",
+        appId: "1:712428414817:web:13ebddba5db433e5960720",
+        measurementId: "G-GP5ZDNCTXX"
     };
+
     firebase.initializeApp(fb_config);
     const database = firebase.database().ref();
 
@@ -202,7 +200,8 @@ function set_up(){
         const data = package.val()
         create_fb_callbacks(database,data)
     },
-    ()=>{throw "ERROR WITH FIREBASE????"} 
+    (e)=>{
+        throw "ERROR WITH FIREBASE????"} 
     );
 
     function create_fb_callbacks(database,data){
@@ -247,27 +246,6 @@ function set_up(){
         });
     }
     
-
-    
-    var i = 0;
-
-    if (use_sympy) {
-      if (i == 0) {
-        i = 1;
-        var elem = document.getElementById("progress");
-        var width = 1;
-        var id = setInterval(frame,5);
-        function frame() {
-            if (width >= 95) {
-                clearInterval(id);
-                i = 0;
-            } else {
-                width+=0.1;
-                elem.style.width = width + "%";
-            }
-        }
-        }
-    }
 
 }
 
@@ -586,9 +564,26 @@ function make_line(eqn){
     in_field.classList.add("line-input")
     in_field.classList.add("MQ-input")
     
+    const trig_names = "sin cos tan csc sec cot sinh cosh tanh csch sech coth arcsin arccos arctan arccsc arcsec arccot arcsinh arccosh arctanh arccsch arcsech arccoth"
 
+    const text_convert = combine_with_space(["solve",trig_names])
+
+    function combine_with_space(strings){
+        let combined = ""
+        strings.forEach(string=>{
+            combined+=string
+            combined+=" "
+
+        })
+        combined = combined.slice(0,-1)
+
+        return combined
+    }
     //MQ
-    MQ.MathField(in_field, {handlers: {edit: function() {
+    MQ.MathField(in_field, {
+        //autoCommands: "sqrt", // to just type instead of backslash
+        autoOperatorNames: text_convert,
+        handlers: {edit: function() {
 
         // i update it before appending it to the document when textifying solve
         if($(in_field).parents("#calc").length===0){return}
@@ -632,23 +627,9 @@ function make_line(eqn){
     var output_arr = document.createElement("div")
     if (eqn!=undefined){
 
-        var block_names = SoEs.map(SoE=>{return SoE.name})
         var input = eqn.input
         input = input.replaceAll("\\ ","")
-        var output
-    
-        for (let i=0;i<block_names.length;i++){
-            var name = block_names[i]
-            if (input===name){
-                output = "\\text{"+input+"}"
-                break
-            }else if(input==="solve"+name){
-                output = "\\text{solve "+name+"}"
-                break
-            }else{
-                output = input
-            }
-        }
+        let output = input
     
         MQ(in_field).latex(output)
         
@@ -710,9 +691,6 @@ function make_line(eqn){
             })
             out_field.appendChild(table)
         }
-
-    
-
 
         var sub_table = make_sub_table(eqn.sub_table) //! would need new field for eqn, in compute_sub_table, it would take the equations and old table to generate the new table and update the field
     }else{
@@ -1343,7 +1321,6 @@ function redo(){
 
 
 document.addEventListener('keyup', (e)=>{
-     
     // every key stroke it updates the variable tracker and untextifies input keywords
 
     track_dom()
@@ -1365,6 +1342,7 @@ document.addEventListener('keyup', (e)=>{
 
     }
 
+
     search_for_vars()
 
     // dont update if it's not in a line input
@@ -1380,6 +1358,19 @@ document.addEventListener('keyup', (e)=>{
         input_field.latex(output)
     }
 })
+
+
+function strip_text(input){  
+    var output
+    if (input.includes("\\text{")){
+        var slice_idx = (input.lastIndexOf("}"))-input.length
+        output = input.replace("\\text{","").slice(0,slice_idx)
+    }else{
+        output = input
+    }
+    return output
+}
+
 
 
 
@@ -1527,8 +1518,7 @@ function search_for_vars(){
                 }
                 
                 if (field_input.includes("=")||is_sub){
-                    var field_vars = get_all_vars(field_input)
-
+                    var field_vars = get_all_vars(field_input, false)
                 }else{
                     var field_vars = []
                 }
@@ -1588,22 +1578,35 @@ things for popup:
 
 */
 
-function toggle_library(){
-    switch_popup("load")
+function toggle_library(e){
+    switch_popup("load",e)
     //load_library()
 }
 
 
-function toggle_var_search(){
-    switch_popup("search-box")
+function toggle_var_search(e){
+    switch_popup("search-box",e)
     search_for_vars()
 }
 
-function toggle_solve_steps(){
-    switch_popup("solve-steps")
+function toggle_solve_steps(e){
+    switch_popup("solve-steps",e)
 }
 
-function switch_popup(sel_child_name){
+function switch_popup(sel_child_name,e){
+
+    // change button colors:
+
+    const sel_btn = e.target
+    const all_btns = [...sel_btn.parentNode.children]
+
+    all_btns.forEach(btn=>{
+        btn.classList.remove("popup-sel-btn-selected")
+    })
+
+
+
+    // switch the popup:
 
     const sel_child = $("#"+sel_child_name)[0]
 
@@ -1623,6 +1626,8 @@ function switch_popup(sel_child_name){
         sel_child.style.display = "none"
     }else{
         sel_child.style.display = "block"
+        sel_btn.classList.add("popup-sel-btn-selected")
+
     }
 
 }

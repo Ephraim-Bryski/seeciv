@@ -18,15 +18,4 @@ async function get_py() {
 
 
 
-function strip_text(input){  
-    var output
-    if (input.includes("\\text{")){
-        var slice_idx = (input.lastIndexOf("}"))-input.length
-        output = input.replace("\\text{","").slice(0,slice_idx)
-    }else{
-        output = input
-    }
-    return output
-}
-
 

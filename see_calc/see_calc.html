@@ -43,23 +43,7 @@
 <!-- nerdamer just used to convert from latex -->
 <script src="nerdamer/all.min.js"></script>
 
-<script>
-    console.log(canvas)
-</script>
 
-
-<script src="latex-to-js.js"></script>
-
-
-
-
-<!-- database of visuals -->
-<script src="vis_database.js"></script>
-
-
-
-<!-- functions need to be imported in the worker as well -->
-<script src="worker_shared.js"></script>
 
 <link rel="stylesheet" href="main.css"/>
 <link rel="stylesheet" href="calc_blocks.css"/>
@@ -69,11 +53,11 @@
 <body>
 
 <div id="top-menu" style="width:100%;height:5%;background-color: gray;">
-    <button  style="height: 100%" onclick="toggle_var_search()">Track Variables</button>
-    <button  style="height: 100%" onclick="undo()">Undo</button>
-    <button  style="height: 100%" onclick="redo()">Redo</button>
-    <button  style="height: 100%" onclick="toggle_solve_steps()">Show Steps</button>
-    <button  style="height: 100%" onclick="toggle_library()">Library</button>
+    <button  class="popup-sel-btn" onclick="undo()">Undo</button>
+    <button  class="popup-sel-btn" onclick="redo()">Redo</button>
+    <button  class="popup-sel-btn" onclick="toggle_var_search(event)">Track Variables</button>
+    <button  class="popup-sel-btn" onclick="toggle_solve_steps(event)">Show Steps</button>
+    <button  class="popup-sel-btn" onclick="toggle_library(event)">Library</button>
 
     
 
@@ -115,9 +99,9 @@
     </table>
     
 
-    <table id="solve-steps" style="display: none;">
+    <div id="solve-steps" style="display: none;">
 
-    </table>
+    </div>
 
     <div id="load" style="display:none">
         <input id="save-field"><button id="save-btn">Save</button>
@@ -144,23 +128,24 @@
 
 
 
-
-
-
-
-<script>
-
-</script>
-
-
     
 </body>
 
 
 
+<script src="latex-to-js.js"></script>
+
+
+
+
+<!-- database of visuals -->
+<script src="vis_database.js"></script>
+
+
+
+<!-- functions need to be imported in the worker as well -->
+<script src="worker_shared.js"></script>
 <script src="solver.js"></script>
-
-
 <script src="compute_sheet.js"></script>
 <script src="see_calc.js"></script>
 

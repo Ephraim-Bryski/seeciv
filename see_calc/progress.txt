@@ -1,65 +1,119 @@
 
 
-Popup menu options
-	Track variables
-	Show solve steps
-	Library
-	Account
-	Help/Info?
-		description of sheet and of blocks <-- instead of info btn 
-		overall description of sheet
-
-Solver Bugs
+create math_to_latex function
 
 
 
 
 
+
+substitute group terms if it's shared across equations, would allow it to get S*e=Gs*w by cancelling out v
+	tries to find biggest term to sub across equations
+		maybe only when there's only 2 eqns, would get too complex otherwise
+
+
+OR maybe not
+
+each step try finding biggest term to sub across equations
+
+find all shared, then find the largest common factor across all of them
+	would just reduce to a problem with nested arrays
+
+this way doesn't need to guess variable
+
+needs to find intersection 
+	a,b,c and b,c,d --> b,c (each letter is a term) <-- gcf
+-->
+but then problem, getting all possible intersections would be way too slow
+-->
+need efficient way to get largest interesections
+-->
+problem: get largest intersection in array of sets (efficiently)
+
+then among those largest ones (in most cases all just one element)
+	find one where the rest of the stuff is the simplest for ONE particular equation
+		if the terms have more complex product terms --> BAD (not necessarily not allowed though, just lowest priority)
+		but terms with more complex base i think is actually better, since it would be cancelled out
+
+
+i don't think it matters if it's shared in the most equations
+	if anything it should be shared in the fewest
+
+might be faster and safer to still sort the equations simplest to most complex (using naive number of ops method)
+then get gcf between that equation and all other equations
+	much faster than between all equations
+	plus if it can be solved now, it can definitely be solved this way too
+
+
+
+needs to find 
+	simplest (no stuff inside the product terms allowed)
+	largest term (most products)
+	shared most across equations
+	shared most in equation across sum terms?
+[[a,b],[c,d]]   []
+
+would also get into issue where text couldn't be directly subbed 
+	a/b couldn't be subbed into a*c/b
+	this means you would need to sub directly into the trees, and then condense the trees <-- just way too much work
+
+
+SOOOO INSTEAD
+
+just do the simple hacky solution
+
+when there's only two equations:
+
+
+
+find all product terms in both consisting of remove variables
+	(a+b)*c where a and c is remove and b isn't: OK (since a still needs to be removed)
+	
+	if there are different product terms (across sum or equation), return and just do it the regular way
+
+	solve for this larger term for both equations
+	then just set the two equal to one another
+
+Eqn1
+	{["a",1],["b",2]}
+	{} <-- no remove vars in that sum term
+Eqn2
+	{["a",1],["b",2]}
+
+
+don't even need to check interesection, literally just check if they all match
+
+
+
+
+
+
+
+
+
+
+Bugs
 
 	dummy visual variables are being combined with commas in a string <-- not even sure if this is a bug
 
+	sub_table doesn't get removed when it's no longer relevant for the input
+		not sure how it should behave though
 
 
 
 Solving features
 
-
-	autooperatornames in mathquill config can be used to make text keywords
-
 	round, including rounding in equations with long fractions
-
-
-
-	specify if failure is due to contradiction or something else
 
 	alphabetize variables <-- think this is for track variables
 
-
-	substitute group terms if it's shared across equations, would allow it to get S*e=Gs*w by cancelling out v
-		tries to find biggest term to sub across equations
-			maybe only when there's only 2 eqns, would get too complex otherwise
-
-
-
-
-issues with remove_uneeded_exps (currently not using)
-
-
-	remove_uneeded_exps can delete all equations
-	need to do a check (same check as keeping it in the while loop: one eqn or nothing to sub out) after the unnecessary equations are removed, otherwise uncaught error in sub_out
-
-
-
+	contradiction message might want to show both equations
+	variable is the name of a system
 
 
 
 when new sheet is loaded it still takes info from previous sheet when solving --> reset start index to 0
 	also loading a sheet has to have a callback to update the variable tracker
-
-
-sub_table doesn't get removed when it's no longer relevant for the input
-	not sure how it should behave though
-
 
 
 infrastructure:
@@ -71,54 +125,14 @@ infrastructure:
 			or maybe the visual eqns could be global??
 
 
-add info to sheets
 
-
-name of the opened sheet should be highlighted in the library
-	
-
-
-
-line should expand with text
-
-each block has their own description
-documentation
-
-
-error messages
-	contradiction message might want to show both equations
-	variable is the name of a system
-
-working with greek letters?
-	\w would be omega for example (https://www.tutorialspoint.com/converting-alphabets-to-greek-letters-in-javascript)
-	could convert the input as well and unconvert when focused on it
-
-
-
-angle default to degrees
-
-calculations
-	divide by 0 error leads to it saying it's too difficult to solve
-	contradiction can lead to numeric solve error
-
-
-
-what has to be done in display
-
-	(optional: move negative stuff to the other side of the equal sign)
-
-
-
-
-when your cursor is on a variable it colors it and all other instances of that variable in the block
-
-
-Option to either add blocks to sheet or replace
-
-
-
+Library
+	Option to either add blocks to sheet or replace
+	Saving something with period in name no good 
 
 Sheet UI
+
+	no underscores for variable names means also no subscripts
 	Option to clear sheet
 	Draggable blocks
 	Some way to guide user, possible options:
@@ -126,49 +140,4 @@ Sheet UI
 		A mini tutorial
 		Just seeing examples could helpful
 		Little question mark buttons you can click on with info
-
-
-
-Line Notation/UI
-	Latex result
-	Greek letters
-	Expand input box to fit input
-	Red border around input when error reached
-
-
-Saving/sharing/library
-	Saving something with period in name no good 
-
-
-
-
-
-
-
-
-Stuff to make with calculator
-	Node_edge for pipe networks
-	Truss (with optimization hopefully)
-
-Other Stuff to make
-	Visuals would be important https://stackoverflow.com/questions/4839993/how-to-draw-polygons-on-an-html5-canvas 
-	Lists: sum and diff (difference between neighboring elements)
-	Units
-	Databases
-	If statements (might be ok if just goes one way)
-	Functions (soil layers): integrate and derivatives, and evaluate
-	optimization
-		pso 
-
-
-
-
-
-
-
-
-
-
-
-
-
+	name of the opened sheet should be highlighted in the library

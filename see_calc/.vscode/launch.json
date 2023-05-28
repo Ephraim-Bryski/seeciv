@@ -8,7 +8,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "seecalc chrome debug",
-            "file": "c:\\Users\\brisk\\GitHub\\seeciv\\see_calc\\see_calc.html",
+            "file": "c:\\Users\\Ephraim\\GitHub\\seeciv\\see_calc\\see_calc.html",
 
             "skipFiles": [
                 "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML",
@@ -29,7 +29,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "extra chrome debug",
-            "file": "c:\\Users\\brisk\\GitHub\\seeciv\\see_calc\\test.html",
+            "file": "c:\\Users\\Ephraim\\GitHub\\seeciv\\see_calc\\test.html",
             "skipFiles": [
                 "https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.js"
             ]
