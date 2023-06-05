@@ -137,6 +137,9 @@ function calc(SoEs,start_idx,end_idx){
         line = line.replaceAll("\\ ","").replaceAll(" ","")
         line = strip_text(line)
         */
+
+        line = line.replaceAll("\\ ","")
+
         var vis_vars = []
         match_vis_blocks = vis_blocks.filter((vis_block)=>{return vis_block["name"]===line})
 
@@ -216,9 +219,18 @@ function calc(SoEs,start_idx,end_idx){
         }else{
             // nonvisual reference without solve, so substitute:
             var eqns = get_ref_eqns(line)
-            var new_stuff = compute_sub_table(eqns,old_table,block_name)
-            var eqns = new_stuff[0]
-            var new_table = new_stuff[1]
+
+            const has_vars = get_all_vars(eqns).length > 0
+
+            if (has_vars){
+                var new_stuff = compute_sub_table(eqns,old_table,block_name)
+                var eqns = new_stuff[0]
+                var new_table = new_stuff[1]
+            }else{
+                var eqns = [eqns]
+                var new_table = [[]]
+            }
+
             var result = []
 
             eqns.forEach(eqn_row=>{

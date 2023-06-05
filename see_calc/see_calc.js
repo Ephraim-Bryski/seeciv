@@ -383,11 +383,15 @@ function DOM2data(){
 function data2DOM(SoEs){
     // would just pass in SoEs, but would have to be deepcloned at some point
 
-
+    /*
     var main = document.getElementById('calc');
     while(main.firstChild){
         main.removeChild(main.firstChild);
     }
+    */
+    $(".calc-row").remove()
+
+    const main = document.body//getElementById("vis")
 
     for (let i=0;i<SoEs.length;i++){
  
@@ -1217,6 +1221,7 @@ function display_vis(all_eqns){
 
 
         vis_block["vis"](input)
+        makeCoordShape()
     })
 
 
@@ -1238,8 +1243,6 @@ function setUpGS(){
     window.__context= {glowscript_container: graphDiv}  
     scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: true,userzoom: true,autoscale: true})
     scene.forward=vec(1,-0.5,-1)
-    
-    //makeCoordShape()
 }
 
 function resetGS(){
