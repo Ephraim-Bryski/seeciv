@@ -94,6 +94,7 @@ function calc(SoEs,start_idx,end_idx){
 
         function get_ref_eqns(ref){
 
+            // TODO delete code to get visual
             // gets the equations of a block, ref is the name of the block
 
             var ref_idx = known_SoEs.findIndex((element) => element === ref)
@@ -118,19 +119,27 @@ function calc(SoEs,start_idx,end_idx){
             }
             var ref_SoE=ref_SoEs[ref_idx].eqns
             var eqns = []
+            let visuals = []
             if (ref_SoEs[ref_idx].result==="ERROR"){throw ref+" has an error"}
             ref_SoE.forEach(ref_line => {
                 var ref_eqns = ref_line.result
+                const ref_visuals = ref_line.visual
                 if (ref_eqns===undefined){
                     boop
                 }
                 if (ref_eqns==="ERROR"){throw ref+" has an error"}
     
     
+                
                 eqns.push(ref_eqns)
                 eqns = eqns.flat()
+                
+                visuals.push(ref_visuals)
+                visuals = visuals.flat()
             });
-            return eqns
+
+            //eqns = eqns.filter(eqn=>{return eqn!=="VISUAL"})
+            return [eqns,visuals]
         }
 
         /*
@@ -196,44 +205,65 @@ function calc(SoEs,start_idx,end_idx){
 
             vis_vars = vis_block["vars"]
 
+            /*
             vis_eqns = vis_vars.map((vis_var,idx)=>{
                 return "dummy_"+vis_block["name"]+"_"+vis_var+"="+vis_var
             })
+            
 
             var new_stuff = compute_sub_table(vis_eqns,old_table,block_name)
 
             var result = new_stuff[0].flat()
             var new_table = new_stuff[1]
 
+            */
+            var result = "VISUAL"
+            // TODO result should be the equation
+            var old_visual = [{
+                "name": vis_block.name,
+                "sub": []
+            }]
+            const new_stuff = compute_sub_table([],vis_vars,old_table,old_visual)
+            
+            var new_table = new_stuff[1]
+            var new_visual = new_stuff[2]
+
+
         }else if(solve_line){
-            var eqns = get_ref_eqns(line)
+            [eqns,visuals] = get_ref_eqns(line)
+            //TODO filter out visual equations for solve_eqns
             var result = solve_eqns(eqns)
+            // TODO sub values from result into visual and evaluate each one
             vis_eqns = result
             result.forEach(eqn=>{
                 var sides = eqn.split("=")
                 var LHS = sides[0]
+                LHS = math_to_ltx(LHS)  // only needed for greek letters
                 var RHS = sides[1]
                 if(LHS.includes("dummy")){return}
                 display.push(LHS+"="+RHS)
             })
         }else{
             // nonvisual reference without solve, so substitute:
-            var eqns = get_ref_eqns(line)
-
+            [eqns, visual] = get_ref_eqns(line)
+ 
             const has_vars = get_all_vars(eqns).length > 0
 
             if (has_vars){
-                var new_stuff = compute_sub_table(eqns,old_table,block_name)
-                var eqns = new_stuff[0]
-                var new_table = new_stuff[1]
+                var new_eqns
+                var new_table
+                var new_visual
+                [new_eqns, new_table, new_visual] = compute_sub_table(eqns,noneqn_vars,old_table,visual)
+                //var eqns = new_stuff[0]
+                //var new_table = new_stuff[1]
             }else{
-                var eqns = [eqns]
+                var new_eqns = [eqns]
                 var new_table = [[]]
             }
 
             var result = []
 
-            eqns.forEach(eqn_row=>{
+            new_eqns.forEach(eqn_row=>{
                 var display_row = []
                 display.push(display_row)
                 eqn_row.forEach(eqn=>{
@@ -253,16 +283,20 @@ function calc(SoEs,start_idx,end_idx){
                     }
     
                     result.push(simp_eqn)
-                    display_row.push(nerdamer.convertToLaTeX(disp_eqn))
+                    display_row.push(math_to_ltx(disp_eqn))
 
                 })
             })
         }
 
+        if (new_visual===undefined){
+            new_visual = []
+        }
 
-        SoEs[SoE_i].eqns[line_i].result=result;
+        SoEs[SoE_i].eqns[line_i].result = result;
         SoEs[SoE_i].eqns[line_i].sub_table = new_table
-        SoEs[SoE_i].eqns[line_i].display=display;
+        SoEs[SoE_i].eqns[line_i].display = display;
+        SoEs[SoE_i].eqns[line_i].visual = new_visual
     }
 
 
@@ -270,7 +304,7 @@ function calc(SoEs,start_idx,end_idx){
 
 
 
-function compute_sub_table(eqns,old_table,block_name){
+function compute_sub_table(eqns0,old_table){
     // takes the new eqns and the current table, replaces the columns to match the variables in the new eqns, then performs substitutions
 
     if(old_table===undefined){  // the table hasn't been created yet
@@ -278,12 +312,13 @@ function compute_sub_table(eqns,old_table,block_name){
         var n_col = 2
     }else{
         var old_vars = old_table[0]
+        old_vars = old_vars.map(old_var=>{return ltx_to_math(old_var)})
         var trans_table = transpose(old_table)
         var n_col = old_table.length
     }
 
     
-    var new_vars = get_all_vars(eqns)
+    var new_vars = get_all_vars(eqns0).concat(noneqn_vars)
 
     var new_trans_table = []
 
@@ -292,7 +327,7 @@ function compute_sub_table(eqns,old_table,block_name){
         if (old_idx!==-1){  // if old_table is undefned, it should never enter this branch (since old_vars is empty)
             new_trans_table.push(trans_table[old_idx])
         }else{
-            var new_var_row=Array(n_col).fill(new_var)
+            var new_var_row=Array(n_col).fill(math_to_ltx(new_var))
             new_trans_table.push(new_var_row)
         }
     })
@@ -302,13 +337,15 @@ function compute_sub_table(eqns,old_table,block_name){
     // perform substitutions:
     var all_eqns = []
     var var_row = table[0]
+    let all_visuals = []
+    const ordered_subs = []
     for (let i=1;i<table.length;i++){
         var sub_row = table[i]
         var removed_vars = []
-        var eqns_subbed = [...eqns]
-        eqns_subbed = sub_vis_vars(eqns_subbed,block_name,i) 
+        var eqns_subbed = [...eqns0]
+        //eqns_subbed = sub_vis_vars(eqns_subbed,block_name,i) 
         for (let j=0;j<sub_row.length;j++){
-            var sub_in = var_row[j]
+            var sub_in = ltx_to_math(var_row[j]) // ltx_to_math just for greek variables
             var sub_out_ltx = sub_row[j]
             vis_sub = true
 
@@ -341,9 +378,47 @@ function compute_sub_table(eqns,old_table,block_name){
                 }
             }
         }
-        all_eqns.push(remove_vars(eqns_subbed,removed_vars))
+        var eqns, ordered_sub
+        [eqns, ordered_sub] = remove_vars(eqns_subbed,removed_vars)
+
+        all_eqns.push(eqns)//
+
+        ordered_subs.push(ordered_sub)
+
+
+        /*
+        visual.forEach(el=>{
+            const sub = el.sub
+            const new_sub = sub.concat(ordered_sub)
+            el.sub = new_sub
+
+        })  
+        all_visuals.push(visual)
+        all_visuals = all_visuals.flat()
+        
+        */
+        /*
+
+        visual would have structure
+
+        [
+            {name: Box, values: [x:,y: etc], sub: {a: 3, b: a+4 etc.}}
+            {name: Box, values: [x:,y: etc], sub: {a: 5, b: a+4 etc.}}
+        ]
+
+        would have to copy it for each row, then add the same stuff to sub for each
+            requires a deep clone (parse and stringify)
+
+            s
+
+        if there's multiple rows
+
+        would have to create copys of the visuals for each sub
+        then for each of them, add in the ordered sub
+        */
+        
     }
-    return [all_eqns,table]
+    return [all_eqns, table, all_visuals]
 
     function transpose(matrix) {
         const rows = matrix.length, cols = matrix[0].length;

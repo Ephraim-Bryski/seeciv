@@ -5,18 +5,24 @@ create math_to_latex function, why? :
 	a^1*b^-1*c^-1 becomes something with nested fractions
 
 
-Bugs
+Solve Bugs
 
 	dummy visual variables are being combined with commas in a string <-- not even sure if this is a bug
 
+	multivariate newton rapshon no longer allows for redundant equations (e.g. a=4,a=4) <-- could be fixed by finding least square of inverse if nonsquare matrix
+		AND can't solve certain problems (e.g. "A Network" library example)
+
+UI Bugs
+	able to delete all blocks
+	
 Solving features
 
 	alphabetize variables <-- think this is for track variables
 
-	contradiction message might want to show both equations
 	variable is the name of a system
 
 
+make pi a constant (don't appear in sub_table)
 
 when new sheet is loaded it still takes info from previous sheet when solving --> reset start index to 0
 	also loading a sheet has to have a callback to update the variable tracker

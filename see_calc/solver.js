@@ -33,60 +33,143 @@ what do all the functions do:
 var log_solve = true
 
 
+function numeric_solve(exps){
+    if (exps.length===0){return []}
+    return mv_NR(exps)
+}
 
+function nerdamer_solve(exps){
 
-function numeric_solve(exp){
-
-    var exp_vars = get_all_vars(exp)
-    if (exp_vars.length!==1){throw "can only have one variable, has multiple: "+exp_vars}
-    var solve_var = exp_vars[0]
+    let sols = nerdamer.solveEquations(exps)
     
-    // in case newton raphson doesnt work:
+    // if single solution, need to put in nested array:
+    if (typeof sols[0]==='string'){
+        sols = [sols]
+    }
+    const struct_sol =  sols.map(sol=>{
+        let value = sol[1]
+        if (typeof value==='object'){
+            value = math.evaluate(value[0].toString())
+        }
+        return {var: sol[0], exp: value}
+    })
+    return struct_sol
+}
 
-    //var nerd_sols = nerdamer.solve(exp,solve_var).symbol.elements
-    // nerdamer can be a bit weird with complex solutions but if there's only one solution it should be ok
-    //if (nerd_sols.length===1){return nerd_sols[0].toString()}
+function mv_NR(exps){
 
-    // otherwise use newton raphson
+    // multivariate newtorn raphson
+    // i think it's correct, but it has trouble converging
+    // it looks like nerdamer works fine
 
+    const solve_vars = get_all_vars(exps)
+    if (solve_vars.length !== exps.length){throw "nooope"}
+    
+    const n = solve_vars.length
+    
     var prev_guess
-    var guess = 1
+    const some_val = 0.12345
+    var guess = Array.from({ length: n }, (_, i) =>  some_val+i);
 
+    
     var tol = 0.001
     const max_count = 100
-
-    var f = (x)=>{
+    
+    
+    function f(exp,x){
+    
+        // array of x --> single value of f
+    
+        const x_str = x.map(x_val=>{return x_val.toString()})
+    
+        let subbed_exp = exp
+        for (let i=0;i<solve_vars.length;i++){
+            subbed_exp = sub_all_vars(subbed_exp,solve_vars[i],x_str[i])
+        }
+    
         return math.evaluate(
-            sub_all_vars(exp,solve_var,x.toString())
+            subbed_exp
         )
     }
-
-    function fprime(x) {
-        var h = 0.001;
-        return math.divide(math.subtract(f(math.add(x,h)),f(math.subtract(x,h))),2*h)
+    
+    function Jac(x) {
+    
+        const step = 0.00001
+    
+        // array of x --> array of f'
+        const idxs = Array.from({ length: n }, (_, i) =>  i);
+    
+    
+        return exps.map(exp=>{
+    
+            return idxs.map(idx=>{
+                h = Array(n).fill(0)
+                h[idx] = step
+    
+                const forward = f(exp,math.add(x,h))
+                
+                const backward = f(exp,math.subtract(x,h))
+    
+    
+                return math.dotDivide(math.subtract(forward,backward),2*step)
+            })
+        })
+    
+    
     }
-
+    
     var iter_count = 0
-    while (prev_guess===undefined || math.abs(math.subtract(guess,prev_guess))>tol){
-        var new_guess = math.subtract(guess,math.divide(f(guess),fprime(guess)))
+    while (prev_guess===undefined || math.norm(math.subtract(guess,prev_guess))>tol){
+    
+        try{
+            var inv_Jac= math.inv(Jac(guess))
+
+        }catch{
+            sdf
+        }
+    
+    
+        const f_guess = exps.map(exp=>{return f(exp,guess)})
+    
+    
+        const new_guess = math.subtract(guess,math.multiply(inv_Jac,f_guess))
+    
         var prev_guess = guess
         var guess = new_guess
         console.log(guess)
         iter_count+=1
-
-        if (iter_count>max_count || isNaN(guess)){
+    
+    
+        const has_nan = guess.some(val=>{return isNaN(val)})
+    
+        if (iter_count>max_count || has_nan){
             throw "Cannot find solution, possibly no real solutions"
         }
     }
-
+    
     var real_comp =  math.re(guess)
     var im_comp = math.im(guess)
-
-    if (im_comp>1e-10){throw "No real solutions"}
     
-    return real_comp.toString()
-
+    if (math.norm(im_comp)>1e-10){throw "No real solutions"}
+    
+    const sol = real_comp.map(val=>{return val.toString()})
+    return solve_vars.map((_,i)=>{
+            return {var: solve_vars[i], exp: sol[i]}
+        })
+    
+        
+    
+    
+    // in case newton raphson doesnt work:
+    
+    //var nerd_sols = nerdamer.solve(exp,solve_var).symbol.elements
+    // nerdamer can be a bit weird with complex solutions but if there's only one solution it should be ok
+    //if (nerd_sols.length===1){return nerd_sols[0].toString()}
+    
+    // otherwise use newton raphson
+    
 }
+    
 
 function log_solve_step(msg){
     if (log_solve){console.log(msg)}
@@ -94,7 +177,7 @@ function log_solve_step(msg){
 
 function remove_vars(eqns,vars_to_remove){
 
-    if (vars_to_remove.length===0){return eqns} // sub_table still calls it even if there's nothing to be removed, so im just putting this case in immediately
+    if (vars_to_remove.length===0){return [eqns,[]]} // sub_table still calls it even if there's nothing to be removed, so im just putting this case in immediately
 
 
 
@@ -136,12 +219,13 @@ function remove_vars(eqns,vars_to_remove){
 
             const sub_out_exp = has_common_vars && has_remove_vars
 
+            // TODO is_vis_exp check if has VISUAL in it
 
-            if (sub_out_exp){
+            if (sub_out_exp){ // TODO && !is_vis_exp
                 remove_var_exps.push(exp)
             }
 
-            if (sub_out_exp || !has_remove_vars){
+            if (sub_out_exp || !has_remove_vars){ //TODO || is_vis_exp
                 needed_exps.push(exp)
             }
 
@@ -160,22 +244,9 @@ function remove_vars(eqns,vars_to_remove){
     }
 
 
-
-
     if (exps.length===0){
         throw "no equations left"
     }
-
-    /*
-
-
-    if there's only one equation, backsolve will terminate even if there's variables still left
-        this is for solving system can leave one equation with any variable at all
-
-    however, this should throw an error
-
-
-    */
 
     var all_sol_vars = get_all_vars(exps)
     var extra_vars = all_sol_vars.filter(exp_var=>{return vars_to_remove.includes(exp_var)})
@@ -189,7 +260,7 @@ function remove_vars(eqns,vars_to_remove){
     var eqns = exps.map(exp=>{
         return exp+"=0"
     })
-    return eqns  
+    return [eqns,ordered_sub] // returning ordered_sub so it can be kept track of for visuals  
 }
 
 function solve_eqns(eqns){
@@ -205,7 +276,8 @@ function solve_eqns(eqns){
 
     // some of this will have to be done in remove_vars as well, but i think it's ok
 
-    let exps = eqns_to_exps(eqns)
+    const original_exps = eqns_to_exps(eqns)
+    let exps = original_exps
     let ordered_sub = []
 
 
@@ -223,8 +295,16 @@ function solve_eqns(eqns){
             break
         }
 
-        [exps,ordered_sub] = sub_out(exps,ordered_sub, all_vars)
-
+        try{
+            [exps,ordered_sub] = sub_out(exps, ordered_sub, all_vars)
+        }catch(e){
+            // if it's no longer able to sub_out, just performing numeric solve on remaining equations
+            if (typeof e === 'string'){
+                break
+            }else{
+                throw e
+            }
+        }   
     }
 
     const final_exps = exps
@@ -239,34 +319,10 @@ function solve_eqns(eqns){
     //      then push to ordered_sub
 
 
-    const final_sub = final_exps.map(exp=>{
-
-        const all_vars = get_all_vars(exp)
-
-        if(all_vars.length !== 1){
-            throw "too many or too few unknowns SHOULD NOT HAPPEN -- should have not escaped while loop"
-        }
+    const final_sub = numeric_solve(final_exps)
 
 
-        const solve_var = all_vars[0]
-        
-        const sol = numeric_solve(exp)
 
-        return {var: solve_var, exp: sol}
-    })
-
-
-    /*
-    
-    check for contradictions between the results if there's multiple numeric solves:
-
-
-    could group into vars and then check if they all match for each
-
-    or could just loop through and check for override
-        create array of vars
-
-    */
 
 
     let subbed = {}
@@ -338,6 +394,7 @@ function forward_solve(ordered_sub){
 }
 
 function eqns_to_exps(eqns){
+    // TODO not strictly needed, but ignore eqns with VISUAL
     let exps = eqns.map(eqn=>{
         sides = eqn.split("=")
         return sides[0]+"-("+sides[1]+")"
@@ -531,7 +588,8 @@ function solve_exp(exp, vars_to_remove){
         console.log(exp_raw)
         var simple_num = !(tree2exp(factor.other).includes("+"))
         var simple_dem = !(tree2exp(factor.factored).includes("+"))
-        return ((simple_num && simple_dem) || (exp===1 || exp===2) && simple_dem)||(exp===-1 && simple_num)
+        const even_exp = exp%2==0 // means there could be complex answer
+        return (simple_num && simple_dem && !even_exp) || (exp===1 && simple_dem) || (exp===-1 && simple_num)
     })
     if (no_exp_factors.length===0){
         throw solve_for_error("solving for any requires negating an exponent")
@@ -571,7 +629,7 @@ function add_solve_step(array) {
         var field = document.createElement("div")
         // Set the cell content to the array element
         
-        var eqn = nerdamer.convertToLaTeX(array[i])
+        var eqn = math_to_ltx(array[i])
         field.innerHTML = eqn;
 
         field.className = "eqn-field"
@@ -853,6 +911,8 @@ function get_all_vars(eqns,check_imag = true){
     if (all_vars.includes("i") && check_imag){
         throw "imaginary number i found"
     }
+
+    // TODO filter out vars with VISUAL in them
     
     return all_vars
 }
