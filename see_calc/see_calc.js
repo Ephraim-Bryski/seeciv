@@ -54,10 +54,8 @@ var SoEs= [
 
 
 
-var all_vars = get_all_vars(test_eqns)
 var keep_vars = ["y","yd","w"]
 
-var test_vars_to_remove = all_vars.filter(test=>{return !(keep_vars.includes(test))})
 
 var eqns = ['ee=Vv/Vs', 'n=Vv/V', 'S=Vw/Vv', 'w=Ww/Ws', 'Gs=ys/yw', 'ys=Ws/Vs', 'yw=Ww/Vw', 'yd=Ws/V', 'y=W/V', 'W=Ws+Ww', 'V=Vs+Vv']
 var vars_to_remove = ['ee', 'Vv', 'Vs', 'n', 'V', 'S', 'Vw', 'Ww', 'Ws', 'Gs', 'ys', 'y', 'W']

@@ -212,17 +212,6 @@ function calc(SoEs,start_idx,end_idx){
             var display = result
             var new_table = new_stuff[1]
 
-            
-            var result = "VISUAL"
-            // TODO result should be the equation
-            var old_visual = [{
-                "name": vis_block.name,
-                "sub": []
-            }]
-            const new_stuff = compute_sub_table([],vis_vars,old_table,old_visual)
-            
-            var new_table = new_stuff[1]
-            var new_visual = new_stuff[2]
 
 
         }else if(solve_line){
@@ -369,7 +358,7 @@ function compute_sub_table(eqns,old_table){
     }
 
     
-    var new_vars = get_all_vars(eqns0).concat(noneqn_vars)
+    var new_vars = get_all_vars(eqns).concat(noneqn_vars)
 
     var new_trans_table = []
 
