@@ -490,9 +490,11 @@ function sub_out(exps, ordered, vars_to_remove){
 
         // this check can be done in sub_out
 
-        no_vars = get_all_vars(exp).length === 0
+        const no_vars = get_all_vars(exp).length === 0
 
-        if (!no_vars){
+        const is_visual = exp.includes("VISUAL")
+
+        if (!no_vars || is_visual){
             return true
         }
 
@@ -501,17 +503,25 @@ function sub_out(exps, ordered, vars_to_remove){
         let final_value = parseFloat(exp)
         const rounded_value = Math.round(final_value * 10 ** tolerance) / 10 ** tolerance;
 
+
+
+
         if (rounded_value !== 0){
             throw "contradiction"
         }
         return false
     })
 
-    const eqns_subbed = exps_subbed.map(exp=>{
+
+
+    const exps_show_steps = exps_subbed.filter(exp=>{
+        return !exp.includes("VISUAL")
+    })
+    const eqns_show_steps = exps_show_steps.map(exp=>{
         return exp+"=0"
     })
 
-    add_solve_step(eqns_subbed)
+    add_solve_step(eqns_show_steps)
 
     return [exps_subbed, ordered]
 

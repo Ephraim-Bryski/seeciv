@@ -303,17 +303,21 @@ function dsiplay_vis(vis_eqns){
 
 
         const vis_vars = sel_vis.vars
-        const vis_vals = eqn.split("|")
+        const vis_exps = eqn.split("|")
         
-        vis_vals.pop()
+        vis_exps.pop()
 
         const vis_input = {}
 
-        if (vis_vars.length !== vis_vals.length){throw "should be same argument length"}
+        if (vis_vars.length !== vis_exps.length){throw "should be same argument length"}
         vis_vars.forEach((_,i)=>{
             const vis_var = vis_vars[i]
-            const vis_val = vis_vals[i]
-            if (isNaN(vis_val)){throw "could not solve for all values for visual "+vis_name}
+            const vis_exp = vis_exps[i]
+            try{
+                var vis_val = math.evaluate(vis_exp)
+            }catch{
+                throw "could not solve for all values for visual "+vis_name
+            }                
             vis_input[vis_var] = vis_val
         })
 
