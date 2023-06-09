@@ -26,11 +26,6 @@ function calc(SoEs,start_idx,end_idx){
     var SoEs_after = SoEs.slice(end_idx,SoEs.length+1)
 
 
-    // these will be filled if solve is called, and will be returned (can't actually display here since calc is called in a worker)
-    var vis_eqns = []
-
-
-
 
     // change_idx is passed as the starting position of the loop
 
@@ -66,6 +61,8 @@ function calc(SoEs,start_idx,end_idx){
         }
 
         for (var line_i=0;line_i<SoE.length;line_i++){
+            //parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
+            // TODO make this neater (maybe make a variable branch it)
             try{
                 parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
             }catch(error){
@@ -85,7 +82,7 @@ function calc(SoEs,start_idx,end_idx){
     prev_SoEs = SoEs
 
     // vis_eqns are the eqns to visualize, will figure out the visual by the variable names
-    return [SoEs,vis_eqns]
+    return SoEs
 
 
     
@@ -203,20 +200,19 @@ function calc(SoEs,start_idx,end_idx){
 
             vis_block = match_vis_blocks[0]
 
-            vis_vars = vis_block["vars"]
+            vis_vars = vis_block.vars
 
-            /*
-            vis_eqns = vis_vars.map((vis_var,idx)=>{
-                return "dummy_"+vis_block["name"]+"_"+vis_var+"="+vis_var
-            })
-            
+            const vis_eqn = vis_vars.map(vis_var=>{
+                return vis_var+"|"
+            }).join("")+"VISUAL"+line
 
-            var new_stuff = compute_sub_table(vis_eqns,old_table,block_name)
+            var new_stuff = compute_sub_table([vis_eqn],old_table)
 
             var result = new_stuff[0].flat()
+            var display = result
             var new_table = new_stuff[1]
 
-            */
+            
             var result = "VISUAL"
             // TODO result should be the equation
             var old_visual = [{
@@ -230,19 +226,27 @@ function calc(SoEs,start_idx,end_idx){
 
 
         }else if(solve_line){
-            [eqns,visuals] = get_ref_eqns(line)
-            //TODO filter out visual equations for solve_eqns
-            var result = solve_eqns(eqns)
-            // TODO sub values from result into visual and evaluate each one
-            vis_eqns = result
+            var eqns = get_ref_eqns(line)
+
+
+
+            const vis_eqns     = eqns.filter(eqn=>{return eqn.includes("VISUAL")})
+            const non_vis_eqns = eqns.filter(eqn=>{return !eqn.includes("VISUAL")})
+
+        
+            var result = solve_eqns(non_vis_eqns)
+
             result.forEach(eqn=>{
                 var sides = eqn.split("=")
                 var LHS = sides[0]
                 LHS = math_to_ltx(LHS)  // only needed for greek letters
                 var RHS = sides[1]
-                if(LHS.includes("dummy")){return}
                 display.push(LHS+"="+RHS)
             })
+
+            dsiplay_vis(vis_eqns)
+           
+
         }else{
             // nonvisual reference without solve, so substitute:
             [eqns, visual] = get_ref_eqns(line)
@@ -302,9 +306,56 @@ function calc(SoEs,start_idx,end_idx){
 
 }
 
+function find_vis_name(eqn) {
+    const substring = "VISUAL"
+    const startIndex = eqn.indexOf(substring);
+    if (startIndex !== -1) {
+        const endIndex = startIndex + substring.length;
+        return eqn.substring(endIndex);
+    }
+    throw "VISUAL not found, shouldnt happen"
+}
 
 
-function compute_sub_table(eqns0,old_table){
+function dsiplay_vis(vis_eqns){
+
+    resetGS()
+
+    vis_eqns.forEach(eqn=>{
+        // TODO for this to work eqn_to_exp would have to ignore it
+        const vis_name = find_vis_name(eqn)
+
+        const sel_vis_blocks = vis_blocks.filter((block)=>{return block.name === vis_name})
+
+        if (sel_vis_blocks.length !== 1){throw "should have had exactly one vis???"}
+
+        const sel_vis = sel_vis_blocks[0]
+
+
+        const vis_vars = sel_vis.vars
+        const vis_vals = eqn.split("|")
+        
+        vis_vals.pop()
+
+        const vis_input = {}
+
+        if (vis_vars.length !== vis_vals.length){throw "should be same argument length"}
+        vis_vars.forEach((_,i)=>{
+            const vis_var = vis_vars[i]
+            const vis_val = vis_vals[i]
+            if (isNaN(vis_val)){throw "could not solve for all values for visual "+vis_name}
+            vis_input[vis_var] = vis_val
+        })
+
+        sel_vis.vis(vis_input)
+
+
+    })
+
+    makeCoordShape()
+}
+
+function compute_sub_table(eqns,old_table){
     // takes the new eqns and the current table, replaces the columns to match the variables in the new eqns, then performs substitutions
 
     if(old_table===undefined){  // the table hasn't been created yet
@@ -342,8 +393,8 @@ function compute_sub_table(eqns0,old_table){
     for (let i=1;i<table.length;i++){
         var sub_row = table[i]
         var removed_vars = []
-        var eqns_subbed = [...eqns0]
-        //eqns_subbed = sub_vis_vars(eqns_subbed,block_name,i) 
+        var eqns_subbed = [...eqns]
+        eqns_subbed = sub_vis_vars(eqns_subbed,block_name,i) 
         for (let j=0;j<sub_row.length;j++){
             var sub_in = ltx_to_math(var_row[j]) // ltx_to_math just for greek variables
             var sub_out_ltx = sub_row[j]
@@ -436,25 +487,6 @@ function compute_sub_table(eqns0,old_table){
 
 
 
-    function sub_vis_vars(eqns,block_name,sub_idx){
-        // adds to visual variable to keep trace of all blocks it passed through
-
-        var new_eqns = []
-
-        eqns.forEach(eqn=>{
-            var vars = get_all_vars(eqn)
-            var vis_vars = vars.filter((test_var)=>{return test_var.includes("dummy")})
-            vis_vars.forEach(vis_var_in=>{
-                // adds a new part to the visual variable name
-                var broken_var = vis_var_in.split("_")
-                broken_var.splice(1,0,block_name+sub_idx)
-                var vis_var_out = broken_var.join("_")
-                eqn = sub_all_vars(eqn,vis_var_in,vis_var_out)
-            })
-            new_eqns.push(eqn)
-        })
-        return new_eqns
-    }
 }
 
 

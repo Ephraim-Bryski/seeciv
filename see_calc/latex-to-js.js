@@ -117,6 +117,8 @@ function find_closed_paren(txt,open_idx){
 
 
 function math_to_ltx(eqn){
+
+	if (eqn.includes("VISUAL")){return eqn}
 	/*
 
 	nerdamer convertToLaTeX has an issue where it sometimes creates nested fraction when it's not needed
@@ -139,6 +141,8 @@ function math_to_ltx(eqn){
 
 
 	
+	if (eqn.includes("VISUAL")){return eqn} // TODO only needed temporarily when checking, delete later
+
 	eqn = eqn.replaceAll(" ","")
 	eqn = nerdamer.convertToLaTeX(eqn)
 

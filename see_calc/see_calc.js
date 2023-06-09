@@ -36,8 +36,8 @@ var SoEs= [
         name:"System",
         info: "hi",
         eqns: [
-        {input: "b=3\\cdot a"},
-        {input: "b=a+5"}
+        {input: "b=3\\cdot x"},
+        {input: "Box"}
         ]
     },
 
@@ -45,7 +45,7 @@ var SoEs= [
     {
         name:"Sol",
         eqns: [
-        {input: "solve System"},
+        {input: "System"},
                
         ]
     }
@@ -53,44 +53,6 @@ var SoEs= [
 ]
 
 
-var eqns_dict = [
-    {
-      "input": "ee=Vv/Vs"
-    },
-    {
-      "input": "n=Vv/V"
-    },
-    {
-      "input": "S=Vw/Vv"
-    },
-    {
-      "input": "w=Ww/Ws"
-    },
-    {
-      "input": "Gs=ys/yw"
-    },
-    {
-      "input": "ys=Ws/Vs"
-    },
-    {
-      "input": "yw=Ww/Vw"
-    },
-    {
-      "input": "yd=Ws/V"
-    },
-    {
-      "input": "y=W/V"
-    },
-    {
-      "input": "W=Ws+Ww"
-    },
-    {
-      "input": "V=Vs+Vv"
-    }
-  ]
-
-var test_eqns = eqns_dict.map(eqn=>{return eqn.input})
-console.log(test_eqns)
 
 var all_vars = get_all_vars(test_eqns)
 var keep_vars = ["y","yd","w"]
@@ -133,16 +95,18 @@ function send_sheet(sheet,start_idx,end_idx){
     if (use_worker){
         worker.postMessage({"sheet":sheet,"start":start_idx,"end":end_idx})
     }else{
-        var result_sheet = calc(sheet,start_idx,end_idx)
-        use_calc_results(result_sheet)
+        const new_SoEs = calc(sheet,start_idx,end_idx)
+        data2DOM(new_SoEs)
+        // @code use_calc_results(result_sheet)
     }
 }
 
+/* @code
 function use_calc_results(pkg){
     if(pkg[1].length!==0){display_vis(pkg[1])}
     data2DOM(pkg[0])
 }
-
+*/
 
 set_up()
 
@@ -626,9 +590,6 @@ function make_line(eqn){
             if (typeof display_eqns[0]==="string"){display_eqns = [display_eqns]}
 
             var table = document.createElement("table")
-
-
-            display_eqns = display_eqns.filter((eqn_row)=>{return !eqn_row.some(eqn=>{return eqn.includes("dummy")})})
             
             display_eqns.forEach(arr_row=>{
                 var row = document.createElement("tr")
@@ -956,7 +917,7 @@ function make_sub_table(table_data){
     function make_row(vars,editable){
     	var row = document.createElement("tr")
     	vars.forEach((var_name)=>{
-        	if (!var_name.includes("dummy")){
+        	if (!var_name.includes("dummy")){   // TODO delete branch
         		var in_field = document.createElement("div")
 
 
@@ -1095,93 +1056,6 @@ function get_sub_data(table){
 }
 
 
-function display_vis(all_eqns){
-    /*
-        the input is the solve equations
-        goes through all variables, finds all visual ones, matches them up, displays results using visual funcs
-        doesn't return anything, just calls the visualize functions
-    */
-
-
-
-    resetGS()
-
-
-    // these will be populated for each visual variable:
-    var roots = []
-    var vals = []
-    var vis_names = []
-    var end_vars = []
-
-
-    for (let eqn_i=0;eqn_i<all_eqns.length;eqn_i++){    // not using foreach so i can return out of the main function
-
-        var eqn = all_eqns[eqn_i]
-
-        if(!eqn.includes("dummy")){continue}
-
-        var raw_var = eqn.split("=")[0]
-
-        var val_str = eqn.split("=")[1]
-
-        try{
-            var val = math.evaluate(val_str)
-        }catch{
-            return
-        }
-
-
-        if (typeof val!=="number"){return}
-
-        vals.push(val)
-
-        var broken_var = raw_var.split("_")
-
-        end_vars.push(broken_var.pop())
-        broken_var.shift()
-        roots.push(broken_var.join("_"))
-
-        vis_names.push(broken_var[broken_var.length-1].replace(/[0-9]/g, ''))// last element of common stuff (without number), which is the name of the primitive visual
-
-    }
-
-
-
-    var unique_roots = [...new Set(roots)]
-  
-    var input_info = []
-    var input_vis_names = []
-    unique_roots.forEach((unique_root)=>{
-        input_info.push({})
-    })
-
-
-    roots.forEach((root,i)=>{
-        unique_idx = unique_roots.indexOf(root)
-
-        input_info[unique_idx][end_vars[i]] = vals[i]
-        input_vis_names[unique_idx] = vis_names[i]
-    })
-
-
-    input_info.forEach((input,idx)=>{
-
-        vis_block = vis_blocks.filter((block)=>{return block["name"]===input_vis_names[idx]})[0]
-        if(vis_block===undefined){
-            throw input_vis_names[idx]+" is not a known visual name"
-        }else if(vis_block["vars"].sort().join(",")!==Object.keys(input).sort().join(",")){
-            throw "found visual variables dont match listed"
-        }
-
-
-        vis_block["vis"](input)
-        makeCoordShape()
-    })
-
-
-
-
-}
 
 
 function setUpGS(){
