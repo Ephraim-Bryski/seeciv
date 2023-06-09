@@ -13,7 +13,7 @@ importScripts("nerdamer/all.min.js")
 // need to import stuff to get_change_start
 
 importScripts("worker_shared.js")
-importScripts("latex-to-js.js")
+importScripts("latex_conversions.js")
 
 
 let pyodide;

@@ -449,7 +449,7 @@ function sub_out(exps, ordered, vars_to_remove){
     const step_after = math_to_ltx(subbed_var+"="+nerdamer.expand(solved_exp))
     
     const s2 = "\\ \\ "
-    const solve_step = `\\text{Substituting} ${s2} ${step_before} ${s2} \\text{for} ${s2} ${subbed_var}: ${s2} ${step_after}`
+    const solve_step = `\\text{Solving} ${s2} ${step_before} ${s2} \\text{for} ${s2} ${math_to_ltx(subbed_var)}: ${s2} ${step_after}`
 
     add_solve_step([solve_step])
 /*
@@ -610,6 +610,7 @@ function solve_exp(exp, vars_to_remove){
 
 function add_solve_step(array) {
 
+    // if im doing unit testing, i cant access the dom
     if (testing){
         return
     }

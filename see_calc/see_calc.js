@@ -36,8 +36,8 @@ var SoEs= [
         name:"System",
         info: "hi",
         eqns: [
-        {input: "b=3\\cdot x"},
-        {input: "Box"}
+        {input: "4 = \\omega"},
+        {input: "\\omega = a"}
         ]
     },
 
@@ -376,6 +376,7 @@ function data2DOM(SoEs){
     make_MQ()
 }
 
+/* @code
 function get_vis_vals(all_eqns){
     all_vals = []
 
@@ -402,7 +403,7 @@ function get_vis_vals(all_eqns){
 
     return all_vals
 }
-
+*/
 
 function make_load_bar(){
 
@@ -438,7 +439,7 @@ function add_line(in_field){
     var block=$(in_field).parents(".block")
 
     var next_line = line.next()[0]
-    var new_line=make_line({"input":""})
+    var new_line=make_line()
     var block_dom = block[0]
 
     block_dom.insertBefore(new_line,next_line)
@@ -469,7 +470,7 @@ function make_line(eqn){
 
         outer[0].removeChild(line[0])
         if (n_lines===1){
-            outer[0].appendChild(make_line({"input":"","display":""}))
+            outer[0].appendChild(make_line())
         }  
 
 
@@ -545,75 +546,95 @@ function make_line(eqn){
 
     var sub_table
     var output_arr = document.createElement("div")
-    if (eqn!=undefined){
 
-        var input = eqn.input
-        input = input.replaceAll("\\ ","")
-        let output = input
+
+    if (eqn === undefined){eqn = {input:""}}
+
+
+    var input = eqn.input
+    input = input.replaceAll("\\ ","")
+    let output = input // TODO useless assignment?
+
+    MQ(in_field).latex(output)
     
-        MQ(in_field).latex(output)
-        
-        var display_eqns = eqn.display
+    var display_eqns = eqn.display
+    var show_output = eqn.show_output
 
-        if (display_eqns === undefined){
-            display_eqns = ""
+    if (display_eqns === undefined){
+        display_eqns = ""
+    }
+    if (show_output === undefined){
+        show_output = ""
+    }
+    
+
+        
+
+
+    if (typeof display_eqns === "string"){
+        out_field.innerHTML = display_eqns  // this occurs only when it's an error or new line
+        out_field.classList.add("error-msg")
+
+    }else{
+        out_field.classList.add("line-output")
+        output_arr.classList.add("collapse-arrow","collapse-right")
+        output_arr.onclick = ()=>{
+            if (out_field.style.display==="block"){
+                out_field.style.display = "none"
+                output_arr.classList.remove("collapse-left")
+                output_arr.classList.add("collapse-right")
+
+            }else{
+                out_field.style.display = "block"
+                output_arr.classList.remove("collapse-right")
+                output_arr.classList.add("collapse-left")
+
+            }
         }
 
+        // it will always create a table, even for single output
+        // if it's not result of a sub_table it returns an array (not nested), so I need to nest it first
+        if (typeof display_eqns[0]==="string"){display_eqns = [display_eqns]}
+
+        var table = document.createElement("table")
         
+        display_eqns.forEach(arr_row=>{
+            var row = document.createElement("tr")
+            arr_row.forEach(eqn=>{
 
-
-        if (typeof display_eqns === "string"){
-            out_field.innerHTML = display_eqns  // this occurs only when it's an error
-            out_field.classList.add("error-msg")
-
-        }else{
-            out_field.classList.add("line-output")
-            output_arr.classList.add("collapse-arrow","collapse-right")
-            output_arr.onclick = ()=>{
-                if (out_field.style.display==="block"){
-                    out_field.style.display = "none"
-                    output_arr.classList.remove("collapse-left")
-                    output_arr.classList.add("collapse-right")
-
-                }else{
-                    out_field.style.display = "block"
-                    output_arr.classList.remove("collapse-right")
-                    output_arr.classList.add("collapse-left")
-
-                }
-            }
-
-            // it will always create a table, even for single output
-            // if it's not result of a sub_table it returns an array (not nested), so I need to nest it first
-            if (typeof display_eqns[0]==="string"){display_eqns = [display_eqns]}
-
-            var table = document.createElement("table")
-            
-            display_eqns.forEach(arr_row=>{
-                var row = document.createElement("tr")
-                arr_row.forEach(eqn=>{
-
-                    var eqn_wrapper = document.createElement("td") // needed since MQ turns the div into a span
-                    eqn_wrapper.classList.add("display-eqn-cell")
-                    var eqn_field = document.createElement("div")
-                    eqn_field.innerHTML = eqn
-                    eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
-                    
-                    eqn_wrapper.appendChild(eqn_field)
-                    row.appendChild(eqn_wrapper)
-
-                })
-                table.appendChild(row)
+                var eqn_wrapper = document.createElement("td") // needed since MQ turns the div into a span
+                eqn_wrapper.classList.add("display-eqn-cell")
+                var eqn_field = document.createElement("div")
+                eqn_field.innerHTML = eqn
+                eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
+                
+                eqn_wrapper.appendChild(eqn_field)
+                row.appendChild(eqn_wrapper)
 
             })
-            out_field.appendChild(table)
-        }
+            table.appendChild(row)
 
-        var sub_table = make_sub_table(eqn.sub_table) //! would need new field for eqn, in compute_sub_table, it would take the equations and old table to generate the new table and update the field
-    }else{
-        var sub_table = document.createElement("span")  
+        })
+        out_field.appendChild(table)
     }
 
+    var sub_table = make_sub_table(eqn.sub_table) //! would need new field for eqn, in compute_sub_table, it would take the equations and old table to generate the new table and update the field
+
+
+
+    
+    out_field.style.display = show_output
+    
+    if (show_output==="none"  || show_output===""){
+        output_arr.classList.remove("collapse-left")
+        output_arr.classList.add("collapse-right")
+    }else if (show_output==="block"){
+        output_arr.classList.add("collapse-left")
+        output_arr.classList.remove("collapse-right")
+    }else{
+        throw "Neither??"
+    }
+    
 
     line.appendChild(remove_button)
     line.appendChild(add_btn)
@@ -772,25 +793,7 @@ function make_block(SoE){
         for (let j=0;j<eqns.length;j++){
             var line = make_line(eqns[j])
 
-            var output = $(line).find(".line-output")[0]
-            var show_output = eqns[j].show_output
 
-            if (output!==undefined){
-                
-                output.style.display = show_output
-                var arr = $(line).find(".collapse-arrow")[0]
-                
-                if (show_output==="none"){
-                    arr.classList.remove("collapse-left")
-                    arr.classList.add("collapse-right")
-                }else if (show_output==="block"){
-                    arr.classList.add("collapse-left")
-                    arr.classList.remove("collapse-right")
-                }else{
-                    throw "Neither??"
-                }
-            }
-            
             block.appendChild(line)
 
         }
@@ -915,6 +918,8 @@ function make_sub_table(table_data){
     function make_row(vars,editable){
     	var row = document.createElement("tr")
     	vars.forEach((var_name)=>{
+
+            const ltx_exp = math_to_ltx(var_name)
         	if (!var_name.includes("dummy")){   // TODO delete branch
         		var in_field = document.createElement("div")
 
@@ -935,7 +940,7 @@ function make_sub_table(table_data){
 				}else{
 					MQ.StaticMath(in_field)
 				}
-				MQ(in_field).latex(var_name)
+				MQ(in_field).latex(ltx_exp)
 
 
 
@@ -1113,10 +1118,33 @@ function make_tooltip(){
 }
 
 function make_MQ(){
-    var out_fields = [...$(".eqn-field")]
+
+
+
+    const out_fields = [...$(".eqn-field")]
+
     out_fields.forEach(field=>{
+
+        // if the mq field is hidden when it's mqilified, parentheses don't show up
+        // so i have all its parents displayed as blocks, store the original display, and revert it back after
+        
+        const outer_fields = [...$(field).parents()]
+
+        const outer_style = []
+        outer_fields.forEach(field=>{
+            outer_style.push(field.style.display)
+            field.style.display = "block"
+        })
+
         MQ.StaticMath(field)
+
+        outer_fields.forEach((field,idx)=>{
+            field.style.display = outer_style[idx]
+        })
+
     })
+
+
 }
 
 

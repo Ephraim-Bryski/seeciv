@@ -346,13 +346,24 @@ function display_vis(vis_eqns){
     makeCoordShape()
 }
 
-function compute_sub_table(eqns,old_table){
+function compute_sub_table(eqns,old_table_ltx){
     // takes the new eqns and the current table, replaces the columns to match the variables in the new eqns, then performs substitutions
 
-    if(old_table===undefined){  // the table hasn't been created yet
+    if(old_table_ltx===undefined){  // the table hasn't been created yet
         var old_vars = []
         var n_col = 2
     }else{
+
+        var old_table = old_table_ltx.map(row=>{
+            return row.map(exp=>{
+                try{
+                    return ltx_to_math(exp)
+                }catch{
+                    throw "error with "+sub_out_ltx+": "+e
+                }
+            })
+        })
+
         var old_vars = old_table[0]
         var trans_table = transpose(old_table)
         var n_col = old_table.length
@@ -385,16 +396,11 @@ function compute_sub_table(eqns,old_table){
         // eqns_subbed = sub_vis_vars(eqns_subbed,block_name,i) 
         for (let j=0;j<sub_row.length;j++){
             var sub_in = var_row[j]
-            var sub_out_ltx = sub_row[j]
+            var sub_out = sub_row[j]
             vis_sub = true
 
 
 
-            try{
-                var sub_out = ltx_to_math(sub_out_ltx)
-            }catch(e){
-                throw "error with "+sub_out_ltx+": "+e
-            }
 
             if (sub_out.includes("=")){
                 throw sub_out+" not allowed, cannot substitute an equation"
