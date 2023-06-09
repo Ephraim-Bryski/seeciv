@@ -308,19 +308,10 @@ function solve_eqns(eqns){
 
     const computed_sub = forward_solve(ordered_sub)
 
-    const sols = computed_sub.map(sol=>{
-        var frac = sol.exp
-        var frac_comps = frac.split("/")
-        if (frac_comps.length===1){var val = frac_comps[0]}
-        else{var val = frac_comps[0]/frac_comps[1]}
-        const n_dec_place = 5
-        const rounded_value = Math.round(val*10**n_dec_place)/(10**n_dec_place)
-        return sol.var+"="+rounded_value
-    })
 
     // var sols = direct_sols.concat(sub_sols)
 
-    return sols
+    return computed_sub
 
 
 }

@@ -208,17 +208,34 @@ function calc(SoEs,start_idx,end_idx){
 
 
 
-            const vis_eqns     = eqns.filter(eqn=>{return eqn.includes("VISUAL")})
+            let vis_eqns     = eqns.filter(eqn=>{return eqn.includes("VISUAL")})
             const non_vis_eqns = eqns.filter(eqn=>{return !eqn.includes("VISUAL")})
 
         
-            var result = solve_eqns(non_vis_eqns)
+            var sol_exps = solve_eqns(non_vis_eqns)
 
-            result.forEach(eqn=>{
-                var sides = eqn.split("=")
-                var LHS = sides[0]
-                var RHS = sides[1]
-                display.push(LHS+"="+RHS)
+            var result = []
+            var display = []
+            sol_exps.forEach(sol=>{
+                var frac = sol.exp
+                var frac_comps = frac.split("/")
+                if (frac_comps.length===1){var val = frac_comps[0]}
+                else{var val = frac_comps[0]/frac_comps[1]}
+                const n_dec_place = 5
+                const rounded_value = Math.round(val*10**n_dec_place)/(10**n_dec_place)
+                
+                result.push(sol.var+"="+val)
+                display.push(sol.var+"="+rounded_value)
+            })
+        
+            const sub_in = sol_exps.map(sol=>{return sol.var})
+            const sub_out = sol_exps.map(sol=>{return sol.exp})
+            vis_eqns = vis_eqns.map(eqn=>{
+
+                sub_in.forEach((_,i)=>{
+                    eqn = sub_all_vars(eqn,sub_in[i],sub_out[i])
+                })
+                return eqn
             })
 
             dsiplay_vis(vis_eqns)
