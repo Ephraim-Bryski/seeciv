@@ -136,12 +136,13 @@ function remove_vars(eqns,vars_to_remove){
 
             const sub_out_exp = has_common_vars && has_remove_vars
 
+            const is_visual = exp.includes("VISUAL")
 
-            if (sub_out_exp){
+            if (sub_out_exp && !is_visual){
                 remove_var_exps.push(exp)
             }
 
-            if (sub_out_exp || !has_remove_vars){
+            if (sub_out_exp || !has_remove_vars || is_visual){
                 needed_exps.push(exp)
             }
 
@@ -177,6 +178,18 @@ function remove_vars(eqns,vars_to_remove){
 
     */
 
+
+    const vis_exps = exps.filter(exp=>{return exp.includes("VISUAL")})
+    const vis_exps_remove_vars = vis_exps.filter(exp=>{
+        const exp_vars = get_all_vars(exp)
+        return arr_share_values(exp_vars,vars_to_remove)
+    })
+
+    if (vis_exps_remove_vars.length!==0){
+        throw "Visual would be lost with removed variables" // TODO cleanear error message
+    }
+
+
     var all_sol_vars = get_all_vars(exps)
     var extra_vars = all_sol_vars.filter(exp_var=>{return vars_to_remove.includes(exp_var)})
 
@@ -187,6 +200,7 @@ function remove_vars(eqns,vars_to_remove){
 
 
     var eqns = exps.map(exp=>{
+        if (exp.includes("VISUAL")){return exp}
         return exp+"=0"
     })
     return eqns  
@@ -339,6 +353,7 @@ function forward_solve(ordered_sub){
 
 function eqns_to_exps(eqns){
     let exps = eqns.map(eqn=>{
+        if (eqn.includes("VISUAL")){return eqn}
         sides = eqn.split("=")
         return sides[0]+"-("+sides[1]+")"
     })
@@ -386,8 +401,10 @@ function sub_out(exps, ordered, vars_to_remove){
     log_solve_step("remaining expressions sorted: ");log_solve_step(sorted_exps)
     let factored
     for (var exp_i=0;exp_i<sorted_exps.length;exp_i++){
+        const exp = sorted_exps[exp_i]
+        if (exp.includes("VISUAL")){continue}
         try{
-            factored = solve_exp(sorted_exps[exp_i], vars_to_remove)
+            factored = solve_exp(exp, vars_to_remove)
             break
         }catch(e){
             if (e.type==="solve for"){
@@ -434,7 +451,6 @@ function sub_out(exps, ordered, vars_to_remove){
     var inverse_pow = 1/pow
     var solved_exp = "-1*("+unfactored+")^("+inverse_pow+")*("+factored_out+")^((-1)*"+inverse_pow+")"
 
-    // TODO 
     var display_eqn = subbed_var+"="+nerdamer.expand(solved_exp)
 
     add_solve_step([display_eqn])
@@ -460,7 +476,10 @@ function sub_out(exps, ordered, vars_to_remove){
     let exps_subbed = exps_removed_sub.map(exp=>{
         var subbed_out =  sub_all_vars(exp,subbed_var,solved_exp)
         var start = Date.now()
-        var result = nerdamer.expand(subbed_out).toString()
+        if (subbed_out.includes("VISUAL")){var result = subbed_out}
+        else{
+            var result = nerdamer.expand(subbed_out).toString()
+        }
         var end = Date.now()
         console.log(end-start)
         console.log(subbed_out)
@@ -521,7 +540,6 @@ function solve_exp(exp, vars_to_remove){
     if (possible_factors.length===0){
         throw solve_for_error("could not solve for any variable")
     }
-    //! an exponent of -1 is also fine
     var no_exp_factors = possible_factors.filter(factor=>{
         var exp_raw = factor["base"][1]
         var start = Date.now()
@@ -571,7 +589,7 @@ function add_solve_step(array) {
         var field = document.createElement("div")
         // Set the cell content to the array element
         
-        var eqn = nerdamer.convertToLaTeX(array[i])
+        var eqn = math_to_ltx(array[i])
         field.innerHTML = eqn;
 
         field.className = "eqn-field"
@@ -848,11 +866,13 @@ function get_all_vars(eqns,check_imag = true){
         vars.push(eqn_vars)
     })
 
-    const all_vars = [...new Set(vars.flat())]
+    let all_vars = [...new Set(vars.flat())]
     
     if (all_vars.includes("i") && check_imag){
         throw "imaginary number i found"
     }
+
+    all_vars = all_vars.filter(test_var=>{return !test_var.includes("VISUAL")})
     
     return all_vars
 }

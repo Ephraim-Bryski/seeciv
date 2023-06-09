@@ -1,22 +1,76 @@
 
+the stuff being stored in library could be after calc
+	calc(DOM2data(SoEs))
+	then computations (and visuals!) can be shown without delay
+
+
+i think i got it
+
+
+
+
+primitive visual would have an associated equation
+
+[[x]][[y]][[z]][[r]]=VISUALsphere
+
+
+would be treated as a normal equation in compute_sub_table (anything with VISUAL would be ignored as a variable)
+in sub_out, it would be ignored as an option to sub out (filter out ones with "VISUAL"), but stuff would be subbed in to it
+	would have to make sure expand is not applied on it
+		expand should instead be applied term by term <-- doesn't have to be though (this could add unnecessary computation time)
+	would have to make sure the variables are not mixed, reason for the double brackets
+in numeric_solve, it would be ignored
+in forward_solve, it would be ignored <-- ??
+	would be ignored in forward_solve procedure, but then the final values would be subbed into it <-- this would be done in solve_eqns (forward_solve wouldn't see the vis eqn at all)
+
+
+then the values would be extracted from the equation and used to construct the visual
+
+
+these equations would stay in result
+for display, these equations would be replaced with some text
+	that's really nice cause it could then show you the substitutions performed
+
+
+TODO
+	CHECK primitive visual
+	CHECK get_all_vars has to ignore vis var (e.g. VISUALsphere)
+	CHECK ltx_to_math and math_to_ltx has to ignore vis eqns
+	eqns_to_exps might mess with the eqn
+	CHECK in remove_vars
+		it should always be a needed_exp
+		it should never be a remove_var_exp <-- this bypasses doing anything with sub_out (if the same change is made to solve_eqns)
+
+do vis eqns need to be included in back_solve for solve_eqns
+	i dont think so :D
+	it just needs to get the values, which are found in the result of solve_eqns
+	vis eqns don't help at all for solving the system
+
+there needs to be an error if you try to remove a variable from a visual when there aren't any other equations
 
 create math_to_latex function, why? :
 	sin(a*b) becomes a weird mess with * instead of cdot
 	a^1*b^-1*c^-1 becomes something with nested fractions
 
 
-Bugs
+Solve Bugs
 
 	dummy visual variables are being combined with commas in a string <-- not even sure if this is a bug
 
+	multivariate newton rapshon no longer allows for redundant equations (e.g. a=4,a=4) <-- could be fixed by finding least square of inverse if nonsquare matrix
+		AND can't solve certain problems (e.g. "A Network" library example)
+
+UI Bugs
+	able to delete all blocks
+	
 Solving features
 
 	alphabetize variables <-- think this is for track variables
 
-	contradiction message might want to show both equations
 	variable is the name of a system
 
 
+make pi a constant (don't appear in sub_table)
 
 when new sheet is loaded it still takes info from previous sheet when solving --> reset start index to 0
 	also loading a sheet has to have a callback to update the variable tracker

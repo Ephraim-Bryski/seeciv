@@ -3,6 +3,8 @@ function ltx_to_math(ltx_eqn){
 
 	let eqn = ltx_eqn 
 
+	eqn = eqn.replaceAll(" ","")
+
 	// check if there's any invalid variables, numbers immediately followed by letters
 	const invalid_var = /\d(?=[a-zA-Z])/;
 	if (invalid_var.test(eqn)){
@@ -49,7 +51,8 @@ function ltx_to_math(ltx_eqn){
 	eqn = eqn
 	.replaceAll("\\frac","")
 	.replaceAll("\\cdot","*")
-	.replaceAll("\\","")
+	.replaceAll("\\sqrt","sqrt")
+	.replaceAll("\\","GREEK")
 	.replaceAll("{","(")
 	.replaceAll("}",")")
 
@@ -65,6 +68,7 @@ function ltx_to_math(ltx_eqn){
 		try{math.parse(exp)}
 		catch{throw "Invalid equation"}
 	})
+
 
 	return eqn
 
@@ -112,7 +116,9 @@ function find_closed_paren(txt,open_idx){
 }
 
 
-function math_to_latex(eqn){
+function math_to_ltx(eqn){
+
+	if (eqn.includes("VISUAL")){return eqn}
 	/*
 
 	nerdamer convertToLaTeX has an issue where it sometimes creates nested fraction when it's not needed
@@ -134,7 +140,33 @@ function math_to_latex(eqn){
 	*/	
 
 
+	
+	if (eqn.includes("VISUAL")){return eqn} // TODO only needed temporarily when checking, delete later
+
+	eqn = eqn.replaceAll(" ","")
+	eqn = nerdamer.convertToLaTeX(eqn)
+
+	let greek_letters = [
+	'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota',
+	'Kappa', 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron', 'Pi', 'Rho', 'Sigma', 'Tau',
+	'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega', 'alpha', 'beta', 'gamma', 'delta',
+	'epsilon', 'zeta', 'eta', 'theta', 'iota', 'kappa', 'lambda', 'mu', 'nu', 'xi',
+	'omicron', 'pi', 'rho', 'sigma', 'tau', 'upsilon', 'phi', 'chi', 'psi', 'omega'
+	];
+	
+	greek_letters = greek_letters.map(letter=>{return "GREEK"+letter})
+
+	const regex = new RegExp(greek_letters.join('|'), 'g');
+	
+	// Replace the matched substrings with the substring followed by a space
+	eqn = eqn.replace(regex, match => match.replace("GREEK","\\") + ' ');
+	
+
+
+
+	return eqn
 
 	
 
 }
+
