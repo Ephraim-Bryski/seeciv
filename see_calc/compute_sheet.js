@@ -238,7 +238,7 @@ function calc(SoEs,start_idx,end_idx){
                 return eqn
             })
 
-            dsiplay_vis(vis_eqns)
+            display_vis(vis_eqns)
            
 
         }else{
@@ -304,7 +304,7 @@ function find_vis_name(eqn) {
 }
 
 
-function dsiplay_vis(vis_eqns){
+function display_vis(vis_eqns){
 
     resetGS()
 

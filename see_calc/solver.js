@@ -390,9 +390,10 @@ function sub_out(exps, ordered, vars_to_remove){
     //const sorted_exps = sorted_keep_exps.concat(sorted_no_keep_exps)
     const sorted_exps = exps.sort(exp_complex_sort)
     log_solve_step("remaining expressions sorted: ");log_solve_step(sorted_exps)
+    let exp
     let factored
     for (var exp_i=0;exp_i<sorted_exps.length;exp_i++){
-        const exp = sorted_exps[exp_i]
+        exp = sorted_exps[exp_i]
         if (exp.includes("VISUAL")){continue}
         try{
             factored = solve_exp(exp, vars_to_remove)
@@ -442,9 +443,15 @@ function sub_out(exps, ordered, vars_to_remove){
     var inverse_pow = 1/pow
     var solved_exp = "-1*("+unfactored+")^("+inverse_pow+")*("+factored_out+")^((-1)*"+inverse_pow+")"
 
-    var display_eqn = subbed_var+"="+nerdamer.expand(solved_exp)
 
-    add_solve_step([display_eqn])
+
+    const step_before = math_to_ltx(exp+"=0")
+    const step_after = math_to_ltx(subbed_var+"="+nerdamer.expand(solved_exp))
+    
+    const s2 = "\\ \\ "
+    const solve_step = `\\text{Substituting} ${s2} ${step_before} ${s2} \\text{for} ${s2} ${subbed_var}: ${s2} ${step_after}`
+
+    add_solve_step([solve_step])
 /*
     if (pow==="1"){
         var solved_exp = "-1*("+unfactored+")*("+factored_out+")^(-1)"
@@ -464,7 +471,7 @@ function sub_out(exps, ordered, vars_to_remove){
     ordered.push({var: subbed_var, exp: solved_exp})
 
 
-    let exps_subbed = exps_removed_sub.map(exp=>{
+    const exps_subbed = exps_removed_sub.map(exp=>{
         var subbed_out =  sub_all_vars(exp,subbed_var,solved_exp)
         var start = Date.now()
         if (subbed_out.includes("VISUAL")){var result = subbed_out}
@@ -477,7 +484,7 @@ function sub_out(exps, ordered, vars_to_remove){
         return result
     })
 
-    exps_subbed = exps_subbed.filter(exp=>{
+    const exps_vars_subbed = exps_subbed.filter(exp=>{
 
         // this check can be done in sub_out
 
@@ -505,16 +512,54 @@ function sub_out(exps, ordered, vars_to_remove){
 
 
 
-    const exps_show_steps = exps_subbed.filter(exp=>{
+
+
+/*
+
+    const exp_idxs = Array.from({ length:  n_exps}, (_, index) => index)
+    const subbed_exp_idxs = exp_idxs.filter(idx=>{
+        const exp = exps_removed_sub[idx]
+        return get_all_vars(exp).includes(subbed_var)
+    })
+
+    
+    const actually_exps_subbed = subbed_exp_idxs.map(idx=>{
+        return exps_subbed[idx]
+    })
+
+    const exps_show_steps = actually_exps_subbed.filter(exp=>{
         return !exp.includes("VISUAL")
     })
     const eqns_show_steps = exps_show_steps.map(exp=>{
         return exp+"=0"
     })
 
-    add_solve_step(eqns_show_steps)
+*/
 
-    return [exps_subbed, ordered]
+    const eqn_steps = []
+    const n_exps = exps_removed_sub.length
+    for (let i=0;i<n_exps;i++){
+        let exp_before = exps_removed_sub[i]
+        let exp_after = exps_subbed[i]
+
+        const actually_subbed = get_all_vars(exp_before).includes(subbed_var)
+        const not_visual = !exp_before.includes("VISUAL")
+
+        if (! (actually_subbed && not_visual)){continue}
+
+
+        const eqn_before = math_to_ltx(exp_before+"=0")
+
+
+        const eqn_after = math_to_ltx(exp_after+"=0")
+
+        eqn_steps.push(eqn_before+"\\ \\  \\Rightarrow \\ \\ "+eqn_after)
+    }
+
+
+    add_solve_step(eqn_steps)
+
+    return [exps_vars_subbed, ordered]
 
 }
 
@@ -590,7 +635,11 @@ function add_solve_step(array) {
         var field = document.createElement("div")
         // Set the cell content to the array element
         
-        var eqn = math_to_ltx(array[i])
+
+        // var eqn = math_to_ltx(array[i])
+        
+        var eqn = array[i]
+
         field.innerHTML = eqn;
 
         field.className = "eqn-field"
