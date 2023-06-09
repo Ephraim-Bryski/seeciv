@@ -29,8 +29,6 @@ var scene // this gives the scene global scope, that way I can get its view insi
 
 
 
-var SoEs = [{"name":"Torsion","show_box":"","info":"hi","eqns":[{"show_output":"none","input":"af-ai=\\frac{T\\cdot L}{G\\cdot J}"},{"show_output":"none","input":"J=\\frac{1}{4}\\cdot R^4"},{"show_output":"none","input":"xR-xL=L"},{"show_output":"none","input":"Rod","sub_table":[["r","h","z0","a1","a2"],["R","L","xL","ai","af"]]}],"display":""},{"name":"Bo","show_box":"","eqns":[{"show_output":"none","input":"Torsion","sub_table":[["af","ai","T","L","G","J","R","xR","xL"],["a1","0","T","1","1","","1","x1","0"],["a2","a1","T","1","1","","1","x2","x1"]]},{"show_output":"none","input":"T=2"}],"display":""},{"name":"Sol","show_box":"","eqns":[{"show_output":"none","input":"\\text{solve Bo}"}],"display":""}]
-
 
 
 var SoEs= [
@@ -276,9 +274,8 @@ function DOM2data(){
         var lines = block.find(".line")
         lines.each(function(line_i){
             var eqn_row = $(this)
-            data[block_i].display = eqn_row[0].style.display
+            data[block_i].display = ""
             var input=MQ(eqn_row.find(".line-input")[0]).latex()
-
 
             var sub_table = eqn_row.find(".sub-table")[0]
 
@@ -296,49 +293,6 @@ function DOM2data(){
         })
     })
 
-/*
-    for (let i=0;i<SoE_boxes.length;i++){
-        var SoE_box=SoE_boxes[i]
-        var name_field = name_fields[i].value
-        var info = info_blocks[i].innerHTML
-
-        if(name_field.length!==0 || i===0){
-            data[not_empty_box_count]={}
-            data[not_empty_box_count].name=name_field
-
-            data[not_empty_box_count].show_box = SoE_box.children[2].style.display
-
-            if (info!=="undefined" && info!==""){
-                data[not_empty_box_count].info=info
-            }
-            data[not_empty_box_count].eqns=[]
-            var not_empty_line_count=0
-            for (let j=2;j<SoE_box.children.length;j++){
-                var eqn_row=SoE_box.children[j]
-                data[not_empty_box_count].display = eqn_row.style.display
-                var input=MQ($(eqn_row).find(".line-input")[0]).latex()
-
-
-                var sub_table = $(eqn_row).find(".sub-table")[0]
-                if(input.length!==0 || j===1){
-                    data[not_empty_box_count].eqns[not_empty_line_count]={}
-                    var line_output = $(eqn_row).find(".line-output")[0]
-                    if (line_output===undefined){var show_output = "none"}
-                    else{var show_output = line_output.style.display}
-
-                    data[not_empty_box_count].eqns[not_empty_line_count].show_output = show_output
-
-                    data[not_empty_box_count].eqns[not_empty_line_count].input=input
-                    data[not_empty_box_count].eqns[not_empty_line_count].sub_table = get_sub_data(sub_table)
-                    not_empty_line_count+=1
-
-                }
-            } 
-            not_empty_box_count+=1 
-        }
-        
-    }
-    */
     return data
 } 
 
@@ -366,8 +320,8 @@ function data2DOM(SoEs){
             lines.forEach((line)=>{line.style.display = "none"})
             display_btn = [...row.querySelectorAll(".info-btn")].at(-1) // last element
             var arr = $(row).find(".collapse-down")[0]
-            arr.classList.remove(".collapse-down")
-            arr.classList.add(".collapse-right")
+            arr.classList.remove("collapse-down")
+            arr.classList.add("collapse-right")
         }
 
         
