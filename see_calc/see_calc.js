@@ -37,7 +37,7 @@ var SoEs= [
         info: "hi",
         eqns: [
         {input: "4 = \\omega"},
-        {input: "\\omega = a"}
+        {input: "Ramp"}
         ]
     },
 
@@ -45,7 +45,7 @@ var SoEs= [
     {
         name:"Sol",
         eqns: [
-        {input: "System"},
+        {input: "\\operatorname{solve}System"},
                
         ]
     }
@@ -574,6 +574,7 @@ function make_line(eqn){
     if (typeof display_eqns === "string"){
         out_field.innerHTML = display_eqns  // this occurs only when it's an error or new line
         out_field.classList.add("error-msg")
+        show_output = "block"
 
     }else{
         out_field.classList.add("line-output")

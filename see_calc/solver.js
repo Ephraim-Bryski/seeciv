@@ -595,7 +595,8 @@ function solve_exp(exp, vars_to_remove){
         console.log(exp_raw)
         var simple_num = !(tree2exp(factor.other).includes("+"))
         var simple_dem = !(tree2exp(factor.factored).includes("+"))
-        return ((simple_num && simple_dem) || (exp===1 || exp===2) && simple_dem)||(exp===-1 && simple_num)
+        const odd_exp = exp%2 !== 0
+        return ((simple_num && simple_dem && odd_exp) || (exp===1) && simple_dem)||(exp===-1 && simple_num)
     })
     if (no_exp_factors.length===0){
         throw solve_for_error("solving for any requires negating an exponent")

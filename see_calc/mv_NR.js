@@ -1,4 +1,24 @@
-function numeric_solve(exps){
+
+/*
+
+attempt to allow it solve system of equations numerically
+
+for now not being used
+
+*/
+
+
+function mv_NR(exps){
+
+    /*
+
+
+    multivariate newton raphson
+    stuff got lost when I was making a git branch so this is old and doesn't work (mainly issues with how I made the jacobian)
+    could be good (i think faster) alternative to nerdamer solveequations
+
+    */
+
 
     const solve_vars = get_all_vars(exps)
     if (solve_vars.length !== exps.length){throw "nooope"}
@@ -63,7 +83,7 @@ function numeric_solve(exps){
     var im_comp = math.im(guess)
 
     if (math.norm(im_comp)>1e-10){throw "No real solutions"}
-    
+
     const sol = real_comp.map(val=>{return val.toString()})
 
         
@@ -78,5 +98,4 @@ function numeric_solve(exps){
     //if (nerd_sols.length===1){return nerd_sols[0].toString()}
 
     // otherwise use newton raphson
-
 }

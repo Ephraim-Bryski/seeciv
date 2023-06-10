@@ -61,10 +61,10 @@ function calc(SoEs,start_idx,end_idx){
         }
 
         for (var line_i=0;line_i<SoE.length;line_i++){
-            //parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
+            parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
             // TODO make this neater (maybe make a variable branch it)
             try{
-                parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
+                //parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
             }catch(error){
                 if (typeof error==="string"){
                     SoEs[SoE_i].eqns[line_i].result="ERROR";
@@ -160,8 +160,6 @@ function calc(SoEs,start_idx,end_idx){
         if (line.length===0){
             if(solve_line){throw "solve must be followed by block name"}
             else{throw "Line cannot be blank"}
-        }if (line.includes("_")){
-            throw "Underscores not allowed"
         }else if(!(/^\w+$/.test(line))){    // checks if not alphanumeric (also allows underscores)
 
             var eqn_split = line.split("=")
@@ -189,13 +187,19 @@ function calc(SoEs,start_idx,end_idx){
             // primitive visual
             var result = [] // no result or display
 
-            vis_block = match_vis_blocks[0]
+            const vis_block = match_vis_blocks[0]
 
-            vis_vars = vis_block.vars
+            const vis_vars = Object.keys(vis_block.vars)
+            const default_vals = Object.values(vis_block.vars).map(val=>{return String(val)})
 
             const vis_eqn = vis_vars.map(vis_var=>{
                 return vis_var+"|"
             }).join("")+"VISUAL"+line
+
+
+            if (old_table === undefined){
+                old_table = [vis_vars,default_vals]
+            }
 
             var new_stuff = compute_sub_table([vis_eqn],old_table)
 
@@ -223,9 +227,9 @@ function calc(SoEs,start_idx,end_idx){
                 else{var val = frac_comps[0]/frac_comps[1]}
                 const n_dec_place = 5
                 const rounded_value = Math.round(val*10**n_dec_place)/(10**n_dec_place)
-                
-                result.push(sol.var+"="+val)
-                display.push(sol.var+"="+rounded_value)
+        
+                result.push(math_to_ltx(sol.var)+"="+val)
+                display.push(math_to_ltx(sol.var)+"="+rounded_value)
             })
         
             const sub_in = sol_exps.map(sol=>{return sol.var})
@@ -319,7 +323,7 @@ function display_vis(vis_eqns){
         const sel_vis = sel_vis_blocks[0]
 
 
-        const vis_vars = sel_vis.vars
+        const vis_vars = Object.keys(sel_vis.vars)
         const vis_exps = eqn.split("|")
         
         vis_exps.pop()

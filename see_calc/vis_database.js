@@ -1,16 +1,86 @@
 // basically just a json file, read in compute_sheet for computing (imported in py_worker), and later in see_calc for actually making the visuals (imported in see_calc.html)
 
-vis_blocks = [
+let primitive_vis = [
     {
-        "name":"Box",
-        "vars":["L","H","W","x","y","z"],
+        name: "Box",
 
-        // to be called once numeric values have been subbed in for all (check at end?)
-        "vis":(inp)=>{
-            box({pos:vec(inp.x,inp.y,inp.z),size:vec(inp.L,inp.H,inp.W)}) 
+        vars: {
+            "x":0,
+            "y":0,
+            "z":0,
+            "L":1,
+            "H":0,
+            "W":0    
+        },
+
+        vis: (inp)=>{
+            box({pos:vec(inp.x,inp.y,inp.z),
+                size:vec(inp.L,inp.H,inp.W)}) 
         }
     },
 
+
+
+
+    {
+        name: "Cylinder",
+
+        vars: {
+            "x_0":0,
+            "y_0":0,
+            "z_0":0,
+            "L_x":1,
+            "L_y":0,
+            "L_z":0,
+            "r":1},
+        
+        vis: (inp)=>{
+            cylinder({pos:vec(inp.x_0,inp.y_0,inp.z_0),
+                    axis:vec(inp.L_x,inp.L_y,inp.L_z),
+                    radius:inp.r})
+        }
+    },
+
+
+    {
+
+        // gonna be assumed it's running along the z axis and is at y=0
+
+        name: "Ramp",
+
+        vars: {
+            x_0:0,
+            z_0:0,
+            L:2,
+            H:1,
+            t:1
+        },
+
+        vis: (inp)=>{
+            
+            const triangle = [
+                [0, 0],
+                [inp.L, 0],
+                [inp.L, inp.H],
+                [0, 0]
+            ]  
+
+            const path = [
+                vec(inp.x_0, 0, inp.t),
+                vec(inp.x_0, 0, -inp.t)
+            ]
+
+            extrusion({
+                path: path,
+                shape: triangle
+            })
+
+        }
+    }
+
+]
+
+let physical_vis = [
     {
         "name":"Rod",
         "vars":["r","h","z0","a1","a2"],
@@ -63,3 +133,5 @@ vis_blocks = [
     }
 
 ]
+
+vis_blocks = [primitive_vis,physical_vis].flat()
