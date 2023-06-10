@@ -61,10 +61,10 @@ function calc(SoEs,start_idx,end_idx){
         }
 
         for (var line_i=0;line_i<SoE.length;line_i++){
-            parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
+            //parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
             // TODO make this neater (maybe make a variable branch it)
             try{
-                //parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
+                parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
             }catch(error){
                 if (typeof error==="string"){
                     SoEs[SoE_i].eqns[line_i].result="ERROR";
