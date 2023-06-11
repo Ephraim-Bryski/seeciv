@@ -1,17 +1,38 @@
 
+
+if you reference a block with no variables, then change the line to something else, it doesn't allow you to input variables
+
+give user error if they try adding multiple references of the same block in the same block
+
+make visuals classes that could inherit from one another
+
 the stuff being stored in library could be after calc
 	calc(DOM2data(SoEs))
 	then computations (and visuals!) can be shown without delay
 
 
+visual doesn't get removed when no longer relevant
 
-create math_to_latex function, why? :
-	sin(a*b) becomes a weird mess with * instead of cdot
-	a^1*b^-1*c^-1 becomes something with nested fractions
+
+initial step shown should be simplification after initial substitutions
+
+
+slider which dynamically updates visual
+
+visuals could be displayed once all values substituted are numeric, instead of with solve
+	would allow for visual to show up immediately when typed in
+
+
 
 
 Solve Bugs
 
+
+	not very important, but remove_common_vars converts a*b+b to a+1 which is a problem if it's actually b that's 0 <-- not gonna worry about this for now
+
+	remove_vars throws error instead of removing equation
+	
+	typing 1/2a instead of 1/2*a leads to solving 1/(2*a) 
 
 	multivariate newton rapshon no longer allows for redundant equations (e.g. a=4,a=4) <-- could be fixed by finding least square of inverse if nonsquare matrix
 		AND can't solve certain problems (e.g. "A Network" library example)

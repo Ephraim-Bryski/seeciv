@@ -83,7 +83,13 @@ let primitive_vis = [
 let physical_vis = [
     {
         "name":"Rod",
-        "vars":["r","h","z0","a1","a2"],
+        vars: {
+            r:1,
+            h:1,
+            z0:0,
+            a1:0,
+            a2:0
+        },
         "vis":(inp)=>{
             // for now im assuming it's along the z axis
             
@@ -130,8 +136,76 @@ let physical_vis = [
             }
         }
           
-    }
+    },
 
+    {
+
+        // again assuming its axis is the z axis
+
+        name: "Wheel",
+        vars: {
+            x_0:0,
+            y_0:0,
+            z_0:0,
+            L:1,
+            r:1,
+            GREEKtheta:0
+        },
+
+        vis: (inp)=>{
+
+            cylinder({
+                pos: vec(inp.x_0, inp.y_0, inp.z_0),
+                axis: vec(0, 0, inp.L)
+            })
+
+            const front_side = [
+                vec(
+                    inp.x_0+inp.r*math.cos(inp.GREEKtheta),
+                    inp.y_0+inp.r*math.sin(inp.GREEKtheta),
+                    inp.z_0+inp.L
+                ),
+                vec(
+                    inp.x_0-inp.r*math.cos(inp.GREEKtheta),
+                    inp.y_0-inp.r*math.sin(inp.GREEKtheta),
+                    inp.z_0+inp.L
+                )
+            ]
+
+            const back_side = [
+                vec(
+                    inp.x_0+inp.r*math.cos(inp.GREEKtheta),
+                    inp.y_0+inp.r*math.sin(inp.GREEKtheta),
+                    inp.z_0
+                ),
+                vec(
+                    inp.x_0-inp.r*math.cos(inp.GREEKtheta),
+                    inp.y_0-inp.r*math.sin(inp.GREEKtheta),
+                    inp.z_0
+                )
+            ]
+
+            const line_color = vec(0,0,1)
+            const line_thickness = 0.01
+
+            curve({pos: front_side, color: line_color, radius: line_thickness})
+            curve({pos: back_side, color: line_color, radius: line_thickness})
+
+
+        }
+    }
 ]
+
+function get_vis_func(vis_name){
+
+    // very hacky solution, probably using classes would make this better
+
+    vis_blocks.filter(block=>{return block.name === vis_name})
+
+    if (vis_blocks.length === 0){throw "no visuals with name "+vis_name}
+
+    return vis_blocks[0].vis
+
+}
 
 vis_blocks = [primitive_vis,physical_vis].flat()

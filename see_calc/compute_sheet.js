@@ -61,7 +61,7 @@ function calc(SoEs,start_idx,end_idx){
         }
 
         for (var line_i=0;line_i<SoE.length;line_i++){
-            //parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
+            // parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
             // TODO make this neater (maybe make a variable branch it)
             try{
                 parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
@@ -156,6 +156,7 @@ function calc(SoEs,start_idx,end_idx){
 
         line = line.replaceAll(solve_txt,"")
 
+        var sub_table_error_msgs
     
         if (line.length===0){
             if(solve_line){throw "solve must be followed by block name"}
@@ -174,7 +175,8 @@ function calc(SoEs,start_idx,end_idx){
                 
                 var line_math = ltx_to_math(line)
 
-                line_math = convert_to_degrees(line_math)
+                // TODO make it so this doesn't clutter the display <-- honestly i think ill just stick with radians
+                // line_math = convert_to_degrees(line_math)
                 
                 if (get_all_vars(line_math).length===0){
                     throw "Equation must have variables"
@@ -255,6 +257,7 @@ function calc(SoEs,start_idx,end_idx){
                 var new_stuff = compute_sub_table(eqns,old_table,block_name)
                 var eqns = new_stuff[0]
                 var new_table = new_stuff[1]
+                sub_table_error_msgs = new_stuff[2]
             }else{
                 var eqns = [eqns]
                 var new_table = [[]]
@@ -289,9 +292,16 @@ function calc(SoEs,start_idx,end_idx){
         }
 
 
+
         SoEs[SoE_i].eqns[line_i].result=result;
         SoEs[SoE_i].eqns[line_i].sub_table = new_table
         SoEs[SoE_i].eqns[line_i].display=display;
+
+
+        if (sub_table_error_msgs !== undefined && sub_table_error_msgs.length !== 0){
+            throw sub_table_error_msgs[0]
+            // TODO show all of the error messages and highlight the rows
+        }
     }
 
 
@@ -393,6 +403,9 @@ function compute_sub_table(eqns,old_table_ltx){
     // perform substitutions:
     var all_eqns = []
     var var_row = table[0]
+
+    const error_msgs = []
+
     for (let i=1;i<table.length;i++){
         var sub_row = table[i]
         var removed_vars = []
@@ -427,9 +440,17 @@ function compute_sub_table(eqns,old_table_ltx){
                 }
             }
         }
-        all_eqns.push(remove_vars(eqns_subbed,removed_vars))
+        try{
+            all_eqns.push(remove_vars(eqns_subbed,removed_vars))
+        }catch(e){
+            if (typeof e === "string"){
+                error_msgs.push(e)
+            }else{
+                throw e
+            }
+        }
     }
-    return [all_eqns,table]
+    return [all_eqns,table,error_msgs]
 
     function transpose(matrix) {
         const rows = matrix.length, cols = matrix[0].length;
@@ -456,7 +477,7 @@ function convert_to_degrees(exp){
     // also needs to convert inverse trig arguments to degrees
 
 
-    const trig_funcs = ["sin", "cos", "tan", "csc", "sec", "cot", "sinh", "cosh", "tanh", "csch", "sech", "coth"]
+    const trig_funcs = ["sin", "cos", "tan", "csc", "sec", "cot"]
 
     /*
 

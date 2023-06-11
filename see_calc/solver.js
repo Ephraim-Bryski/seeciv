@@ -185,9 +185,11 @@ function remove_vars(eqns,vars_to_remove){
         return arr_share_values(exp_vars,vars_to_remove)
     })
 
+    /* @code
     if (vis_exps_remove_vars.length!==0){
         throw "Visual would be lost with removed variables" // TODO cleanear error message
     }
+    */
 
 
     var all_sol_vars = get_all_vars(exps)
@@ -438,10 +440,12 @@ function sub_out(exps, ordered, vars_to_remove){
 
 
 
-    // this could be done without a branch obviously but im afraid it would be harder to simplify
-
     var inverse_pow = 1/pow
     var solved_exp = "-1*("+unfactored+")^("+inverse_pow+")*("+factored_out+")^((-1)*"+inverse_pow+")"
+
+
+
+
 
 
 
@@ -484,9 +488,11 @@ function sub_out(exps, ordered, vars_to_remove){
         return result
     })
 
-    const exps_vars_subbed = exps_subbed.filter(exp=>{
 
-        // this check can be done in sub_out
+    // TODO for all these checks, only apply them on the ones that have actually been subbed for
+
+    let exps_vars_subbed = exps_subbed.filter(exp=>{
+
 
         const no_vars = get_all_vars(exp).length === 0
 
@@ -513,28 +519,18 @@ function sub_out(exps, ordered, vars_to_remove){
 
 
 
+    /*
 
-/*
+    remove common factors, this prevents it from coming up as a variable to solve for, e.g. a*b+a*c
 
-    const exp_idxs = Array.from({ length:  n_exps}, (_, index) => index)
-    const subbed_exp_idxs = exp_idxs.filter(idx=>{
-        const exp = exps_removed_sub[idx]
-        return get_all_vars(exp).includes(subbed_var)
+    */
+
+    exps_vars_subbed = exps_vars_subbed.map(exp=>{
+
+        if (exp.includes("VISUAL")){return exp}
+
+        return remove_common_terms(exp)
     })
-
-    
-    const actually_exps_subbed = subbed_exp_idxs.map(idx=>{
-        return exps_subbed[idx]
-    })
-
-    const exps_show_steps = actually_exps_subbed.filter(exp=>{
-        return !exp.includes("VISUAL")
-    })
-    const eqns_show_steps = exps_show_steps.map(exp=>{
-        return exp+"=0"
-    })
-
-*/
 
     const eqn_steps = []
     const n_exps = exps_removed_sub.length
@@ -704,6 +700,51 @@ function factor(tree,sel_var){
         "other": tree_without_term
     }
 }
+
+
+function remove_common_terms(exp){
+
+    const tree = exp2tree(exp)
+
+    // if it's only one term, this would cancel everything out
+    // e.g b (meaning b=0) would just become 0 (meaning nothing)
+    if (tree.length === 1){return exp}
+
+    const branch0 = tree[0]
+
+    const common_terms = branch0.filter(term=>{
+        const all_matched = tree.every(other_branch=>{
+            const matched_term = other_branch.some(other_term=>{
+                return same_vals(term,other_term)
+            })
+            return matched_term
+        })
+        return all_matched
+    })
+
+    common_terms.forEach(term=>{
+        tree.forEach(branch=>{
+            const remove_idxs = []
+            branch.forEach((other_term,idx)=>{
+                if (same_vals(term,other_term)){
+                    remove_idxs.push(idx)
+                }
+            })
+            remove_idxs.reverse()
+            remove_idxs.forEach(idx=>{
+                branch.splice(idx,1)
+            })
+        })
+    })
+
+    function same_vals(arr1,arr2){
+        return (JSON.stringify(arr1)===JSON.stringify(arr2))
+    }
+
+    return tree2exp(tree)
+}
+
+
 
 function tree2exp(tree){
     var sum_terms = tree.map(sum_term=>{

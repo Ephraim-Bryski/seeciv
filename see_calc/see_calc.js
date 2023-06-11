@@ -37,7 +37,7 @@ var SoEs= [
         info: "hi",
         eqns: [
         {input: "4 = \\omega"},
-        {input: "Ramp"}
+        {input: "Wheel"}
         ]
     },
 
