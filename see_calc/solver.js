@@ -192,13 +192,21 @@ function remove_vars(eqns,vars_to_remove){
     */
 
 
-    var all_sol_vars = get_all_vars(exps)
-    var extra_vars = all_sol_vars.filter(exp_var=>{return vars_to_remove.includes(exp_var)})
+    exps.forEach(exp=>{
+        const sol_vars = get_all_vars(exp)
+        
+        const extra_vars = sol_vars.filter(exp_var=>{return vars_to_remove.includes(exp_var)})
+        const is_visual = exp.includes("VISUAL")
 
-    if (extra_vars.length!==0){
-        throw "this shouldnt happen, should not have exited loop if there's variables to remove remaining"
-    }
+        if (extra_vars && !is_visual){
+            throw `shouldnt happen, variables ${extra_vars} should have been removed from ${exp}`
+        }
 
+        if (extra_vars && is_visual){
+            const vis_name = sol_vars.filter(test_var=>{return test_var.includes("VISUAL")})[0].replace("VISUAL","")
+            throw `removing variables ${extra_vars} from the ${vis_name} would cause the visual to be lost`
+        }
+    })
 
 
     var eqns = exps.map(exp=>{
@@ -210,12 +218,15 @@ function remove_vars(eqns,vars_to_remove){
 
 function solve_eqns(eqns){
 
+    /* @code
     // var result = back_solve(eqns,get_all_vars(eqns))
     // var final_exps = result.sol
     // var ordered_sub = result.sub_order
     
-    // if (final_exps.length>1){throw "this shouldnt happen???"}   // this can happen with multiple equations that both reduce to 0
 
+
+    // if (final_exps.length>1){throw "this shouldnt happen???"}   // this can happen with multiple equations that both reduce to 0
+    */
 
     // instead of calling back_solve:
 

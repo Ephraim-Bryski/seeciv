@@ -1,3 +1,6 @@
+
+const error_in_UI = true // set to false so I can catch UI errors on uncaught exception
+
 var prev_SoEs   // this variable is global EVERYWHERE (even outside this script), so justta make sure not to use it elsewhere
 
 function calc(SoEs,start_idx,end_idx){
@@ -50,21 +53,38 @@ function calc(SoEs,start_idx,end_idx){
         }else if(name.length===0){
             SoE_struct.result = "ERROR"
             SoE_struct.display = "Block name cannot be blank"
+        }else if(!(/^\w+$/.test(name))){
+            SoE_struct.result = "ERROR"
+            SoE_struct.display = "Block name cannot have math operations"
         }else if(name.includes("_")){
             SoE_struct.result = "ERROR"
             SoE_struct.display = "Block name cannot include underscores"
-        }else if(/\d/.test(name)){
-            SoE_struct.display = "Block name cannot include numbers"
         }else{
             SoE_struct.result = ""
             SoE_struct.display = ""
         }
 
+
+        const inputs = []
+
         for (var line_i=0;line_i<SoE.length;line_i++){
-            // parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
-            // TODO make this neater (maybe make a variable branch it)
-            try{
+            
+
+
+            if (!error_in_UI){
                 parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
+            }
+            try{
+
+                const input = SoE[line_i].input
+                if (inputs.includes(input)){throw "input is repeated in this block"}
+                inputs.push(input)
+
+
+
+                if (error_in_UI){
+                    parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
+                }
             }catch(error){
                 if (typeof error==="string"){
                     SoEs[SoE_i].eqns[line_i].result="ERROR";
@@ -148,10 +168,16 @@ function calc(SoEs,start_idx,end_idx){
 
         const solve_line = line.startsWith(solve_txt)
 
+        const solve_txt_once = line.indexOf(solve_txt) === line.lastIndexOf(solve_txt)
+
         const has_solve_txt = line.includes(solve_txt)
 
-        if (has_solve_txt && !solve_line){
-            throw "solve keyword must be at start of line"
+        if (has_solve_txt && !solve_line ){
+            throw "solve keyword must occur once at the start of the line"
+        }
+
+        if (has_solve_txt && !solve_txt_once){
+            throw "solve keyword must only occur once in the line"
         }
 
         line = line.replaceAll(solve_txt,"")
@@ -160,7 +186,6 @@ function calc(SoEs,start_idx,end_idx){
     
         if (line.length===0){
             if(solve_line){throw "solve must be followed by block name"}
-            else{throw "Line cannot be blank"}
         }else if(!(/^\w+$/.test(line))){    // checks if not alphanumeric (also allows underscores)
 
             var eqn_split = line.split("=")
@@ -171,6 +196,8 @@ function calc(SoEs,start_idx,end_idx){
                 throw "Only single equation allowed"
             }else if (eqn_split.some((exp)=>{return exp.length==0})){
                 throw "Terms on both side of equal sign required"
+            }else if(get_all_vars(line).includes(block_name)){
+                throw "cannot have the name of the block as a variable"
             }else{
                 
                 var line_math = ltx_to_math(line)
@@ -208,6 +235,7 @@ function calc(SoEs,start_idx,end_idx){
             var result = new_stuff[0].flat()
             var display = result
             var new_table = new_stuff[1]
+            sub_table_error_msgs = new_stuff[2]
 
         }else if(solve_line){
             var eqns = get_ref_eqns(line)
@@ -260,7 +288,7 @@ function calc(SoEs,start_idx,end_idx){
                 sub_table_error_msgs = new_stuff[2]
             }else{
                 var eqns = [eqns]
-                var new_table = [[]]
+                var new_table = undefined
             }
 
             var result = []
@@ -300,7 +328,6 @@ function calc(SoEs,start_idx,end_idx){
 
         if (sub_table_error_msgs !== undefined && sub_table_error_msgs.length !== 0){
             throw sub_table_error_msgs[0]
-            // TODO show all of the error messages and highlight the rows
         }
     }
 
@@ -323,7 +350,6 @@ function display_vis(vis_eqns){
     resetGS()
 
     vis_eqns.forEach(eqn=>{
-        // TODO for this to work eqn_to_exp would have to ignore it
         const vis_name = find_vis_name(eqn)
 
         const sel_vis_blocks = vis_blocks.filter((block)=>{return block.name === vis_name})

@@ -20,6 +20,12 @@ function ltx_to_math(ltx_eqn){
 
 	eqn = eqn.replaceAll(" ","")
 
+
+	// insert * after } for all cases of } followed by letter or number
+	// gets rid of issues for something like \frac{1}{2}a which would otherwise be (1)/(2)b and would be interpreted as 1/(2*a) down the road
+	eqn = eqn.replace(/}(?=[a-zA-Z0-9])/g, '}*');
+
+
 	// check if there's any invalid variables, numbers immediately followed by letters
 	const invalid_var = /\d(?=[a-zA-Z])/;
 	if (invalid_var.test(eqn)){

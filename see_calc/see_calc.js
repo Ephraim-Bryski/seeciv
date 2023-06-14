@@ -277,10 +277,11 @@ function DOM2data(){
             data[block_i].display = ""
             var input=MQ(eqn_row.find(".line-input")[0]).latex()
 
+            if (input===""){return}
+
             var sub_table = eqn_row.find(".sub-table")[0]
 
             var eqn_info = {}
-            data[block_i].eqns.push(eqn_info)
             var line_output = $(eqn_row).find(".line-output")[0]
             if (line_output===undefined){var show_output = "none"}
             else{var show_output = line_output.style.display}
@@ -289,6 +290,8 @@ function DOM2data(){
             eqn_info.show_output = show_output
             eqn_info.input=input
             eqn_info.sub_table = get_sub_data(sub_table)
+
+            data[block_i].eqns.push(eqn_info)
 
         })
     })
@@ -553,9 +556,8 @@ function make_line(eqn){
 
     var input = eqn.input
     input = input.replaceAll("\\ ","")
-    let output = input // TODO useless assignment?
 
-    MQ(in_field).latex(output)
+    MQ(in_field).latex(input)
     
     var display_eqns = eqn.display
     var show_output = eqn.show_output
@@ -921,37 +923,36 @@ function make_sub_table(table_data){
     	vars.forEach((var_name)=>{
 
             const ltx_exp = math_to_ltx(var_name)
-        	if (!var_name.includes("dummy")){   // TODO delete branch
-        		var in_field = document.createElement("div")
+
+            var in_field = document.createElement("div")
 
 
 
-				if (editable){
-                    //MQ
-					MQ.MathField(in_field, {handlers: {edit: function() {
-                        if(in_field.parentElement===null){
-                            return 
-                        }
-                        change_start_idx($(in_field).parents(".calc-row").index())
+            if (editable){
+                //MQ
+                MQ.MathField(in_field, {handlers: {edit: function() {
+                    if(in_field.parentElement===null){
+                        return 
+                    }
+                    change_start_idx($(in_field).parents(".calc-row").index())
 
-                    }}})
-
-
-
-				}else{
-					MQ.StaticMath(in_field)
-				}
-				MQ(in_field).latex(ltx_exp)
+                }}})
 
 
 
-				var cell = document.createElement("td")
-				in_field.style.width = "50px"
-				cell.appendChild(in_field)
-				row.appendChild(cell)
+            }else{
+                MQ.StaticMath(in_field)
+            }
+            MQ(in_field).latex(ltx_exp)
 
 
-        	}
+
+            var cell = document.createElement("td")
+            in_field.style.width = "50px"
+            cell.appendChild(in_field)
+            row.appendChild(cell)
+
+
 		})
 		if (editable){
 			row.appendChild(make_row_ops())

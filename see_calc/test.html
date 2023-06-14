@@ -1,146 +1,26 @@
-<script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery.min.js"></script>
-<link rel="stylesheet" href="mathquill/mathquill.css"/>
-<script src="mathquill/mathquill.js"></script>
-
-<button onclick="show()">SHOW</button>
-<div id="math-field"></div>
-
-<script>
-var eqn = '\\mathrm{sisdfn}(3)'
-var MQ = MathQuill.getInterface(2);
-var htmlElement = document.getElementById('math-field');
-htmlElement.innerText = eqn
+<!DOCTYPE html>
 
 
+<style>
+ 
+</style>
 
+<body>
+    <div id="basic-example"> </div>
 
-var mathField = MQ.StaticMath(htmlElement);
-//mathField.latex();
+    <script src="treant-js-master\vendor\raphael.js"></script>
+    <script src="treant-js-master\Treant.js"></script>
+    <script src="treant-js-master\Treant.css"></script>
 
-function show(){
-    htmlElement.style.display = ""
-}
+    <link rel="stylesheet" href="treant-js-master\Treant.css">
 
 
 
+    
 
-
-
-function f(tree0){
-
-    const tree = JSON.parse(JSON.stringify(tree0))
-
-    const branch0 = tree[0]
-
-    const common_terms = branch0.filter(term=>{
-        const all_matched = tree.every(other_branch=>{
-            const matched_term = other_branch.some(other_term=>{
-                return same_vals(term,other_term)
-            })
-            return matched_term
-        })
-        return all_matched
-    })
-
-    common_terms.forEach(term=>{
-        tree.forEach(branch=>{
-            const remove_idxs = []
-            branch.forEach((other_term,idx)=>{
-                if (same_vals(term,other_term)){
-                    remove_idxs.push(idx)
-                }
-            })
-            remove_idxs.reverse()
-            remove_idxs.forEach(idx=>{
-                branch.splice(idx,1)
-            })
-        })
-    })
-
-    function same_vals(arr1,arr2){
-        return (JSON.stringify(arr1)===JSON.stringify(arr2))
-    }
-
-    return tree
-}
-
-
-function fgpt(tree) {
-  const branch0 = tree[0];
-  const commonTermsSet = new Set();
-  const indicesToRemoveMap = new Map();
-
-  for (const term of branch0) {
-    let allMatched = true;
-    for (let i = 0; i < tree.length; i++) {
-      const otherBranch = tree[i];
-      let matchedTerm = false;
-      for (let j = 0; j < otherBranch.length; j++) {
-        const otherTerm = otherBranch[j];
-        if (sameVals(term, otherTerm)) {
-          matchedTerm = true;
-          indicesToRemoveMap.set(j, (indicesToRemoveMap.get(j) || new Set()).add(i));
-        }
-      }
-      if (!matchedTerm) {
-        allMatched = false;
-        break;
-      }
-    }
-    if (allMatched) {
-      commonTermsSet.add(term);
-    }
-  }
-
-  for (const [idx, branchesToRemove] of indicesToRemoveMap) {
-    for (const branchIdx of branchesToRemove) {
-      const branch = tree[branchIdx];
-      branch.splice(idx, 1);
-    }
-  }
-
-  return tree;
-
-  function sameVals(arr1, arr2) {
-    if (arr1.length !== arr2.length) {
-      return false;
-    }
-    for (let i = 0; i < arr1.length; i++) {
-      if (arr1[i] !== arr2[i]) {
-        return false;
-      }
-    }
-    return true;
-  }
-}
-
-
-
-const tree =     [
-        [
-            [7,5],
-            [4,3],
-            [4,5]
-        ],
-        [
-            [3,4],
-            [4,5],
-            [4,5,6],
-            [7,5]
-        ],
-        [
-            [4,5]
-        ]
-    ]
-
-
-//console.log(JSON.stringify(f(tree))===JSON.stringify(fgpt(tree)))
-
-console.log(f(tree))
-
-console.log(fgpt(tree))
-
-
-
-</script>
+    <script src="my_solver.js"></script>
+    <script>
+        
+    </script>
+</body>
+</html>

@@ -1,83 +1,48 @@
 
+Issues easily handled with custom solver (no nerdamer :D )
+	initial step shown should be simplification after initial substitutions
+	not very important, but remove_common_vars converts a*b+b to a+1 which is a problem if it's actually b that's 0 <-- not gonna worry about this for now
 
-if you reference a block with no variables, then change the line to something else, it doesn't allow you to input variables
+	multivariate newton rapshon no longer allows for redundant equations (e.g. a=4,a=4) <-- could be fixed by finding least square of inverse if nonsquare matrix
+		AND can't solve certain problems (e.g. "A Network" library example)
+		honestly not sure what to do about this right now, but multivariate will likely no longer be needed
 
-give user error if they try adding multiple references of the same block in the same block
+	make pi a constant (don't appear in sub_table)
 
-make visuals classes that could inherit from one another
+// TODO show all of the error messages and highlight the rows
 
-the stuff being stored in library could be after calc
-	calc(DOM2data(SoEs))
-	then computations (and visuals!) can be shown without delay
+decide about if i want to convert to degrees <-- might be simpler once i make a custom solver
+
+TODO
+	
+	visual doesn't get removed when no longer relevant <-- would have to first have visuals created in d2D first, then i could just call resetGS at the start of d2D
 
 
-visual doesn't get removed when no longer relevant
+remove_vars throws error instead of removing equation <-- cannot recreate/understand bug
 
-
-initial step shown should be simplification after initial substitutions
-
+make visuals classes that could inherit from one another <-- see how important this actually is
 
 slider which dynamically updates visual
 
 visuals could be displayed once all values substituted are numeric, instead of with solve
 	would allow for visual to show up immediately when typed in
+	this could be done in data2DOM instead so that it can be done without any calculation on library load
 
 
-
-
-Solve Bugs
-
-
-	not very important, but remove_common_vars converts a*b+b to a+1 which is a problem if it's actually b that's 0 <-- not gonna worry about this for now
-
-	remove_vars throws error instead of removing equation
-	
-	typing 1/2a instead of 1/2*a leads to solving 1/(2*a) 
-
-	multivariate newton rapshon no longer allows for redundant equations (e.g. a=4,a=4) <-- could be fixed by finding least square of inverse if nonsquare matrix
-		AND can't solve certain problems (e.g. "A Network" library example)
-
-UI Bugs
-
-	able to delete all blocks
-
-
-	
-Solving features
-
-	alphabetize variables <-- think this is for track variables
-
-	prevent variable from being the name of a system
-
-
-make pi a constant (don't appear in sub_table)
 
 when new sheet is loaded it still takes info from previous sheet when solving --> reset start index to 0
 	also loading a sheet has to have a callback to update the variable tracker
 
 
-infrastructure:
-	right now:
-		calc creates both sheet and visual eqns, they are then passed to a use_calc_results function which calls d2D and make_visuals
-			this is confusing, and requires calc to be called when loaded (visual equations can't be stored, because you cant get them from D2d)
-	instead you should:
-		calc just creates sheet, passed to d2D which finds the visual eqns, calls make_visuals
-			or maybe the visual eqns could be global??
-
-
-
-Library
+Library (future)
 	Option to either add blocks to sheet or replace
 	Saving something with period in name no good 
 
-Sheet UI
+Sheet UI (future)
 
-	no underscores for variable names means also no subscripts
 	Option to clear sheet
 	Draggable blocks
 	Some way to guide user, possible options:
-		Prompts on the bottom with what can be done
 		A mini tutorial
-		Just seeing examples could helpful
 		Little question mark buttons you can click on with info
 	name of the opened sheet should be highlighted in the library
