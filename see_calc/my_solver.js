@@ -1,12 +1,22 @@
-// TODO
+// TODO eqn_to_tree isn't handling stuff like g*(-3)+4, nor a^(-2)
+
+// TODO refactor and test the hell out of 
+
+
+// TODO filtering out the a^b terms shifts them over to the right, i dont like that
+
+// TODO 0^(-1) give error?
+
+
 
 /*
 
 FOR TREE CONSTRUCTION AND SIMPLIFICATION
 
+there are things this simplify cannot do
 
-handle 0* 0+ etc.
-convert back to expression (math and ltx)
+like it cant figure out that 3*(2+c)-3*c --> 6
+HOWEVER, that doesnt matter that much cause when solving for c it will be able to
 
 
 FOR SOLVING
@@ -14,7 +24,6 @@ FOR SOLVING
 solve for a variable appearing once (invert the tree)
 solve for a variable appearing multiple times (factor out repeatedly until it can't or until they all meet)
 
-substitute in (simplify the tree repeatedly, which is largely code i already wrote)
 
 note that parents would have to be modified if needed
 
@@ -25,15 +34,7 @@ thats it :D
 */
 
 
-
-
-const priorities = {
-    "+": 0,
-    "-": 0,
-    "*": 1,
-    "/": 1.5, // always fractions so higher priority than "*"
-    "^": 2
-}
+const arithmetic_ops = ["+","-","*","/","^"]
 
 const inverse_op = {
     "-": "+",
@@ -49,16 +50,32 @@ const upper_op = {
     "*": "^"
 }
 
-const ops = Object.keys(priorities)
 
 function op_priority(op){
 
+    const priorities = {
+        "+": 0,
+        "-": 0,
+        "*": 1,
+        "/": 1.5, // always fractions so higher priority than "*"
+        "^": 2
+    }
     if (!Object.keys(priorities).includes(op)){throw "opeartion "+op+" has no priority defined"}
 
     return priorities[op]
 }
 
+const cum_init_values = {
+    "+": 0,
+    "*": 1
+}
 
+const cum_funcs = {
+    "+": (a,b)=>{return a+b},
+    "*": (a,b)=>{return a*b}
+}
+
+const flatten_ops = ["+","*"]
 
 const not_cos_trig = ["sin","sec","tan"]
 const cos_trig = ["cos","csc","cot"]
@@ -70,6 +87,8 @@ const inverse_trig = forward_trig.map(func=>{
     return "a"+func
 })
 
+
+
 const reg_trig = [forward_trig,inverse_trig].flat()
 
 const hyp_trig = reg_trig.map(func=>{
@@ -78,21 +97,37 @@ const hyp_trig = reg_trig.map(func=>{
 
 const trig_funcs = [reg_trig,hyp_trig].flat()
 
-const grouped_trig_funcs = trig_funcs.map(func=>{return func+"("})
+const trig_func_ops = trig_funcs.map(func=>{return func+"("})
+
+
+const inverse_trig_map = {}
+
+trig_funcs.forEach(func=>{
+    const is_inverse_func = func[0] === "a"
+    let inverse_func
+    if (is_inverse_func){
+        inverse_func = func.slice(1)
+    }else{
+        inverse_func = "a"+func
+    }
+
+    inverse_trig_map[func] = inverse_func
+})
+
 
 const paren_op = "("
 
 const sqrt_op = "sqrt("
 
-const unitary_ops = [paren_op, sqrt_op].concat(grouped_trig_funcs)
+const unitary_ops = [paren_op, sqrt_op].concat(trig_func_ops)
 
-
+draw(eqn_to_tree("(g)/(e)^2"))
 
 function eqn_to_tree(eqn){
 
 
 
-    const items = split_eqn(eqn)
+    const items = split_eqn_txt(eqn)
 
     const tree = search_down_eqn(items)
 
@@ -131,7 +166,7 @@ function eqn_to_tree(eqn){
 
                 const paren_stripped = item.slice(open_idx,item.length-1)
 
-                const inner_items = split_eqn(paren_stripped)
+                const inner_items = split_eqn_txt(paren_stripped)
                 tree.terms[0] = search_down_eqn(inner_items,tree)
 
                 return tree
@@ -142,7 +177,7 @@ function eqn_to_tree(eqn){
         }
 
 
-        const first_op_idx = items.findIndex(char=>ops.includes(char))
+        const first_op_idx = items.findIndex(char=>arithmetic_ops.includes(char))
 
         const term1 = items.slice(0,first_op_idx)
         const term2 = items.slice(first_op_idx+1)
@@ -169,17 +204,13 @@ function eqn_to_tree(eqn){
 
     remove_inverse_op(tree)
 
-
-
-    
-    simplify_tree(tree)
-
-    return tree
+    const simplified_tree = simplify_tree(tree)
+    return simplified_tree
 
 }
 
 
-function split_eqn(eqn){
+function split_eqn_txt(eqn){
     // splits it into numbers, variables, operations and parentheses groups
 
     if (eqn[0]==="-"){
@@ -252,13 +283,6 @@ function split_eqn(eqn){
 
 
     return grouped_items
-}
-
-function simplify_tree(tree){
-    
-    flatten_duplicates(tree)
-
-    eliminate_terms(tree)
 }
 
 
@@ -352,18 +376,13 @@ function correct_op_order(tree){
 
 }
 
-
 function remove_parens(tree, parent){
     if (typeof tree === "string"){return}
 
     if (tree.op === paren_op){
         
 
-        // TODO remove single variables enclosed in parentheses with the original equation string instead
-        // get rid of this disgusting edge case O:
-            // this would mean no need to pass the parent as an argument
-        //! i added this code in later possible this isn't right
-        //! for dealing with just one thing in parentheses, e.g. (3)+a
+        // TODO remove single variables enclosed in parentheses with the original equation string
         const lower_term = tree.terms[0].terms
         if (lower_term === undefined){
 
@@ -391,8 +410,6 @@ function remove_parens(tree, parent){
     tree.terms.forEach((term)=>{remove_parens(term,tree)})
 }
 
-
-
 function remove_sqrt(tree){
     if (typeof tree === "string"){return}
 
@@ -403,9 +420,6 @@ function remove_sqrt(tree){
 
     tree.terms.forEach(remove_sqrt)
 }
-
-
-
 
 function remove_inverse_op(tree){
 
@@ -458,11 +472,11 @@ function remove_inverse_op(tree){
 
 }
 
+/* @code is now part of the eliminate terms function
 
 function flatten_duplicates(tree){
 
-    // TODO this should be part of the eliminate terms function
-
+  
     // a*(c+c) --> a*c*2 <-- this needs to be flattened
 
     // a+b+c should be three branches from one plus op
@@ -504,7 +518,7 @@ function flatten_duplicates(tree){
 
 
 }
-
+*/
 
 
 
@@ -523,17 +537,140 @@ function update_parent(tree, parent, new_tree){
     }
 
     const tree_idx = tree_idxs[0]
-    parent[tree_idx] = new_tree
+    parent.terms[tree_idx] = new_tree
 
     // if new_tree is a string, it needs to be done this way (can't mutate a string)
     // otherwise, also perfectly ok to do it this way (i think)
 }
 
-function get_simp_arithmetic(tree){
+
+// TODO all these functions should be subfunctions, but for now i wanna test them
+
+
+
+function get_exp(tree){
+
+    const pow = tree.terms[1]
+
+
+    if (is_number(pow)){
+        return pow
+    }else{
+        return "1"
+    }
+
+    if (exp === undefined){
+        throw "should be both terms"
+    }
+
+    return exp
+}
+
+
+function remove_exp(tree){
+
+
+
+
+    const pow = tree.terms[1]
+
+    if (is_number(pow)){
+        return {op: "^",terms: [tree.terms[0]]}
+    }else{
+        return tree
+    }
+
+}
+
+
+function get_coeff(tree, operation){
+    /* @code check should still be valid but cause of get_exp func i don't want to pass in the operation
+
+
+    if (tree.op !== operation){
+        throw "the mapping in simplifyTerms should have resolved this"
+        return "1"
+    }
+
+    */
+    const coeffs = tree.terms.filter(is_number)
+
+
+    if (coeffs.length === 0){
+        return "1"
+    }else if (coeffs.length === 1){
+        return coeffs[coeffs.length-1]  // TODO could just be coeffs[0]
+    }else{
+        throw "NOPE"
+    }
+
+    
+    // TODO nope change of plan, 
+    /*
+
+
+    basically here's what happened
+
+    say for 3*a+a
+
+    the way i wrote it today, if there's no coefficient you would just take the terms (just "a")
+
+    the problem is if you have repeats of the same (e.g. "a+a"), it says they're the same when they're not (they're strings not objects)
+
+    so now in simplify_tree i map the terms so i give them coefficients of "1"
+
+    BUT, unlike before i dont filter out non-number values
+
+    this means for something like 3*a+4 you would get "4^1"
+
+    this then leads to two "coefficients"
+
+    BUT it's okay cause it just takes the LAST one (NOT FIRST)
+
+    
+    */
+    
+}
+
+function remove_coeff(tree, operation){
+
+    /* @code check should still be valid but cause of remove_exp func i don't want to pass in the operation
+    if (tree.op !== operation){
+        throw "the mapping in simplifyTerms should have resolved this"
+        return tree
+    }
+    */
+
+    const new_terms = tree.terms.filter(term=>{
+        return !is_number(term)
+    })
+
+    const new_tree = {...tree}
+
+    new_tree.terms = new_terms
+
+    return new_tree
+
+
+    /*
+
+    problem without allowing number terms for comparison
+    is they can lead to an empty array being returned
+
+    this then becomes a problem for simplifyTerms for exponents
+        the commonTerms would be [], so then the exponent term would become the new base (and there would be no exponent)
+
+    */
+}
+
+
+function simplify_arithmetic(tree){
 
     // RETURNS A NEW THING, DOES NOT MUTATE TREE
         // this is necessary since it can return a string
 
+
+    if (typeof tree === "string"){return tree}
 
     if (tree.op === "*" && tree.terms.includes("0")){
         return "0"
@@ -543,70 +680,110 @@ function get_simp_arithmetic(tree){
         return "1"
     }
 
-    const are_all_numbers = tree.terms.every(is_number) 
-    const numbers = tree.terms.filter(is_number)
-    const non_number_terms = tree.terms.filter(term => {return !numbers.includes(term)})
+    if (tree.op === "^" && tree.terms[1] === "1"){
+        return tree.terms[0]
+    }
 
+    if (tree.op === "^" && tree.terms[0] === "1"){
+        return "1"
+    }
 
     if (tree.op === "^"){
-        if (are_all_numbers){
-            const new_value = Number(tree.terms[0]) ^ Number(tree.terms[1])
+        if (tree.terms.every(is_number)){
+            const new_value = Number(tree.terms[0]) ** Number(tree.terms[1])
             return String(new_value)
+        }else if (tree.op === tree.terms[0].op){ // (a^b)^c --> a^(b*c)
+            const a = tree.terms[0].terms[0]
+            const b = tree.terms[0].terms[1]
+            const c = tree.terms[1]
+            const new_prod_tree = {op: "*", terms: [b, c]}
+            const simplified_prod_tree = simplify_arithmetic(new_prod_tree) // (a^3)^2 --> a^(3*2) --> a^6 (need to simplify "3*2")
+            return {op: "^", terms: [a, simplified_prod_tree]}
         }else{
             return tree
         }
     }
 
 
-    const cum_init_values = {
-        "+": 0,
-        "*": 1
-    }
-    
-    const cum_funcs = {
-        "+": (a,b)=>{return a+b},
-        "*": (a,b)=>{return a*b}
-    }
+    if (flatten_ops.includes(tree.op)){
 
-    const cum_ops = ["+","*"]
 
-    if (cum_ops.includes(tree.op)){
+        /* @code already handled in getFlatSubtree
+        const flattened_terms = tree.terms.map(term=>{
+            if (term.op === tree.op){
+                return term.terms
+            }else{
+                return term
+            }
+        }).flat()
+        */
+
+        const numbers = tree.terms.filter(is_number)
+        const non_number_terms = tree.terms.filter(term => {return !numbers.includes(term)})
 
         const op_func = cum_funcs[tree.op]
         let value = cum_init_values[tree.op]
 
         numbers.forEach(term=>{
-            value = op_func(value,term)
+            value = op_func(value,Number(term))
         })
         const final_value = String(value)
 
+
+        const are_all_numbers = tree.terms.every(is_number)
+
+        const remove_numbers = tree.op === "+" && final_value === "0" || tree.op === "*" && final_value ===  "1"
+            
+
+        const single_var = remove_numbers && non_number_terms.length === 1
+        
+        let new_tree
         if (are_all_numbers){
-            return final_value
+            new_tree = final_value
+        }else if (single_var){
+            new_tree = non_number_terms[0]
+        }else if (remove_numbers){
+            const new_terms = non_number_terms
+            new_tree = {op: tree.op, terms: new_terms}
         }else{
             const new_terms = [non_number_terms,final_value].flat()
-            const new_tree = {op: tree.op, term: new_terms}
-            return new_tree
+            new_tree = {op: tree.op, terms: new_terms}
+        }
+        return new_tree
+
+    }else if(trig_func_ops.includes(tree.op)){
+        
+        if (is_number(tree.terms[0])){
+            const expression = tree.op + tree.terms[0] + ")" 
+            return math.evaluate(expression)    
         }
 
-    }
+        const is_inverse = inverse_trig_map[tree.op] === tree.terms[0].op
 
-    else if (unitary_ops.includes(tree.op)){
-        throw "uniterary operations not implemented yet"
-    }
+        if (is_inverse){
+            return tree.terms[0].terms[0]
+        }
 
-    // TODO trig functions could either use math.evaluate or would have to write out all the function mappings
+        return tree
+    }
 
     throw "all cases should have been handled"
 }
 
-function get_flat_subtree(tree){
+function shallow_flatten(tree){
     // NOT RECURSIVE
     // AGAIN RETURNS DOESNT MUTATE (could do it by mutating though)
 
 
     if (tree.terms.length === 1){
-        throw "i thought this case would no longer occur with how i simplify arithmetic"
-        return {op: tree.op, terms: tree.terms[0].terms}
+        
+        if (trig_func_ops.includes(tree.op)){
+            return tree
+        }else{
+            throw "i thought this case would no longer occur with how i simplify arithmetic"
+
+        }
+        // return {op: tree.op, terms: tree.terms[0].terms}
 
     }
 
@@ -615,13 +792,13 @@ function get_flat_subtree(tree){
 
     if (!is_flattable_op){return tree}
 
-    const new_terms = tree.map(subtree=>{
+    const new_terms = tree.terms.map(subtree=>{
         if (typeof subtree !== "string" && tree.op === subtree.op){
             return subtree.terms
         }else{
             return subtree
         }
-    })
+    }).flat()
 
     const new_tree = {op: tree.op, terms: new_terms}
 
@@ -632,28 +809,79 @@ function is_number(term){
     return typeof term === "string" && !isNaN(Number(term)) 
 }
 
-function eliminate_terms(tree, parent){
 
-    if (typeof tree === "string"){return}
+function simplify_tree(tree0,parent){
 
-    tree.terms.forEach((term)=>{eliminate_terms(term,tree)})
+
+
+    if (typeof tree0 === "string"){return tree0}
+
+    tree0.terms.forEach((term)=>{simplify_tree(term,tree0)})
 
     
-    tree = get_flat_subtree(tree)
+    const tree =shallow_flatten(tree0) //! DO NOT reassign tree0, or else assigning the new tree to the parent won't work
 
     const factorable_op = ["+","*"].includes(tree.op) 
 
-    let terms
+    let new_tree
     if (factorable_op){
 
-        // TODO i think i would also have to flatten duplicate operations here on the lower terms
+
+        let get_func, remove_func
+        if (tree.op === "+"){
+            get_func = get_coeff
+            remove_func = remove_coeff
+        }else{
+            get_func = get_exp
+            remove_func = remove_exp
+        }
+
+
         // 3*a + 4*a --> 12*a
 
         const tree_sub_op = upper_op[tree.op]  // for 3*a + 4*a,    treeSubOp would be "*"
 
-        const number_terms = tree.terms.filter(is_number)
+        /* @code now that getCoeffs and getCoeffsRemoved handle the case where the operation isnt the top tree operation, numbers are fine as input and you dont need to map
+
+
+
+        
+        */
+
+        const number_terms = tree.terms.filter(term =>{
+            // TODO should be called nonfactorable terms
+
+            // TODO filtering out like this screws with the order
+            
+            if (is_number(term)) {return true}
+
+            if (trig_func_ops.includes(term.op)){
+                return false
+            }
+
+
+            if (term.op !== "^"){
+                return false
+            }
+
+            // at this point it MUST be a "^"
+
+
+            // BUT this is only valid cases with the tree op being times
+            const num_pow = is_number(term.terms[1])
+
+
+            return !num_pow && tree.op === "*"
+
+            // a^b with * as the op --> true
+            // all else --> false
+
+
+        })
+
 
         const non_number_terms = tree.terms.filter((term)=>{return !number_terms.includes(term)})
+        
 
         const prod_sub_terms = non_number_terms.map(term=>{
             if (term.op === tree_sub_op){
@@ -665,50 +893,92 @@ function eliminate_terms(tree, parent){
                 }
             }
         })
-        
+
+
         function already_added(term){
             return grouped_sub_terms.flat().includes(term)
         }
 
         // group the terms with common subterms
         const grouped_sub_terms = []
-        prod_sub_terms.forEach(term1=>{
+        prod_sub_terms.forEach(term1=>{         // before i commented the above code, it was iterating on prodSubTerms
             if (already_added(term1)){return}
             const sub_term_group = [term1]
             grouped_sub_terms.push(sub_term_group)
             prod_sub_terms.forEach(term2=>{ 
                 if (already_added(term2)){return}
-                const common_term1 = remove_coeff(term1)
-                const common_term2 = remove_coeff(term2)
-                if (trees_equal(common_term1,common_term2)){
+                const common_subterms1 = remove_func(term1)
+                const common_subterms2 = remove_func(term2)
+                if (trees_equal(common_subterms1,common_subterms2)){
                     sub_term_group.push(term2)
                 }
             })
         })
 
+        // the issue is that im checking for equality, fine for arrays, but strings with same stuff would be equal
 
 
-        const new_subtrees = grouped_sub_terms.map(group=>{
+        // grouped_sub_terms could have [ [{op:+,terms:[4,b]},{op:+,terms:[3,b]}],  [{op:+,terms:[2,c]},{op:+,terms:[3,c]}]    ]
+        new_terms = grouped_sub_terms.map(group=>{
+            
+            // group would be [{op:+,terms:[4,b]},{op:+,terms:[3,b]}]
 
             // say the group is (4)*b + (-4)*b
 
-            const coeffs = group.map(get_coeff)
-            const coeff_tree = {op: tree_sub_op, terms: coeffs}
-            const combined_value = get_simp_arithmetic(coeff_tree)   // (4)+(-4) --> 0
+            const coeffs = group.map(get_func)
+            const coeff_tree = {op: "+", terms: coeffs}
+            const combined_value = simplify_arithmetic(coeff_tree)   // (4)+(-4) --> 0      (does simplification in general)
             
             if (typeof combined_value !== "string"){
                 throw "getCondensedTree should have returned a single number"
             }
 
-            const common_terms = remove_coeff(group[0])
+            const common_terms = remove_func(group[0]).terms
 
-            const new_tree = {op: tree.op, terms: [common_terms,combined_value].flat()}
-            const simplified_tree = get_simp_arithmetic(new_tree)    // 0*b --> 0        (unless it's times or to the power of 0, the simplified tree is the same as the original)
+            
+
+            const new_sub_tree = {op: tree_sub_op, terms: [common_terms,combined_value].flat()}     // merges the b term with the 0 term
+            const simplified_tree = simplify_arithmetic(new_sub_tree)    // 0*b --> 0        (unless it's times or to the power of 0 or times 1, the simplified tree is the same as the original)
             
             return simplified_tree
         })
 
-        /* @code
+
+
+
+
+        const combined_terms = [new_terms,number_terms].flat()
+
+
+        if (combined_terms.length === 1){
+            new_tree = combined_terms[0]
+        }else{
+            new_tree = {op: tree.op, terms: combined_terms}
+        }
+
+
+        /*
+
+
+        if (new_terms.length === 1){}
+
+
+
+
+        if (new_terms.length === 1){
+
+            if (typeof new_terms[0] === "string"){
+                new_tree = {op: tree_sub_op, terms: [new_terms,number_terms].flat()}
+            }else{
+                new_tree = {op: tree_sub_op, terms: [new_terms[0].terms].flat()}
+            }            
+
+        }else{
+            new_tree = {op: tree.op, terms: [new_terms,number_terms].flat()}
+        }
+
+        */
+        /* @code doing basically same thing in above code but simpler
         // add the common coefficients together
         const new_subtrees = grouped_sub_terms.map(group=>{
 
@@ -716,23 +986,22 @@ function eliminate_terms(tree, parent){
             const coeffs = group.map(get_coeff)
             const coeff_sum = cum_sum(coeffs)   
             
-            // TODO instead of cumSum, use operate on them
+            //  instead of cumSum, use operate on them
 
             let new_subtree = remove_coeff(group[0])
 
-            if (coeff_sum !== 1){   // TODO this check should no longer be needed since i would then be operating on the terms of the new subtree
+            if (coeff_sum !== 1){   //  this check should no longer be needed since i would then be operating on the terms of the new subtree
                 new_subtree.terms.push(String(coeff_sum))
             }
 
             if (new_subtree.terms.length === 1){
-                return new_subtree.terms[0] // TODO again not necessary, operate function would return itself for a single element
+                return new_subtree.terms[0] //  again not necessary, operate function would return itself for a single element
             }
             return new_subtree
         })
         */
 
-        //! i think all of this can now be outside of the if statement since getCondensedTree handles all cases
-        terms = [number_terms,new_subtrees].flat()
+        // @code terms = [number_terms,new_subtrees].flat()
 
 
         // (4)*b+(-4)*b+5 
@@ -745,11 +1014,11 @@ function eliminate_terms(tree, parent){
 
         /* @code getCondensedTree already handles all this
         // im merging and then splitting since it's possible new_subtrees has a number term
-        // TODO simpler way of doing this? (just do the number filter on new_subtrees)
+        //  simpler way of doing this? (just do the number filter on new_subtrees)
 
 
 
-        // TODO do something similar for exponents but it wouldn't be cumulative
+        //  do something similar for exponents but it wouldn't be cumulative
         const initial_value = op_initial_value[tree.op]
         let cumulative_val = initial_value
         const new_non_number_terms = new_terms.filter(term=>{
@@ -762,7 +1031,7 @@ function eliminate_terms(tree, parent){
         })
 
 
-        // TODO i think right here i can handle the case where it's *0
+        //  i think right here i can handle the case where it's *0
         if (cumulative_val === initial_value){
             tree.terms  = new_non_number_terms
         }else{
@@ -772,17 +1041,21 @@ function eliminate_terms(tree, parent){
         */
 
     }else{
-        terms = tree.terms
+        new_tree = tree
     }
 
+    const simplified_tree = simplify_arithmetic(new_tree)
 
+    if (parent === undefined){
+        // this only happens on the top node
+        return simplified_tree
+    }else{
+        update_parent(tree0,parent,simplified_tree)
+    }
+    
 
-
-
-    const simplifed_tree = get_simp_arithmetic({op: tree.op, terms: terms})
-
-
-    // TODO this is basically the code to remove duplicates, might be able to call a single function
+    /* @code already handled in the flatten function called at the beginning (operates on itself instead of the parent)
+    //  this is basically the code to remove duplicates, might be able to call a single function
     if (tree.terms.length === 1 && !unitary_ops.includes(tree.op)){
 
         if (parent === undefined){
@@ -804,17 +1077,16 @@ function eliminate_terms(tree, parent){
     
             parent.terms = new_parent_terms
         }
-
+        
 
 
 
     }
-
+    */
 
 
 
     // get subterms if there's only one operation, and just the term otherwise
-    // TODO there's a chance the unitary op is at the very top of the tree (i think just when it's arithmetic)
         // not sure where to handle this case
     
     /* @code
@@ -834,42 +1106,6 @@ function eliminate_terms(tree, parent){
     tree.terms = new_terms
     */
 
-
-    function remove_coeff(tree){
-
-        // TODO this check might become unnecesary
-        // if (typeof tree === "string"){return ""}
-
-        const new_terms = tree.terms.filter(term=>{
-            return !is_number(term)
-        })
-
-        const new_tree = {...tree}
-
-        new_tree.terms = new_terms
-
-        return new_tree
-    }
-
-    function get_coeff(tree,upper_op){
-
-        
-        const coeffs = tree.terms.filter(is_number)
-
-
-        if (coeffs.length === 0){
-            return 1
-        }else if (coeffs.length === 1){
-            return Number(coeffs[0])
-        }
-
-        if (coeffs.length > 1){
-            throw "coefficients should have already been condensed"
-        }
-        
-        return Number(coeffs[0])
-    }
-
 }
 
 
@@ -882,6 +1118,8 @@ function eliminate_terms(tree, parent){
 
 
 function tree_to_eqn(tree, use_ltx = false, parent){
+
+    if (typeof tree === "string"){return tree}
 
     const useless_one = "USELESS ONE IDENTIFIER"
 
@@ -966,6 +1204,25 @@ function tree_to_eqn(tree, use_ltx = false, parent){
         })
 
 
+        function moveElementToBeginning(array, condition) {
+
+            const index = array.findIndex(condition);
+
+            if (index === -1){return}
+            
+            if (array.filter(condition).length > 1) {
+              throw new Error("More than one element satisfies the condition.");
+            }
+            
+            const element = array.splice(index, 1)[0];
+            array.unshift(element);
+        }
+
+
+        const txt_is_num = (term)=>{return is_number(term.txt)}
+        moveElementToBeginning(num_terms,txt_is_num)
+        moveElementToBeginning(den_terms,txt_is_num)
+
         const any_other_terms = terms.some(term=>{
             return ( !den_terms.includes(term)) && ( !num_terms.includes(term))
         })
@@ -1017,7 +1274,7 @@ function tree_to_eqn(tree, use_ltx = false, parent){
                 }
 
                 return opener + txt +")"
-            }else if (idx===0){
+            }else if (idx===0 || txt[0]==="-"){// && term.op === "+"){
                 return txt
             }else{
                 return term.op+txt
@@ -1034,7 +1291,7 @@ function tree_to_eqn(tree, use_ltx = false, parent){
         need_parens = false
     }else if(parent.op === "^" && use_ltx){
         need_parens = false
-    }else if(unitary_ops.includes(parent.op) || unitary_ops.includes(tree.op)){
+    }else if(trig_func_ops.includes(parent.op) || trig_func_ops.includes(tree.op)){
         need_parens = false
     }else{
 
@@ -1052,7 +1309,7 @@ function tree_to_eqn(tree, use_ltx = false, parent){
 
 }
 
-function draw_tree(tree){
+function draw(tree){
 
 
     config = {
@@ -1078,6 +1335,31 @@ function draw_tree(tree){
             }
             chart_config.push(val_child)
         }else{
+
+            const valid_keys = ["op","terms"]
+            const keys = Object.keys(tree)
+            const invalid_keys = keys.filter(key=>{return !valid_keys.includes(key)})
+            const missing_keys = valid_keys.filter(key=>{return !keys.includes(key)})
+            
+            if (invalid_keys.length !== 0){
+                throw "invalid keys: "+ invalid_keys
+            }
+
+            if (missing_keys.length !== 0){
+                throw "missing keys: "+ missing_keys
+            }
+
+            if (typeof tree.op !== "string"){
+                throw "op not a string: "+ tree.op
+            }
+
+            if (!Array.isArray(tree.terms)){
+                throw "terms not an array: " + tree.terms
+            }
+
+
+
+
             var op_child = {
                 text: tree_name(tree.op),
             }
@@ -1110,12 +1392,20 @@ function draw_tree(tree){
 function test(){
 
 
+
+    const arithmetic_check = (exp)=>{
+
+        return math.evaluate(exp) === tree_to_eqn(eqn_to_tree(exp))
+    }
+
     const back_and_forth = (exp)=>{
         return tree_to_eqn(eqn_to_tree(exp))
     }
 
 
-    const tests = [
+
+
+    const layering = [
 
         {
             name: "expand out negative",
@@ -1162,6 +1452,8 @@ function test(){
 
     ]
 
+    tests = [layering].flat()
+
     tests.forEach(test_exp=>{
 
         try{
@@ -1184,8 +1476,6 @@ function test(){
     })
 
 }
-
-
 
 
 function trees_equal(tree1, tree2) {
@@ -1250,34 +1540,3 @@ function trees_equal(tree1, tree2) {
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
