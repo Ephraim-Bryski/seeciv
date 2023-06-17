@@ -1,9 +1,8 @@
-// TODO eqn_to_tree isn't handling stuff like g*(-3)+4, nor a^(-2)
+// TODO tree_to_eqn isn't handling stuff like g*(-3)+4, nor a^(-2)
 
 // TODO refactor and test the hell out of 
 
 
-// TODO filtering out the a^b terms shifts them over to the right, i dont like that
 
 // TODO 0^(-1) give error?
 
@@ -66,14 +65,193 @@ function op_priority(op){
 }
 
 const cum_init_values = {
-    "+": 0,
-    "*": 1
+    "+": "0",
+    "*": "1"
 }
 
-const cum_funcs = {
-    "+": (a,b)=>{return a+b},
-    "*": (a,b)=>{return a*b}
+const cumulative_ops = {
+    "+": add_numbers,
+    "*": multiply_numbers
 }
+
+
+
+
+
+function construct_fraction(num,den){
+    
+    let num_value = Number(num)
+    let den_value = Number(den)
+
+    const num_abs = Math.abs(num_value)
+    const den_abs = Math.abs(den_value)
+
+
+    function get_gcf(a, b) {
+        // euclidean algorithm (just got from chatgpt)
+        if (b > a) {
+          [a, b] = [b, a];
+        }
+      
+        while (b !== 0) {
+          const remainder = a % b;
+          a = b;
+          b = remainder;
+        }
+      
+        return a;
+    }
+
+
+
+
+
+
+    const gcf = get_gcf(num_abs,den_abs)
+
+
+
+    if (num_value > 0 && den_value < 0){
+        num_value = -num_value
+        den_value = -den_value
+    }
+
+
+    const reduced_num = num_value / gcf
+    const reduced_den = den_value / gcf
+
+
+
+
+
+    if (reduced_den === 1 ){
+        if (reduced_den === -1){
+            console.log("HI")
+        }
+        return String(reduced_num / reduced_den)
+    }else{
+        return String(reduced_num) + "/" + String(reduced_den)
+    }
+
+
+}
+
+
+function get_num_den(value){
+
+    let num_den
+
+    if (is_fraction(value)){
+        
+        num_den = value.split("/")
+    
+    }else{
+        num_den = [value,"1"]
+    }
+
+    return num_den.map(Number)
+
+}
+
+function evaluate_fraction(value){
+
+    const num_den = get_num_den(value)
+
+    return num_den[0] / num_den[1]
+
+}
+
+
+function is_decimal(value){
+    if (is_fraction(value)){return false}
+    return Math.round(Number(value))!==Number(value)
+
+}
+
+function add_numbers(value1, value2){
+
+    if (is_decimal(value1) || is_decimal(value2)){
+        return String(evaluate_fraction(value1) + evaluate_fraction(value2))
+    }
+
+    const [num1, den1] = get_num_den(value1)
+    const [num2, den2] = get_num_den(value2)
+
+    const new_den = den1 * den2
+
+    const new_num1 = new_den / den1 * num1    
+    const new_num2 = new_den / den2 * num2
+
+    const new_num = new_num1 + new_num2
+
+    return construct_fraction(new_num, new_den)
+
+}
+
+function multiply_numbers(value1, value2){
+
+    if (is_decimal(value1) || is_decimal(value2)){
+        return String(evaluate_fraction(value1) * evaluate_fraction(value2))
+    }
+
+    const [num1, den1] = get_num_den(value1)
+    const [num2, den2] = get_num_den(value2)
+
+    const new_den = den1 * den2
+    const new_num = num1 * num2
+
+    return construct_fraction(new_num, new_den)
+
+
+}
+
+
+
+function take_exponent(base,exponent){
+
+    /*
+    the base and exponent can themselves be fraction, handled immediately (no simplification)
+    but they can also be used to construct a fraction
+    */
+
+    const base_number = evaluate_fraction(base)
+
+    const exponent_number = evaluate_fraction(exponent)
+
+    const integer_base = Math.round(base_number) === base_number
+    const integer_exponent = Math.round(exponent_number) === exponent_number
+
+    const both_integers = integer_base && integer_exponent
+
+    const write_fraction = both_integers && exponent_number < 0
+
+
+    
+
+    if (write_fraction){
+
+        const inverted_value = base_number ** -exponent_number
+
+        return construct_fraction("1", String(inverted_value))
+    }
+
+
+
+    return String(base ** exponent)
+
+}
+
+
+function take_trig_func(trig_func,value){
+
+    const evaluated_value = String(evaluate_fraction(value))
+
+    const expression = trig_func + evaluated_value + ")" 
+    return math.evaluate(expression)   
+}
+
+
+
 
 const flatten_ops = ["+","*"]
 
@@ -100,9 +278,9 @@ const trig_funcs = [reg_trig,hyp_trig].flat()
 const trig_func_ops = trig_funcs.map(func=>{return func+"("})
 
 
-const inverse_trig_map = {}
+const inverse_trig_op_map = {}
 
-trig_funcs.forEach(func=>{
+trig_func_ops.forEach(func=>{
     const is_inverse_func = func[0] === "a"
     let inverse_func
     if (is_inverse_func){
@@ -111,7 +289,7 @@ trig_funcs.forEach(func=>{
         inverse_func = "a"+func
     }
 
-    inverse_trig_map[func] = inverse_func
+    inverse_trig_op_map[func] = inverse_func
 })
 
 
@@ -121,7 +299,6 @@ const sqrt_op = "sqrt("
 
 const unitary_ops = [paren_op, sqrt_op].concat(trig_func_ops)
 
-draw(eqn_to_tree("(g)/(e)^2"))
 
 function eqn_to_tree(eqn){
 
@@ -472,56 +649,6 @@ function remove_inverse_op(tree){
 
 }
 
-/* @code is now part of the eliminate terms function
-
-function flatten_duplicates(tree){
-
-  
-    // a*(c+c) --> a*c*2 <-- this needs to be flattened
-
-    // a+b+c should be three branches from one plus op
-
-
-    const flatten_ops = ["+","*"]
-
-
-    if (typeof tree === "string"){return}
-
-    
-    tree.terms.forEach(flatten_duplicates)
-
-
-    const duplicate_terms = tree.terms.filter(term=>{
-
-        if (typeof term === "string"){return false}
-
-        const op_upper = tree.op
-        const op_lower = term.op
-
-
-        return op_upper === op_lower && flatten_ops.includes(op_upper)
-    })
-
-    
-    if (duplicate_terms.length === 0){return}
-
-
-    const new_terms = tree.terms.map(term=>{
-        if (duplicate_terms.includes(term)){
-            return term.terms
-        }else{
-            return term
-        }
-    }).flat()
-
-    tree.terms = new_terms
-
-
-}
-*/
-
-
-
 function update_parent(tree, parent, new_tree){
     
     const tree_idxs = [...Array(parent.terms.length).keys()].filter((idx)=>{return parent.terms[idx] === tree})
@@ -544,161 +671,147 @@ function update_parent(tree, parent, new_tree){
 }
 
 
-// TODO all these functions should be subfunctions, but for now i wanna test them
 
 
-
-function get_exp(tree){
-
-    const pow = tree.terms[1]
-
-
-    if (is_number(pow)){
-        return pow
-    }else{
-        return "1"
-    }
-
-    if (exp === undefined){
-        throw "should be both terms"
-    }
-
-    return exp
+function get_exponent(tree){
+    return tree.terms[1]
 }
-
-
-function remove_exp(tree){
-
-
-
-
-    const pow = tree.terms[1]
-
-    if (is_number(pow)){
-        return {op: "^",terms: [tree.terms[0]]}
-    }else{
-        return tree
-    }
-
-}
-
-
-function get_coeff(tree, operation){
-    /* @code check should still be valid but cause of get_exp func i don't want to pass in the operation
-
-
-    if (tree.op !== operation){
-        throw "the mapping in simplifyTerms should have resolved this"
-        return "1"
-    }
-
-    */
+function get_coefficient(tree){
     const coeffs = tree.terms.filter(is_number)
-
 
     if (coeffs.length === 0){
         return "1"
     }else if (coeffs.length === 1){
-        return coeffs[coeffs.length-1]  // TODO could just be coeffs[0]
+        return coeffs[0]
     }else{
-        throw "NOPE"
-    }
-
-    
-    // TODO nope change of plan, 
-    /*
-
-
-    basically here's what happened
-
-    say for 3*a+a
-
-    the way i wrote it today, if there's no coefficient you would just take the terms (just "a")
-
-    the problem is if you have repeats of the same (e.g. "a+a"), it says they're the same when they're not (they're strings not objects)
-
-    so now in simplify_tree i map the terms so i give them coefficients of "1"
-
-    BUT, unlike before i dont filter out non-number values
-
-    this means for something like 3*a+4 you would get "4^1"
-
-    this then leads to two "coefficients"
-
-    BUT it's okay cause it just takes the LAST one (NOT FIRST)
-
-    
-    */
-    
+        throw "should have already been simplified"
+    }    
 }
 
-function remove_coeff(tree, operation){
-
-    /* @code check should still be valid but cause of remove_exp func i don't want to pass in the operation
-    if (tree.op !== operation){
-        throw "the mapping in simplifyTerms should have resolved this"
-        return tree
-    }
-    */
-
-    const new_terms = tree.terms.filter(term=>{
-        return !is_number(term)
-    })
-
-    const new_tree = {...tree}
-
-    new_tree.terms = new_terms
-
-    return new_tree
 
 
-    /*
-
-    problem without allowing number terms for comparison
-    is they can lead to an empty array being returned
-
-    this then becomes a problem for simplifyTerms for exponents
-        the commonTerms would be [], so then the exponent term would become the new base (and there would be no exponent)
-
-    */
+function get_base(tree){
+    return [tree.terms[0]]
 }
+function get_common_product_terms(tree){
+    return tree.terms.filter(term=>{return !is_number(term)})
+}
+
+
+class MyNumber {
+
+    constructor(self, real){
+        self.real = real
+        self.complex = complex
+    }
+
+    add(self, value) {
+        
+    }
+
+
+
+}
+
+function complexPower(base, exponent) {
+    const magnitude = Math.pow(Math.abs(base), exponent);
+    const phase = Math.PI * exponent * (base < 0 ? 1 : 0);
+    
+    const real = magnitude * Math.cos(phase);
+    const imaginary = magnitude * Math.sin(phase);
+    
+    return { real, imaginary };
+  }
+  
+  // Example usage
+  const base = -1;
+  const exponent = 1/2;
+  const result = complexPower(base, exponent);
+  
+  console.log(result); // Output: { real: 6.123233995736766e-17, imaginary: 1 }
+ 
+
+  console.log(result); // Output: { real: 6.123233995736766e-17, imaginary: 1 }
+  
 
 
 function simplify_arithmetic(tree){
 
-    // RETURNS A NEW THING, DOES NOT MUTATE TREE
-        // this is necessary since it can return a string
-
-
     if (typeof tree === "string"){return tree}
 
-    if (tree.op === "*" && tree.terms.includes("0")){
+    if (tree.op === "*" && tree.terms.includes("0")){   // a*0 --> 0
         return "0"
     }
 
-    if (tree.op === "^" && tree.terms[1] === "0"){
+    
+    if (tree.op === "^" & tree.terms[0] === "0"){
+
+        const exponent = Number(tree.terms[1])
+        if (exponent === 0){
+            throw "0/0 found"
+        }else if (exponent < 0){
+            throw "infinite value found"
+        }
+    }
+
+
+    // TODO these can just go into the conditional below
+    if (tree.op === "^" && tree.terms[1] === "0"){      // a^0 --> 1
         return "1"
     }
 
-    if (tree.op === "^" && tree.terms[1] === "1"){
+    if (tree.op === "^" && tree.terms[1] === "1"){      // a^1 --> a
         return tree.terms[0]
     }
 
-    if (tree.op === "^" && tree.terms[0] === "1"){
+    if (tree.op === "^" && tree.terms[0] === "0"){      // 0^a --> 0
+        return "0"
+    }
+
+    if (tree.op === "^" && tree.terms[0] === "1"){      // 1^a --> 1
         return "1"
     }
 
+
     if (tree.op === "^"){
         if (tree.terms.every(is_number)){
-            const new_value = Number(tree.terms[0]) ** Number(tree.terms[1])
+            const new_value = take_exponent(tree.terms[0], tree.terms[1])
             return String(new_value)
         }else if (tree.op === tree.terms[0].op){ // (a^b)^c --> a^(b*c)
             const a = tree.terms[0].terms[0]
             const b = tree.terms[0].terms[1]
             const c = tree.terms[1]
             const new_prod_tree = {op: "*", terms: [b, c]}
-            const simplified_prod_tree = simplify_arithmetic(new_prod_tree) // (a^3)^2 --> a^(3*2) --> a^6 (need to simplify "3*2")
-            return {op: "^", terms: [a, simplified_prod_tree]}
+            const new_tree = {op: "^", terms: [a, new_prod_tree]} // (a^b)^(3*b) --> (a)^(b*(b*3)) exponent than needs to be tree simplified
+            return simplify_tree(new_tree) // need to simplify the tree itself cause it could end up with a^0 or a^1
+        }else if (tree.terms[0].op === "*"){                     // (a*b*d*f)^c --> a^c*b^c*d^c*f^c etc...
+            
+            // (-1*f)^(1/2) should NOT return an error
+            // basically just dont expand it IF the 
+
+            const exponent = tree.terms[1]
+            const common_terms = tree.terms[0].terms
+
+            const num_coeff = common_terms.filter(is_number)
+
+            const non_int_exponent = is_fraction(exponent) || exponent.includes(".")
+
+
+
+            const contains_complex = num_coeff.length !== 0 && Number(num_coeff) < 0 && non_int_exponent
+
+
+        
+
+            if (common_terms.some(is_number)){}
+
+            const product_terms = common_terms.map(term=>{
+                return {op: "^", terms: [term,exponent]}
+            })
+
+            const new_tree = {op: "*", terms: product_terms}
+            return simplify_tree(new_tree)      
+
         }else{
             return tree
         }
@@ -707,32 +820,21 @@ function simplify_arithmetic(tree){
 
     if (flatten_ops.includes(tree.op)){
 
-
-        /* @code already handled in getFlatSubtree
-        const flattened_terms = tree.terms.map(term=>{
-            if (term.op === tree.op){
-                return term.terms
-            }else{
-                return term
-            }
-        }).flat()
-        */
-
         const numbers = tree.terms.filter(is_number)
         const non_number_terms = tree.terms.filter(term => {return !numbers.includes(term)})
 
-        const op_func = cum_funcs[tree.op]
+        const op_func = cumulative_ops[tree.op]
         let value = cum_init_values[tree.op]
 
         numbers.forEach(term=>{
-            value = op_func(value,Number(term))
+            value = op_func(value,term)
         })
         const final_value = String(value)
 
 
         const are_all_numbers = tree.terms.every(is_number)
 
-        const remove_numbers = tree.op === "+" && final_value === "0" || tree.op === "*" && final_value ===  "1"
+        const remove_numbers = tree.op === "+" && final_value === "0" || tree.op === "*" && final_value ===  "1"    // TODO could just say if final value is initial value
             
 
         const single_var = remove_numbers && non_number_terms.length === 1
@@ -754,11 +856,18 @@ function simplify_arithmetic(tree){
     }else if(trig_func_ops.includes(tree.op)){
         
         if (is_number(tree.terms[0])){
-            const expression = tree.op + tree.terms[0] + ")" 
-            return math.evaluate(expression)    
+            return take_trig_func(tree.op, tree.terms[0])
         }
 
-        const is_inverse = inverse_trig_map[tree.op] === tree.terms[0].op
+
+        const inner_trig_op = tree.terms[0].op
+        
+
+
+        const trig_op = tree.op
+
+
+        const is_inverse = inverse_trig_op_map[trig_op] === inner_trig_op
 
         if (is_inverse){
             return tree.terms[0].terms[0]
@@ -770,11 +879,12 @@ function simplify_arithmetic(tree){
     throw "all cases should have been handled"
 }
 
-function shallow_flatten(tree){
+function remove_duplicates(tree){
     // NOT RECURSIVE
     // AGAIN RETURNS DOESNT MUTATE (could do it by mutating though)
 
 
+    
     if (tree.terms.length === 1){
         
         if (trig_func_ops.includes(tree.op)){
@@ -805,240 +915,159 @@ function shallow_flatten(tree){
     return new_tree
 }
 
+
+// TODO two bugs gotta fix both
+/*
+
+
+
+multiplication fractions isnt considering negative values
+
+
+
+*/
+
+function is_tree(term){
+
+
+    const keys = Object.keys(term).filter(key=>{return key !== "inverted"}).sort()      // when constructing the tree it adds an inverted property, so i just filter it out5
+    const correct_keys = ["op", "terms"]
+    
+    return keys.every((_,idx)=>{return keys[idx] === correct_keys[idx]})
+    
+} 
+
 function is_number(term){
-    return typeof term === "string" && !isNaN(Number(term)) 
+
+    if (typeof term !== "string" && !is_tree(term)){
+        throw "must only check a string or a tree"
+    }
+
+    if (is_tree(term)){return false}
+
+    const is_single_value = !isNaN(Number(term))
+
+    return is_fraction(term) || is_single_value
+}
+
+function is_fraction(term){
+
+
+    if (typeof term !== "string" && !is_tree(term)){
+        throw "must only check a string or a tree"
+    }
+
+    if (is_tree(term)){return false}
+
+    const num_den = term.split("/")
+
+    if (num_den.length !== 2){return false}
+
+
+    const num = num_den[0]
+    const den = num_den[1]
+
+
+    return !isNaN(Number(num)) && !isNaN(Number(den))
+
 }
 
 
 function simplify_tree(tree0,parent){
 
-
+    //! for some reason it seems to mutate tree0 as well
+        // SOLVED (i think) update_parent is obviously what's mutating it
+        // i think i could 
+        // doesnt matter right now, but it might be an issue
+        // i also dont know why its happening
 
     if (typeof tree0 === "string"){return tree0}
 
     tree0.terms.forEach((term)=>{simplify_tree(term,tree0)})
 
-    
-    const tree =shallow_flatten(tree0) //! DO NOT reassign tree0, or else assigning the new tree to the parent won't work
+    const tree = remove_duplicates(tree0)
 
     const factorable_op = ["+","*"].includes(tree.op) 
 
     let new_tree
     if (factorable_op){
 
-
-        let get_func, remove_func
+        let get_coefficient_or_exponent, get_common_terms
         if (tree.op === "+"){
-            get_func = get_coeff
-            remove_func = remove_coeff
+            get_coefficient_or_exponent = get_coefficient
+            get_common_terms = get_common_product_terms
         }else{
-            get_func = get_exp
-            remove_func = remove_exp
+            get_coefficient_or_exponent = get_exponent
+            get_common_terms = get_base
         }
 
-
-        // 3*a + 4*a --> 12*a
 
         const tree_sub_op = upper_op[tree.op]  // for 3*a + 4*a,    treeSubOp would be "*"
 
-        /* @code now that getCoeffs and getCoeffsRemoved handle the case where the operation isnt the top tree operation, numbers are fine as input and you dont need to map
-
-
-
-        
-        */
-
-        const number_terms = tree.terms.filter(term =>{
-            // TODO should be called nonfactorable terms
-
-            // TODO filtering out like this screws with the order
-            
-            if (is_number(term)) {return true}
-
-            if (trig_func_ops.includes(term.op)){
-                return false
-            }
-
-
-            if (term.op !== "^"){
-                return false
-            }
-
-            // at this point it MUST be a "^"
-
-
-            // BUT this is only valid cases with the tree op being times
-            const num_pow = is_number(term.terms[1])
-
-
-            return !num_pow && tree.op === "*"
-
-            // a^b with * as the op --> true
-            // all else --> false
-
-
-        })
-
-
-        const non_number_terms = tree.terms.filter((term)=>{return !number_terms.includes(term)})
-        
-
-        const prod_sub_terms = non_number_terms.map(term=>{
+        const sub_terms = tree.terms.map(term=>{
             if (term.op === tree_sub_op){
                 return term
-            }else{
+            }else if (tree_sub_op === "*"){
                 return {
                     op: tree_sub_op,
-                    terms: [term,"1"]
+                    terms: [term]
                 }
+            }else if (tree_sub_op === "^"){
+                return {
+                    op: tree_sub_op,
+                    terms: [term,"1"]   
+                }
+            }else{
+                throw "that should be all cases"
             }
         })
 
 
-        function already_added(term){
-            return grouped_sub_terms.flat().includes(term)
-        }
+        function already_added(term){return grouped_sub_terms.flat().includes(term)}
 
-        // group the terms with common subterms
         const grouped_sub_terms = []
-        prod_sub_terms.forEach(term1=>{         // before i commented the above code, it was iterating on prodSubTerms
+        sub_terms.forEach(term1=>{
             if (already_added(term1)){return}
             const sub_term_group = [term1]
             grouped_sub_terms.push(sub_term_group)
-            prod_sub_terms.forEach(term2=>{ 
+            sub_terms.forEach(term2=>{ 
                 if (already_added(term2)){return}
-                const common_subterms1 = remove_func(term1)
-                const common_subterms2 = remove_func(term2)
-                if (trees_equal(common_subterms1,common_subterms2)){
+                const common_subterms1 = get_common_terms(term1)
+                const common_subterms2 = get_common_terms(term2)
+                if (all_terms_equal(common_subterms1,common_subterms2)){
                     sub_term_group.push(term2)
                 }
             })
         })
 
-        // the issue is that im checking for equality, fine for arrays, but strings with same stuff would be equal
-
-
-        // grouped_sub_terms could have [ [{op:+,terms:[4,b]},{op:+,terms:[3,b]}],  [{op:+,terms:[2,c]},{op:+,terms:[3,c]}]    ]
         new_terms = grouped_sub_terms.map(group=>{
             
-            // group would be [{op:+,terms:[4,b]},{op:+,terms:[3,b]}]
+            const coefficients_or_exponents = group.map(get_coefficient_or_exponent)
 
-            // say the group is (4)*b + (-4)*b
-
-            const coeffs = group.map(get_func)
-            const coeff_tree = {op: "+", terms: coeffs}
-            const combined_value = simplify_arithmetic(coeff_tree)   // (4)+(-4) --> 0      (does simplification in general)
-            
-            if (typeof combined_value !== "string"){
-                throw "getCondensedTree should have returned a single number"
+            let combined_value
+            if (tree.op === "*"){
+                const exponent_tree = {op: "+", terms: coefficients_or_exponents.concat("0")}   // need to have two terms to simplify the tree
+                combined_value = simplify_tree(exponent_tree)   // need to simplify tree instead of arithmetic since the exponents can be variables/expressions
+            }else if (tree.op === "+"){
+                const coefficient_tree = {op: "+", terms: coefficients_or_exponents}
+                combined_value = simplify_arithmetic(coefficient_tree)                  // simplifyTree would lead to infinite recursion
+            }else{
+                throw "should be one of those two operations"
             }
-
-            const common_terms = remove_func(group[0]).terms
-
             
+            const common_terms = get_common_terms(group[0])  // all terms should have the same common term, so can just index the first one      
 
             const new_sub_tree = {op: tree_sub_op, terms: [common_terms,combined_value].flat()}     // merges the b term with the 0 term
-            const simplified_tree = simplify_arithmetic(new_sub_tree)    // 0*b --> 0        (unless it's times or to the power of 0 or times 1, the simplified tree is the same as the original)
+            const simplified_tree = simplify_arithmetic(new_sub_tree)    // 0*b --> 0   or 1*b --> b     (unless it's times or to the power of 0 or times 1, the simplified tree is the same as the original)
             
             return simplified_tree
         })
 
-
-
-
-
-        const combined_terms = [new_terms,number_terms].flat()
-
-
-        if (combined_terms.length === 1){
-            new_tree = combined_terms[0]
-        }else{
-            new_tree = {op: tree.op, terms: combined_terms}
-        }
-
-
-        /*
-
-
-        if (new_terms.length === 1){}
-
-
-
-
         if (new_terms.length === 1){
-
-            if (typeof new_terms[0] === "string"){
-                new_tree = {op: tree_sub_op, terms: [new_terms,number_terms].flat()}
-            }else{
-                new_tree = {op: tree_sub_op, terms: [new_terms[0].terms].flat()}
-            }            
-
+            new_tree = new_terms[0]
         }else{
-            new_tree = {op: tree.op, terms: [new_terms,number_terms].flat()}
+            new_tree = {op: tree.op, terms: new_terms}
         }
-
-        */
-        /* @code doing basically same thing in above code but simpler
-        // add the common coefficients together
-        const new_subtrees = grouped_sub_terms.map(group=>{
-
-            
-            const coeffs = group.map(get_coeff)
-            const coeff_sum = cum_sum(coeffs)   
-            
-            //  instead of cumSum, use operate on them
-
-            let new_subtree = remove_coeff(group[0])
-
-            if (coeff_sum !== 1){   //  this check should no longer be needed since i would then be operating on the terms of the new subtree
-                new_subtree.terms.push(String(coeff_sum))
-            }
-
-            if (new_subtree.terms.length === 1){
-                return new_subtree.terms[0] //  again not necessary, operate function would return itself for a single element
-            }
-            return new_subtree
-        })
-        */
-
-        // @code terms = [number_terms,new_subtrees].flat()
-
-
-        // (4)*b+(-4)*b+5 
-        // now the new terms are 0+(-4)*b+5
-        // now need one more pass through condensing the tree to get (-4)*b+5
-
-        // if there were no common terms, this would still be performed (the empty array would be flattened out first)
-
-
-
-        /* @code getCondensedTree already handles all this
-        // im merging and then splitting since it's possible new_subtrees has a number term
-        //  simpler way of doing this? (just do the number filter on new_subtrees)
-
-
-
-        //  do something similar for exponents but it wouldn't be cumulative
-        const initial_value = op_initial_value[tree.op]
-        let cumulative_val = initial_value
-        const new_non_number_terms = new_terms.filter(term=>{
-            if (is_number(term)){
-                //! very similar to cum_sum, maybe fit this into the function
-                cumulative_val = op_func[tree.op](cumulative_val,Number(term))
-            }
-
-            return !is_number(term)
-        })
-
-
-        //  i think right here i can handle the case where it's *0
-        if (cumulative_val === initial_value){
-            tree.terms  = new_non_number_terms
-        }else{
-            tree.terms = [new_non_number_terms,String(cumulative_val)].flat()
-        }
-
-        */
 
     }else{
         new_tree = tree
@@ -1052,62 +1081,83 @@ function simplify_tree(tree0,parent){
     }else{
         update_parent(tree0,parent,simplified_tree)
     }
+
+    /*
+
+    it's a weird thing how i branch and either mutate the tree or return the tree
+
+    would want to be more consistent
+
+    always return the tree
+        wouldn't work since the parent would lose access to it higher up the recursion
+
+    always mutate
+        i think this would work
+
     
+    i think once i see how simplifying the tree fits into the rest of the solver, ill know what to do
 
-    /* @code already handled in the flatten function called at the beginning (operates on itself instead of the parent)
-    //  this is basically the code to remove duplicates, might be able to call a single function
-    if (tree.terms.length === 1 && !unitary_ops.includes(tree.op)){
+    i would definitely have to create a deep clone somewhere, so it's just a question of whether to do it here, or somewhere outside
 
-        if (parent === undefined){
+    if i create a deep clone, i obviously dont have to worry about side effects
 
-            if (typeof tree.terms[0] === "string"){
-                throw "i think the input must have been pure arithmetic, write code to evaluate it immediately in the string"
-            }
+    i could potentially deep clone in this function but either
+        i would deep clone on every recursion which would be unnecessary and kind of weird
+            it would work though as long as i keep access to the original tree0 for updateParent
+        i would have an outer function deep cloning which calls an inner recursive function
 
-            tree.op = tree.terms[0].op
-            tree.terms = tree.terms[0].terms
-        }else{
-            const new_parent_terms = parent.terms.map(term=>{
-                if (term === tree){
-                    return tree.terms[0]
-                }else{
-                    return term
-                }
-            })
+    i could also make it purely mutate
+        removeDuplicates would mutate instead of reassigning
+        then i wouldnt need updateParent
+        this might be the cleanest most consistent way of doing it
+
+    i dont have to worry about this now though, just making sure i understand whats going on
+
+
+    */
     
-            parent.terms = new_parent_terms
+}
+
+
+
+
+function solve_for(tree, parent, variable){
+
+
+    // this woul assume the variable has already been factored out (only occurs once)
+
+    const lineage = [] 
+
+    find_lineage(tree, parent)
+
+    function find_lineage(tree, parent){
+    
+        tree.terms.forEach((term)=>{find_lineage(term,tree)})
+    
+        if (tree === variable || lineage.includes(tree) ){
+            lineage.push(parent)
         }
-        
-
-
 
     }
-    */
 
 
 
-    // get subterms if there's only one operation, and just the term otherwise
-        // not sure where to handle this case
-    
-    /* @code
-    const new_terms = tree.terms.map(term=>{
-        const not_missing_operands = typeof term === "string" || unitary_ops.includes(term.op) || term.terms.length > 1
-        if (typeof term !== "string" && term.terms.length === 0){
-            throw "not sure if this is possible, so probably good to check whats going on"
-        }
-        if (not_missing_operands){
-            return term
-        }else{
-            return term.terms[0]
-        }
+
+    lineage.reverse()
+
+    lineage.forEach(super_parent=>{
+
+
+        super_parent.op
+
     })
 
 
-    tree.terms = new_terms
-    */
+    
+
+
 
 }
-
 
 
 
@@ -1117,179 +1167,119 @@ function simplify_tree(tree0,parent){
 // TODO move terms on to the two sides of the equation depending on sign <-- assumes highest operation is "+"
 
 
+
 function tree_to_eqn(tree, use_ltx = false, parent){
 
     if (typeof tree === "string"){return tree}
 
-    const useless_one = "USELESS ONE IDENTIFIER"
+
+    tree = merge_fraction_products(tree)
 
     const terms = tree.terms.map(term=>{
         
         let sub_txt
-        let op
 
         if (typeof term === "string"){
-
-            op = tree.op
-
-            const term_parent = tree
-            const term_grandparent = parent
-
-            const ops_invertable = term_grandparent !== undefined && upper_op[term_grandparent.op] === term_parent.op
-
-            if ( ops_invertable && Number(term)<0){                
-                tree.inverted = true
-
-                // for cases like a+b*(-1), the "-1" was just constructed from the tree, so would otherwise output a+b*1 
-                if (Number(term) === -1){
-                    return useless_one
-                }
-
-                sub_txt = String(-1*Number(term))
-
-            }else{
-                sub_txt = term
+            sub_txt = term
+            if (tree.op === "^" && is_fraction(term)){
+                sub_txt = "("+sub_txt+")"   // cannot be moved to the need_parens conditional since it's just a string
             }
-
         }else{
-
             sub_txt = tree_to_eqn(term, use_ltx, tree)
-            
-            if (term.inverted){
-                op = inverse_op[tree.op]
-            }else{
-                op = tree.op
-            }
         }
-
-        const sub_term = {
-            txt: sub_txt,
-            op: op
-        }
-
-        return sub_term
-
-    }).filter(term=>{
-        return term !== useless_one
+        
+        return sub_txt
     })
 
 
-    if (terms.length === 0){throw "they shouldnt all be useless D:"}
-
     let txt 
 
-    if (tree.op === "*"){
 
-        const frac_terms_to_txt = (terms)=>{
-            const txts = terms.map(term=>{
-                return term.txt
-            })
-            
-            let txt = txts.join("*")
+    if (tree.op === "/"){
+        const num = terms[0]
+        const den = terms[1]
+        if (use_ltx){
 
-            if (use_ltx){
-                txt = "{"+txt+"}"
-            }else if (txts.length !== 1){
-                txt = "("+txt+")"
-            }
-            return txt
-        }
+            // TODO the numerator and denominator would have parentheses, fix this
 
-        const den_terms = terms.filter(term=>{
-            return term.op === "/"
-        })
-
-        const num_terms = terms.filter(term=>{
-            return term.op === "*"
-        })
-
-
-        function moveElementToBeginning(array, condition) {
-
-            const index = array.findIndex(condition);
-
-            if (index === -1){return}
-            
-            if (array.filter(condition).length > 1) {
-              throw new Error("More than one element satisfies the condition.");
-            }
-            
-            const element = array.splice(index, 1)[0];
-            array.unshift(element);
-        }
-
-
-        const txt_is_num = (term)=>{return is_number(term.txt)}
-        moveElementToBeginning(num_terms,txt_is_num)
-        moveElementToBeginning(den_terms,txt_is_num)
-
-        const any_other_terms = terms.some(term=>{
-            return ( !den_terms.includes(term)) && ( !num_terms.includes(term))
-        })
-
-        if (any_other_terms){throw "operations should all be * or /"}
-
-        if (num_terms.length === 0){
-            num_terms = ["1"]
-        }
-
-        if (den_terms.length === 0){
-
-            txt = num_terms.map(term=>{
-                return term.txt
-            }).join("*")
-
+            txt = `\\frac{${num}}{${den}}`
 
         }else{
-            const num_txt = frac_terms_to_txt(num_terms)
-            const den_txt = frac_terms_to_txt(den_terms)
-            
-            if (use_ltx){
-                txt = "\\frac"+num_txt+den_txt
-            }else{
-                txt = num_txt+"/"+den_txt
-            }
+            txt = `${num}/${den}`
         }
-    }else{
 
-        txt = terms.map((term,idx)=>{
+    }else if (tree.op === "^"){
+
+        const base = terms[0]
+        const exponent = terms[1]
+
+        if (use_ltx){
+            txt = base + "^{" + exponent + "}"
+        }else{
+            txt = base + "^" + exponent
+        }
 
 
-            if (use_ltx && tree.op === "^" && idx === 1){    
-                txt = "{"+term.txt+"}"
+    }else if (unitary_ops.includes(tree.op)){
+        
+        const operand = terms[0]
+        let operation = tree.op
+        if (use_ltx){
+            operation = "\\"+operation
+        }
+        return operation + operand +")"
+
+    }else if (Object.keys(cumulative_ops).includes(tree.op)){
+
+        let op_txt
+        if (tree.op === "*" && use_ltx){
+            op_txt = "\\cdot "
+        }else{
+            op_txt = tree.op
+        }
+
+        const coeffs = terms.filter(is_number)
+        const non_coeffs = terms.filter(term => {return !is_number(term)})
+
+        if (coeffs.length > 1){
+            throw "there should only be one coefficient"
+        }
+
+        let rearranged_terms
+        if (tree.op === "+"){
+            rearranged_terms = terms    // doesn't rearrange addition and subtraction
+        }else if (tree.op === "*"){
+            rearranged_terms = coeffs.concat(non_coeffs)
+        }else{
+            throw "there shouldn't be any other cumulative operation"
+        }
+        
+
+        txt = rearranged_terms.map((term,idx)=>{
+            if (idx===0){
+                return term
             }else{
-                txt = term.txt
-            }
-
-
-            if (unitary_ops.includes(term.op)){
-
-
-                let opener = term.op.slice(0,term.op.length-2)
-                if (use_ltx){
-
-                    // who says nesting is bad? ):<
-
-                    opener = "\\"+opener
-                }
-
-                return opener + txt +")"
-            }else if (idx===0 || txt[0]==="-"){// && term.op === "+"){
-                return txt
-            }else{
-                return term.op+txt
+                return op_txt+term
             }
         })
 
         txt = txt.join("")
 
+    }else{
+        throw "all operations should have been handled"
     }
 
     let need_parens
 
+
+    
     if (parent === undefined){
         need_parens = false
     }else if(parent.op === "^" && use_ltx){
+        need_parens = false
+    }else if (parent.op === "/" && use_ltx){
+        need_parens = false
+    }else if (parent.op === "/" && tree.terms.length === 1){
         need_parens = false
     }else if(trig_func_ops.includes(parent.op) || trig_func_ops.includes(tree.op)){
         need_parens = false
@@ -1304,10 +1294,147 @@ function tree_to_eqn(tree, use_ltx = false, parent){
     if (need_parens){
         txt = "("+txt+")"
     }
+
+
+    const unitarty_times = /(?<=[^a-zA-Z0-9])1\*/g
+    txt = txt.replace(unitarty_times,"")
+    txt = txt.replaceAll("+-","-")
     
     return txt
 
 }
+
+
+const tree = eqn_to_tree("a/b")
+
+tree_to_eqn(tree)
+
+function merge_fraction_products(tree){
+    // im going to FIRST manipulate the three, THEN convert the new tree into an equation
+
+    if(typeof tree === "string" && !is_fraction(tree)){
+        return tree
+    }
+    
+
+    if (typeof tree !== "string"){
+
+        tree.terms = tree.terms.map(merge_fraction_products)
+
+        // tree.terms.forEach(merge_fraction_products)
+    }
+    
+    if (tree.op === "*"){
+
+        let num_terms = []
+        let den_terms = []    
+
+        tree.terms.forEach(term=>{
+            if (term.op === "/"){
+                num_terms.push(term.terms[0])
+                den_terms.push(term.terms[1])
+            }else{
+                num_terms.push(term)
+            }
+        })
+
+        num_terms = num_terms.filter(term=>{return term !== "1"})  
+        den_terms = den_terms.filter(term=>{return term !== "1"})
+
+        if (num_terms.length === 0){
+            num_terms = ["1"]
+        }
+
+        if (den_terms.length !== 0){
+            num_tree = {op: "*", terms: num_terms}
+            den_tree = {op: "*", terms: den_terms}
+            // tree.op = "/"
+            // tree.terms = [num_tree, den_tree]
+
+            return {op: "/", terms: [num_tree, den_tree]}
+
+        }
+
+        return tree
+
+    }else if (tree.op === "^"){
+
+        const base = tree.terms[0]
+        const exponent = tree.terms[1]
+
+
+        let coeff
+        if (typeof exponent === "string" && is_number(exponent)){
+            coeff = exponent
+        }else if (exponent.op === "*"){
+
+            const coeffs = exponent.terms.filter(is_number)
+            
+            if (coeffs.length > 1){
+                throw "should have been condensed to one coefficient"
+            }else if (coeffs.length === 1){
+                coeff = coeffs[0]
+            }else{
+                coeff = "1"
+            }
+    
+        }else{
+            coeff = "1"
+        }
+
+        if (Number(coeff) === 0){
+            throw "zero coefficient should have been simplified"
+        }else if (Number(coeff) > 0){
+            return tree
+        }
+
+        const pos_coeff = String(-Number(coeff))
+
+
+        let pos_exponent
+        if (typeof exponent === "string"){
+            pos_exponent = pos_coeff
+        }else{
+            pos_exponent = {...exponent} // i think it is also fine to mute the exponent object, im sort of doing a weird mix of mutating and constructing
+            pos_exponent.terms[pos_exponent.terms.length - 1] = pos_coeff
+        }
+        
+        let den_term
+
+        if (Number(pos_exponent) === 1){
+            den_term = base
+        }else{
+            den_term =  {op: "^", terms: [base, pos_exponent]}
+        }
+    
+        //tree.op = "/"
+        //tree.terms = ["1",flipped_exp_term]
+    
+        return {op: "/", terms: ["1", den_term]}
+
+    
+    }else if (is_fraction(tree)){
+
+        [num, den] = get_num_den(tree)
+        // tree.op = "/"
+        // tree.terms = [String(num), String(den)]
+
+        return {op: "/", terms: [String(num), String(den)]}
+
+    }
+
+    return tree
+    // the reason for either returning or mutating:
+        // mutating: needed to recurse upward
+        // returning: if the tree is just a string, can't be mutated
+        // TODO? instead of a single number tree being a string, it would still be a data structure
+
+    if (parent === undefined){
+        return tree
+    }
+ 
+}
+
 
 function draw(tree){
 
@@ -1389,78 +1516,192 @@ function draw(tree){
 
 }
 
-function test(){
-
-
-
-    const arithmetic_check = (exp)=>{
-
-        return math.evaluate(exp) === tree_to_eqn(eqn_to_tree(exp))
-    }
-
-    const back_and_forth = (exp)=>{
-        return tree_to_eqn(eqn_to_tree(exp))
-    }
 
 
 
 
-    const layering = [
 
-        {
-            name: "expand out negative",
-            func: back_and_forth,
-            in: "a-(b+c)",
-            out: "a-b-c"
-        },
-        {
-            name: "layered subtraction",
-            func: back_and_forth,
-            in: "a-b-c-d",
-            out: "a-b-c-d"
-        },
-        {
-            name: "layered fractions",
-            func: back_and_forth,
-            in: "a/b/c/d",
-            out: "a/(b*c*d)"
-        },
-        {
-            name: "layered exponents",
-            func: back_and_forth,
-            in: "a^b^c^d",
-            out: "a^b^c^d"
-        },
-        {
-            name: "layered parentheses",
-            func: back_and_forth,
-            in: "(a+(b*c))*(d/f)",
-            out: "((a+b*c)*d)/f"
-        },
-        {
-            name: "square root",
-            func: back_and_forth,
-            in: "sqrt(a+b)+c",
-            out: "(a+b)^1/2+c"  // TODO put parentheses aroung the exponent?
-        },
-        {
-            name: "just give it everything (:<",
-            func: back_and_forth,
-            in: "a*b^c^d/f/(g-2)/h",
-            out: "(a*b^c^d)/(f*(g-2)*h)"
+
+
+
+
+
+
+
+function all_terms_equal(terms1, terms2) {
+
+    // check if two trees have all the same values, disregarding order, e.g. a+b+c same as c+a+b
+
+    return term_compare(terms1,terms2)
+
+    function term_compare(arr1, arr2, order_matters){
+
+        if (arr1.length !== arr2.length) {
+            return false;
         }
 
-    ]
+        if (order_matters){
+            const all_terms_match = arr1.every((_,idx)=>{
+                return tree_compare(arr1[idx],arr2[idx])
+            })
+            return all_terms_match
+        }
 
-    tests = [layering].flat()
+
+        // if order doesnt matter it has to iterate over both and find matches
+
+        const visited = new Array(arr2.length).fill(false);
+
+        for (let i = 0; i < arr1.length; i++) {
+            const val1 = arr1[i];
+            let found = false;
+
+            for (let j = 0; j < arr2.length; j++) {
+                if (!visited[j] && tree_compare(val1, arr2[j])) {
+                    visited[j] = true;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    function tree_compare(dict1, dict2){
+        
+        if (typeof dict1 === "string" || typeof dict2 === "string"){
+            return dict1 === dict2
+        }
+
+        if (dict1.op !== dict2.op){
+            return false
+        }
+
+        const op_order_matters = dict1.op === "^"
+
+        return term_compare(dict1.terms, dict2.terms, op_order_matters)
+    }
+
+
+}
+
+
+function arithmetic_check (exp){
+    return math.evaluate(exp) === tree_to_eqn(eqn_to_tree(exp))
+}
+
+
+const back_and_forth = (exp, use_ltx = false)=>{
+    return tree_to_eqn(eqn_to_tree(exp), use_ltx)
+}
+
+
+// export {back_and_forth, arithmetic_check}
+
+const layering_tests = [
+
+    {
+        name: "expand out negative",
+        func: back_and_forth,
+        in: "a-(b+c)",
+        out: "a-b-c"
+    },
+    {
+        name: "layered subtraction",
+        func: back_and_forth,
+        in: "a-b-c-d",
+        out: "a-b-c-d"
+    },
+    {
+        name: "layered fractions",
+        func: back_and_forth,
+        in: "a/b/c/d",
+        out: "a/(b*c*d)"
+    },
+    {
+        name: "layered exponents",
+        func: back_and_forth,
+        in: "a^b^c^d",
+        out: "a^b^c^d"
+    },
+    {
+        name: "layered parentheses",
+        func: back_and_forth,
+        in: "(a+(b*c))*(d/f)",
+        out: "((a+b*c)*d)/f"
+    },
+    {
+        name: "square root",
+        func: back_and_forth,
+        in: "sqrt(a+b)+c",
+        out: "(a+b)^(1/2)+c"
+    },
+    {
+        name: "just give it everything (:<",
+        func: back_and_forth,
+        in: "a*b^c^d/f/(g-2)/h",
+        out: "(a*b^c^d)/(f*(g-2)*h)"
+    },
+    {
+        name: "remove 1 coefficient",
+        func: back_and_forth,
+        in: "a^1/2",
+        out: "a/2"
+    }
+
+]
+
+const stuff_that_failed = [
+    {
+        func: back_and_forth,
+        in: "g*(-3)+4",
+        out: "-3*g+4"
+    },
+    {
+        func: back_and_forth,
+        in: "a^(-2)",
+        out: "1/a^2"
+    }
+]
+
+
+const all_tests = [layering_tests,stuff_that_failed].flat()
+
+function test(tests = all_tests){
+
+    if (tests === undefined){
+        throw "need to specify test, run test to run all tests"
+    }
+
+    function is_equal(a,b){
+        return JSON.stringify(a) === JSON.stringify(b)
+    }
 
     tests.forEach(test_exp=>{
 
+
+        // very hacky but whatever
+
+        const input_keys = Object.keys(test_exp.in)
+
+
         try{
-            const output = test_exp.func(test_exp.in)
+
+            let output
+            if (input_keys.length === 1 && input_keys[0] === "args"){
+                output = test_exp.func(...test_exp.in.args)
+            }else{
+                output = test_exp.func(test_exp.in)
+            }
             const expected_output = test_exp.out
 
-            if (output === expected_output){
+            if (is_equal(output, expected_output)){
                 console.log(`Test "${test_exp.name}" passed`)
             }else{
                 console.warn(
@@ -1477,66 +1718,3 @@ function test(){
 
 }
 
-
-function trees_equal(tree1, tree2) {
-
-    // check if two trees have all the same values, disregarding order, e.g. a+b+c same as c+a+b
-
-    return operations_equal(tree1,tree2)
-
-    function terms_equal(arr1, arr2, order_matters){
-
-        if (arr1.length !== arr2.length) {
-            return false;
-        }
-
-        if (order_matters){
-            const all_terms_match = arr1.every((_,idx)=>{
-                return operations_equal(arr1[idx],arr2[idx])
-            })
-            return all_terms_match
-        }
-
-
-        // if order doesnt matter it has to iterate over both and find matches
-
-        const visited = new Array(arr2.length).fill(false);
-
-        for (let i = 0; i < arr1.length; i++) {
-            const val1 = arr1[i];
-            let found = false;
-
-            for (let j = 0; j < arr2.length; j++) {
-                if (!visited[j] && operations_equal(val1, arr2[j])) {
-                    visited[j] = true;
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-
-    function operations_equal(dict1, dict2){
-        
-        if (typeof dict1 === "string" || typeof dict2 === "string"){
-            return dict1 === dict2
-        }
-
-        if (dict1.op !== dict2.op){
-            return false
-        }
-
-        const op_order_matters = dict1.op === "^"
-
-        return terms_equal(dict1.terms, dict2.terms, op_order_matters)
-    }
-
-
-}
