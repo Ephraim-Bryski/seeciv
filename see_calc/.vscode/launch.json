@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug",
+            "type": "node",
+            "request": "launch",
+            "program": "src/my_solver.js",
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
             "type": "chrome",
             "request": "launch",
             "name": "seecalc chrome debug",
@@ -34,5 +41,6 @@
                 "https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.js"
             ]
         }
+        
     ]
 }

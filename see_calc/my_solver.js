@@ -1,11 +1,12 @@
-// TODO tree_to_eqn isn't handling stuff like g*(-3)+4, nor a^(-2)
 
-// TODO refactor and test the hell out of 
+
+// TODO? instead of a single number tree being a string, it could still be a data structure
 
 
 
 // TODO 0^(-1) give error?
 
+// TODO move terms on to the two sides of the equation depending on sign <-- assumes highest operation is "+"
 
 
 /*
@@ -34,6 +35,8 @@ thats it :D
 
 
 const arithmetic_ops = ["+","-","*","/","^"]
+
+console.log("HI")
 
 const inverse_op = {
     "-": "+",
@@ -76,7 +79,7 @@ const cumulative_ops = {
 
 
 
-
+//! all fraction stuff moved to numbers
 
 function construct_fraction(num,den){
     
@@ -237,7 +240,7 @@ function take_exponent(base,exponent){
 
 
 
-    return String(base ** exponent)
+    return String(base_number ** exponent_number)
 
 }
 
@@ -247,7 +250,7 @@ function take_trig_func(trig_func,value){
     const evaluated_value = String(evaluate_fraction(value))
 
     const expression = trig_func + evaluated_value + ")" 
-    return math.evaluate(expression)   
+    return String(math.evaluate(expression))
 }
 
 
@@ -558,8 +561,6 @@ function remove_parens(tree, parent){
 
     if (tree.op === paren_op){
         
-
-        // TODO remove single variables enclosed in parentheses with the original equation string
         const lower_term = tree.terms[0].terms
         if (lower_term === undefined){
 
@@ -698,42 +699,6 @@ function get_common_product_terms(tree){
 }
 
 
-class MyNumber {
-
-    constructor(self, real){
-        self.real = real
-        self.complex = complex
-    }
-
-    add(self, value) {
-        
-    }
-
-
-
-}
-
-function complexPower(base, exponent) {
-    const magnitude = Math.pow(Math.abs(base), exponent);
-    const phase = Math.PI * exponent * (base < 0 ? 1 : 0);
-    
-    const real = magnitude * Math.cos(phase);
-    const imaginary = magnitude * Math.sin(phase);
-    
-    return { real, imaginary };
-  }
-  
-  // Example usage
-  const base = -1;
-  const exponent = 1/2;
-  const result = complexPower(base, exponent);
-  
-  console.log(result); // Output: { real: 6.123233995736766e-17, imaginary: 1 }
- 
-
-  console.log(result); // Output: { real: 6.123233995736766e-17, imaginary: 1 }
-  
-
 
 function simplify_arithmetic(tree){
 
@@ -755,7 +720,6 @@ function simplify_arithmetic(tree){
     }
 
 
-    // TODO these can just go into the conditional below
     if (tree.op === "^" && tree.terms[1] === "0"){      // a^0 --> 1
         return "1"
     }
@@ -776,6 +740,9 @@ function simplify_arithmetic(tree){
     if (tree.op === "^"){
         if (tree.terms.every(is_number)){
             const new_value = take_exponent(tree.terms[0], tree.terms[1])
+            if (isNaN(new_value) && !is_fraction(new_value)){
+                return "imaginary value found"
+            }
             return String(new_value)
         }else if (tree.op === tree.terms[0].op){ // (a^b)^c --> a^(b*c)
             const a = tree.terms[0].terms[0]
@@ -788,22 +755,29 @@ function simplify_arithmetic(tree){
             
             // (-1*f)^(1/2) should NOT return an error
             // basically just dont expand it IF the 
+                // negative coefficient AND
+                // fractional exponent
+
+
+            
 
             const exponent = tree.terms[1]
             const common_terms = tree.terms[0].terms
 
             const num_coeff = common_terms.filter(is_number)
 
-            const non_int_exponent = is_fraction(exponent) || exponent.includes(".")
+
+
+            const non_int_exponent = is_fraction(exponent) || is_decimal(exponent)
 
 
 
-            const contains_complex = num_coeff.length !== 0 && Number(num_coeff) < 0 && non_int_exponent
+            const could_contain_complex =  non_int_exponent
 
+            
 
-        
+            if (could_contain_complex){return tree}
 
-            if (common_terms.some(is_number)){}
 
             const product_terms = common_terms.map(term=>{
                 return {op: "^", terms: [term,exponent]}
@@ -834,7 +808,7 @@ function simplify_arithmetic(tree){
 
         const are_all_numbers = tree.terms.every(is_number)
 
-        const remove_numbers = tree.op === "+" && final_value === "0" || tree.op === "*" && final_value ===  "1"    // TODO could just say if final value is initial value
+        const remove_numbers = tree.op === "+" && final_value === "0" || tree.op === "*" && final_value ===  "1" 
             
 
         const single_var = remove_numbers && non_number_terms.length === 1
@@ -916,17 +890,6 @@ function remove_duplicates(tree){
 }
 
 
-// TODO two bugs gotta fix both
-/*
-
-
-
-multiplication fractions isnt considering negative values
-
-
-
-*/
-
 function is_tree(term){
 
 
@@ -950,6 +913,8 @@ function is_number(term){
     return is_fraction(term) || is_single_value
 }
 
+
+//! moved to numbers
 function is_fraction(term){
 
 
@@ -988,7 +953,6 @@ function simplify_tree(tree0,parent){
     const tree = remove_duplicates(tree0)
 
     const factorable_op = ["+","*"].includes(tree.op) 
-
     let new_tree
     if (factorable_op){
 
@@ -1121,20 +1085,42 @@ function simplify_tree(tree0,parent){
 
 
 
-function solve_for(tree, parent, variable){
+function solve_for(eqn, variable){
 
 
     // this woul assume the variable has already been factored out (only occurs once)
 
+ 
+    // would just have to be a condition for only one other term in the addition in the beginning --> remove the addition op from the tree
+
+
+    // using a helper function so i can have global variables (the inverted tree and the variable to solve for)
+
+    if (variable === undefined){
+        throw "need to specify the variable to solve for"
+    }
+
+    const tree = eqn_to_tree(eqn)
+    
     const lineage = [] 
 
-    find_lineage(tree, parent)
+    find_lineage(tree)
+
+    // TODO check whether the top operation is addition, multiplication, or exponents
 
     function find_lineage(tree, parent){
+
+        if (tree === variable){
+            lineage.push(parent)
+        }
+
+        if (typeof tree === "string"){
+            return
+        }
     
         tree.terms.forEach((term)=>{find_lineage(term,tree)})
     
-        if (tree === variable || lineage.includes(tree) ){
+        if (lineage.includes(tree) && parent !== undefined ){
             lineage.push(parent)
         }
 
@@ -1143,18 +1129,133 @@ function solve_for(tree, parent, variable){
 
 
 
-    lineage.reverse()
-
-    lineage.forEach(super_parent=>{
 
 
-        super_parent.op
-
-    })
-
-
+    //TODO instead of adding in variable, i could change the loop where:
+        // if i=0 --> child is the variable
+        // otherwise --> child is lineage[i-1]
+        // then no need to continue if tree is variable (will never happen)
+    lineage.unshift(variable)
     
 
+
+
+    // const inverted_branches = []
+
+    const inverted_tree = {
+        op: "boop",     // then just make the final inverted tree the terms of this tree (should only be one term)
+        terms: []   
+    }
+
+    let sub_inverted_tree = inverted_tree
+
+
+
+    // TODO error if solve for variable in exponent (not dealing with logs) <-- can be done when combining terms
+
+    // TODO multiple solutions if:
+        // outermost is times
+        // outermost is trig with an inverse being 0 at 0 (e.g. sin) and then directly in that is times
+        // so i would have to recursively go down cause it could be:
+            // sin(sin(a*b*c)) <-- honestly might be such a specific situation i wouldnt have to worry about it
+        // would then somehow have to create multiple options
+
+
+    for (let i = 0; i < lineage.length; i++){
+
+
+        const tree = lineage[i]
+
+        if (tree === variable){
+            continue
+        }
+
+
+
+
+        const child = lineage[i-1]
+
+
+        siblings = tree.terms.filter(term => {return term !== child})
+
+
+        const no_siblings = siblings.length === 0
+        const is_trig_op = trig_func_ops.includes(tree.op)
+
+        if (no_siblings !== is_trig_op){
+            throw "should have no siblings if and only if it's a trig function"
+        }
+
+        let outer_inverse_op
+        if (is_trig_op){
+            outer_inverse_op = inverse_trig_op_map[tree.op]
+        }else{
+            outer_inverse_op = tree.op
+        }
+
+        const invert_term_ops = {
+            "+": "*",
+            "*": "^",
+            "^": "^"
+        }
+
+
+        let inverted_terms
+        inverted_terms = siblings.map(sibling => {
+
+
+            return {
+                op: invert_term_ops[tree.op],
+                terms: [sibling, "-1"]
+            }
+
+        })
+
+
+        const outermost = i + 1 === lineage.length
+
+        
+        if (outermost){
+            inverted_terms.push("0")
+        }
+
+        const inverted_branch = {
+            op: outer_inverse_op,
+            terms: inverted_terms
+        }    // this condition also works for trig functions :)  terms will be empty but will added to in the following iteration
+
+        // const only_one_innermost_sibling = inverted_siblings.length === 1 && (i + 1 === lineage.length)
+
+        /* @code adding "0" and letting it simplify out is much cleaner, also putting in 0 just allows it to work for exponents and trig functions
+        let inverted_branch
+        if (only_one_innermost_sibling){
+            inverted_branch = inverted_siblings[0]
+        }else{
+            inverted_branch = {
+                op: outer_inverse_op,
+                terms: inverted_siblings
+            }    // this condition also works for trig functions :)  terms will be empty but will added to in the following iteration
+        }
+        */
+
+        sub_inverted_tree.terms.unshift(inverted_branch)    // need to add it to the beginning (instead of end) cause of exponents
+
+        sub_inverted_tree = inverted_branch
+
+
+    }
+
+    if (inverted_tree.terms.length !== 1){
+        throw "should have had only one term on the top???"
+    }
+
+    const deboopified_inverted_tree = inverted_tree.terms[0]    // these naming skills
+
+
+    const simplified_tree = simplify_tree(deboopified_inverted_tree)
+
+
+    return tree_to_eqn(simplified_tree)
 
 
 }
@@ -1162,9 +1263,6 @@ function solve_for(tree, parent, variable){
 
 
 
-
-
-// TODO move terms on to the two sides of the equation depending on sign <-- assumes highest operation is "+"
 
 
 
@@ -1199,8 +1297,6 @@ function tree_to_eqn(tree, use_ltx = false, parent){
         const num = terms[0]
         const den = terms[1]
         if (use_ltx){
-
-            // TODO the numerator and denominator would have parentheses, fix this
 
             txt = `\\frac{${num}}{${den}}`
 
@@ -1297,7 +1393,11 @@ function tree_to_eqn(tree, use_ltx = false, parent){
 
 
     const unitarty_times = /(?<=[^a-zA-Z0-9])1\*/g
-    txt = txt.replace(unitarty_times,"")
+
+    const ltx_unitarty_times = /(?<=[^a-zA-Z0-9])1\\cdot/g
+
+
+    txt = txt.replace(unitarty_times,"").replace(ltx_unitarty_times,"") // no harm replacing both (ltx would never have * and nonltx would never have \cdot)
     txt = txt.replaceAll("+-","-")
     
     return txt
@@ -1345,17 +1445,30 @@ function merge_fraction_products(tree){
             num_terms = ["1"]
         }
 
-        if (den_terms.length !== 0){
-            num_tree = {op: "*", terms: num_terms}
-            den_tree = {op: "*", terms: den_terms}
-            // tree.op = "/"
-            // tree.terms = [num_tree, den_tree]
-
-            return {op: "/", terms: [num_tree, den_tree]}
-
+        if (den_terms.length === 0){
+            return tree
         }
 
-        return tree
+
+        let num_tree
+        if (num_terms.length === 1){
+            num_tree = num_terms[0]
+        }else{
+            num_tree = {op: "*", terms: num_terms}
+        }
+
+        
+        
+        let den_tree
+        if (den_terms.length === 1){
+            den_tree = den_terms[0]
+        }else{
+            den_tree = {op: "*", terms: den_terms}
+        }
+
+        return {op: "/", terms: [num_tree, den_tree]}
+
+    
 
     }else if (tree.op === "^"){
 
@@ -1427,7 +1540,6 @@ function merge_fraction_products(tree){
     // the reason for either returning or mutating:
         // mutating: needed to recurse upward
         // returning: if the tree is just a string, can't be mutated
-        // TODO? instead of a single number tree being a string, it would still be a data structure
 
     if (parent === undefined){
         return tree
@@ -1597,81 +1709,138 @@ function arithmetic_check (exp){
 }
 
 
-const back_and_forth = (exp, use_ltx = false)=>{
+const simplify = (exp, use_ltx = false)=>{
     return tree_to_eqn(eqn_to_tree(exp), use_ltx)
 }
 
+const solve_for_a = (exp) => {
+    return solve_for(exp, "a")
+}
 
-// export {back_and_forth, arithmetic_check}
+//export {simplify, arithmetic_check}
 
-const layering_tests = [
+const simplify_tests = [
 
     {
         name: "expand out negative",
-        func: back_and_forth,
+        func: simplify,
         in: "a-(b+c)",
         out: "a-b-c"
     },
     {
         name: "layered subtraction",
-        func: back_and_forth,
+        func: simplify,
         in: "a-b-c-d",
         out: "a-b-c-d"
     },
     {
         name: "layered fractions",
-        func: back_and_forth,
+        func: simplify,
         in: "a/b/c/d",
         out: "a/(b*c*d)"
     },
     {
         name: "layered exponents",
-        func: back_and_forth,
+        func: simplify,
         in: "a^b^c^d",
         out: "a^b^c^d"
     },
     {
         name: "layered parentheses",
-        func: back_and_forth,
+        func: simplify,
         in: "(a+(b*c))*(d/f)",
         out: "((a+b*c)*d)/f"
     },
     {
         name: "square root",
-        func: back_and_forth,
+        func: simplify,
         in: "sqrt(a+b)+c",
         out: "(a+b)^(1/2)+c"
     },
     {
         name: "just give it everything (:<",
-        func: back_and_forth,
+        func: simplify,
         in: "a*b^c^d/f/(g-2)/h",
         out: "(a*b^c^d)/(f*(g-2)*h)"
     },
     {
         name: "remove 1 coefficient",
-        func: back_and_forth,
+        func: simplify,
         in: "a^1/2",
         out: "a/2"
-    }
-
-]
-
-const stuff_that_failed = [
+    },
     {
-        func: back_and_forth,
+        name: "move coefficient to front",
+        func: simplify,
         in: "g*(-3)+4",
         out: "-3*g+4"
     },
     {
-        func: back_and_forth,
+        name: "flip fraction",
+        func: simplify,
         in: "a^(-2)",
         out: "1/a^2"
+    },
+    {
+        name: "contain fractional exponent",
+        func: simplify,
+        in: "sqrt(a*b)",
+        out: "(a*b)^(1/2)"
+    },
+    {
+        name: "factor addition",
+        func: simplify,
+        in: "3*(a^b)+4*a^b+c",
+        out: "7*a^b+c"
+    },
+    {
+        name: "factor multiplication",
+        func: simplify,
+        in: "a^b*a^c*d+f",
+        out: "a^(b+c)*d+f",
+    },
+    {
+        name: "cancel terms",
+        func: simplify,
+        in: "(b+c^2)*d*f/((b+c^2)*g)",
+        out: "(d*f)/g"
     }
 ]
 
+const solve_tests = [
+    {
+        name: "simple",
+        func: solve_for_a,
+        in: "a+b*c+d^2",
+        out: "-b*c-d^2"
+    },
+    {
+        name: "invert exponent",
+        func: solve_for_a,
+        in: "b*c+a^3*d",
+        out: "((-b*c)/d)^(1/3)"
+    },
+    {
+        name: "invert coefficient",
+        func: solve_for_a,
+        in: "a*c+d",
+        out: "(-d)/c"
+    },
+    {
+        name: "trig inverse",
+        func: solve_for_a,
+        in: "sin(a*c)+d*f",
+        out: "asin(-d*f)/c"
+    },
+    {
+        name: "combined",
+        func: solve_for_a,
+        in: "(b+a^2)/c*d+f",
+        out: "((-f*c)/d-b)^(1/2)"
+    }
+]
 
-const all_tests = [layering_tests,stuff_that_failed].flat()
+all_tests = [simplify_tests, solve_tests].flat()
 
 function test(tests = all_tests){
 
