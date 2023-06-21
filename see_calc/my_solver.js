@@ -3,10 +3,31 @@
 // TODO? instead of a single number tree being a string, it could still be a data structure
 
 
+/*
 
-// TODO 0^(-1) give error?
 
-// TODO move terms on to the two sides of the equation depending on sign <-- assumes highest operation is "+"
+
+when solving for variable:
+    start with the tree just being zero
+
+move terms on to the two sides of the equation depending on sign <-- assumes highest operation is "+"
+
+*/
+
+    // TODO find a less gross way of doing this (as in having a while loop even though it's also recursive)
+
+// TODO 
+
+    // TODO check whether the top operation is addition, multiplication, or exponents
+
+    
+
+    // TODO multiple solutions if:
+        // outermost is times
+        // outermost is trig with an inverse being 0 at 0 (e.g. sin) and then directly in that is times
+        // so i would have to recursively go down cause it could be:
+            // sin(sin(a*b*c)) <-- honestly might be such a specific situation i wouldnt have to worry about it
+        // would then somehow have to create multiple options
 
 
 /*
@@ -33,10 +54,9 @@ thats it :D
 
 */
 
+//#region operation information
 
 const arithmetic_ops = ["+","-","*","/","^"]
-
-console.log("HI")
 
 const inverse_op = {
     "-": "+",
@@ -77,9 +97,56 @@ const cumulative_ops = {
     "*": multiply_numbers
 }
 
+const flatten_ops = ["+","*"]
+
+const not_cos_trig = ["sin","sec","tan"]
+const cos_trig = ["cos","csc","cot"]
 
 
-//! all fraction stuff moved to numbers
+const forward_trig = [not_cos_trig,cos_trig].flat()
+
+const inverse_trig = forward_trig.map(func=>{
+    return "a"+func
+})
+
+
+
+const reg_trig = [forward_trig,inverse_trig].flat()
+
+const hyp_trig = reg_trig.map(func=>{
+    return func+"h"
+})
+
+const trig_funcs = [reg_trig,hyp_trig].flat()
+
+const trig_func_ops = trig_funcs.map(func=>{return func+"("})
+
+
+const inverse_trig_op_map = {}
+
+trig_func_ops.forEach(func=>{
+    const is_inverse_func = func[0] === "a"
+    let inverse_func
+    if (is_inverse_func){
+        inverse_func = func.slice(1)
+    }else{
+        inverse_func = "a"+func
+    }
+
+    inverse_trig_op_map[func] = inverse_func
+})
+
+
+const paren_op = "("
+
+const sqrt_op = "sqrt("
+
+const unitary_ops = [paren_op, sqrt_op].concat(trig_func_ops)
+
+//#endregion
+
+
+//#region construct and operate on fractions
 
 function construct_fraction(num,den){
     
@@ -139,7 +206,6 @@ function construct_fraction(num,den){
 
 }
 
-
 function get_num_den(value){
 
     let num_den
@@ -163,7 +229,6 @@ function evaluate_fraction(value){
     return num_den[0] / num_den[1]
 
 }
-
 
 function is_decimal(value){
     if (is_fraction(value)){return false}
@@ -208,8 +273,6 @@ function multiply_numbers(value1, value2){
 
 }
 
-
-
 function take_exponent(base,exponent){
 
     /*
@@ -244,7 +307,6 @@ function take_exponent(base,exponent){
 
 }
 
-
 function take_trig_func(trig_func,value){
 
     const evaluated_value = String(evaluate_fraction(value))
@@ -253,63 +315,131 @@ function take_trig_func(trig_func,value){
     return String(math.evaluate(expression))
 }
 
+function get_exponent(tree){
+    return tree.terms[1]
+}
 
+function get_coefficient(tree){
+    const coeffs = tree.terms.filter(is_number)
 
-
-const flatten_ops = ["+","*"]
-
-const not_cos_trig = ["sin","sec","tan"]
-const cos_trig = ["cos","csc","cot"]
-
-
-const forward_trig = [not_cos_trig,cos_trig].flat()
-
-const inverse_trig = forward_trig.map(func=>{
-    return "a"+func
-})
-
-
-
-const reg_trig = [forward_trig,inverse_trig].flat()
-
-const hyp_trig = reg_trig.map(func=>{
-    return func+"h"
-})
-
-const trig_funcs = [reg_trig,hyp_trig].flat()
-
-const trig_func_ops = trig_funcs.map(func=>{return func+"("})
-
-
-const inverse_trig_op_map = {}
-
-trig_func_ops.forEach(func=>{
-    const is_inverse_func = func[0] === "a"
-    let inverse_func
-    if (is_inverse_func){
-        inverse_func = func.slice(1)
+    if (coeffs.length === 0){
+        return "1"
+    }else if (coeffs.length === 1){
+        return coeffs[0]
     }else{
-        inverse_func = "a"+func
+        throw "should have already been simplified"
+    }    
+}
+
+function get_base(tree){
+    return [tree.terms[0]]
+}
+
+function get_common_product_terms(tree){
+    return tree.terms.filter(term=>{return !is_number(term)})
+}
+
+function is_tree(term){
+
+
+    const keys = Object.keys(term).filter(key=>{return key !== "inverted"}).sort()      // when constructing the tree it adds an inverted property, so i just filter it out5
+    const correct_keys = ["op", "terms"]
+    
+    return keys.every((_,idx)=>{return keys[idx] === correct_keys[idx]})
+    
+} 
+
+function is_number(term){
+
+    if (typeof term !== "string" && !is_tree(term)){
+        throw "must only check a string or a tree"
     }
 
-    inverse_trig_op_map[func] = inverse_func
-})
+    if (is_tree(term)){return false}
+
+    const is_single_value = !isNaN(Number(term))
+
+    return is_fraction(term) || is_single_value
+}
+
+function is_fraction(term){
 
 
-const paren_op = "("
+    if (typeof term !== "string" && !is_tree(term)){
+        throw "must only check a string or a tree"
+    }
 
-const sqrt_op = "sqrt("
+    if (is_tree(term)){return false}
 
-const unitary_ops = [paren_op, sqrt_op].concat(trig_func_ops)
+    const num_den = term.split("/")
 
+    if (num_den.length !== 2){return false}
+
+
+    const num = num_den[0]
+    const den = num_den[1]
+
+
+    return !isNaN(Number(num)) && !isNaN(Number(den))
+
+}
+
+//#endregion
+
+
+
+//#region equation --> tree
 
 function eqn_to_tree(eqn){
 
 
 
-    const items = split_eqn_txt(eqn)
+    const eqn_sides = eqn.split("=")
 
-    const tree = search_down_eqn(items)
+
+    const trees = eqn_sides.map(expression => {
+
+
+        const items = split_eqn_txt(expression)
+
+        const tree = search_down_eqn(items)
+
+
+        correct_op_order(tree)
+
+        remove_parens(tree)
+    
+        remove_sqrt(tree)
+    
+        remove_inverse_op(tree)
+    
+        const simplified_tree = simplify_tree(tree)
+        
+        return simplified_tree
+    
+
+    })
+
+
+    if (trees.length === 1){
+        // case of an expression (no equal signs, so splits into one element)
+
+        return trees[0]
+    }
+
+
+    const tree1 = trees[0]
+
+    const tree2 = {
+        op: "*",
+        terms:[
+            trees[1], "-1"
+        ]
+    }
+
+
+    return {op: "+", terms: [tree1, tree2]}
+
 
     function search_down_eqn(items){
 
@@ -376,19 +506,9 @@ function eqn_to_tree(eqn){
 
 
 
-    correct_op_order(tree)
 
-    remove_parens(tree)
-
-    remove_sqrt(tree)
-
-    remove_inverse_op(tree)
-
-    const simplified_tree = simplify_tree(tree)
-    return simplified_tree
 
 }
-
 
 function split_eqn_txt(eqn){
     // splits it into numbers, variables, operations and parentheses groups
@@ -465,14 +585,11 @@ function split_eqn_txt(eqn){
     return grouped_items
 }
 
-
-
 function correct_op_order(tree){
 
     // corrects operation order from initial construction e.g. a*b+c
     // mutates tree instead of returning
 
-    // TODO find a less gross way of doing this (as in having a while loop even though it's also recursive)
 
     let tree_changed = true
     
@@ -650,55 +767,157 @@ function remove_inverse_op(tree){
 
 }
 
-function update_parent(tree, parent, new_tree){
+
+
+
+//#endregion
+
+
+
+//#region simplify tree
+
+function simplify_tree(tree0, parent){
+
+    //! update_parent mutates tree0 as well
+        // doesnt matter right now, but it might be an issue
+
+    if (typeof tree0 === "string"){return tree0}
+
     
-    const tree_idxs = [...Array(parent.terms.length).keys()].filter((idx)=>{return parent.terms[idx] === tree})
+    tree0.terms.forEach((term)=>{simplify_tree(term, tree0)})
+    
+    
+    const tree = remove_duplicates(tree0)
+
+    const factorable_op = ["+","*"].includes(tree.op) 
+    let new_tree
+    if (factorable_op){
+
+        let get_coefficient_or_exponent, get_common_terms
+        if (tree.op === "+"){
+            get_coefficient_or_exponent = get_coefficient
+            get_common_terms = get_common_product_terms
+        }else{
+            get_coefficient_or_exponent = get_exponent
+            get_common_terms = get_base
+        }
 
 
+        const tree_sub_op = upper_op[tree.op]  // for 3*a + 4*a,    treeSubOp would be "*"
 
-    if (tree_idxs.length === 0){
-        throw "tree not child of parent"
-    }
+        const sub_terms = tree.terms.map(term=>{
+            if (term.op === tree_sub_op){
+                return term
+            }else if (tree_sub_op === "*"){
+                return {
+                    op: tree_sub_op,
+                    terms: [term]
+                }
+            }else if (tree_sub_op === "^"){
+                return {
+                    op: tree_sub_op,
+                    terms: [term,"1"]   
+                }
+            }else{
+                throw "that should be all cases"
+            }
+        })
 
-    else if (tree_idxs.length > 1){
-        throw "tree in multiple places????"
-    }
 
-    const tree_idx = tree_idxs[0]
-    parent.terms[tree_idx] = new_tree
+        function already_added(term){return grouped_sub_terms.flat().includes(term)}
 
-    // if new_tree is a string, it needs to be done this way (can't mutate a string)
-    // otherwise, also perfectly ok to do it this way (i think)
-}
+        const grouped_sub_terms = []
+        sub_terms.forEach(term1=>{
+            if (already_added(term1)){return}
+            const sub_term_group = [term1]
+            grouped_sub_terms.push(sub_term_group)
+            sub_terms.forEach(term2=>{ 
+                if (already_added(term2)){return}
+                const common_subterms1 = get_common_terms(term1)
+                const common_subterms2 = get_common_terms(term2)
+                if (all_terms_equal(common_subterms1,common_subterms2)){
+                    sub_term_group.push(term2)
+                }
+            })
+        })
 
+        new_terms = grouped_sub_terms.map(group=>{
+            
+            const coefficients_or_exponents = group.map(get_coefficient_or_exponent)
 
+            let combined_value
+            if (tree.op === "*"){
+                const exponent_tree = {op: "+", terms: coefficients_or_exponents.concat("0")}   // need to have two terms to simplify the tree
+                combined_value = simplify_tree(exponent_tree)   // need to simplify tree instead of arithmetic since the exponents can be variables/expressions
+            }else if (tree.op === "+"){
+                const coefficient_tree = {op: "+", terms: coefficients_or_exponents}
+                combined_value = simplify_arithmetic(coefficient_tree)                  // simplifyTree would lead to infinite recursion
+            }else{``
+                throw "should be one of those two operations"
+            }
+            
+            const common_terms = get_common_terms(group[0])  // all terms should have the same common term, so can just index the first one      
 
+            const new_sub_tree = {op: tree_sub_op, terms: [common_terms,combined_value].flat()}     // merges the b term with the 0 term
+            const simplified_tree = simplify_arithmetic(new_sub_tree)    // 0*b --> 0   or 1*b --> b     (unless it's times or to the power of 0 or times 1, the simplified tree is the same as the original)
+            
+            return simplified_tree
+        })
 
-function get_exponent(tree){
-    return tree.terms[1]
-}
-function get_coefficient(tree){
-    const coeffs = tree.terms.filter(is_number)
+        if (new_terms.length === 1){
+            new_tree = new_terms[0]
+        }else{
+            new_tree = {op: tree.op, terms: new_terms}
+        }
 
-    if (coeffs.length === 0){
-        return "1"
-    }else if (coeffs.length === 1){
-        return coeffs[0]
     }else{
-        throw "should have already been simplified"
-    }    
+        new_tree = tree
+    }
+
+    const simplified_tree = simplify_arithmetic(new_tree)
+
+    if (parent === undefined){
+        // this only happens on the top node
+        return simplified_tree
+    }else{
+        update_parent(tree0,parent,simplified_tree)
+    }
+
+    /*
+
+    it's a weird thing how i branch and either mutate the tree or return the tree
+
+    would want to be more consistent
+
+    always return the tree
+        wouldn't work since the parent would lose access to it higher up the recursion
+
+    always mutate
+        i think this would work
+
+    
+    i think once i see how simplifying the tree fits into the rest of the solver, ill know what to do
+
+    i would definitely have to create a deep clone somewhere, so it's just a question of whether to do it here, or somewhere outside
+
+    if i create a deep clone, i obviously dont have to worry about side effects
+
+    i could potentially deep clone in this function but either
+        i would deep clone on every recursion which would be unnecessary and kind of weird
+            it would work though as long as i keep access to the original tree0 for updateParent
+        i would have an outer function deep cloning which calls an inner recursive function
+
+    i could also make it purely mutate
+        removeDuplicates would mutate instead of reassigning
+        then i wouldnt need updateParent
+        this might be the cleanest most consistent way of doing it
+
+    i dont have to worry about this now though, just making sure i understand whats going on
+
+
+    */
+    
 }
-
-
-
-function get_base(tree){
-    return [tree.terms[0]]
-}
-function get_common_product_terms(tree){
-    return tree.terms.filter(term=>{return !is_number(term)})
-}
-
-
 
 function simplify_arithmetic(tree){
 
@@ -719,6 +938,9 @@ function simplify_arithmetic(tree){
         }
     }
 
+    if (tree.op === "^" && tree.terms[0] === "0" && Number(tree.terms[1]) <= 0){
+        throw "cannot raise 0 to an exponent"
+    }
 
     if (tree.op === "^" && tree.terms[1] === "0"){      // a^0 --> 1
         return "1"
@@ -784,7 +1006,10 @@ function simplify_arithmetic(tree){
             })
 
             const new_tree = {op: "*", terms: product_terms}
-            return simplify_tree(new_tree)      
+            
+            
+            return new_tree
+            return simplify_tree(new_tree)  //! had it simplify before, but i dont think this is needed
 
         }else{
             return tree
@@ -890,199 +1115,45 @@ function remove_duplicates(tree){
 }
 
 
-function is_tree(term){
 
 
-    const keys = Object.keys(term).filter(key=>{return key !== "inverted"}).sort()      // when constructing the tree it adds an inverted property, so i just filter it out5
-    const correct_keys = ["op", "terms"]
+//#endregion
+
+
+
+
+//#region solving
+
+
+function invert_top(tree){
+
     
-    return keys.every((_,idx)=>{return keys[idx] === correct_keys[idx]})
-    
-} 
 
-function is_number(term){
+    // im gonna assume th
 
-    if (typeof term !== "string" && !is_tree(term)){
-        throw "must only check a string or a tree"
+    if (tree.op === "+"){
+        return [tree]
     }
 
-    if (is_tree(term)){return false}
-
-    const is_single_value = !isNaN(Number(term))
-
-    return is_fraction(term) || is_single_value
-}
-
-
-//! moved to numbers
-function is_fraction(term){
-
-
-    if (typeof term !== "string" && !is_tree(term)){
-        throw "must only check a string or a tree"
+    if (tree.op === "*"){
+        return tree.terms
     }
 
-    if (is_tree(term)){return false}
 
-    const num_den = term.split("/")
+    if (tree.op === "^"){
+        return invert_top(tree.terms[0])
+    }
 
-    if (num_den.length !== 2){return false}
-
-
-    const num = num_den[0]
-    const den = num_den[1]
+    
 
 
-    return !isNaN(Number(num)) && !isNaN(Number(den))
+
+
+    // do stuff
+
+
 
 }
-
-
-function simplify_tree(tree0,parent){
-
-    //! for some reason it seems to mutate tree0 as well
-        // SOLVED (i think) update_parent is obviously what's mutating it
-        // i think i could 
-        // doesnt matter right now, but it might be an issue
-        // i also dont know why its happening
-
-    if (typeof tree0 === "string"){return tree0}
-
-    tree0.terms.forEach((term)=>{simplify_tree(term,tree0)})
-
-    const tree = remove_duplicates(tree0)
-
-    const factorable_op = ["+","*"].includes(tree.op) 
-    let new_tree
-    if (factorable_op){
-
-        let get_coefficient_or_exponent, get_common_terms
-        if (tree.op === "+"){
-            get_coefficient_or_exponent = get_coefficient
-            get_common_terms = get_common_product_terms
-        }else{
-            get_coefficient_or_exponent = get_exponent
-            get_common_terms = get_base
-        }
-
-
-        const tree_sub_op = upper_op[tree.op]  // for 3*a + 4*a,    treeSubOp would be "*"
-
-        const sub_terms = tree.terms.map(term=>{
-            if (term.op === tree_sub_op){
-                return term
-            }else if (tree_sub_op === "*"){
-                return {
-                    op: tree_sub_op,
-                    terms: [term]
-                }
-            }else if (tree_sub_op === "^"){
-                return {
-                    op: tree_sub_op,
-                    terms: [term,"1"]   
-                }
-            }else{
-                throw "that should be all cases"
-            }
-        })
-
-
-        function already_added(term){return grouped_sub_terms.flat().includes(term)}
-
-        const grouped_sub_terms = []
-        sub_terms.forEach(term1=>{
-            if (already_added(term1)){return}
-            const sub_term_group = [term1]
-            grouped_sub_terms.push(sub_term_group)
-            sub_terms.forEach(term2=>{ 
-                if (already_added(term2)){return}
-                const common_subterms1 = get_common_terms(term1)
-                const common_subterms2 = get_common_terms(term2)
-                if (all_terms_equal(common_subterms1,common_subterms2)){
-                    sub_term_group.push(term2)
-                }
-            })
-        })
-
-        new_terms = grouped_sub_terms.map(group=>{
-            
-            const coefficients_or_exponents = group.map(get_coefficient_or_exponent)
-
-            let combined_value
-            if (tree.op === "*"){
-                const exponent_tree = {op: "+", terms: coefficients_or_exponents.concat("0")}   // need to have two terms to simplify the tree
-                combined_value = simplify_tree(exponent_tree)   // need to simplify tree instead of arithmetic since the exponents can be variables/expressions
-            }else if (tree.op === "+"){
-                const coefficient_tree = {op: "+", terms: coefficients_or_exponents}
-                combined_value = simplify_arithmetic(coefficient_tree)                  // simplifyTree would lead to infinite recursion
-            }else{
-                throw "should be one of those two operations"
-            }
-            
-            const common_terms = get_common_terms(group[0])  // all terms should have the same common term, so can just index the first one      
-
-            const new_sub_tree = {op: tree_sub_op, terms: [common_terms,combined_value].flat()}     // merges the b term with the 0 term
-            const simplified_tree = simplify_arithmetic(new_sub_tree)    // 0*b --> 0   or 1*b --> b     (unless it's times or to the power of 0 or times 1, the simplified tree is the same as the original)
-            
-            return simplified_tree
-        })
-
-        if (new_terms.length === 1){
-            new_tree = new_terms[0]
-        }else{
-            new_tree = {op: tree.op, terms: new_terms}
-        }
-
-    }else{
-        new_tree = tree
-    }
-
-    const simplified_tree = simplify_arithmetic(new_tree)
-
-    if (parent === undefined){
-        // this only happens on the top node
-        return simplified_tree
-    }else{
-        update_parent(tree0,parent,simplified_tree)
-    }
-
-    /*
-
-    it's a weird thing how i branch and either mutate the tree or return the tree
-
-    would want to be more consistent
-
-    always return the tree
-        wouldn't work since the parent would lose access to it higher up the recursion
-
-    always mutate
-        i think this would work
-
-    
-    i think once i see how simplifying the tree fits into the rest of the solver, ill know what to do
-
-    i would definitely have to create a deep clone somewhere, so it's just a question of whether to do it here, or somewhere outside
-
-    if i create a deep clone, i obviously dont have to worry about side effects
-
-    i could potentially deep clone in this function but either
-        i would deep clone on every recursion which would be unnecessary and kind of weird
-            it would work though as long as i keep access to the original tree0 for updateParent
-        i would have an outer function deep cloning which calls an inner recursive function
-
-    i could also make it purely mutate
-        removeDuplicates would mutate instead of reassigning
-        then i wouldnt need updateParent
-        this might be the cleanest most consistent way of doing it
-
-    i dont have to worry about this now though, just making sure i understand whats going on
-
-
-    */
-    
-}
-
-
 
 
 function solve_for(eqn, variable){
@@ -1096,17 +1167,20 @@ function solve_for(eqn, variable){
 
     // using a helper function so i can have global variables (the inverted tree and the variable to solve for)
 
+
+
     if (variable === undefined){
         throw "need to specify the variable to solve for"
     }
 
-    const tree = eqn_to_tree(eqn)
+    const unmerged_tree = eqn_to_tree(eqn)
     
+    const tree = combine_solve_term(unmerged_tree, variable)
+
     const lineage = [] 
 
     find_lineage(tree)
 
-    // TODO check whether the top operation is addition, multiplication, or exponents
 
     function find_lineage(tree, parent){
 
@@ -1128,15 +1202,14 @@ function solve_for(eqn, variable){
 
 
 
-
-
-
-    //TODO instead of adding in variable, i could change the loop where:
-        // if i=0 --> child is the variable
-        // otherwise --> child is lineage[i-1]
-        // then no need to continue if tree is variable (will never happen)
-    lineage.unshift(variable)
+    const solve_var_factored_out = lineage.length === 0
     
+    if (solve_var_factored_out){
+        throw "FINISH WORKING ON THIS"
+    }
+
+
+
 
 
 
@@ -1150,31 +1223,23 @@ function solve_for(eqn, variable){
     let sub_inverted_tree = inverted_tree
 
 
-
-    // TODO error if solve for variable in exponent (not dealing with logs) <-- can be done when combining terms
-
-    // TODO multiple solutions if:
-        // outermost is times
-        // outermost is trig with an inverse being 0 at 0 (e.g. sin) and then directly in that is times
-        // so i would have to recursively go down cause it could be:
-            // sin(sin(a*b*c)) <-- honestly might be such a specific situation i wouldnt have to worry about it
-        // would then somehow have to create multiple options
-
-
     for (let i = 0; i < lineage.length; i++){
 
 
         const tree = lineage[i]
 
-        if (tree === variable){
-            continue
+
+        let child
+        if (i === 0){
+            child = variable
+        }else{
+            child = lineage[i-1]
         }
 
 
-
-
-        const child = lineage[i-1]
-
+        if (tree.op === "^" && tree.terms[1] === child){
+            throw "cant solve for variable in an exponent"
+        }
 
         siblings = tree.terms.filter(term => {return term !== child})
 
@@ -1226,17 +1291,6 @@ function solve_for(eqn, variable){
 
         // const only_one_innermost_sibling = inverted_siblings.length === 1 && (i + 1 === lineage.length)
 
-        /* @code adding "0" and letting it simplify out is much cleaner, also putting in 0 just allows it to work for exponents and trig functions
-        let inverted_branch
-        if (only_one_innermost_sibling){
-            inverted_branch = inverted_siblings[0]
-        }else{
-            inverted_branch = {
-                op: outer_inverse_op,
-                terms: inverted_siblings
-            }    // this condition also works for trig functions :)  terms will be empty but will added to in the following iteration
-        }
-        */
 
         sub_inverted_tree.terms.unshift(inverted_branch)    // need to add it to the beginning (instead of end) cause of exponents
 
@@ -1261,10 +1315,242 @@ function solve_for(eqn, variable){
 }
 
 
+function combine_solve_term(tree, solve_var, parent){
+
+
+    // combination of factoring and expanding to get the variable to solve for in one place
+    // would be called at the beginning of solve for (right after converting to tree)
+
+    // just mutate?
+
+
+    if (typeof tree == "string"){
+        return tree
+    }
+
+    tree.terms.forEach(term => {combine_solve_term(term, solve_var, tree)})
+
+
+    function solve_var_in_term (term){
+        return term.has_solve_var || term === solve_var
+    }
+
+
+    if (tree.terms.some(solve_var_in_term)){
+        tree.has_solve_var = true
+    }else{return tree}
+
+
+    const solve_var_terms = tree.terms.filter(solve_var_in_term)
+
+    if (solve_var_terms.length > 0){
+        tree.has_solve_var = true
+    }
+
+    const multiple_solve_vars = solve_var_terms.length > 1
+
+    if (multiple_solve_vars && tree.op !== "+"){
+        throw "might not be able to solve -- check this"
+    }
+
+    let new_tree
+    if (multiple_solve_vars && tree.op === "+"){
+        
+        const sum_children = tree.terms.map(subterm => {
+
+            if (solve_var_in_term(subterm) && subterm.op !== "*"){
+                return {op: "*", terms: [subterm, "1"], has_solve_var: true}
+            }else{
+                return subterm
+            }
+        })
+
+
+        const expanded_sum_children = sum_children.map(subtree => {
+
+            if (solve_var_in_term(subtree)){
+                return expand(subtree)  //! simplify each of the product terms
+            }else{
+                return subtree
+            }
+
+        }).flat()
+
+
+       //  const simplified_sum_children = simplify_tree({op: "+", terms: expanded_sum_children}).terms
+        //! simplify the sum of the children
+
+        //! sort of works (avoids requiring recursive simplification, but tricky situation if it simplifies to a string)
+
+
+        const factorable_terms = expanded_sum_children.filter(subterm => {
+            return subterm.op === "*" && solve_var_in_term(subterm)
+        })
+        const nonfactorable_terms = expanded_sum_children.filter(subterm => {
+            return !(factorable_terms.includes(subterm))
+        })
+
+        const common_terms = factorable_terms.map(subterm => {  
+            const terms_with_solve_var = subterm.terms.filter(grandchild => {
+                return solve_var_in_term(grandchild)
+            })
+            if (terms_with_solve_var.length > 1){
+                throw "this shouldnt happen, should have either thrown an error or been factored out before"
+            }else if (terms_with_solve_var.length === 0){
+                throw "should have been filtered out of factorable terms"
+            }
+            return terms_with_solve_var[0]
+        })
+
+
+        const matching_terms = common_terms.every(term => {
+            return all_terms_equal(term, common_terms[0])
+
+        })
+        if (!matching_terms){
+            throw "cannot factor, so cannot solve ):"
+        }
+
+        const common_term = common_terms[0]
 
 
 
+        const other_factor_trees = factorable_terms.map((subterm,idx) => {
+            const boop = subterm.terms.filter(grandchild => {
+                return common_terms[idx] !== grandchild
+            })
 
+            if (boop.length === 0){
+                throw "should at least be solveVar * 1, this shouldnt happen"
+            }else if (boop.length === 1){
+                return boop[0]
+            }else{
+                return {op: "*", terms: boop}
+            }
+        })
+
+        let factored_out_tree
+        if (other_factor_trees.length === 0){
+            throw "not sure if this is possible"
+        }else if (other_factor_trees.length === 1){
+            factored_out_tree = other_factor_trees[0]
+        }else{
+            factored_out_tree = {
+                op: "+",
+                terms: other_factor_trees
+            }
+        }
+        
+
+        const factored_term = {
+            op: "*",
+            terms: [common_term, factored_out_tree]
+        }
+        
+
+        const combined_terms = nonfactorable_terms.concat(factored_term)
+
+        let expanded_tree
+        if (combined_terms.length === 1){
+            expanded_tree = combined_terms[0]
+        }else{
+            expanded_tree = {op: "+", terms: combined_terms}
+        }
+
+        //new_tree = expanded_tree
+        new_tree = simplify_tree(expanded_tree) //! simplifyTree also mutates
+            // however, would have to be careful with where the simplification is done: once for each of the terms 
+
+        new_tree.has_solve_var = true
+
+    }else{
+        new_tree = tree
+    }   
+
+
+    if (parent === undefined){
+        return new_tree
+    }else{
+        update_parent(tree, parent, new_tree)
+    }
+
+
+
+    function expand(tree){
+
+
+        if (tree.op !== "*"){
+            throw "highest operation must be multiplication"
+        }
+    
+    
+    
+        const all_sum_terms = tree.terms.map(tree => {
+    
+    
+            let sum_terms
+            if (tree.op === "+"){
+                sum_terms = tree.terms
+            }else{
+                sum_terms = [tree]
+            }
+    
+            return sum_terms
+    
+        })
+    
+    
+        const expanded_terms = get_permuations(all_sum_terms)
+    
+        const product_terms = expanded_terms.map(term => {
+
+            const product_term = {op: "*", terms: term}
+
+            product_term.has_solve_var = term.some(solve_var_in_term)
+
+            return product_term
+
+        })
+        
+    
+        return product_terms
+                                                
+    }
+    
+    
+}
+
+function get_permuations(array_of_arrays){
+
+    let combos = [[]]
+
+
+    for (const sub_array of array_of_arrays){
+        combos = expand_combos(sub_array, combos)
+    }
+    return combos
+
+    function expand_combos(sub_array, combos){
+
+        const new_combos = []
+        for (const el of sub_array){
+            for (const combo of combos){
+                new_combos.push(combo.concat(el))
+            }
+        }
+        return new_combos
+    }
+
+
+}
+
+
+
+//#endregion
+
+
+
+//#region tree --> equation
 
 function tree_to_eqn(tree, use_ltx = false, parent){
 
@@ -1404,11 +1690,6 @@ function tree_to_eqn(tree, use_ltx = false, parent){
 
 }
 
-
-const tree = eqn_to_tree("a/b")
-
-tree_to_eqn(tree)
-
 function merge_fraction_products(tree){
     // im going to FIRST manipulate the three, THEN convert the new tree into an equation
 
@@ -1547,6 +1828,9 @@ function merge_fraction_products(tree){
  
 }
 
+//#endregion
+
+
 
 function draw(tree){
 
@@ -1577,7 +1861,7 @@ function draw(tree){
 
             const valid_keys = ["op","terms"]
             const keys = Object.keys(tree)
-            const invalid_keys = keys.filter(key=>{return !valid_keys.includes(key)})
+            const invalid_keys = keys.filter(key=>{return !valid_keys.includes(key) && key !== "has_solve_var"})    // hasSolveVar just used for combining solve vars function
             const missing_keys = valid_keys.filter(key=>{return !keys.includes(key)})
             
             if (invalid_keys.length !== 0){
@@ -1628,17 +1912,26 @@ function draw(tree){
 
 }
 
+function update_parent(tree, parent, new_tree){
+    
+    const tree_idxs = [...Array(parent.terms.length).keys()].filter((idx)=>{return parent.terms[idx] === tree})
 
 
 
+    if (tree_idxs.length === 0){
+        throw "tree not child of parent"
+    }
 
+    else if (tree_idxs.length > 1){
+        throw "tree in multiple places????"
+    }
 
+    const tree_idx = tree_idxs[0]
+    parent.terms[tree_idx] = new_tree
 
-
-
-
-
-
+    // if new_tree is a string, it needs to be done this way (can't mutate a string)
+    // otherwise, also perfectly ok to do it this way (i think)
+}
 
 function all_terms_equal(terms1, terms2) {
 
@@ -1703,9 +1996,14 @@ function all_terms_equal(terms1, terms2) {
 
 }
 
+function boop(eqn){
+    draw(combine_solve_term(eqn_to_tree(eqn),"a"))
+}
+
+
+//#region testing
 
 function arithmetic_check (exp){
-    return math.evaluate(exp) === tree_to_eqn(eqn_to_tree(exp))
 }
 
 
@@ -1717,173 +2015,261 @@ const solve_for_a = (exp) => {
     return solve_for(exp, "a")
 }
 
-//export {simplify, arithmetic_check}
 
-const simplify_tests = [
+const simplify_tests = {
 
-    {
-        name: "expand out negative",
-        func: simplify,
-        in: "a-(b+c)",
-        out: "a-b-c"
-    },
-    {
-        name: "layered subtraction",
-        func: simplify,
-        in: "a-b-c-d",
-        out: "a-b-c-d"
-    },
-    {
-        name: "layered fractions",
-        func: simplify,
-        in: "a/b/c/d",
-        out: "a/(b*c*d)"
-    },
-    {
-        name: "layered exponents",
-        func: simplify,
-        in: "a^b^c^d",
-        out: "a^b^c^d"
-    },
-    {
-        name: "layered parentheses",
-        func: simplify,
-        in: "(a+(b*c))*(d/f)",
-        out: "((a+b*c)*d)/f"
-    },
-    {
-        name: "square root",
-        func: simplify,
-        in: "sqrt(a+b)+c",
-        out: "(a+b)^(1/2)+c"
-    },
-    {
-        name: "just give it everything (:<",
-        func: simplify,
-        in: "a*b^c^d/f/(g-2)/h",
-        out: "(a*b^c^d)/(f*(g-2)*h)"
-    },
-    {
-        name: "remove 1 coefficient",
-        func: simplify,
-        in: "a^1/2",
-        out: "a/2"
-    },
-    {
-        name: "move coefficient to front",
-        func: simplify,
-        in: "g*(-3)+4",
-        out: "-3*g+4"
-    },
-    {
-        name: "flip fraction",
-        func: simplify,
-        in: "a^(-2)",
-        out: "1/a^2"
-    },
-    {
-        name: "contain fractional exponent",
-        func: simplify,
-        in: "sqrt(a*b)",
-        out: "(a*b)^(1/2)"
-    },
-    {
-        name: "factor addition",
-        func: simplify,
-        in: "3*(a^b)+4*a^b+c",
-        out: "7*a^b+c"
-    },
-    {
-        name: "factor multiplication",
-        func: simplify,
-        in: "a^b*a^c*d+f",
-        out: "a^(b+c)*d+f",
-    },
-    {
-        name: "cancel terms",
-        func: simplify,
-        in: "(b+c^2)*d*f/((b+c^2)*g)",
-        out: "(d*f)/g"
-    }
-]
+    func: simplify,
 
-const solve_tests = [
-    {
-        name: "simple",
-        func: solve_for_a,
-        in: "a+b*c+d^2",
-        out: "-b*c-d^2"
-    },
-    {
-        name: "invert exponent",
-        func: solve_for_a,
-        in: "b*c+a^3*d",
-        out: "((-b*c)/d)^(1/3)"
-    },
-    {
-        name: "invert coefficient",
-        func: solve_for_a,
-        in: "a*c+d",
-        out: "(-d)/c"
-    },
-    {
-        name: "trig inverse",
-        func: solve_for_a,
-        in: "sin(a*c)+d*f",
-        out: "asin(-d*f)/c"
-    },
-    {
-        name: "combined",
-        func: solve_for_a,
-        in: "(b+a^2)/c*d+f",
-        out: "((-f*c)/d-b)^(1/2)"
-    }
-]
+    tests: [
+        {
+            name: "expand out negative",
+            in: "a-(b+c)",
+            out: "a-b-c"
+        },
+        {
+            name: "layered subtraction",
+            in: "a-b-c-d",
+            out: "a-b-c-d"
+        },
+        {
+            name: "layered fractions",
+            in: "a/b/c/d",
+            out: "a/(b*c*d)"
+        },
+        {
+            name: "layered exponents",
+            in: "a^b^c^d",
+            out: "a^b^c^d"
+        },
+        {
+            name: "layered parentheses",
+            in: "(a+(b*c))*(d/f)",
+            out: "((a+b*c)*d)/f"
+        },
+        {
+            name: "square root",
+            in: "sqrt(a+b)+c",
+            out: "(a+b)^(1/2)+c"
+        },
+        {
+            name: "just give it everything (:<",
+            in: "a*b^c^d/f/(g-2)/h",
+            out: "(a*b^c^d)/(f*(g-2)*h)"
+        },
+        {
+            name: "remove 1 coefficient",
+            in: "a^1/2",
+            out: "a/2"
+        },
+        {
+            name: "move coefficient to front",
+            in: "g*(-3)+4",
+            out: "-3*g+4"
+        },
+        {
+            name: "flip fraction",
+            in: "a^(-2)",
+            out: "1/a^2"
+        },
+        {
+            name: "contain fractional exponent",
+            in: "sqrt(a*b)",
+            out: "(a*b)^(1/2)"
+        },
+        {
+            name: "factor addition",
+            in: "3*(a^b)+4*a^b+c",
+            out: "7*a^b+c"
+        },
+        {
+            name: "factor multiplication",
+            in: "a^b*a^c*d+f",
+            out: "a^(b+c)*d+f",
+        },
+        {
+            name: "cancel terms",
+            in: "(b+c^2)*d*f/((b+c^2)*g)",
+            out: "(d*f)/g"
+        },
+    
+        {
+            name: "simplify nested exponents",
+            in: "(a^b)^(1/b)",
+            out: "a"
+        },
+        {
+            name: "raise 0 to an exponent",
+            in: "0^0+a",
+            out: "ERROR"
+        }
 
-all_tests = [simplify_tests, solve_tests].flat()
 
-function test(tests = all_tests){
+    ]
 
-    if (tests === undefined){
-        throw "need to specify test, run test to run all tests"
-    }
+}
+
+const solve_tests = {
+
+    func: solve_for_a,
+
+    tests: [
+        {
+            name: "simple",
+            in: "a+b*c+d^2",
+            out: "-b*c-d^2"
+        },
+        {
+            name: "invert exponent",
+            in: "b*c+a^3*d",
+            out: "((-b*c)/d)^(1/3)"
+        },
+        {
+            name: "invert coefficient",
+            in: "a*c+d",
+            out: "(-d)/c"
+        },
+        {
+            name: "trig inverse",
+            in: "sin(a*c)+d*f",
+            out: "asin(-d*f)/c"
+        },
+        {
+            name: "combined",
+            in: "(b+a^2)/c*d+f",
+            out: "((-f*c)/d-b)^(1/2)"
+        }
+    ]
+
+}
+
+
+const merge_tests = {
+
+
+
+    func: (exp) => {return tree_to_eqn(combine_solve_term(eqn_to_tree(exp), "a"))},
+
+    tests: [
+
+
+        {
+            name: "basic merge",
+            in: "a*b+a*c",
+            out: "a*(b+c)"
+        },
+        {
+            name: "merge with exponent",
+            in: "a^2*b*c+a^2*d",
+            out: "a^2*(b*c+d)"
+        },
+        {
+            name: "cancel out",
+            in: "a*(b*c+d)-a*b*c",
+            out: "a*d"
+        },
+        {
+            name: "different exponents",
+            in: "a^2*b+a*c",
+            out: "ERROR"
+        },
+        {
+            name: "cant combine",
+            in: "sin(a*sin(a))",
+            out: "ERROR"
+        },
+
+        {
+            name: "also cant combine",
+            in: "sin(a+sin(a))",
+            out: "ERROR"
+        }
+
+    ]
+
+}
+
+const arithmetic_tests = {
+    func:  exp => {return String(math.evaluate(exp)) === tree_to_eqn(eqn_to_tree(exp))},
+
+    tests: [
+
+        {
+            name: "simple math",
+            in: "(3+4)^2",
+            out: true
+        },
+        {
+            name: "complicated math",
+            in: "(3/7*4/9)/(4+sqrt(7*2)*sin(0.2+3))^2",
+            out: true
+        }
+    ]
+
+}
+
+all_tests = [simplify_tests, solve_tests, merge_tests, arithmetic_tests]
+
+function test(test_suites = all_tests){
 
     function is_equal(a,b){
         return JSON.stringify(a) === JSON.stringify(b)
     }
 
-    tests.forEach(test_exp=>{
+    
+    let failed = 0
+
+    test_suites.forEach(suite => {
+
+        const func = suite.func
+
+        suite.tests.forEach(test_exp=>{
 
 
-        // very hacky but whatever
+            // very hacky but whatever
 
-        const input_keys = Object.keys(test_exp.in)
+            const input_keys = Object.keys(test_exp.in)
 
 
-        try{
+            try{
 
-            let output
-            if (input_keys.length === 1 && input_keys[0] === "args"){
-                output = test_exp.func(...test_exp.in.args)
-            }else{
-                output = test_exp.func(test_exp.in)
-            }
-            const expected_output = test_exp.out
+                let output
+                try{
+                    if (input_keys.length === 1 && input_keys[0] === "args"){
+                        output = func(...test_exp.in.args)
+                    }else{
+                        output = func(test_exp.in)
+                    }
+                }catch{
+                    output = "ERROR"
+                }
 
-            if (is_equal(output, expected_output)){
-                console.log(`Test "${test_exp.name}" passed`)
-            }else{
+                const expected_output = test_exp.out
+
+                if (is_equal(output, expected_output)){
+                    console.log(`Test "${test_exp.name}" passed`)
+                }else{
+                    failed += 1
+                    console.warn(
+    `Test "${test_exp.name}" failed
+                Output: ${output}
+        Expected Output: ${expected_output}`)
+                }
+            }catch(e){
                 console.warn(
-`Test "${test_exp.name}" failed
-             Output: ${output}
-    Expected Output: ${expected_output}`)
+    `Test ${test_exp.name} gave unexpected error
+        Error: ${e}`)
             }
-        }catch(e){
-            console.warn(
-`Test ${test_exp.name} gave unexpected error
-    Error: ${e}`)
-        }
+        })
+
     })
+
+    if (failed > 0){
+        console.warn(failed + " tests failed o:")
+    }else{
+        console.log("all tests passed :)")
+    }
 
 }
 
+
+//#endregion
