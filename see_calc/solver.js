@@ -35,6 +35,8 @@ var log_solve = true
 
 
 
+
+
 function numeric_solve(exp){
 
     var exp_vars = get_all_vars(exp)
@@ -88,9 +90,7 @@ function numeric_solve(exp){
 
 }
 
-function log_solve_step(msg){
-    if (log_solve){console.log(msg)}
-}
+
 
 function remove_vars(eqns,vars_to_remove){
 
@@ -355,14 +355,7 @@ function forward_solve(ordered_sub){
 
 }
 
-function eqns_to_exps(eqns){
-    let exps = eqns.map(eqn=>{
-        if (eqn.includes("VISUAL")){return eqn}
-        sides = eqn.split("=")
-        return sides[0]+"-("+sides[1]+")"
-    })
-    return exps
-}
+
 
 
 function sub_out(exps, ordered, vars_to_remove){
@@ -396,8 +389,8 @@ function sub_out(exps, ordered, vars_to_remove){
         }
     })
 
-    const sorted_keep_exps = keep_var_exps.sort(exp_complex_sort)
-    const sorted_no_keep_exps = no_keep_var_exps.sort(exp_complex_sort)
+   // const sorted_keep_exps = keep_var_exps.sort(exp_complex_sort)
+    //const sorted_no_keep_exps = no_keep_var_exps.sort(exp_complex_sort)
 
 
     //const sorted_exps = sorted_keep_exps.concat(sorted_no_keep_exps)
@@ -612,6 +605,30 @@ function solve_exp(exp, vars_to_remove){
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+function log_solve_step(msg){
+    if (log_solve){console.log(msg)}
+}
+
+
+function eqns_to_exps(eqns){
+    let exps = eqns.map(eqn=>{
+        if (eqn.includes("VISUAL")){return eqn}
+        sides = eqn.split("=")
+        return sides[0]+"-("+sides[1]+")"
+    })
+    return exps
+}
 
 
 
