@@ -1,3 +1,18 @@
+// TODO dont have error variable names have the word error in them, kind of stupid
+
+class InvalidReference extends Error {
+    constructor (message){
+        super(message)
+    }
+}
+
+
+class FormatError extends Error {
+    constructor (message){
+        super(message)
+    }
+}
+
 
 const error_in_UI = true // set to false so I can catch UI errors on uncaught exception
 
@@ -48,32 +63,22 @@ function calc(SoEs,start_idx,end_idx){
         var SoE=SoE_struct.eqns;
 
         if (known_SoEs.includes(name)){
-            SoE_struct.result = "ERROR"
-            SoE_struct.display = '"'+name+'"'+' is already a block name'
+            SoE_struct.result = new FormatError('"'+name+'"'+' is already a block name')
         }else if(name.length===0){
-            SoE_struct.result = "ERROR"
-            SoE_struct.display = "Block name cannot be blank"
+            SoE_struct.result = new FormatError("Block name cannot be blank")
         }else if(!(/^\w+$/.test(name))){
-            SoE_struct.result = "ERROR"
-            SoE_struct.display = "Block name cannot have math operations"
+            SoE_struct.result = new FormatError("Block name cannot have math operations")
         }else if(name.includes("_")){
-            SoE_struct.result = "ERROR"
-            SoE_struct.display = "Block name cannot include underscores"
+            SoE_struct.result = new FormatError("Block name cannot include underscores")
         }else{
             SoE_struct.result = ""
-            SoE_struct.display = ""
         }
 
 
         const inputs = []
 
         for (var line_i=0;line_i<SoE.length;line_i++){
-            
-
-
-            if (!error_in_UI){
-                parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
-            }
+        
             try{
 
                 const input = SoE[line_i].input
@@ -82,13 +87,12 @@ function calc(SoEs,start_idx,end_idx){
 
 
 
-                if (error_in_UI){
-                    parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
-                }
+                parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
+                
             }catch(error){
-                if (typeof error==="string"){
-                    SoEs[SoE_i].eqns[line_i].result="ERROR";
-                    SoEs[SoE_i].eqns[line_i].display=error;
+                solve_error_types = [ContradictionError, EvaluateError, TooMuchUnknownError, InvalidReference, FormatError]
+                if (solve_error_types.some((type) => {return error instanceof type}) && error_in_UI){
+                    SoEs[SoE_i].eqns[line_i].result=error.message;
                 }else{
                     if (typeof error==="object"){console.log(error.msg)}
                     throw error
@@ -116,12 +120,12 @@ function calc(SoEs,start_idx,end_idx){
             var ref_idx = known_SoEs.findIndex((element) => element === ref)
 
             if (block_name===ref){
-                throw "Cannot reference own block"
+                throw new InvalidReference("Cannot reference own block")
             }else if(ref_idx===-1){
                 if(all_SoE_names.includes(ref)){
-                    throw "Cannot reference future block"   
+                    throw new InvalidReference("Cannot reference future block")
                 }else{
-                    throw '"'+ref+'"'+' is not an equation or block name'
+                    throw new InvalidReference('"'+ref+'"'+' is not an equation or block name')
                 }
             }
             
@@ -135,13 +139,17 @@ function calc(SoEs,start_idx,end_idx){
             }
             var ref_SoE=ref_SoEs[ref_idx].eqns
             var eqns = []
-            if (ref_SoEs[ref_idx].result==="ERROR"){throw ref+" has an error"}
+            if (ref_SoEs[ref_idx].result instanceof Error){
+                throw new InvalidReference(ref+" has an error")
+            }
             ref_SoE.forEach(ref_line => {
                 var ref_eqns = ref_line.result
                 if (ref_eqns===undefined){
                     boop
                 }
-                if (ref_eqns==="ERROR"){throw ref+" has an error"}
+                if (ref_eqns==="ERROR"){
+                    throw new InvalidReference(ref+" has an error")
+                }
     
     
                 eqns.push(ref_eqns)
@@ -160,7 +168,8 @@ function calc(SoEs,start_idx,end_idx){
         var vis_vars = []
         match_vis_blocks = vis_blocks.filter((vis_block)=>{return vis_block["name"]===line})
 
-        var display = []
+        var display
+        //var display = []
         var new_table = undefined // removes table unless there is a substitution (removes if obsolete)
 
 
@@ -173,11 +182,11 @@ function calc(SoEs,start_idx,end_idx){
         const has_solve_txt = line.includes(solve_txt)
 
         if (has_solve_txt && !solve_line ){
-            throw "solve keyword must occur once at the start of the line"
+            throw new FormatError("solve keyword must occur once at the start of the line")
         }
 
         if (has_solve_txt && !solve_txt_once){
-            throw "solve keyword must only occur once in the line"
+            throw new FormatError("solve keyword must only occur once in the line")
         }
 
         line = line.replaceAll(solve_txt,"")
@@ -185,31 +194,32 @@ function calc(SoEs,start_idx,end_idx){
         var sub_table_error_msgs
     
         if (line.length===0){
-            if(solve_line){throw "solve must be followed by block name"}
+            if(solve_line){
+                throw new FormatError("solve must be followed by block name")
+            }
         }else if(!(/^\w+$/.test(line))){    // checks if not alphanumeric (also allows underscores)
 
             var eqn_split = line.split("=")
 
             if (eqn_split.length===1){
-                throw "Expression not allowed, only equation or block reference"
+                throw new FormatError("Expression not allowed, only equation or block reference")
             }else if (eqn_split.length>2){
-                throw "Only single equation allowed"
+                throw new FormatError("Only single equation allowed")
             }else if (eqn_split.some((exp)=>{return exp.length==0})){
-                throw "Terms on both side of equal sign required"
+                throw new FormatError("Terms on both side of equal sign required")
             }else if(get_all_vars(line).includes(block_name)){
-                throw "cannot have the name of the block as a variable"
+                throw new FormatError("cannot have the name of the block as a variable")
             }else{
                 
-                var line_math = ltx_to_math(line)
+                //var line_math = ltx_to_math(line)
 
                 // TODO make it so this doesn't clutter the display <-- honestly i think ill just stick with radians
                 // line_math = convert_to_degrees(line_math)
                 
-                if (get_all_vars(line_math).length===0){
-                    throw "Equation must have variables"
+                if (get_all_vars(line).length===0){
+                    throw new FormatError("Equation must have variables")
                 }
-                var result = [line_math]
-                display = [line]
+                var result = [line]
             }
 
         }else if(match_vis_blocks.length!==0){
@@ -233,7 +243,7 @@ function calc(SoEs,start_idx,end_idx){
             var new_stuff = compute_sub_table([vis_eqn],old_table)
 
             var result = new_stuff[0].flat()
-            var display = result
+            //var display = result
             var new_table = new_stuff[1]
             sub_table_error_msgs = new_stuff[2]
 
@@ -241,38 +251,7 @@ function calc(SoEs,start_idx,end_idx){
             var eqns = get_ref_eqns(line)
 
 
-
-            let vis_eqns     = eqns.filter(eqn=>{return eqn.includes("VISUAL")})
-            const non_vis_eqns = eqns.filter(eqn=>{return !eqn.includes("VISUAL")})
-
-        
-            var sol_exps = solve_eqns(non_vis_eqns)
-
-            var result = []
-            var display = []
-            sol_exps.forEach(sol=>{
-                var frac = sol.exp
-                var frac_comps = frac.split("/")
-                if (frac_comps.length===1){var val = frac_comps[0]}
-                else{var val = frac_comps[0]/frac_comps[1]}
-                const n_dec_place = 5
-                const rounded_value = Math.round(val*10**n_dec_place)/(10**n_dec_place)
-        
-                result.push(math_to_ltx(sol.var)+"="+val)
-                display.push(math_to_ltx(sol.var)+"="+rounded_value)
-            })
-        
-            const sub_in = sol_exps.map(sol=>{return sol.var})
-            const sub_out = sol_exps.map(sol=>{return sol.exp})
-            vis_eqns = vis_eqns.map(eqn=>{
-
-                sub_in.forEach((_,i)=>{
-                    eqn = sub_all_vars(eqn,sub_in[i],sub_out[i])
-                })
-                return eqn
-            })
-
-            display_vis(vis_eqns)
+            result = solve_eqns(eqns)
            
 
         }else{
@@ -291,8 +270,8 @@ function calc(SoEs,start_idx,end_idx){
                 var new_table = undefined
             }
 
-            var result = []
-
+            result = eqns
+            /*
             eqns.forEach(eqn_row=>{
                 var display_row = []
                 display.push(display_row)
@@ -317,14 +296,19 @@ function calc(SoEs,start_idx,end_idx){
 
                 })
             })
+            */
         }
 
 
 
+        // at the very end, will round the numbers 
         SoEs[SoE_i].eqns[line_i].result=result;
         SoEs[SoE_i].eqns[line_i].sub_table = new_table
-        SoEs[SoE_i].eqns[line_i].display=display;
+        //SoEs[SoE_i].eqns[line_i].display=display;
 
+        if (display !== undefined){
+            throw "THIS SHOULDNT HAPPEN dont want display to be set any more"
+        }
 
         if (sub_table_error_msgs !== undefined && sub_table_error_msgs.length !== 0){
             throw sub_table_error_msgs[0]
@@ -373,7 +357,7 @@ function display_vis(vis_eqns){
             try{
                 var vis_val = math.evaluate(vis_exp)
             }catch{
-                throw "could not solve for all values for visual "+vis_name
+                throw "could not solve for all values for visual "+vis_name+" shouldnt happen??"
             }                
             vis_input[vis_var] = vis_val
         })
@@ -386,14 +370,15 @@ function display_vis(vis_eqns){
     makeCoordShape()
 }
 
-function compute_sub_table(eqns,old_table_ltx){
+function compute_sub_table(eqns,old_table){
     // takes the new eqns and the current table, replaces the columns to match the variables in the new eqns, then performs substitutions
 
-    if(old_table_ltx===undefined){  // the table hasn't been created yet
+    if(old_table===undefined){  // the table hasn't been created yet
         var old_vars = []
         var n_col = 2
     }else{
 
+        /*
         var old_table = old_table_ltx.map(row=>{
             return row.map(exp=>{
                 try{
@@ -403,6 +388,10 @@ function compute_sub_table(eqns,old_table_ltx){
                 }
             })
         })
+
+
+        */
+
 
         var old_vars = old_table[0]
         var trans_table = transpose(old_table)
@@ -446,6 +435,7 @@ function compute_sub_table(eqns,old_table_ltx){
 
 
             if (sub_out.includes("=")){
+                // TODO need to makes this a type of error? (instead of just a string, so it can be properly handled)
                 throw sub_out+" not allowed, cannot substitute an equation"
             }
 
@@ -469,6 +459,7 @@ function compute_sub_table(eqns,old_table_ltx){
         try{
             all_eqns.push(remove_vars(eqns_subbed,removed_vars))
         }catch(e){
+            // TODO need to change this error handling (might not be needed at all)
             if (typeof e === "string"){
                 error_msgs.push(e)
             }else{

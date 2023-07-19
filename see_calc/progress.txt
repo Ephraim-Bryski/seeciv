@@ -1,4 +1,21 @@
 
+a*b=0, a=1 leads to b=0, a=0
+
+basically, how i have it now, it immediately solves a*b=0 as a=0, with b=0 as the other product branch
+	then converts a-1 to (0-1)*b, then solving that as b=0
+
+CANT IMMEDIATELY SOLVE
+
+instead, do all eqns without top level products FIRST
+then solve all permutations of possible systems
+check whether there's one remaining system
+
+
+
+
+
+
+
 Issues easily handled with custom solver (no nerdamer :D )
 	initial step shown should be simplification after initial substitutions
 	not very important, but remove_common_vars converts a*b+b to a+1 which is a problem if it's actually b that's 0 <-- not gonna worry about this for now

@@ -6,6 +6,8 @@ dont use so it doesnt take time to load
 
 
 */
+
+
 var use_sympy = false
 //var pyodide
 
@@ -20,7 +22,6 @@ if (use_worker && !use_sympy){
 // where to start computing, modified in change_start_id
 
 
-const user = "eph"    // for now i can just have the user as global since im the only one using it
 var MQ = MathQuill.getInterface(2);
 
 document.body.loaded = false    // this keeps track of whether sympy has been loaded, it's only used for when loading a sheet from the library -- if sympy's loaded it should compute, but if not it should just display
@@ -36,8 +37,8 @@ var SoEs= [
         name:"System",
         info: "hi",
         eqns: [
-        {input: "4 = \\omega"},
-        {input: "Wheel"}
+        {input: "a=b+1"},
+        {input: "b=a"}
         ]
     },
 
@@ -54,11 +55,11 @@ var SoEs= [
 
 
 
-var keep_vars = ["y","yd","w"]
+//var keep_vars = ["y","yd","w"]
 
 
-var eqns = ['ee=Vv/Vs', 'n=Vv/V', 'S=Vw/Vv', 'w=Ww/Ws', 'Gs=ys/yw', 'ys=Ws/Vs', 'yw=Ww/Vw', 'yd=Ws/V', 'y=W/V', 'W=Ws+Ww', 'V=Vs+Vv']
-var vars_to_remove = ['ee', 'Vv', 'Vs', 'n', 'V', 'S', 'Vw', 'Ww', 'Ws', 'Gs', 'ys', 'y', 'W']
+//var eqns = ['ee=Vv/Vs', 'n=Vv/V', 'S=Vw/Vv', 'w=Ww/Ws', 'Gs=ys/yw', 'ys=Ws/Vs', 'yw=Ww/Vw', 'yd=Ws/V', 'y=W/V', 'W=Ws+Ww', 'V=Vs+Vv']
+//var vars_to_remove = ['ee', 'Vv', 'Vs', 'n', 'V', 'S', 'Vw', 'Ww', 'Ws', 'Gs', 'ys', 'y', 'W']
 
 
 if (!use_worker){
@@ -86,7 +87,6 @@ function send_sheet(sheet,start_idx,end_idx){
     // start is inclusive, end is exclusive (1 to 2 means just 1)
     if (end_idx<=start_idx){return}
     [...$(".run-arrow")].slice(start_idx,end_idx).forEach((arrow)=>{
-        console.log(arrow)
         arrow.classList.remove(".run-arrow")
         arrow.classList.add("spinner")
     })
@@ -154,32 +154,126 @@ function set_up(){
     firebase.initializeApp(fb_config);
     const database = firebase.database().ref();
 
+    const auth = firebase.auth()
 
-    database.on("value", (package)=>{
-        console.log('Firebase Loaded')
-        const data = package.val()
-        create_fb_callbacks(database,data)
+    //! DELTE PASSWORD WHENEVER PUSHING CHANGES!!!!!
+    try{
+        
+    }catch{
+        throw "boop"
+    }
+
+    const save_btn = document.getElementById("save-btn")
+    save_btn.onclick = ()=>{
+        const sheet_name = document.getElementById("save-field").value
+        database.child("users").child(auth.currentUser.uid).child(sheet_name).set(JSON.parse(JSON.stringify((DOM2data()))))  // parse and stringify is just to remove undefined, since firebase cant handle them
+    }
+
+    sign_in("ebryski1@gmail.com", "boopbop")
+
+    
+    function sign_out(){
+        auth.signOut()
+        save_btn.style.display = "none"
+    }
+
+    function sign_in(email, password){
+
+
+        auth.signInWithEmailAndPassword(email, password).then(()=>{
+
+            database.child("users").child(auth.currentUser.uid).on("value", (package)=>{
+                create_fb_callbacks(database, package, false)},
+                (e)=>{throw e} 
+            )
+            
+            save_btn.style.display = "none"
+ 
+            
+
+        })
+    }
+
+    database.child("public").on("value", (package)=>{
+        create_fb_callbacks(database, package, true)
     },
     (e)=>{
-        throw "ERROR WITH FIREBASE????"} 
+        throw e} 
     );
 
-    function create_fb_callbacks(database,data){
+    if (auth.currentUser !== null){
+        
+    }
+    
 
-        const save_btn = document.getElementById("save-btn")
-        save_btn.onclick = ()=>{
-            const sheet_name = document.getElementById("save-field").value
-            database.child(user).child(sheet_name).set(JSON.parse(JSON.stringify((DOM2data()))))  // parse and stringify is just to remove undefined, since firebase cant handle them
+
+    function create_toggle(text) {
+
+        const container = document.createElement('div');
+      
+        const arrowButton = document.createElement('button');
+        arrowButton.innerText = '▶';
+    
+        arrowButton.classList.add('arrow-button');
+    
+        const textElement = document.createElement('span');
+        textElement.innerText = text;
+
+        const boop = document.createElement("div")
+
+        boop.appendChild(arrowButton)
+        boop.appendChild(textElement)
+        
+    
+        container.appendChild(boop);
+    
+    
+        arrowButton.addEventListener('click', toggleDivVisibility);
+    
+
+        function toggleDivVisibility() {
+            if (toggleDiv.style.display === 'none') {
+                toggleDiv.style.display = 'block';
+                arrowButton.innerText = '▼';
+            } else {
+                toggleDiv.style.display = 'none';
+                arrowButton.innerText = '▶';
+            }
         }
     
+        return container;
+
+    }
+
+
+    function create_fb_callbacks(database, package, public){
+
+
+        const data = package.val()
+
+
+ 
+        document.addEventListener('keydown', function(event) {
+
+            // this could be just for writing to public
+
+
+            if (event.ctrlKey && event.shiftKey && event.key === 'S') {
+                const sheet_name = document.getElementById("save-field").value
+                database.child("public").child(sheet_name).set(JSON.parse(JSON.stringify((DOM2data()))))
+            }
+        });
+          
+        
+
     
-        const user_data = data[user]
+    
         const current_btns = document.getElementsByClassName("sheet-load-btn")
         const current_names = [...current_btns].map(btn=>{return btn.innerHTML})
 
         
 
-        const sheet_names = Object.keys(user_data)
+        const sheet_names = Object.keys(data)
 
         const load_btns = [...document.getElementsByClassName("sheet-load-btn")]
         load_btns.forEach((btn)=>{btn.remove()})
@@ -194,7 +288,7 @@ function set_up(){
             btn.innerHTML=sheet_name
             btn.onclick=()=>{
                 document.getElementById("save-field").value=sheet_name
-                const sheet_data = user_data[sheet_name]
+                const sheet_data = data[sheet_name]
                 if (document.body.loaded){
                     send_sheet(sheet_data,0,sheet_data.length)
                 }else{
@@ -235,6 +329,7 @@ function change_start_idx(idx){
         }
     })
 }
+
 
 function DOM2data(){
     var data=[]
@@ -559,7 +654,7 @@ function make_line(eqn){
 
     MQ(in_field).latex(input)
     
-    var display_eqns = eqn.display
+    var display_eqns = eqn.result //TODO round decimals HERE instead
     var show_output = eqn.show_output
 
     if (display_eqns === undefined){
@@ -608,7 +703,7 @@ function make_line(eqn){
                 var eqn_wrapper = document.createElement("td") // needed since MQ turns the div into a span
                 eqn_wrapper.classList.add("display-eqn-cell")
                 var eqn_field = document.createElement("div")
-                eqn_field.innerHTML = eqn
+                eqn_field.innerHTML = round_decimals(eqn)
                 eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
                 
                 eqn_wrapper.appendChild(eqn_field)
@@ -646,7 +741,19 @@ function make_line(eqn){
     line.appendChild(output_arr)
     line.appendChild(out_field)
     return line
+
+
 }
+
+function round_decimals(expression) {
+    const regex = /[0-9].[0-9]+/g;
+  
+    return expression.replace(regex, match => {
+        const roundedNumber = parseFloat(match).toFixed(5);
+        return parseFloat(roundedNumber).toString();
+    });
+}
+
 
 function make_block_row(SoE){
     // this is the row of blocks
@@ -922,7 +1029,10 @@ function make_sub_table(table_data){
     	var row = document.createElement("tr")
     	vars.forEach((var_name)=>{
 
-            const ltx_exp = math_to_ltx(var_name)
+            // const ltx_exp = math_to_ltx(var_name)
+
+            // TODO will have to rethink handling greek variables
+            // maybe just keep the backslash instead
 
             var in_field = document.createElement("div")
 
@@ -943,7 +1053,7 @@ function make_sub_table(table_data){
             }else{
                 MQ.StaticMath(in_field)
             }
-            MQ(in_field).latex(ltx_exp)
+            MQ(in_field).latex(var_name)
 
 
 
@@ -1371,6 +1481,7 @@ function search_for_vars(){
                 field.classList.remove(".search-sel")
                 var field_ltx = MQ(field).latex()
                 try{
+                    // TODO conversion shouldnt be necessary
                     var field_input = ltx_to_math(field_ltx)
                 }catch{
                     var field_input = []
