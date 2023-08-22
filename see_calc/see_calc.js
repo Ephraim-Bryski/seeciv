@@ -1,35 +1,7 @@
 
-/*
-
-use sympy whenever actually using it for calculations
-dont use so it doesnt take time to load
-
-
-*/
-
-
-var use_sympy = false
-//var pyodide
-
-// also if it's false, it doesn't use the worker, which allows me to debug in vscode :)
-var use_worker = false
-
-if (use_worker && !use_sympy){
-    throw "no reason to use worker if not using sympy, and stops you from using vscode debugging"
-}
-
-
-// where to start computing, modified in change_start_id
-
-
 var MQ = MathQuill.getInterface(2);
 
-document.body.loaded = false    // this keeps track of whether sympy has been loaded, it's only used for when loading a sheet from the library -- if sympy's loaded it should compute, but if not it should just display
-
 var scene // this gives the scene global scope, that way I can get its view inside the setGSup function so the new canvas would have the same view
-
-
-
 
 
 var SoEs= [
@@ -53,256 +25,113 @@ var SoEs= [
 
 ]
 
-
-
-//var keep_vars = ["y","yd","w"]
-
-
-//var eqns = ['ee=Vv/Vs', 'n=Vv/V', 'S=Vw/Vv', 'w=Ww/Ws', 'Gs=ys/yw', 'ys=Ws/Vs', 'yw=Ww/Vw', 'yd=Ws/V', 'y=W/V', 'W=Ws+Ww', 'V=Vs+Vv']
-//var vars_to_remove = ['ee', 'Vv', 'Vs', 'n', 'V', 'S', 'Vw', 'Ww', 'Ws', 'Gs', 'ys', 'y', 'W']
-
-
-if (!use_worker){
-    add_solve_listener()
-}
-
-async function get_py() {
-    pyodide = await loadPyodide();
-    await pyodide.loadPackage("sympy");
-}
-
-
-function add_solve_listener(){
-    document.addEventListener('keyup', (e)=>{
-        if (e.code==="Enter" && e.ctrlKey){
-            var sheet_data=DOM2data()
-            // changed it so Ctrl+Etr will run the entire sheet
-            send_sheet(sheet_data,0,sheet_data.length)
-        }
-    })
-}
-
-
 function send_sheet(sheet,start_idx,end_idx){
     // start is inclusive, end is exclusive (1 to 2 means just 1)
     if (end_idx<=start_idx){return}
-    [...$(".run-arrow")].slice(start_idx,end_idx).forEach((arrow)=>{
-        arrow.classList.remove(".run-arrow")
-        arrow.classList.add("spinner")
-    })
-    if (use_worker){
-        worker.postMessage({"sheet":sheet,"start":start_idx,"end":end_idx})
-    }else{
-        const new_SoEs = calc(sheet,start_idx,end_idx)
-        data2DOM(new_SoEs)
-        // @code use_calc_results(result_sheet)
-    }
+    const new_SoEs = calc(sheet,start_idx,end_idx)
+    data2DOM(new_SoEs)
 }
-
-/* @code
-function use_calc_results(pkg){
-    if(pkg[1].length!==0){display_vis(pkg[1])}
-    data2DOM(pkg[0])
-}
-*/
-
-set_up()
-
 
 
 
 data2DOM(SoEs)  // performed without calculations
 var start_run_idx
 var end_run_idx
-change_start_idx(0) // calling it here so it creates the arrows
 
 
 
-// this would be done onmessage loaded
+setUpGS()
 
-function set_up(){
-
-    setUpGS()
-    
-
-
-    document.addEventListener('keyup', (e)=>{
-        if (e.code==="Enter"){
-            var in_field=document.activeElement
-            if (e.ctrlKey){
-
-            }else if(in_field.tagName=="TEXTAREA"){
-                add_line(in_field)
-            }else if(in_field.className=="block-name-txt"){
-                add_block(in_field)
-            }
-        }          
-    })
-
-
-    const fb_config = {
-        apiKey: "AIzaSyBrjMcMVh5Qe4i1wI28Hu6cWtlBLn-1Fpc",
-        authDomain: "see-calc-8d690.firebaseapp.com",
-        databaseURL: "https://see-calc-8d690-default-rtdb.firebaseio.com",
-        projectId: "see-calc-8d690",
-        storageBucket: "see-calc-8d690.appspot.com",
-        messagingSenderId: "712428414817",
-        appId: "1:712428414817:web:13ebddba5db433e5960720",
-        measurementId: "G-GP5ZDNCTXX"
-    };
-
-    firebase.initializeApp(fb_config);
-    const database = firebase.database().ref();
-
-    const auth = firebase.auth()
-
-    //! DELTE PASSWORD WHENEVER PUSHING CHANGES!!!!!
-    try{
-        
-    }catch{
-        throw "boop"
-    }
-
-    const save_btn = document.getElementById("save-btn")
-    save_btn.onclick = ()=>{
-        const sheet_name = document.getElementById("save-field").value
-        database.child("users").child(auth.currentUser.uid).child(sheet_name).set(JSON.parse(JSON.stringify((DOM2data()))))  // parse and stringify is just to remove undefined, since firebase cant handle them
-    }
-
-    sign_in("ebryski1@gmail.com", "boopbop")
-
-    
-    function sign_out(){
-        auth.signOut()
-        save_btn.style.display = "none"
-    }
-
-    function sign_in(email, password){
-
-
-        auth.signInWithEmailAndPassword(email, password).then(()=>{
-
-            database.child("users").child(auth.currentUser.uid).on("value", (package)=>{
-                create_fb_callbacks(database, package, false)},
-                (e)=>{throw e} 
-            )
-            
-            save_btn.style.display = "none"
- 
-            
-
-        })
-    }
-
-    database.child("public").on("value", (package)=>{
-        create_fb_callbacks(database, package, true)
-    },
-    (e)=>{
-        throw e} 
-    );
-
-    if (auth.currentUser !== null){
-        
-    }
-    
-
-
-    function create_toggle(text) {
-
-        const container = document.createElement('div');
-      
-        const arrowButton = document.createElement('button');
-        arrowButton.innerText = '▶';
-    
-        arrowButton.classList.add('arrow-button');
-    
-        const textElement = document.createElement('span');
-        textElement.innerText = text;
-
-        const boop = document.createElement("div")
-
-        boop.appendChild(arrowButton)
-        boop.appendChild(textElement)
-        
-    
-        container.appendChild(boop);
-    
-    
-        arrowButton.addEventListener('click', toggleDivVisibility);
-    
-
-        function toggleDivVisibility() {
-            if (toggleDiv.style.display === 'none') {
-                toggleDiv.style.display = 'block';
-                arrowButton.innerText = '▼';
-            } else {
-                toggleDiv.style.display = 'none';
-                arrowButton.innerText = '▶';
-            }
+document.addEventListener('keyup', (e)=>{
+    if (e.code==="Enter"){
+        var in_field=document.activeElement
+        if (e.ctrlKey){
+            var sheet_data=DOM2data()
+            send_sheet(sheet_data,0,sheet_data.length)
+        }else if(in_field.tagName=="TEXTAREA"){
+            add_line(in_field)
+        }else if(in_field.className=="block-name-txt"){
+            add_block(in_field)
         }
-    
-        return container;
-
-    }
+    }          
+})
 
 
-    function create_fb_callbacks(database, package, public){
+const fb_config = {
+    apiKey: "AIzaSyBrjMcMVh5Qe4i1wI28Hu6cWtlBLn-1Fpc",
+    authDomain: "see-calc-8d690.firebaseapp.com",
+    databaseURL: "https://see-calc-8d690-default-rtdb.firebaseio.com",
+    projectId: "see-calc-8d690",
+    storageBucket: "see-calc-8d690.appspot.com",
+    messagingSenderId: "712428414817",
+    appId: "1:712428414817:web:13ebddba5db433e5960720",
+    measurementId: "G-GP5ZDNCTXX"
+};
 
+firebase.initializeApp(fb_config);
+const database = firebase.database().ref();
 
-        const data = package.val()
+const auth = firebase.auth()
 
-
- 
-        document.addEventListener('keydown', function(event) {
-
-            // this could be just for writing to public
-
-
-            if (event.ctrlKey && event.shiftKey && event.key === 'S') {
-                const sheet_name = document.getElementById("save-field").value
-                database.child("public").child(sheet_name).set(JSON.parse(JSON.stringify((DOM2data()))))
-            }
-        });
-          
-        
-
-    
-    
-        const current_btns = document.getElementsByClassName("sheet-load-btn")
-        const current_names = [...current_btns].map(btn=>{return btn.innerHTML})
-
-        
-
-        const sheet_names = Object.keys(data)
-
-        const load_btns = [...document.getElementsByClassName("sheet-load-btn")]
-        load_btns.forEach((btn)=>{btn.remove()})
-
-
-        //const new_names = sheet_names.filter(sheet_name=>{return !current_names.includes(sheet_name)})
-
-        sheet_names.forEach(sheet_name => {
-            var root = document.getElementById("load")
-            var btn = document.createElement('button')
-            btn.classList.add("sheet-load-btn")
-            btn.innerHTML=sheet_name
-            btn.onclick=()=>{
-                document.getElementById("save-field").value=sheet_name
-                const sheet_data = data[sheet_name]
-                if (document.body.loaded){
-                    send_sheet(sheet_data,0,sheet_data.length)
-                }else{
-                    //! will not produce a visual right now (would have to run compute_sheet first to get the vis equations), then call use_calc_results
-                    data2DOM(sheet_data)
-                }
-            }
-            root.appendChild(btn)        
-        });
-    }
-    
-
+const save_btn = document.getElementById("save-btn")
+save_btn.onclick = ()=>{
+    const sheet_name = document.getElementById("save-field").value
+    database.child("public").child(sheet_name).set(JSON.parse(JSON.stringify((DOM2data()))))
 }
 
+//sign_in("ebryski1@gmail.com", "boopbop")
+
+
+function sign_out(){
+    auth.signOut()
+    save_btn.style.display = "none"
+}
+
+function sign_in(email, password){
+
+
+    auth.signInWithEmailAndPassword(email, password).then(()=>{
+
+        database.child("users").child(auth.currentUser.uid).on("value", (package)=>{
+            create_fb_callbacks(database, package, false)},
+            (e)=>{throw e} 
+        )
+        
+        save_btn.style.display = "none"
+
+        
+
+    })
+}
+
+database.child("public").on("value", (package)=>{
+    const data = package.val()
+
+    const load_btns = [...document.getElementsByClassName("sheet-load-btn")]
+    load_btns.forEach((btn)=>{btn.remove()})
+
+    const sheet_names = Object.keys(data)
+    sheet_names.forEach(sheet_name => {
+        var root = document.getElementById("load")
+        var btn = document.createElement('button')
+        btn.classList.add("sheet-load-btn")
+        btn.innerHTML=sheet_name
+        btn.onclick=()=>{
+            document.getElementById("save-field").value=sheet_name
+            const sheet_data = data[sheet_name]
+            if (document.body.loaded){
+                send_sheet(sheet_data,0,sheet_data.length)
+            }else{
+                //! will not produce a visual right now (would have to run compute_sheet first to get the vis equations), then call use_calc_results
+                data2DOM(sheet_data)
+            }
+        }
+        root.appendChild(btn)        
+    });
+},
+(e)=>{
+    throw e} 
+);
 
 
 function change_start_idx(idx){
@@ -315,40 +144,19 @@ function change_start_idx(idx){
         start_run_idx = min(start_run_idx,idx)
     }
 
-
-
-
-    var run_arrows = [...$(".load-indicator")]
-
-    run_arrows.forEach((arrow,idx)=>{
-        if (idx>=start_run_idx){
-            arrow.classList.remove("cross","check")
-            arrow.classList.add("run-arrow")
-
-            $($(".block")[idx]).find(".line-input, .block-name-txt").removeClass("input-error")
-        }
-    })
 }
 
 
 function DOM2data(){
     var data=[]
 
-
-    
-    var not_empty_box_count = 0
     var SoE_boxes = document.getElementsByClassName('block')
     var name_fields = document.getElementsByClassName('block-name-txt')
     var info_blocks = document.getElementsByClassName('info-box')
 
-
-
-
-
     var SoE_boxes = $(".block")
     var name_fields = $('.block-name-txt')
     var info_blocks = $('.info-box')
-
 
     SoE_boxes.each(function(block_i){
         var block = $(this)
@@ -395,23 +203,14 @@ function DOM2data(){
 } 
 
 function data2DOM(SoEs){
-    // would just pass in SoEs, but would have to be deepcloned at some point
 
-    /*
-    var main = document.getElementById('calc');
-    while(main.firstChild){
-        main.removeChild(main.firstChild);
-    }
-    */
     $(".calc-row").remove()
 
-    const main = document.body//getElementById("vis")
+    const main = document.body
 
     for (let i=0;i<SoEs.length;i++){
  
         var row = make_block_row(SoEs[i])
-
-        
 
         if (SoEs[i].show_box == "none"){
             lines = [...row.querySelectorAll(".line")]
@@ -421,52 +220,8 @@ function data2DOM(SoEs){
             arr.classList.remove("collapse-down")
             arr.classList.add("collapse-right")
         }
-
-        
-
-
         main.appendChild(row)
     }
-
-    var load_symbols = [...$(".load-indicator")]
-
-    load_symbols.forEach((sym,idx)=>{
-        
-
-
-
-        var SoE = SoEs[idx]
-        
-
-        var has_error = false
-        var eqns = SoE.eqns
-        var err_idxs = []
-        if (SoE.result==="ERROR"){has_error = true}
-        for (let i=0;i<eqns.length;i++){
-            if (eqns[i].result==="ERROR"){
-                err_idxs.push(i)
-                has_error = true
-            }
-        }
-
-        if (idx>=end_run_idx){
-            sym.classList.add("run-arrow")
-        }else if (has_error){
-            sym.classList.add("cross")
-            err_idxs.forEach(err_idx=>{
-                var block = $(".block").eq(idx)
-                var input_line =  block.find(".line-input")[err_idx]
-                input_line.classList.add("input-error")
-            })
-        }else{
-            sym.classList.add("check")
-            var block = $(".block")[idx]
-            block.style.borderColor = "green"
-        }
-
-
-
-    })
 
     start_run_idx = end_run_idx
     end_run_idx = SoEs.length
@@ -474,62 +229,8 @@ function data2DOM(SoEs){
     make_MQ()
 }
 
-/* @code
-function get_vis_vals(all_eqns){
-    all_vals = []
-
-    eqns_vis = all_eqns.filter((eqn)=>{return eqn.includes("blah")})
-    eqns_vis.forEach((eqn) => {
-        eqn = eqn.replace("blah_","")
-        var_val = eqn.split("=")
-        vis_var = var_val[0]
-        val = var_val[1]
-        var_idx = vis_var.split("_")
-        base_var = var_idx[0]
-        idx = parseInt(var_idx[1])
-
-        info_cell = all_vals[idx-1]
-        if (info_cell===undefined){
-            info_cell = {}
-        }
-        info_cell[base_var] = val
-        all_vals[idx-1] = info_cell
 
 
-
-    })
-
-    return all_vals
-}
-*/
-
-function make_load_bar(){
-
-    var load_sec = document.createElement("span")
-    load_sec.classList.add("load-bar")
-
-
-
-
-
-    var load_indic = document.createElement("div")
- 
-    load_indic.classList.add("load-indicator")
-
-    load_indic.onclick = (e)=>{
-        if([...load_indic.classList].includes("run-arrow")){
-            var end_idx = $(e.target).parents(".calc-row").index()+1
-            end_run_idx = end_idx
-            send_sheet(DOM2data(),start_run_idx,end_idx)
-        }
-    }
-
-    load_indic.appendChild(make_tooltip())
-    load_sec.appendChild(load_indic)
-
-    return load_sec
-
-}
 
 function add_line(in_field){
 
@@ -546,6 +247,7 @@ function add_line(in_field){
 
 
 function make_line(eqn){
+
     var line=document.createElement('div')
     line.className = "line"
     var add_btn = document.createElement("button")
@@ -570,10 +272,8 @@ function make_line(eqn){
         if (n_lines===1){
             outer[0].appendChild(make_line())
         }  
-
-
-        
     }
+    
     remove_button.className="line-btn"  // i dont think this is used
     remove_button.classList.add("add-remove-btn")
     remove_button.classList.add("remove-line-btn")
@@ -657,9 +357,6 @@ function make_line(eqn){
     var display_eqns = eqn.result //TODO round decimals HERE instead
     var show_output = eqn.show_output
 
-    if (display_eqns === undefined){
-        display_eqns = ""
-    }
     if (show_output === undefined){
         show_output = ""
     }
@@ -667,8 +364,10 @@ function make_line(eqn){
 
         
 
-
-    if (typeof display_eqns === "string"){
+    if(display_eqns === undefined){
+        out_field.innerHTML = ""
+        show_output = "block"
+    }else if (display_eqns instanceof Error){
         out_field.innerHTML = display_eqns  // this occurs only when it's an error or new line
         out_field.classList.add("error-msg")
         show_output = "block"
@@ -746,11 +445,11 @@ function make_line(eqn){
 }
 
 function round_decimals(expression) {
-    const regex = /[0-9].[0-9]+/g;
+    const regex = /[0-9]\.[0-9]+/g
   
     return expression.replace(regex, match => {
-        const roundedNumber = parseFloat(match).toFixed(5);
-        return parseFloat(roundedNumber).toString();
+        const roundedNumber = parseFloat(match).toFixed(5)
+        return parseFloat(roundedNumber).toString()
     });
 }
 
@@ -760,7 +459,6 @@ function make_block_row(SoE){
     // it contains the block and part of the load bar
     var row = document.createElement("div")
     row.classList.add("calc-row")
-    row.appendChild(make_load_bar())
     row.appendChild(make_block(SoE))
 
     return row
@@ -1446,6 +1144,7 @@ function search_for_vars(){
     
     }
     
+    // PROBABLY NOT GONNA USE ANY MORE
     function map_all_vars(){
     
         // goes through the dom and converts it to a nested dictionary 

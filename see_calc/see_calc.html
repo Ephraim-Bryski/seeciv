@@ -131,14 +131,37 @@
 
 
 
+<div id="eqn-tree" style="background-color: white;"></div>
+
+<!-- regex library -->
+<script src="https://cdn.jsdelivr.net/npm/verbal-expressions@1.0.2/dist/verbalexpressions.min.js"></script>
 
 
 
+<script>
+    var tester = VerEx()  
+            .startOfLine()
+            .then( "Acc" ) 
+            .maybe("oun")
+            .then("t")
+            .maybe(VerEx().add("\\s+").then("Number"))
+            .anything()
+            .then(VerEx().then("-").or().range(0,9)).add("+")
+            .endOfLine();
+
+
+            
+</script>
 
 <!-- database of visuals -->
 <script src="vis_database.js"></script>
 
 <script src="latex_conversions.js"></script>
+
+<script src="treant-js-master\vendor\raphael.js"></script>
+<script src="treant-js-master\Treant.js"></script>
+<link rel="stylesheet" href="treant-js-master\Treant.css">
+
 
 <!-- functions need to be imported in the worker as well -->
 <script src="cas.js"></script>
@@ -146,3 +169,4 @@
 <script src="compute_sheet.js"></script>
 <script src="see_calc.js"></script>
 
+<script src="testing.js"></script>

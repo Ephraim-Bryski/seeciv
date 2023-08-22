@@ -10,6 +10,7 @@ function ltx_to_math(ltx_eqn){
 
 	eqn = eqn.replaceAll(" ","")
 
+	eqn = eqn.replaceAll("\\arc","a")
 
 	// insert * after } for all cases of } followed by letter or number
 	// gets rid of issues for something like \frac{1}{2}a which would otherwise be (1)/(2)b and would be interpreted as 1/(2*a) down the road
@@ -19,7 +20,7 @@ function ltx_to_math(ltx_eqn){
 	// check if there's any invalid variables, numbers immediately followed by letters
 	const invalid_var = /\d(?=[a-zA-Z])/;
 	if (invalid_var.test(eqn)){
-		throw "variables must not start with numbers"
+		throw new FormatError("variables must not start with numbers")
 	}
 
 
@@ -67,20 +68,24 @@ function ltx_to_math(ltx_eqn){
 	.replaceAll("}",")")
 
 
-	// the remaining slashes are just for trig functions and can just be removed
-	eqn = eqn.replaceAll("\\","")
 
 
-	// remove unneeded parentheses, e.g. (a)*(b)
-	// messes up sin cos sqrt etc though
-	// eqn = eqn.replace(/\((\w+)\)/g, (match, capturedGroup) => capturedGroup);
-	
+
+
+	const ltx_trig_funcs = trig_funcs.map(func => {return "\\"+func})
+
+
+	trig_funcs.forEach((_,idx)=> {
+		eqn = eqn.replaceAll(ltx_trig_funcs[idx],trig_funcs[idx])
+	})
+
+
 
 	// check if there's invalid math synatix, e.g a=b+
 	exps = eqn.split("=")
 	exps.forEach(exp=>{
-		try{math.parse(exp)}
-		catch{throw "Invalid equation"}
+		try{math.parse(exp.replaceAll("\\",""))}	// need to remove backslashes for greek letters
+		catch{throw new FormatError("Invalid equation")}
 	})
 
 

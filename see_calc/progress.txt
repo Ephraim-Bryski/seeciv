@@ -1,49 +1,79 @@
 
-a*b=0, a=1 leads to b=0, a=0
 
-basically, how i have it now, it immediately solves a*b=0 as a=0, with b=0 as the other product branch
-	then converts a-1 to (0-1)*b, then solving that as b=0
+UI stuff?
+	error messages for each row of substituion table
 
-CANT IMMEDIATELY SOLVE
+Solver Real stuff
 
-instead, do all eqns without top level products FIRST
-then solve all permutations of possible systems
-check whether there's one remaining system
+	arctan needs to be converted into atan 
+	y=x^2 complexity is taken as 3 since *-1 adds to the complexity --> too much
+
+	haven't handled this: combine_solve_term(eqn_to_tree("a*(a+a*b)+d"),"a")
+
+	handle multiple product solutions (recursively solve on all permutations, after solving everything else first)
+	in eqn_to_tree, it shouldn't catch parentheses mismatch instead of infinite recursion (doesnt REALLY matter, but so ugly now)
+
+Efficiency
+	could be even faster by only simplifying where it's subbed in for sub_in function
+	could save the tree from block to block so it doesn't have to parse repeatedly
+
+
+Solving Superficial Bugs
 
 
 
 
 
+Solving Superficial stuff to add/change
+
+	displaying solution, don't have equations all in one line
 
 
-Issues easily handled with custom solver (no nerdamer :D )
+	making pi a numeric constant
+
+	show all of the error messages and highlight the rows for sub table
+
+	show steps with forward and numeric solve too
 	initial step shown should be simplification after initial substitutions
-	not very important, but remove_common_vars converts a*b+b to a+1 which is a problem if it's actually b that's 0 <-- not gonna worry about this for now
-
-	multivariate newton rapshon no longer allows for redundant equations (e.g. a=4,a=4) <-- could be fixed by finding least square of inverse if nonsquare matrix
-		AND can't solve certain problems (e.g. "A Network" library example)
-		honestly not sure what to do about this right now, but multivariate will likely no longer be needed
-
-	make pi a constant (don't appear in sub_table)
-
-// TODO show all of the error messages and highlight the rows
-
-decide about if i want to convert to degrees <-- might be simpler once i make a custom solver
-
-TODO
-	
-	visual doesn't get removed when no longer relevant <-- would have to first have visuals created in d2D first, then i could just call resetGS at the start of d2D
 
 
-remove_vars throws error instead of removing equation <-- cannot recreate/understand bug
 
-make visuals classes that could inherit from one another <-- see how important this actually is
 
-slider which dynamically updates visual
 
-visuals could be displayed once all values substituted are numeric, instead of with solve
-	would allow for visual to show up immediately when typed in
-	this could be done in data2DOM instead so that it can be done without any calculation on library load
+Visuals
+
+	visuals whenever all numeric values subbed
+
+	implement visuals with this new solver
+
+	only show visual when relevant (like dont show giant axes when there's no visual)
+
+Superficial UI issues
+
+	no need for the side bar with checks, nor those stupid green borders
+
+	make library not super ugly
+
+
+
+Stuff to implement
+	ui for creating accounts, logging in etc
+
+
+
+Future not very important stuff
+
+	slider which dynamically updates visual
+
+
+
+	make visuals classes that could inherit from one another
+
+	Option to either add blocks to sheet or replace
+	Option to clear sheet
+	Draggable blocks
+
+
 
 
 
@@ -52,14 +82,5 @@ when new sheet is loaded it still takes info from previous sheet when solving --
 
 
 Library (future)
-	Option to either add blocks to sheet or replace
+	
 	Saving something with period in name no good 
-
-Sheet UI (future)
-
-	Option to clear sheet
-	Draggable blocks
-	Some way to guide user, possible options:
-		A mini tutorial
-		Little question mark buttons you can click on with info
-	name of the opened sheet should be highlighted in the library

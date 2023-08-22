@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "firebase": "^9.22.1",
+    "live-server": "^1.2.2",
     "mathjs": "^11.8.0"
   },
   "devDependencies": {

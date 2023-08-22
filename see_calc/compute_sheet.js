@@ -1,4 +1,3 @@
-// TODO dont have error variable names have the word error in them, kind of stupid
 
 class InvalidReference extends Error {
     constructor (message){
@@ -90,9 +89,9 @@ function calc(SoEs,start_idx,end_idx){
                 parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
                 
             }catch(error){
-                solve_error_types = [ContradictionError, EvaluateError, TooMuchUnknownError, InvalidReference, FormatError]
+                solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, InvalidReference, FormatError]
                 if (solve_error_types.some((type) => {return error instanceof type}) && error_in_UI){
-                    SoEs[SoE_i].eqns[line_i].result=error.message;
+                    SoEs[SoE_i].eqns[line_i].result=error
                 }else{
                     if (typeof error==="object"){console.log(error.msg)}
                     throw error
@@ -147,7 +146,7 @@ function calc(SoEs,start_idx,end_idx){
                 if (ref_eqns===undefined){
                     boop
                 }
-                if (ref_eqns==="ERROR"){
+                if (ref_eqns instanceof Error){
                     throw new InvalidReference(ref+" has an error")
                 }
     
@@ -168,8 +167,7 @@ function calc(SoEs,start_idx,end_idx){
         var vis_vars = []
         match_vis_blocks = vis_blocks.filter((vis_block)=>{return vis_block["name"]===line})
 
-        var display
-        //var display = []
+    
         var new_table = undefined // removes table unless there is a substitution (removes if obsolete)
 
 
@@ -191,7 +189,6 @@ function calc(SoEs,start_idx,end_idx){
 
         line = line.replaceAll(solve_txt,"")
 
-        var sub_table_error_msgs
     
         if (line.length===0){
             if(solve_line){
@@ -213,18 +210,18 @@ function calc(SoEs,start_idx,end_idx){
                 
                 //var line_math = ltx_to_math(line)
 
-                // TODO make it so this doesn't clutter the display <-- honestly i think ill just stick with radians
-                // line_math = convert_to_degrees(line_math)
-                
                 if (get_all_vars(line).length===0){
                     throw new FormatError("Equation must have variables")
                 }
-                var result = [line]
+
+                const simplified_eqn = tree_to_eqn(eqn_to_tree(ltx_to_math(line)), true)
+
+                var result = [simplified_eqn]
             }
 
         }else if(match_vis_blocks.length!==0){
             // primitive visual
-            var result = [] // no result or display
+            var result = []
 
             const vis_block = match_vis_blocks[0]
 
@@ -243,17 +240,11 @@ function calc(SoEs,start_idx,end_idx){
             var new_stuff = compute_sub_table([vis_eqn],old_table)
 
             var result = new_stuff[0].flat()
-            //var display = result
             var new_table = new_stuff[1]
-            sub_table_error_msgs = new_stuff[2]
 
         }else if(solve_line){
             var eqns = get_ref_eqns(line)
-
-
             result = solve_eqns(eqns)
-           
-
         }else{
             // nonvisual reference without solve, so substitute:
             var eqns = get_ref_eqns(line)
@@ -264,39 +255,13 @@ function calc(SoEs,start_idx,end_idx){
                 var new_stuff = compute_sub_table(eqns,old_table,block_name)
                 var eqns = new_stuff[0]
                 var new_table = new_stuff[1]
-                sub_table_error_msgs = new_stuff[2]
             }else{
                 var eqns = [eqns]
                 var new_table = undefined
             }
 
             result = eqns
-            /*
-            eqns.forEach(eqn_row=>{
-                var display_row = []
-                display.push(display_row)
-                eqn_row.forEach(eqn=>{
-                    //var exp = eqn.split("=")[0]
-
-                    // use_sympy is undefined if a worker's being used
-                    if(typeof use_sympy==="undefined" || use_sympy){
-                        var simp_exp = sympy_simplify(eqn)
-                        var rounded_exp = RHS
-                        var js_exp = make_js_exp(rounded_exp,false)
-
-                        var simp_eqn = simp_exp+"=0"
-                        var disp_eqn = js_exp+"=0"
-                    }else{
-                        var simp_eqn = eqn
-                        var disp_eqn = eqn
-                    }
-    
-                    result.push(simp_eqn)
-                    display_row.push(math_to_ltx(disp_eqn))
-
-                })
-            })
-            */
+            
         }
 
 
@@ -304,15 +269,7 @@ function calc(SoEs,start_idx,end_idx){
         // at the very end, will round the numbers 
         SoEs[SoE_i].eqns[line_i].result=result;
         SoEs[SoE_i].eqns[line_i].sub_table = new_table
-        //SoEs[SoE_i].eqns[line_i].display=display;
 
-        if (display !== undefined){
-            throw "THIS SHOULDNT HAPPEN dont want display to be set any more"
-        }
-
-        if (sub_table_error_msgs !== undefined && sub_table_error_msgs.length !== 0){
-            throw sub_table_error_msgs[0]
-        }
     }
 
 
@@ -378,21 +335,6 @@ function compute_sub_table(eqns,old_table){
         var n_col = 2
     }else{
 
-        /*
-        var old_table = old_table_ltx.map(row=>{
-            return row.map(exp=>{
-                try{
-                    return ltx_to_math(exp)
-                }catch{
-                    throw "error with "+sub_out_ltx+": "+e
-                }
-            })
-        })
-
-
-        */
-
-
         var old_vars = old_table[0]
         var trans_table = transpose(old_table)
         var n_col = old_table.length
@@ -426,48 +368,31 @@ function compute_sub_table(eqns,old_table){
         var removed_vars = []
         var eqns_subbed = [...eqns]
         // eqns_subbed = sub_vis_vars(eqns_subbed,block_name,i) 
+
+
+        const sub_in = []
+        const sub_out = []
+
         for (let j=0;j<sub_row.length;j++){
-            var sub_in = var_row[j]
-            var sub_out = sub_row[j]
             vis_sub = true
-
-
-
-
-            if (sub_out.includes("=")){
-                // TODO need to makes this a type of error? (instead of just a string, so it can be properly handled)
-                throw sub_out+" not allowed, cannot substitute an equation"
+            if (sub_row[j].includes("=")){
+                throw new FormatError("cannot subsitute an equation")
             }
-
-
-            if (sub_out === ""){
+            if (sub_row[j] === ""){
                 removed_vars.push(var_row[j])
                 vis_sub = false
-            }else if(sub_in === sub_out){
-                // do nothing since it's being subbed for the same value      
-            }else if(var_row.indexOf(sub_out)!==-1){  // the new variable name is already a variable, not gonna allow that (could get very confusing)  
-               // cant handle simultaneous substituions
-                throw "Cannot sub "+sub_in+" for "+sub_out+", "+sub_out+" is already a variable"
+            }else{
+                sub_in.push(var_row[j])
+                sub_out.push(sub_row[j])
+            }
+        }
 
-            }else{
-                for (let k=0;k<eqns.length;k++){
-                    // eqns_subbed[k]=nerdamer(eqns[k]).sub(sub_in,sub_out).toString()
-                    eqns_subbed[k] = sub_all_vars(eqns_subbed[k],sub_in,sub_out)
-                }
-            }
-        }
-        try{
-            all_eqns.push(remove_vars(eqns_subbed,removed_vars))
-        }catch(e){
-            // TODO need to change this error handling (might not be needed at all)
-            if (typeof e === "string"){
-                error_msgs.push(e)
-            }else{
-                throw e
-            }
-        }
+        eqns_subbed = eqns_subbed.map(eqn => {return sub_all_vars(eqn, sub_in, sub_out)})
+        
+        all_eqns.push(remove_vars(eqns_subbed,removed_vars))
+
     }
-    return [all_eqns,table,error_msgs]
+    return [all_eqns,table]
 
     function transpose(matrix) {
         const rows = matrix.length, cols = matrix[0].length;
@@ -487,54 +412,6 @@ function compute_sub_table(eqns,old_table){
 
 }
 
-
-
-function convert_to_degrees(exp){
-    // perform evaluate converting trig arguments to radians
-    // also needs to convert inverse trig arguments to degrees
-
-
-    const trig_funcs = ["sin", "cos", "tan", "csc", "sec", "cot"]
-
-    /*
-
-    sin(a+b) --> sin((a+b)) --> sin(pi/180*(a+b))
-
-    arcsin(a+b) --> sininv((a+b)) --> 180/pi*asin((a+b))
-
-    */
-
-
-    // keeps conversion at the outer order of operation
-    exp = exp.replaceAll("(","((")
-    exp = exp.replaceAll(")","))")
-    
-    const deg2rad = "pi/180"
-    const rad2deg = "180/pi"
-
-
-    // insterting "inv" so the noninverse trig replacement doesn't also replace inverse trig
-    trig_funcs.forEach(trig_func=>{
-        const before = "arc"+trig_func
-        const after = trig_func+"inv"
-        exp = exp.replaceAll(before,after)
-    })
-    
-
-    trig_funcs.forEach(trig_func=>{
-        const before = trig_func+"("
-        const after = trig_func+"("+deg2rad+"*"
-        exp = exp.replaceAll(before,after)
-    })
-
-    trig_funcs.forEach(trig_func=>{
-        const before = trig_func+"inv"
-        const after = rad2deg+"*"+"a"+trig_func
-        exp = exp.replaceAll(before,after)
-    })
-
-    return exp
-}
 
 
 
