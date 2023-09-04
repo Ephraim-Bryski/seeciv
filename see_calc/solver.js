@@ -10,6 +10,13 @@ class CantSolveError extends Error {
     }
 }
 
+class AlreadyDone extends Error {
+    constructor (){
+        super("just a stupid hack fix, findsolution can eliminate all the variables to remove, so it then should exit out of backsolve entirely")
+    }
+}
+
+
 class NumericSolveError extends Error {
     constructor (message){
         super(message)
@@ -134,7 +141,18 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
     
     while (true){  
     
-        const solution = find_solution()
+        let solution
+        try{
+            solution = find_solution()
+        }catch(e){
+            if (e instanceof AlreadyDone){
+                console.log('done earl')
+                break
+            }else{
+                throw e
+            }
+        }
+        
 
         const solution_step = {
             eqn0: solution.eqn0,
@@ -190,7 +208,7 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
     function find_solution(){
     
         const sorted_trees_idxs = sort_idxs(trees_complexity)
-    
+
         for (const tree_idx of sorted_trees_idxs){
     
             const tree = trees[tree_idx]             
@@ -207,7 +225,9 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
                 const solve_var = tree_variables[variable_idx]
 
                 if (!(vars_to_remove.includes(solve_var))){continue}
-                if (tree.op !== "+"){throw "need to implement other top operations"}
+                if (tree.op !== "+" && tree.op !== undefined){
+                    throw "need to implement other top operations"
+                }
 
                 let sol_tree
                 let old_tree
@@ -215,15 +235,15 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
                 const expression = tree_to_expression(tree, true) // this is only needed for numeric solve, BUT combinesolveterms mutates tree
                 try {
                     old_tree = JSON.parse(JSON.stringify(tree))
-                    sol_tree = solve_for(tree, solve_var)
+                    sol_tree = solve_for(old_tree, solve_var)
                      
                 }catch (e){
  
 
                     const has_single_var = Object.keys(trees_counts[tree_idx]).length === 1
-                    if (e instanceof CantMergeError && has_single_var){
+                    if (e instanceof CantSymbolicSolve && has_single_var){
                         sol_tree = numeric_solve(expression).sol
-                    }else if (e instanceof CantMergeError){
+                    }else if (e instanceof CantSymbolicSolve){
                         continue
                     }else if(e instanceof VariableEliminatedError){
                         const reduced_tree = e.remaining_tree
@@ -237,6 +257,13 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
                 return {eqn0: eqn0, solve_var: solve_var, sol: sol_tree}
             }
         }
+
+        const remaining_vars = trees_counts.map(counts => {return Object.keys(counts)}).flat()
+
+        if (empty_intersection(remaining_vars,vars_to_remove)){
+            throw new AlreadyDone
+        }
+
         throw new CantSolveError
     }
     
@@ -281,8 +308,10 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
     function update_tree(simplified_tree, tree_idx){
         
 
-
-        [complexity, counts] = get_tree_info(simplified_tree)
+        const stuff = get_tree_info(simplified_tree)
+        const complexity = stuff[0]
+        const counts = stuff[1]
+        //[complexity, counts] = get_tree_info(simplified_tree)
     
         trees[tree_idx] = simplified_tree
         trees_complexity[tree_idx] = complexity
@@ -375,7 +404,7 @@ function numeric_solve(exp_ltx){
         var guess = new_guess
         iter_count+=1
 
-        if (iter_count>max_count || isNaN(guess)){
+        if (iter_count>max_count){// || isNaN(guess)){ if you check if it's nan it will return an error when in complex domain even when it would've have converged on the real solution
             throw new NumericSolveError("Cannot find solution, possibly no real solutions")
         }
     }
@@ -385,7 +414,8 @@ function numeric_solve(exp_ltx){
 
     if (im_comp>1e-10){throw new NumericSolveError("No real solutions")}
     
-    return {solve_var: solve_var, sol: real_comp.toString()}    // TODO doesn't need to output the solveVar
+
+    return {solve_var: solve_var, sol: num_to_string(real_comp)}    // TODO doesn't need to output the solveVar
 
 }
 
@@ -401,7 +431,11 @@ function forward_solve(ordered_sub){
         
         if (get_all_vars(val).length!==0){throw new TooMuchUnknownError}
 
-        sub.sol = math.evaluate(val).toString()    // this is necessary for trig functions
+
+        sub.sol = num_to_string(math.evaluate(val))    // this is necessary for trig functions
+        
+
+        
         
         for (let replace_i=sub_i+1; replace_i<ordered_sub.length; replace_i++){
             var next_sub = ordered_sub[replace_i]
@@ -424,7 +458,7 @@ function get_all_vars(eqns){
         'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega', 'alpha', 'beta', 'gamma', 'delta',
         'epsilon', 'zeta', 'eta', 'theta', 'iota', 'kappa', 'lambda', 'mu', 'nu', 'xi',
         'omicron', 'pi', 'rho', 'sigma', 'tau', 'upsilon', 'phi', 'chi', 'psi', 'omega'
-	].filter(letter => {return letter !== "pi"})
+	]//.filter(letter => {return letter !== "pi"})
 
     if (typeof eqns ==="string"){eqns = [eqns]}
     var regex = /\W[a-zA-Z](\w?)+/g
@@ -461,6 +495,8 @@ function get_all_vars(eqns){
 
 function sub_all_vars(expression,sub_in,sub_out){
 
+    // honestly just going full caveman mode now (it's cause splitbyops needs a space after cdot                        I)
+    expression = expression.replaceAll("\\"," \\").replaceAll("  "," ")
     
     if (typeof sub_in === "string"){
         sub_in = [sub_in]
@@ -527,68 +563,9 @@ function show_step(step){
     sub_texts.push(sub_text)
 
     
-    const dom_solve_steps = createToggleContainer(solve_texts, sub_texts)
-    $("#solve-steps")[0].appendChild(dom_solve_steps)
+    // TODO need to use the UI tree list function, but need to somehow add classes to mathquillify it
+    //const dom_solve_steps = createToggleContainer(solve_texts, sub_texts)
+    //$("#solve-steps")[0].appendChild(dom_solve_steps)
 
     
-}
-
-//! copying this function over to see_calc.js, TODO obviously fix this 
-function createToggleContainer(texts, sub_texts) {
-    // Create the main container element
-    const container = document.createElement('div');
-  
-    for (let i = 0; i < texts.length; i++) {
-      const text = texts[i];
-  
-      // Create the arrow button
-      const arrowButton = document.createElement('button');
-      arrowButton.innerText = '▶';
-  
-      // Add CSS class to the button
-      arrowButton.classList.add('arrow-button');
-  
-      // Create the text element
-      const textElement = document.createElement('span');
-      textElement.innerText = text;
-    textElement.classList.add("eqn-field")
-    textElement.classList.add("text-element")
-
-    const boop = document.createElement("div")
-
-    boop.appendChild(arrowButton)
-    boop.appendChild(textElement)
-        
-
-      // Create the toggle div
-      const toggleDiv = document.createElement('div');
-      toggleDiv.style.display = 'block';    //! just temporary so i dont have to click each time
-      toggleDiv.innerText = sub_texts[i];
-      toggleDiv.classList.add('toggle-div'); // Add a CSS class for the toggle div
-      toggleDiv.classList.add("eqn-field")
-        toggleDiv.classList.add("sub-text-element")
-
-  
-      // Append the arrow button and text element to the container
-      container.appendChild(boop);
-  
-      // Function to toggle the visibility of the toggle div
-      function toggleDivVisibility() {
-        if (toggleDiv.style.display === 'none') {
-          toggleDiv.style.display = 'block';
-          arrowButton.innerText = '▼';
-        } else {
-          toggleDiv.style.display = 'none';
-          arrowButton.innerText = '▶';
-        }
-      }
-  
-      // Add event listener to the arrow button to toggle the div visibility
-      arrowButton.addEventListener('click', toggleDivVisibility);
-  
-      // Append the toggle div to the container
-      container.appendChild(toggleDiv);
-    }
-  
-    return container;
 }

@@ -1,11 +1,51 @@
+figure out whether pi should be a constant, and how to do it
+
+"already a name in directory" error when trying to save existing file
 
 
-UI stuff?
-	error messages for each row of substituion table
+
+
+
+scrolling just zooms glowscript
+
+renaming sheet?
+
+clearer divide between output equations (larger space??)
+
+resaving sheet produces an error that it's already a name
+
+sometimes outputs -0
+
+subscript with multiple characters!!!
+
+firebase commands
+	save sheet in current locations with new data
+	change sheet order in folder
+
+plotting would be really nice :D
+	
+solve_for does WEIRD mutation:try this one
+'{"op":"+","terms":[{"op":"*","terms":[{"op":"^","terms":[{"op":"*","terms":[{"op":"+","terms":[{"op":"*","terms":[{"op":"^","terms":["v2","2"]},{"op":"^","terms":["w","-1"]},"-1/2"]},"2"]},"2"]},"1/2"]},"1/4"]},{"op":"*","terms":[{"op":"+","terms":[{"op":"*","terms":["v2","1/4"]},{"op":"*","terms":[{"op":"^","terms":[{"op":"*","terms":[{"op":"^","terms":["v2","2"]},{"op":"^","terms":["w","-1"]}]},"1/2"]},"1/4"]}]},"-1"]}]}'
+for now just deepcloning subin
+
+a*0=1 --> -1=0
+then when solving gives CantSolveError cause there aren't any variables to solve for
+might want to have an error for no variables in the system
+or don't simplify line???
+or.... have an error at the line itself saying all variables eliminated <-- best option i think
+
+
+ltx_to_math("\\frac{(2\\cdot (\\frac{- v3^{2}}{2}+1))^{\\frac{1}{2}}}{4}- (\\frac{(0.4\\cdot v3^{2})^{\\frac{1}{2}}}{4}+\\frac{v3}{4})") fails
+
+
+
+numeric solve doesn't handle asymptotes well obviously, e.g. a/(a+1)=3
+
+Bugs
+	greek followed by   nongreek splits
 
 Solver Real stuff
 
-	arctan needs to be converted into atan 
 	y=x^2 complexity is taken as 3 since *-1 adds to the complexity --> too much
 
 	haven't handled this: combine_solve_term(eqn_to_tree("a*(a+a*b)+d"),"a")
@@ -50,7 +90,6 @@ Visuals
 
 Superficial UI issues
 
-	no need for the side bar with checks, nor those stupid green borders
 
 	make library not super ugly
 

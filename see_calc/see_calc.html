@@ -52,6 +52,9 @@
 
 <body>
 
+
+
+    
 <div id="top-menu" style="width:100%;height:5%;background-color: gray;">
     <button  class="popup-sel-btn" onclick="undo()">Undo</button>
     <button  class="popup-sel-btn" onclick="redo()">Redo</button>
@@ -105,6 +108,7 @@
 
     <div id="load" style="display:none">
         <input id="save-field"><button id="save-btn">Save</button>
+            <div id="library"></div>
         <br>
     </div>
 
@@ -138,21 +142,6 @@
 
 
 
-<script>
-    var tester = VerEx()  
-            .startOfLine()
-            .then( "Acc" ) 
-            .maybe("oun")
-            .then("t")
-            .maybe(VerEx().add("\\s+").then("Number"))
-            .anything()
-            .then(VerEx().then("-").or().range(0,9)).add("+")
-            .endOfLine();
-
-
-            
-</script>
-
 <!-- database of visuals -->
 <script src="vis_database.js"></script>
 
@@ -162,8 +151,7 @@
 <script src="treant-js-master\Treant.js"></script>
 <link rel="stylesheet" href="treant-js-master\Treant.css">
 
-
-<!-- functions need to be imported in the worker as well -->
+<script src="UI_tree.js"></script>
 <script src="cas.js"></script>
 <script src="solver.js"></script>
 <script src="compute_sheet.js"></script>

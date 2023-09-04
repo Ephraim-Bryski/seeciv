@@ -73,7 +73,6 @@ function calc(SoEs,start_idx,end_idx){
             SoE_struct.result = ""
         }
 
-
         const inputs = []
 
         for (var line_i=0;line_i<SoE.length;line_i++){
@@ -81,7 +80,6 @@ function calc(SoEs,start_idx,end_idx){
             try{
 
                 const input = SoE[line_i].input
-                if (inputs.includes(input)){throw "input is repeated in this block"}
                 inputs.push(input)
 
 
@@ -89,7 +87,7 @@ function calc(SoEs,start_idx,end_idx){
                 parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
                 
             }catch(error){
-                solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, InvalidReference, FormatError]
+                solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, InvalidReference, FormatError, CantSolveError]
                 if (solve_error_types.some((type) => {return error instanceof type}) && error_in_UI){
                     SoEs[SoE_i].eqns[line_i].result=error
                 }else{
@@ -151,10 +149,9 @@ function calc(SoEs,start_idx,end_idx){
                 }
     
     
-                eqns.push(ref_eqns)
-                eqns = eqns.flat()
+                eqns.push(ref_eqns.flat())
             });
-            return eqns
+            return eqns.flat()
         }
 
         /*

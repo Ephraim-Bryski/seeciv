@@ -12,6 +12,7 @@ function ltx_to_math(ltx_eqn){
 
 	eqn = eqn.replaceAll("\\arc","a")
 
+	eqn = eqn.replaceAll("}{","}/{")
 	// insert * after } for all cases of } followed by letter or number
 	// gets rid of issues for something like \frac{1}{2}a which would otherwise be (1)/(2)b and would be interpreted as 1/(2*a) down the road
 	eqn = eqn.replace(/}(?=[a-zA-Z0-9])/g, '}*');
@@ -20,7 +21,7 @@ function ltx_to_math(ltx_eqn){
 	// check if there's any invalid variables, numbers immediately followed by letters
 	const invalid_var = /\d(?=[a-zA-Z])/;
 	if (invalid_var.test(eqn)){
-		throw new FormatError("variables must not start with numbers")
+		throw new FormatError("numbers must be at the end of variables")
 	}
 
 
@@ -45,18 +46,6 @@ function ltx_to_math(ltx_eqn){
 		.replaceAll("{","(")
 		.replaceAll("}",")")
 
-
-
-	const start_frac_idxs = find_all_end_idxs(eqn,"frac\\(")
-
-
-	for (let i=0;i<start_frac_idxs.length;i++){
-		start_idx = start_frac_idxs[i]
-		shifted_start_idx = start_idx+i // accounts for the fact that the previous insertions shifts the index over
-		mid_idx = find_closed_paren(eqn,shifted_start_idx)+1
-
-		eqn = eqn.slice(0,mid_idx)+"/"+eqn.slice(mid_idx)
-	}
 
 
 
@@ -95,44 +84,6 @@ function ltx_to_math(ltx_eqn){
 }
 
 
-
-function find_all_end_idxs(txt,sub){
-	const regex = new RegExp(sub,'g')
-	let match
-	const indices = []
-	while ((match = regex.exec(txt)) !== null) {
-		indices.push(match.index + match[0].length - 1);
-	}
-	return indices
-}
-
-
-
-function find_closed_paren(txt,open_idx){
-	if (txt[open_idx]!=="("){throw "needs to be open paren"}
-
-	var idx = open_idx
-	var level_count = 0
-
-	while (true){
-		idx += 1
-
-		if (idx===txt.length){throw "no closed parentheses"}
-
-		if (txt[idx]==="("){
-			level_count+=1
-		}else if(txt[idx]==")"){
-			level_count-=1
-		}
-
-
-		if(level_count<0){
-			return idx
-		}
-		
-	}
-
-}
 
 function find_open_paren(txt,closed_idx){
 

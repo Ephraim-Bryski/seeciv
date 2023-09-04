@@ -9,8 +9,8 @@ var SoEs= [
         name:"System",
         info: "hi",
         eqns: [
-        {input: "a=b+1"},
-        {input: "b=a"}
+        {input: "(a+1)*a=4"}
+
         ]
     },
 
@@ -53,6 +53,10 @@ document.addEventListener('keyup', (e)=>{
         }else if(in_field.className=="block-name-txt"){
             add_block(in_field)
         }
+    }else if(e.code ==="KeyZ" && e.ctrlKey){
+        undo()
+    }else if(e.code === "KeyY" && e.ctrlKey){
+        redo()
     }          
 })
 
@@ -76,8 +80,23 @@ const auth = firebase.auth()
 const save_btn = document.getElementById("save-btn")
 save_btn.onclick = ()=>{
     const sheet_name = document.getElementById("save-field").value
-    database.child("public").child(sheet_name).set(JSON.parse(JSON.stringify((DOM2data()))))
+
+
+    const blocks = JSON.parse(JSON.stringify((DOM2data())))
+
+    const sheet_data = {name: sheet_name, blocks: blocks}
+
+
+    save_content(firebase_data, "", sheet_data) // TODO would have to be saved in the user's folder
+
+    
+
+    database.set(firebase_data)
+    
+    //database.child("public").child(sheet_name).set(JSON.parse(JSON.stringify((DOM2data()))))
 }
+
+
 
 //sign_in("ebryski1@gmail.com", "boopbop")
 
@@ -104,35 +123,106 @@ function sign_in(email, password){
     })
 }
 
-database.child("public").on("value", (package)=>{
-    const data = package.val()
+let firebase_data
 
+database.on("value", (package)=>{
+    const data = package.val()
+    firebase_data = data
+    //package_firebase(data)
     const load_btns = [...document.getElementsByClassName("sheet-load-btn")]
     load_btns.forEach((btn)=>{btn.remove()})
+    
+    var root = document.getElementById("library")
 
-    const sheet_names = Object.keys(data)
-    sheet_names.forEach(sheet_name => {
-        var root = document.getElementById("load")
-        var btn = document.createElement('button')
-        btn.classList.add("sheet-load-btn")
-        btn.innerHTML=sheet_name
-        btn.onclick=()=>{
-            document.getElementById("save-field").value=sheet_name
-            const sheet_data = data[sheet_name]
-            if (document.body.loaded){
-                send_sheet(sheet_data,0,sheet_data.length)
-            }else{
-                //! will not produce a visual right now (would have to run compute_sheet first to get the vis equations), then call use_calc_results
-                data2DOM(sheet_data)
-            }
-        }
-        root.appendChild(btn)        
-    });
+
+
+    replace_UI_tree(data, root, create_sheet_buttons)
+    
 },
 (e)=>{
     throw e} 
 );
 
+
+
+test_folder_name = "Tests"
+
+function add_to_test(sheet_names){
+
+    sheet_names.forEach(name => {
+        move_content(firebase_data, "",test_folder_name, name)
+    })    
+}
+
+function test_sheets(){
+
+}
+
+
+function create_sheet_buttons(all_names, container){
+    
+    const sheet_name = all_names[all_names.length -1]
+    
+    const path = all_names.slice(0,all_names.length-1).join("/") // TODO pretty ugly joining just to split again but whatever
+    const folder_content = get_folder_content(path, firebase_data)
+
+    const sheet_data = folder_content.filter(sheet => {return sheet.name === sheet_name})[0].blocks
+
+    const load_btn = document.createElement("button")
+
+    load_btn.innerText = "Load"
+
+    load_btn.onclick=()=>{
+        document.getElementById("save-field").value=sheet_name
+        if (document.body.loaded){
+            send_sheet(sheet_data,0,sheet_data.length)
+        }else{
+            //! will not produce a visual right now (would have to run compute_sheet first to get the vis equations), then call use_calc_results
+            data2DOM(sheet_data)
+        }
+    }
+
+    
+    const delete_btn = document.createElement("button")
+
+    delete_btn.innerText = "Delete"
+
+    delete_btn.onclick=()=>{
+        
+        delete_content(firebase_data, path,sheet_name)
+        database.set(firebase_data)
+        
+    }
+
+
+
+
+    container.appendChild(load_btn)
+    container.appendChild(delete_btn)    
+};
+
+
+
+function package_firebase(sheets){
+    
+    // just a temporary function to get things set up
+    const new_sheets = Object.keys(sheets).map(sheet_name => {
+        const sheet_content = sheets[sheet_name]
+        return {name: sheet_name, blocks: sheet_content}
+    })
+
+    console.log(JSON.stringify(new_sheets))
+
+    download(JSON.stringify(new_sheets),"boop.json","text/plain")
+}
+
+function download(content, fileName, contentType) {
+    var a = document.createElement("a");
+    var file = new Blob([content], {type: contentType});
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+}
 
 function change_start_idx(idx){
 
@@ -186,13 +276,31 @@ function DOM2data(){
 
             var eqn_info = {}
             var line_output = $(eqn_row).find(".line-output")[0]
-            if (line_output===undefined){var show_output = "none"}
-            else{var show_output = line_output.style.display}
+
+            const is_solve_line = input.includes("\\operatorname{solve}")
+
+            if (line_output===undefined){
+                if (is_solve_line){
+                    var show_output = "block"
+                }else{
+                    var show_output = "none"
+                }
+            }else{
+                var show_output = line_output.style.display
+            }
 
 
             eqn_info.show_output = show_output
             eqn_info.input=input
-            eqn_info.sub_table = get_sub_data(sub_table)
+
+            // firebase sometimes doesn't like when undefined is a value
+            
+            const sub_data = get_sub_data(sub_table)
+
+            if (sub_data!==undefined){
+                eqn_info.sub_table = sub_data
+            }
+            //eqn_info.sub_table = get_sub_data(sub_table)
 
             data[block_i].eqns.push(eqn_info)
 
@@ -354,7 +462,7 @@ function make_line(eqn){
 
     MQ(in_field).latex(input)
     
-    var display_eqns = eqn.result //TODO round decimals HERE instead
+    var display_eqns = eqn.result
     var show_output = eqn.show_output
 
     if (show_output === undefined){
@@ -445,8 +553,9 @@ function make_line(eqn){
 }
 
 function round_decimals(expression) {
-    const regex = /[0-9]\.[0-9]+/g
-  
+
+    //const regex = /[0-9]\.[0-9]+/g
+    const regex = /\d*\.\d*/g
     return expression.replace(regex, match => {
         const roundedNumber = parseFloat(match).toFixed(5)
         return parseFloat(roundedNumber).toString()
@@ -474,11 +583,10 @@ function add_block(field){
     var next_row=block_row.nextElementSibling
     var new_row=make_block_row()
     main.insertBefore(new_row,next_row)
-    new_row.children[1].children[0].children[2].focus()
+    //$(new_row).find(".line-input")[0].focus()
 
-    
-    new_row.children[0].children[0].style.visibility = "visible"    // change_start_idx doesn't add the arrow for this div since it hasn't been appended yet
-    
+
+        
 
     var idx = [].indexOf.call(new_row.parentNode.children, new_row)+1;
     change_start_idx(idx)
@@ -535,16 +643,20 @@ function make_block(SoE){
         var row = e.target.parentElement.parentElement.parentElement
         change_start_idx([].indexOf.call(row.parentNode.children, row))
     }
-    if (SoE!==undefined && SoE.result==="ERROR"){name_field.classList.add("input-error")}
-
+    
     var error_field = document.createElement('span')
     error_field.classList.add("block-error-msg")    // right now just for finding it so it can be removed on edit (no style)
 
-    if (SoE===undefined || SoE.display===undefined){
-        error_field.innerHTML = ""
-    }else{
-        error_field.innerHTML = SoE.display
+
+    if (SoE!==undefined && SoE.result instanceof Error){
+        error_field.innerText = SoE.result.message
+        error_field.style.display = ""
+        name_field.classList.add("input-error")
+
     }
+
+
+
     block.appendChild(error_field)
 
     name_line=document.createElement('div')
