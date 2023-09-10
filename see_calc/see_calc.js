@@ -87,7 +87,7 @@ save_btn.onclick = ()=>{
     const sheet_data = {name: sheet_name, blocks: blocks}
 
 
-    save_content(firebase_data, "", sheet_data) // TODO would have to be saved in the user's folder
+    save_content(firebase_data, "", sheet_data, true) // TODO would have to be saved in the user's folder
 
     
 
@@ -841,7 +841,6 @@ function make_sub_table(table_data){
 
             // const ltx_exp = math_to_ltx(var_name)
 
-            // TODO will have to rethink handling greek variables
             // maybe just keep the backslash instead
 
             var in_field = document.createElement("div")

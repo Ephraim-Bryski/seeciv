@@ -1,18 +1,13 @@
 figure out whether pi should be a constant, and how to do it
 
-"already a name in directory" error when trying to save existing file
 
 
-
-
-
-scrolling just zooms glowscript
+cancel out common terms at the end D:
 
 renaming sheet?
 
 clearer divide between output equations (larger space??)
 
-resaving sheet produces an error that it's already a name
 
 sometimes outputs -0
 
@@ -33,9 +28,6 @@ then when solving gives CantSolveError cause there aren't any variables to solve
 might want to have an error for no variables in the system
 or don't simplify line???
 or.... have an error at the line itself saying all variables eliminated <-- best option i think
-
-
-ltx_to_math("\\frac{(2\\cdot (\\frac{- v3^{2}}{2}+1))^{\\frac{1}{2}}}{4}- (\\frac{(0.4\\cdot v3^{2})^{\\frac{1}{2}}}{4}+\\frac{v3}{4})") fails
 
 
 

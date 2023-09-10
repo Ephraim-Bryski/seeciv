@@ -55,6 +55,7 @@ function make_MQ(){
     })
 }
 
+
 function remove_vars(SoEs, vars_to_remove){
 
     if (vars_to_remove.length === 0){
@@ -68,6 +69,8 @@ function remove_vars(SoEs, vars_to_remove){
     }
 
     const back_solution = back_solve(SoEs, vars_to_remove, false)
+
+
     const remaining_trees = back_solution.remaining_trees
     const steps = back_solution.steps
     
@@ -86,6 +89,7 @@ function solve_eqns(SoEs){
     const vars_to_remove = get_all_vars(non_vis_eqns)
 
     const back_solution = back_solve(non_vis_eqns, vars_to_remove, true)
+
     const ordered_sub = back_solution.ordered_sub
     const steps = back_solution.steps
 
@@ -126,7 +130,8 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
         throw "solver not yet implemented for visuals"     // TODO filter out visual equations
     }
 
-    const trees = SoEs.map(ltx_to_math).map(eqn_to_tree) // trees will be mutated in the backsolve scope
+    // doing this weird mapping for groupcommonterms cause otherwise the second default argument is undefined, cause javascript |:
+    const trees = SoEs.map(ltx_to_math).map(eqn_to_tree).map(tree => {return group_common_terms(tree)}) // trees will be mutated in the backsolve scope
     const trees_info = trees.map(get_tree_info)          
     const trees_complexity = trees_info.map(info => {return info[0]})
     const trees_counts = trees_info.map(info => {return info[1]})
@@ -140,19 +145,13 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
     const use_ltx = true 
     
     while (true){  
-    
-        let solution
-        try{
-            solution = find_solution()
-        }catch(e){
-            if (e instanceof AlreadyDone){
-                console.log('done earl')
-                break
-            }else{
-                throw e
-            }
+
+        const solution = find_solution()
+
+        if (solution === null){
+            // either means it couldn't find a solution or there's nothing left to back solve
+            break
         }
-        
 
         const solution_step = {
             eqn0: solution.eqn0,
@@ -175,7 +174,8 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
         tree_idxs_with_sol_var.forEach(idx => {
             const tree = trees[idx]
             const eqn0 = tree_to_eqn(tree, use_ltx)
-            const subbed_tree = sub_in(tree, solution.solve_var, solution.sol)
+            const subbed_tree_ungrouped = sub_in(tree, solution.solve_var, solution.sol)
+            const subbed_tree = group_common_terms(subbed_tree_ungrouped)
             const eqn_subbed = tree_to_eqn(subbed_tree, use_ltx)
             substitution_steps.push({eqn0: eqn0, eqn_subbed: eqn_subbed})
             update_tree(subbed_tree, idx)
@@ -186,24 +186,142 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
         show_step(solution_step)
 
         trim_trees()
-        
-        const all_tree_vars = trees_counts.map(count => {return Object.keys(count)}).flat()
-    
-        if (empty_intersection(all_tree_vars, vars_to_remove)){
-            break
+
+        if (trees.filter(tree => {return tree!==null}).length < 3){
+            const bop=3
         }
     }
     
+
+    // THIS is where it throws an error that it can't solve
+
     if (!to_solve_system && numeric_trees.length !== 0){
         throw "this shouldnt happen, should only add to to_solve_system if solving system"
     }
     
     const remaining_trees = trees.filter(tree => {return tree !== null})
-    if (to_solve_system &&  remaining_trees.length !== 0){
-        throw "also shouldn't happend, shouldn't have exited loop, if there were trees remaining since ALL variables are to be removed"
-    }
+    const branching_trees = remaining_trees.filter(tree => {
+        return tree.op === "*"
+    })
+
+    const nonbranching_trees = remaining_trees.filter(tree => {
+        return !branching_trees.includes(tree)
+    })
     
-    return {remaining_trees: remaining_trees, ordered_sub: ordered_sub, steps: solution_steps}
+
+    const all_tree_vars = trees_counts.map((count,idx) => {
+        return Object.keys(count)
+    }).flat()
+
+
+   
+    const remaining_vars_to_remove = get_intersection(vars_to_remove, all_tree_vars)
+
+    // could be done eariler by just checking length of branching subtrees
+    const no_branches = branching_trees.length === 0
+
+
+    const solved = remaining_vars_to_remove.length === 0
+
+
+    const prebranch_solution = {remaining_trees: remaining_trees, ordered_sub: ordered_sub, steps: solution_steps}
+
+    if (no_branches && solved){
+        return prebranch_solution
+    }
+
+    if (no_branches && !solved){
+        throw new CantSolveError
+    }
+
+    // now we know there are branches 
+
+    
+    const branching_subtrees = branching_trees.map(tree => {
+        return tree.terms
+    })
+
+
+
+
+ 
+
+    const permutations = get_permutations(branching_subtrees)
+
+
+    const possible_branches = permutations.map(permutation => {
+        return nonbranching_trees.concat(permutation)
+    })
+
+
+    
+
+
+    const nested_branched_solutions = []
+
+    possible_branches.forEach(branch => {
+        try {
+            // TODO could be made more efficient by not converting back to eqns instead have backsolve take trees but whatever /:
+            const branch_eqns = branch.map(tree => {return tree_to_eqn(tree)})
+            const solution = back_solve(branch_eqns, remaining_vars_to_remove)
+            nested_branched_solutions.push(solution)
+        }catch(e){
+            if (e instanceof CantSolveError || e instanceof EvaluateError || e instanceof ContradictionError){
+                return
+            }
+            throw e
+        }
+    })
+
+    // at this point we KNOW that each of the branches already removed all the needed variables, or else it would have gotten an error
+
+
+    let branched_solutions = nested_branched_solutions.flat()
+
+    // a bit hacky but it's possible there are remaining equations that have contradictions that need to be filtered out
+    branched_solutions = branched_solutions.filter(solution => {
+        const trees = solution.remaining_trees
+
+        const is_contradiction = (val)=>{return is_number(val) && !is_near_zero(val)}
+
+        const has_contradictions = trees.some(is_contradiction)
+
+        return !has_contradictions
+    })
+
+    
+    function get_n_eqns(solution){
+
+        // im not going to count equations like a=0 since they're usually the uninteresting solutions
+
+        const nonzero_trees = solution.remaining_trees.filter(sol => {return typeof sol !== "string"})
+
+
+        return nonzero_trees.length
+    } 
+
+
+    if (branched_solutions.length === 0){
+        throw new ContradictionError
+    }
+
+    // TODO for now using the solution with the most eqns, probably not the best approach
+    branched_solutions = sorted(branched_solutions,key = get_n_eqns)
+
+
+
+
+    const branched_solution = branched_solutions[branched_solutions.length-1]
+
+    const combined_solution = {}
+    combined_solution.remaining_trees = branched_solution.remaining_trees
+    combined_solution.ordered_sub = [prebranch_solution.ordered_sub, branched_solution.ordered_sub].flat()
+    combined_solution.steps = [prebranch_solution.steps, branched_solution.steps].flat()
+
+
+    return combined_solution
+
+    
     
     function find_solution(){
     
@@ -213,6 +331,9 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
     
             const tree = trees[tree_idx]             
             if (tree === null){continue}
+
+            if (tree.op === "*"){
+                continue}
 
             const eqn0 = tree_to_eqn(tree, true)  // doing it up here so that i have it before solve_for mutates it
     
@@ -225,6 +346,7 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
                 const solve_var = tree_variables[variable_idx]
 
                 if (!(vars_to_remove.includes(solve_var))){continue}
+
                 if (tree.op !== "+" && tree.op !== undefined){
                     throw "need to implement other top operations"
                 }
@@ -261,10 +383,11 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
         const remaining_vars = trees_counts.map(counts => {return Object.keys(counts)}).flat()
 
         if (empty_intersection(remaining_vars,vars_to_remove)){
-            throw new AlreadyDone
+            return null//throw new AlreadyDone
         }
 
-        throw new CantSolveError
+        // throw new CantSolveError
+        return null
     }
     
     function trim_trees(){
@@ -294,7 +417,7 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
             const is_unneded = is_isolated && has_vars_to_remove && !to_solve_system
         
             if (is_unneded || zero_sol){
-                delete_tree(tree_idx)
+                //delete_tree(tree_idx)
             }
         })
     }
@@ -302,7 +425,7 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
     function delete_tree(tree_idx){
         trees[tree_idx] = null
         trees_counts[tree_idx] = {}
-        trees_complexity[tree_idx] = Infinity // not actually needed but whatever
+        trees_complexity[tree_idx] = null // not actually needed but whatever
     }
     
     function update_tree(simplified_tree, tree_idx){
@@ -321,21 +444,20 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
     function get_tree_info(tree){
     
         // for now, ill just use the number of operations
-    
-
-        // TODO need to make it so non additions are pushed to the very end, and are then handled recursively
-        // non multiplication operations don't have to be done recursively though -- should just be stripped immediately
-            // so where would this be done?
-        if (tree.op !== "+" && tree.op !== undefined){
-            throw "for now can only have plus for top operation"
-            //return [Infinity, {}]
-        }
-
+     
         let complexity = 0
+
         const counts = {}
     
         increment_complexity_count(tree)
-    
+ 
+        
+        if (tree.op !== "+" && tree.op !== undefined){
+            complexity = Infinity
+        }
+
+
+
         return [complexity, counts]
     
         function increment_complexity_count(tree){
@@ -359,6 +481,9 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
     }
 }
 
+
+
+
 function sort_idxs(sorted_array) {
     const indices = sorted_array.map((_, index) => index);
     indices.sort((a, b) => sorted_array[a] - sorted_array[b]);
@@ -371,6 +496,15 @@ function empty_intersection(arr1, arr2){
     })
 
     return !any_intersection
+}
+
+function get_intersection(arr1,arr2){
+    const intersection = arr1.filter(el1 => {
+        return arr2.includes(el1)
+    })
+
+    return intersection
+
 }
 
 function numeric_solve(exp_ltx){
@@ -429,10 +563,20 @@ function forward_solve(ordered_sub){
         
         var val = sub.sol
         
-        if (get_all_vars(val).length!==0){throw new TooMuchUnknownError}
+        // not using getallvars since trig functions (without latex backslashes) are counted as variables
+        //if (get_all_vars(val).length!==0){throw new TooMuchUnknownError}
 
+        try{
+            sub.sol = num_to_string(math.evaluate(val))    // this is necessary for trig functions
+        }catch(e){
+            if (e.message.includes("Undefined symbol")){
+                throw new TooMuchUnknownError
+            }else{
+                throw e
+            }
+        }
 
-        sub.sol = num_to_string(math.evaluate(val))    // this is necessary for trig functions
+        
         
 
         
