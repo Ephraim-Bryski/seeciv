@@ -1,0 +1,6834 @@
+{
+  "public": {
+    "A": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "b=3\\cdot x",
+            "show_output": "none"
+          },
+          {
+            "input": "x=g",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "System",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "b",
+                "x",
+                "g"
+              ],
+              [
+                "b",
+                "",
+                "g"
+              ]
+            ]
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "A Darcy": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\frac{p}{L}=f\\cdot\\frac{\\rho}{2}\\cdot\\frac{v^2}{D}",
+            "show_output": "none"
+          }
+        ],
+        "name": "Darcy",
+        "show_box": "none"
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Q=v\\cdot1\\cdot\\frac{D^2}{4}",
+            "show_output": "none"
+          }
+        ],
+        "name": "Flow",
+        "show_box": "none"
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Flow",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "Q",
+                "v",
+                "D"
+              ],
+              [
+                "Q",
+                "v",
+                "1"
+              ]
+            ]
+          },
+          {
+            "input": "Darcy",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "p",
+                "L",
+                "f",
+                "\\ \\rho",
+                "v",
+                "D"
+              ],
+              [
+                "p",
+                "L",
+                "f",
+                "\\ \\rho",
+                "v",
+                "D"
+              ]
+            ]
+          }
+        ],
+        "name": "Pipe",
+        "show_box": "none"
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Pipe",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "Q",
+                "v",
+                "p",
+                "L",
+                "f",
+                "\\ \\rho",
+                "D"
+              ],
+              [
+                "Q1",
+                "v1",
+                "p1",
+                "1",
+                "f",
+                "\\ \\rho",
+                "1"
+              ],
+              [
+                "Q2",
+                "v2",
+                "p2",
+                "1",
+                "f",
+                "\\ \\rho",
+                "1"
+              ],
+              [
+                "Q3",
+                "v3",
+                "p3",
+                "1",
+                "f",
+                "\\ \\rho",
+                "1"
+              ]
+            ]
+          },
+          {
+            "input": "f=1",
+            "show_output": "none"
+          },
+          {
+            "input": "\\rho=1",
+            "show_output": "none"
+          },
+          {
+            "input": "Q1=Q2+Q3",
+            "show_output": "none"
+          },
+          {
+            "input": "p2=p3",
+            "show_output": "none"
+          },
+          {
+            "input": "p1+p2=1",
+            "show_output": "none"
+          }
+        ],
+        "name": "Network",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\operatorname{solve}Network",
+            "show_output": "none"
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "A Darcy Cannot Solve": [
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "\\frac{p}{L}=f\\cdot\\frac{\\rho}{2}\\cdot\\frac{v^2}{D}",
+            "show_output": "none"
+          }
+        ],
+        "name": "Darcy",
+        "show_box": "none"
+      },
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "Q=v\\cdot1\\cdot\\frac{D^2}{4}",
+            "show_output": "none"
+          }
+        ],
+        "name": "Flow",
+        "show_box": "none"
+      },
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "Flow",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "Q",
+                "v",
+                "D"
+              ],
+              [
+                "Q",
+                "v",
+                "1"
+              ]
+            ]
+          },
+          {
+            "input": "Darcy",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "p",
+                "L",
+                "f",
+                "\\rho",
+                "v",
+                "D"
+              ],
+              [
+                "p",
+                "L",
+                "f",
+                "\\rho",
+                "v",
+                "D"
+              ]
+            ]
+          }
+        ],
+        "name": "Pipe",
+        "show_box": "none"
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Pipe",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "Q",
+                "v",
+                "p",
+                "L",
+                "f",
+                "\\rho",
+                "D"
+              ],
+              [
+                "Q1",
+                "v1",
+                "p1",
+                "1",
+                "f",
+                "\\rho",
+                "1"
+              ],
+              [
+                "Q2",
+                "v2",
+                "p2",
+                "1",
+                "f",
+                "\\rho",
+                "0.5"
+              ],
+              [
+                "Q3",
+                "v3",
+                "p3",
+                "1",
+                "f",
+                "\\rho",
+                "1"
+              ]
+            ]
+          },
+          {
+            "input": "f=1",
+            "show_output": "none"
+          },
+          {
+            "input": "\\rho=1",
+            "show_output": "none"
+          },
+          {
+            "input": "Q1=Q2+Q3",
+            "show_output": "none"
+          },
+          {
+            "input": "p2=p3",
+            "show_output": "none"
+          },
+          {
+            "input": "p1+p2=1",
+            "show_output": "none"
+          }
+        ],
+        "name": "Network",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\operatorname{solve}Network",
+            "show_output": "none"
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "A Darcy Square Error": [
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "\\frac{p}{L}=f\\cdot\\frac{\\rho}{2}\\cdot\\frac{v^2}{D}",
+            "show_output": "none"
+          }
+        ],
+        "name": "Darcy",
+        "show_box": "none"
+      },
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "Q=v\\cdot1\\cdot\\frac{D^2}{4}",
+            "show_output": "none"
+          }
+        ],
+        "name": "Flow",
+        "show_box": "none"
+      },
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "Flow",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "Q",
+                "v",
+                "D"
+              ],
+              [
+                "Q",
+                "v",
+                "1"
+              ]
+            ]
+          },
+          {
+            "input": "Darcy",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "p",
+                "L",
+                "f",
+                "\\rho",
+                "v",
+                "D"
+              ],
+              [
+                "p",
+                "L",
+                "f",
+                "\\rho",
+                "v",
+                "D"
+              ]
+            ]
+          }
+        ],
+        "name": "Pipe",
+        "show_box": "none"
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Pipe",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "Q",
+                "v",
+                "p",
+                "L",
+                "f",
+                "\\rho",
+                "D"
+              ],
+              [
+                "Q1",
+                "v1",
+                "p1",
+                "1",
+                "f",
+                "\\rho",
+                "1"
+              ],
+              [
+                "Q2",
+                "v2",
+                "p2",
+                "1",
+                "f",
+                "\\rho",
+                "0.4"
+              ],
+              [
+                "Q3",
+                "v3",
+                "p3",
+                "1",
+                "f",
+                "\\rho",
+                "1"
+              ]
+            ]
+          },
+          {
+            "input": "f=1",
+            "show_output": "none"
+          },
+          {
+            "input": "\\rho=1",
+            "show_output": "none"
+          },
+          {
+            "input": "Q1=Q2+Q3",
+            "show_output": "none"
+          },
+          {
+            "input": "p2=p3",
+            "show_output": "none"
+          },
+          {
+            "input": "p1+p2=1",
+            "show_output": "none"
+          }
+        ],
+        "name": "Network",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\operatorname{solve}Network",
+            "show_output": "none"
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "A Frac Layer": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\frac{a}{b}=0",
+            "show_output": "none"
+          },
+          {
+            "input": "a=\\frac{d}{c}",
+            "show_output": "none"
+          }
+        ],
+        "name": "Test",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Test",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "a",
+                "b",
+                "d",
+                "c"
+              ],
+              [
+                "",
+                "b",
+                "d",
+                "c"
+              ]
+            ]
+          }
+        ],
+        "name": "B",
+        "show_box": ""
+      },
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "",
+            "show_output": "none"
+          }
+        ],
+        "name": "sdf",
+        "show_box": "none"
+      }
+    ],
+    "A IBeam": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Box",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "H",
+                "L",
+                "W",
+                "x",
+                "y",
+                "z"
+              ],
+              [
+                "h",
+                "L",
+                "b",
+                "0",
+                "y",
+                "0"
+              ]
+            ]
+          },
+          {
+            "input": "I=\\frac{1}{12}\\cdot b\\cdot h^3",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "Section",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Section",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "h",
+                "L",
+                "b",
+                "y",
+                "I"
+              ],
+              [
+                "H-2\\cdot t",
+                "L",
+                "t",
+                "0",
+                "I1"
+              ],
+              [
+                "t",
+                "L",
+                "W",
+                "-\\frac{H}{2}+\\frac{t}{2}",
+                "I2"
+              ],
+              [
+                "t",
+                "L",
+                "W",
+                "\\frac{H}{2}-\\frac{t}{2}",
+                "I3"
+              ]
+            ]
+          },
+          {
+            "input": "L=10",
+            "show_output": "none"
+          },
+          {
+            "input": "H=1",
+            "show_output": "none"
+          },
+          {
+            "input": "W=1",
+            "show_output": "none"
+          },
+          {
+            "input": "I=I1+I2+I3",
+            "show_output": "none"
+          },
+          {
+            "input": "I=0.006",
+            "show_output": "none"
+          }
+        ],
+        "name": "Beam",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Beam",
+            "show_output": "block",
+            "sub_table": [
+              [
+                "H",
+                "t",
+                "L",
+                "I1",
+                "W",
+                "I2",
+                "I3",
+                "I"
+              ],
+              [
+                "",
+                "t",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "I"
+              ]
+            ]
+          }
+        ],
+        "name": "Test",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\operatorname{solve}Beam",
+            "show_output": "none"
+          }
+        ],
+        "name": "sol",
+        "show_box": ""
+      }
+    ],
+    "A Network": [
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "\\frac{p}{L}=f\\cdot\\frac{\\rho}{2}\\cdot\\frac{v^2}{D}",
+            "show_output": "none"
+          }
+        ],
+        "name": "Darcy",
+        "show_box": "none"
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Q=v\\cdot1\\cdot\\frac{D^2}{4}",
+            "show_output": "none"
+          }
+        ],
+        "name": "Flow",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Flow",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "Q",
+                "v",
+                "D"
+              ],
+              [
+                "Q",
+                "v",
+                "1"
+              ]
+            ]
+          },
+          {
+            "input": "Darcy",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "p",
+                "L",
+                "f",
+                "\\rho",
+                "v",
+                "D"
+              ],
+              [
+                "p",
+                "L",
+                "f",
+                "\\rho",
+                "v",
+                "D"
+              ]
+            ]
+          },
+          {
+            "input": "L^2=\\left(x2-x1\\right)^2+\\left(y2-y1\\right)^2",
+            "show_output": "none"
+          }
+        ],
+        "name": "Pipe",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Pipe",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "Q",
+                "v",
+                "p",
+                "L",
+                "f",
+                "\\rho",
+                "D",
+                "x2",
+                "x1",
+                "y2",
+                "y1"
+              ],
+              [
+                "Q1",
+                "v1",
+                "p1",
+                "",
+                "f",
+                "\\rho",
+                "2",
+                "xj",
+                "0",
+                "yj",
+                "0"
+              ],
+              [
+                "Q2",
+                "v2",
+                "p2",
+                "",
+                "f",
+                "\\rho",
+                "1",
+                "1",
+                "xj",
+                "0",
+                "yj"
+              ],
+              [
+                "Q3",
+                "v3",
+                "p3",
+                "",
+                "f",
+                "\\rho",
+                "1",
+                "1",
+                "xj",
+                "0",
+                "yj"
+              ]
+            ]
+          },
+          {
+            "input": "f=1",
+            "show_output": "none"
+          },
+          {
+            "input": "\\rho=1",
+            "show_output": "none"
+          },
+          {
+            "input": "Q1=Q2+Q3",
+            "show_output": "none"
+          },
+          {
+            "input": "p2=p3",
+            "show_output": "none"
+          },
+          {
+            "input": "p1+p2=1",
+            "show_output": "none"
+          },
+          {
+            "input": "xj=0",
+            "show_output": "none"
+          },
+          {
+            "input": "yj=0.5",
+            "show_output": "none"
+          }
+        ],
+        "name": "Network",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\operatorname{solve}Network",
+            "show_output": "none"
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "A NewSoilProps": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "ee=\\frac{Vv}{Vs}",
+            "show_output": "none"
+          },
+          {
+            "input": "n=\\frac{Vv}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "S=\\frac{Vw}{Vv}",
+            "show_output": "none"
+          },
+          {
+            "input": "w=\\frac{Ww}{Ws}",
+            "show_output": "none"
+          },
+          {
+            "input": "Gs=\\frac{ys}{yw}",
+            "show_output": "none"
+          },
+          {
+            "input": "ys=\\frac{Ws}{Vs}",
+            "show_output": "none"
+          },
+          {
+            "input": "yw=\\frac{Ww}{Vw}",
+            "show_output": "none"
+          },
+          {
+            "input": "yd=\\frac{Ws}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "y=\\frac{W}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "W=Ws+Ww",
+            "show_output": "none"
+          },
+          {
+            "input": "V=Vs+Vv",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "System",
+            "show_output": "block",
+            "sub_table": [
+              [
+                "ee",
+                "Vv",
+                "Vs",
+                "n",
+                "V",
+                "S",
+                "Vw",
+                "w",
+                "Ww",
+                "Ws",
+                "Gs",
+                "ys",
+                "yw",
+                "yd",
+                "y",
+                "W"
+              ],
+              [
+                "ee",
+                "",
+                "",
+                "",
+                "",
+                "S",
+                "",
+                "w",
+                "",
+                "",
+                "Gs",
+                "",
+                "",
+                "",
+                "",
+                ""
+              ]
+            ]
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "A Planetary": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "v=\\omega\\cdot r",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "Gear",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Gear",
+            "show_output": "block",
+            "sub_table": [
+              [
+                "v",
+                "\\omega",
+                "r"
+              ],
+              [
+                "v_s",
+                "\\omega_s",
+                "r_s"
+              ],
+              [
+                "\\frac{v_r-v_s}{2}",
+                "\\omega_p",
+                "r_r-r_s"
+              ],
+              [
+                "\\frac{v_r+v_s}{2}",
+                "\\omega_c",
+                "\\frac{r_r+r_s}{2}"
+              ],
+              [
+                "v_r",
+                "\\omega_r",
+                "r_r"
+              ]
+            ]
+          }
+        ],
+        "name": "Planetary",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Planetary",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "v_s",
+                "\\ \\omega_s",
+                "r_s",
+                "v_r",
+                "\\ \\omega_p",
+                "r_r",
+                "\\ \\omega_c",
+                "\\ \\omega_r"
+              ],
+              [
+                "v_s",
+                "",
+                "r_s",
+                "v_r",
+                "",
+                "r_r",
+                "",
+                ""
+              ]
+            ]
+          }
+        ],
+        "name": "Relation",
+        "show_box": ""
+      }
+    ],
+    "A Ramp": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "I=\\frac{1}{2}\\cdot m\\cdot r^2",
+            "show_output": "none"
+          },
+          {
+            "input": "a=r\\cdot\\alpha",
+            "show_output": "none"
+          },
+          {
+            "input": "M=I\\cdot\\alpha",
+            "show_output": "none"
+          },
+          {
+            "input": "d=\\frac{1}{2}\\cdot a\\cdot t^2",
+            "show_output": "none"
+          },
+          {
+            "input": "\\phi=\\frac{1}{2}\\cdot\\alpha\\cdot t^2",
+            "show_output": "none"
+          },
+          {
+            "input": "M=F_f\\cdot r",
+            "show_output": "none"
+          },
+          {
+            "input": "m\\cdot g\\cdot\\sin\\left(\\theta\\right)-F_f=m\\cdot a",
+            "show_output": "none"
+          },
+          {
+            "input": "x=x_0-d\\cdot\\cos\\left(\\theta\\right)",
+            "show_output": "none"
+          },
+          {
+            "input": "y=y_0-d\\cdot\\sin\\left(\\theta\\right)",
+            "show_output": "none"
+          },
+          {
+            "input": "x_0=d_0\\cdot\\cos\\left(\\theta\\right)-r\\cdot\\sin\\left(\\theta\\right)",
+            "show_output": "none"
+          },
+          {
+            "input": "y_0=d_0\\cdot\\sin\\left(\\theta\\right)+r\\cdot\\cos\\left(\\theta\\right)",
+            "show_output": "none"
+          },
+          {
+            "input": "Ramp",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "x_0",
+                "z_0",
+                "L",
+                "H",
+                "t"
+              ],
+              [
+                "0",
+                "0",
+                "L",
+                "H",
+                "1"
+              ]
+            ]
+          },
+          {
+            "input": "Wheel",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "x_0",
+                "y_0",
+                "z_0",
+                "L",
+                "r",
+                "\\theta"
+              ],
+              [
+                "x",
+                "y",
+                "0",
+                "0.1",
+                "r",
+                "\\phi"
+              ]
+            ]
+          },
+          {
+            "input": "\\frac{H}{L}=\\tan\\left(\\theta\\right)",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "System",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "I",
+                "m",
+                "r",
+                "a",
+                "\\alpha",
+                "M",
+                "d",
+                "t",
+                "\\phi",
+                "F_f",
+                "g",
+                "\\theta",
+                "x",
+                "x_0",
+                "y",
+                "y_0",
+                "d_0",
+                "L",
+                "H"
+              ],
+              [
+                "",
+                "",
+                "1",
+                "",
+                "",
+                "",
+                "",
+                "1.7",
+                "\\phi",
+                "",
+                "9.81",
+                "0.1",
+                "x",
+                "3",
+                "y",
+                "",
+                "d_0",
+                "4",
+                ""
+              ]
+            ]
+          }
+        ],
+        "name": "A",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\operatorname{solve}A",
+            "show_output": "none"
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "A Ramp2": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "I=\\frac{1}{2}\\cdot m\\cdot r^2",
+            "show_output": "none"
+          },
+          {
+            "input": "a=r\\cdot\\alpha",
+            "show_output": "none"
+          },
+          {
+            "input": "M=I\\cdot\\alpha",
+            "show_output": "none"
+          },
+          {
+            "input": "d=\\frac{1}{2}\\cdot a\\cdot t^2",
+            "show_output": "none"
+          },
+          {
+            "input": "M=F_f\\cdot r",
+            "show_output": "none"
+          },
+          {
+            "input": "m\\cdot g\\cdot\\sin\\left(\\theta\\right)-F_f=m\\cdot a",
+            "show_output": "none"
+          },
+          {
+            "input": "x=x_0-d\\cdot\\cos\\left(\\theta\\right)",
+            "show_output": "none"
+          },
+          {
+            "input": "y=y_0-d\\cdot\\sin\\left(\\theta\\right)",
+            "show_output": "none"
+          },
+          {
+            "input": "\\frac{y_0}{x_0}=\\tan\\left(\\theta\\right)",
+            "show_output": "none"
+          },
+          {
+            "input": "Ramp",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "x_0",
+                "z_0",
+                "L",
+                "H",
+                "t"
+              ],
+              [
+                "0",
+                "0",
+                "L",
+                "H",
+                "1"
+              ]
+            ]
+          },
+          {
+            "input": "\\frac{H}{L}=\\tan\\left(\\theta\\right)",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "System",
+            "show_output": "block",
+            "sub_table": [
+              [
+                "I",
+                "m",
+                "r",
+                "a",
+                "\\alpha",
+                "M",
+                "d",
+                "t",
+                "F_f",
+                "g",
+                "\\theta",
+                "x",
+                "x_0",
+                "y",
+                "y_0",
+                "L",
+                "H"
+              ],
+              [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "0",
+                "",
+                "-9.81",
+                "30",
+                "x",
+                "3",
+                "y",
+                "",
+                "4",
+                ""
+              ]
+            ]
+          }
+        ],
+        "name": "A",
+        "show_box": ""
+      }
+    ],
+    "A greek": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\Delta p=4",
+            "show_output": "block"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "System",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "\\Delta",
+                "p"
+              ],
+              [
+                "\\Delta",
+                "p"
+              ]
+            ]
+          }
+        ],
+        "name": "A",
+        "show_box": ""
+      }
+    ],
+    "A no vars table": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "a=3",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "System",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "a"
+              ],
+              [
+                "4"
+              ]
+            ]
+          }
+        ],
+        "name": "S",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "S",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "a"
+              ],
+              [
+                "a"
+              ]
+            ]
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "A1": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "ee=\\frac{Vv}{Vs}",
+            "show_output": "none"
+          },
+          {
+            "input": "n=\\frac{Vv}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "S=\\frac{Vw}{Vv}",
+            "show_output": "none"
+          },
+          {
+            "input": "w=\\frac{Ww}{Ws}",
+            "show_output": "none"
+          },
+          {
+            "input": "Gs=\\frac{ys}{yw}",
+            "show_output": "none"
+          },
+          {
+            "input": "ys=\\frac{Ws}{Vs}",
+            "show_output": "none"
+          },
+          {
+            "input": "yw=\\frac{Ww}{Vw}",
+            "show_output": "none"
+          },
+          {
+            "input": "yd=\\frac{Ws}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "y=\\frac{W}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "W=Ws+Ww",
+            "show_output": "none"
+          },
+          {
+            "input": "V=Vs+Vv",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "System",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "ee",
+                "Vv",
+                "Vs",
+                "n",
+                "V",
+                "S",
+                "Vw",
+                "w",
+                "Ww",
+                "Ws",
+                "Gs",
+                "ys",
+                "yw",
+                "yd",
+                "y",
+                "W"
+              ],
+              [
+                "ee",
+                "",
+                "",
+                "n",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                ""
+              ]
+            ]
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "AA": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "4=\\omega",
+            "show_output": "none"
+          },
+          {
+            "input": "Wheel",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\operatorname{solve}System",
+            "show_output": "none"
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "Automatic Transmission": [
+      {
+        "eqns": [
+          {
+            "input": "2*wp=ws+wr"
+          }
+        ],
+        "info": "hi",
+        "name": "Planet"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Planet",
+            "sub_table": [
+              [
+                "wp",
+                "ws",
+                "wr"
+              ],
+              [
+                "wr4",
+                "w_in",
+                "wr3"
+              ],
+              [
+                "wr5",
+                "w_cen",
+                "wr4"
+              ],
+              [
+                "w_out",
+                "w_cen",
+                "wr5"
+              ]
+            ]
+          },
+          {
+            "input": "Rat=w_out/w_in"
+          }
+        ],
+        "name": "Transmission"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Transmission",
+            "sub_table": [
+              [
+                "wr4",
+                "w_in",
+                "wr3",
+                "wr5",
+                "w_cen",
+                "w_out",
+                "Rat"
+              ],
+              [
+                "",
+                "w1",
+                "",
+                "0",
+                "w1",
+                "",
+                "First"
+              ],
+              [
+                "0",
+                "w1",
+                "",
+                "",
+                "w1",
+                "",
+                "Second"
+              ],
+              [
+                "",
+                "w1",
+                "0",
+                "",
+                "w1",
+                "",
+                "Third"
+              ],
+              [
+                "",
+                "w1",
+                "",
+                "w1",
+                "w1",
+                "",
+                "Direct"
+              ],
+              [
+                "",
+                "w1",
+                "0",
+                "w1",
+                "",
+                "",
+                "Fifth"
+              ],
+              [
+                "0",
+                "w1",
+                "",
+                "w1",
+                "",
+                "",
+                "Sixth"
+              ],
+              [
+                "",
+                "",
+                "0",
+                "0",
+                "",
+                "",
+                "Reverse"
+              ]
+            ]
+          }
+        ],
+        "name": "Gears"
+      }
+    ],
+    "Automatic Transmission Alternative": [
+      {
+        "eqns": [
+          {
+            "input": "2*wp=ws+wr"
+          }
+        ],
+        "info": "hi",
+        "name": "Planet"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Planet",
+            "sub_table": [
+              [
+                "wp",
+                "ws",
+                "wr"
+              ],
+              [
+                "wr4",
+                "w_in",
+                "wr3"
+              ],
+              [
+                "wr5",
+                "w_cen",
+                "wr4"
+              ],
+              [
+                "wr6",
+                "w_cen",
+                "wr5"
+              ],
+              [
+                "w_out",
+                "w_cen",
+                "wr6"
+              ]
+            ]
+          },
+          {
+            "input": "Rat=w_out/w_in"
+          }
+        ],
+        "name": "Transmission"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Transmission",
+            "sub_table": [
+              [
+                "wr4",
+                "w_in",
+                "wr3",
+                "wr5",
+                "w_cen",
+                "wr6",
+                "w_out",
+                "Rat"
+              ],
+              [
+                "",
+                "w1",
+                "",
+                "",
+                "w1",
+                "0",
+                "",
+                "Rat"
+              ]
+            ]
+          }
+        ],
+        "name": "Gears"
+      }
+    ],
+    "Beam Example": [
+      {
+        "eqns": [
+          {
+            "input": "A=b*h"
+          },
+          {
+            "input": "M=A*y"
+          },
+          {
+            "input": "I=1/12*b*h^3+A*y^2"
+          }
+        ],
+        "name": "Rect"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Rect",
+            "sub_table": [
+              [
+                "A",
+                "b",
+                "h",
+                "M",
+                "y",
+                "I"
+              ],
+              [
+                "A1",
+                "Lf",
+                "tf",
+                "M1",
+                "tf/2",
+                "I1"
+              ],
+              [
+                "A2",
+                "tw",
+                "Lw",
+                "M2",
+                "tf+Lw/2",
+                "I2"
+              ],
+              [
+                "A3",
+                "Lf",
+                "tf",
+                "M3",
+                "tf+Lw+tf/2",
+                "I3"
+              ]
+            ]
+          },
+          {
+            "input": "M=M1+M2+M3"
+          },
+          {
+            "input": "A=A1+A2+A3"
+          },
+          {
+            "input": "I=I1+I2+I3"
+          },
+          {
+            "input": "ybar=M/A"
+          }
+        ],
+        "name": "IBeamFull"
+      },
+      {
+        "eqns": [
+          {
+            "input": "IBeamFull",
+            "sub_table": [
+              [
+                "A1",
+                "Lf",
+                "tf",
+                "M1",
+                "I1",
+                "A2",
+                "tw",
+                "Lw",
+                "M2",
+                "I2",
+                "A3",
+                "M3",
+                "I3",
+                "M",
+                "A",
+                "I",
+                "ybar"
+              ],
+              [
+                "",
+                "Lf",
+                "tf",
+                "",
+                "",
+                "",
+                "tw",
+                "Lw",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "A",
+                "I",
+                ""
+              ]
+            ]
+          }
+        ],
+        "name": "IBeam"
+      },
+      {
+        "eqns": [
+          {
+            "input": "w=rho*A"
+          },
+          {
+            "input": "M=w*L^2/2"
+          },
+          {
+            "input": "delta=w*L^4/(8*E*I)"
+          }
+        ],
+        "name": "Cantilever"
+      },
+      {
+        "eqns": [
+          {
+            "input": "IBeam",
+            "sub_table": [
+              [
+                "A",
+                "Lf",
+                "tf",
+                "Lw",
+                "tw",
+                "I"
+              ],
+              [
+                "A",
+                "Lf",
+                "t",
+                "Lw",
+                "t",
+                "I"
+              ]
+            ]
+          },
+          {
+            "input": "Cantilever",
+            "sub_table": [
+              [
+                "w",
+                "rho",
+                "A",
+                "M",
+                "L",
+                "delta",
+                "E",
+                "I"
+              ],
+              [
+                "",
+                "rho",
+                "A",
+                "",
+                "L",
+                "delta",
+                "E",
+                "I"
+              ]
+            ]
+          }
+        ],
+        "name": "Beam"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Beam",
+            "sub_table": [
+              [
+                "A",
+                "Lf",
+                "t",
+                "Lw",
+                "I",
+                "L",
+                "rho",
+                "E",
+                "delta"
+              ],
+              [
+                "",
+                "3",
+                "1",
+                "1",
+                "",
+                "100",
+                "1",
+                "1000",
+                "delta"
+              ]
+            ]
+          }
+        ],
+        "name": "Input"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Input"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "Box": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Box",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "L",
+                "H",
+                "W",
+                "x",
+                "y",
+                "z"
+              ],
+              [
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "info": "hi",
+        "name": "Bo",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\operatorname{solve}Bo",
+            "show_output": "none"
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "Cannot Solve": [
+      {
+        "eqns": [
+          {
+            "input": "e=Vv/Vs"
+          },
+          {
+            "input": "n=Vv/V"
+          },
+          {
+            "input": "S=Vw/Vv"
+          },
+          {
+            "input": "w=Ww/Ws"
+          },
+          {
+            "input": "Gs=ys/yw"
+          },
+          {
+            "input": "ys=Ws/Vs"
+          },
+          {
+            "input": "yw=Ww/Vw"
+          },
+          {
+            "input": "yd=Ws/V"
+          },
+          {
+            "input": "y=W/V"
+          },
+          {
+            "input": "W=Ws+Ww"
+          },
+          {
+            "input": "V=Vs+Vv"
+          }
+        ],
+        "name": "SoilProps"
+      },
+      {
+        "eqns": [
+          {
+            "input": "SoilProps",
+            "sub_table": [
+              [
+                "e",
+                "Vv",
+                "Vs",
+                "n",
+                "V",
+                "S",
+                "Vw",
+                "w",
+                "Ww",
+                "Ws",
+                "Gs",
+                "ys",
+                "yw",
+                "yd",
+                "y",
+                "W"
+              ],
+              [
+                "e",
+                "",
+                "",
+                "",
+                "",
+                "S",
+                "",
+                "w",
+                "",
+                "",
+                "Gs",
+                "",
+                "",
+                "",
+                "",
+                ""
+              ]
+            ]
+          }
+        ],
+        "name": "Problem"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Problem"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "Centroid": [
+      {
+        "eqns": [
+          {
+            "input": "A=b*h"
+          },
+          {
+            "input": "M=A*y"
+          }
+        ],
+        "name": "Rect"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Rect",
+            "sub_table": [
+              [
+                "A",
+                "b",
+                "h",
+                "M",
+                "y"
+              ],
+              [
+                "A1",
+                "Lf",
+                "tf",
+                "M1",
+                "tf/2"
+              ],
+              [
+                "A2",
+                "tw",
+                "Lw",
+                "M2",
+                "tf+Lw/2"
+              ],
+              [
+                "A3",
+                "Lf",
+                "tf",
+                "M3",
+                "tf+Lw+tf/2"
+              ]
+            ]
+          },
+          {
+            "input": "M=M1+M2+M3"
+          },
+          {
+            "input": "A=A1+A2+A3"
+          },
+          {
+            "input": "ybar=M/A"
+          }
+        ],
+        "name": "IBeam"
+      },
+      {
+        "eqns": [
+          {
+            "input": "IBeam",
+            "sub_table": [
+              [
+                "A1",
+                "Lf",
+                "tf",
+                "M1",
+                "A2",
+                "tw",
+                "Lw",
+                "M2",
+                "A3",
+                "M3",
+                "M",
+                "A",
+                "ybar"
+              ],
+              [
+                "A1",
+                "2",
+                "1",
+                "",
+                "A2",
+                "1",
+                "3",
+                "",
+                "A3",
+                "",
+                "M",
+                "A",
+                "ybar"
+              ]
+            ]
+          }
+        ],
+        "name": "Problem"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Problem for M"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "Circuit": [
+      {
+        "eqns": [
+          {
+            "input": "V2-V1=I*R"
+          }
+        ],
+        "name": "Res"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Res",
+            "sub_table": [
+              [
+                "V2",
+                "V1",
+                "I",
+                "R"
+              ],
+              [
+                "Va",
+                "V0",
+                "I",
+                "R1"
+              ],
+              [
+                "Vb",
+                "Va",
+                "I",
+                "R2"
+              ],
+              [
+                "Vc",
+                "Vb",
+                "I1",
+                "R3"
+              ],
+              [
+                "Vc",
+                "Vb",
+                "I2",
+                "R4"
+              ]
+            ]
+          },
+          {
+            "input": "I=I1+I2"
+          },
+          {
+            "input": "Vbatt=Vc-V0"
+          }
+        ],
+        "name": "Circuit"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Circuit",
+            "sub_table": [
+              [
+                "Va",
+                "V0",
+                "I",
+                "R1",
+                "Vb",
+                "R2",
+                "Vc",
+                "I1",
+                "R3",
+                "I2",
+                "R4",
+                "Vbatt"
+              ],
+              [
+                "",
+                "",
+                "I",
+                "1",
+                "",
+                "3",
+                "",
+                "I1",
+                "2",
+                "I2",
+                "4",
+                "5"
+              ]
+            ]
+          }
+        ],
+        "name": "Input"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Input"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "Darcy": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\frac{p}{L}=f\\cdot\\frac{1}{2}\\cdot\\frac{v^2}{D}",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "Darcy",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Darcy",
+            "show_output": "block",
+            "sub_table": [
+              [
+                "p",
+                "L",
+                "f",
+                "v",
+                "D"
+              ],
+              [
+                "1",
+                "1",
+                "1",
+                "v",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "name": "Case",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\operatorname{solve}Case",
+            "show_output": "block"
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "Did Not Expand Properly": [
+      {
+        "eqns": [
+          {
+            "input": "Fr=v/sqrt(g*h)"
+          },
+          {
+            "input": "q=v*h"
+          },
+          {
+            "input": "F=v^2/2+0.5*g*h^2"
+          }
+        ],
+        "info": "hi",
+        "name": "Froude"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Froude",
+            "sub_table": [
+              [
+                "Fr",
+                "v",
+                "g",
+                "h",
+                "q",
+                "F"
+              ],
+              [
+                "Fr1",
+                "v1",
+                "g",
+                "h1",
+                "q",
+                "F"
+              ],
+              [
+                "",
+                "v2",
+                "g",
+                "h2",
+                "q",
+                "F"
+              ]
+            ]
+          }
+        ],
+        "name": "Combined"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Combined",
+            "sub_table": [
+              [
+                "Fr1",
+                "v1",
+                "g",
+                "h1",
+                "q",
+                "F",
+                "v2",
+                "h2"
+              ],
+              [
+                "Fr1",
+                "",
+                "",
+                "h1",
+                "",
+                "",
+                "",
+                "h2"
+              ]
+            ]
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "Error solve is parametric": [
+      {
+        "eqns": [
+          {
+            "input": "v=1/n*R^(2/3)*sqrt(S)"
+          },
+          {
+            "input": "Q=v*A"
+          },
+          {
+            "input": "A=pi*R^2"
+          },
+          {
+            "input": "y=L*S"
+          }
+        ],
+        "name": "Pipe"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Pipe",
+            "sub_table": [
+              [
+                "v",
+                "n",
+                "R",
+                "S",
+                "Q",
+                "A",
+                "y",
+                "L"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q1",
+                "A",
+                "y1",
+                "100"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q2",
+                "A",
+                "y1",
+                "100"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q3",
+                "A",
+                "y2",
+                "300"
+              ]
+            ]
+          },
+          {
+            "input": "y=3"
+          },
+          {
+            "input": "y=y1+y2"
+          },
+          {
+            "input": "Q3=Q1+Q2"
+          },
+          {
+            "input": "n=.01"
+          }
+        ],
+        "name": "Series"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Series",
+            "sub_table": [
+              [
+                "A",
+                "y1",
+                "n",
+                "Q1",
+                "Q2",
+                "y2",
+                "Q3",
+                "y"
+              ],
+              [
+                "A",
+                "y1",
+                "n",
+                "Q1",
+                "Q2",
+                "y2",
+                "Q3",
+                "y"
+              ]
+            ]
+          }
+        ],
+        "name": "Problem"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Problem"
+          }
+        ],
+        "name": "Input"
+      }
+    ],
+    "Error still has absolute value": [
+      {
+        "eqns": [
+          {
+            "input": "Q=A*v"
+          },
+          {
+            "input": "A=(B1+B2)/2*y"
+          },
+          {
+            "input": "P=B1+2*sqrt((B2-B1)/2^2+y^2)"
+          },
+          {
+            "input": "R=A/P"
+          },
+          {
+            "input": "Q=1/n*A*R^(2/3)*S^(1/2)"
+          }
+        ],
+        "name": "Trapezoid"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Trapezoid",
+            "sub_table": [
+              [
+                "Q",
+                "A",
+                "v",
+                "B1",
+                "B2",
+                "y",
+                "P",
+                "R",
+                "n",
+                "S"
+              ],
+              [
+                "Q",
+                "A",
+                "v",
+                "B",
+                "B",
+                "y",
+                "P",
+                "R",
+                "n",
+                "S"
+              ]
+            ]
+          }
+        ],
+        "name": "Rectangle"
+      }
+    ],
+    "Friction Block on Ramp": [
+      {
+        "eqns": [
+          {
+            "input": "uy=m*ux"
+          },
+          {
+            "input": "mag^2=ux^2+uy^2"
+          }
+        ],
+        "info": "hi",
+        "name": "Vector"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Ff=mu*Nf"
+          }
+        ],
+        "name": "Friction"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Nc+fc+mb*g=mb*ab"
+          },
+          {
+            "input": "-Nc-fc+mt*g+Nf+ff=mt*at"
+          },
+          {
+            "input": "ab-at=a_diff"
+          }
+        ],
+        "name": "FBDs"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Vector",
+            "sub_table": [
+              [
+                "uy",
+                "m",
+                "ux",
+                "mag"
+              ],
+              [
+                "Ncy",
+                "-1/m",
+                "Ncx",
+                "Nc"
+              ],
+              [
+                "fcy",
+                "m",
+                "fcx",
+                "fc"
+              ],
+              [
+                "a_diffy",
+                "m",
+                "a_diffx",
+                ""
+              ]
+            ]
+          },
+          {
+            "input": "FBDs",
+            "sub_table": [
+              [
+                "Nc",
+                "fc",
+                "mb",
+                "g",
+                "ab",
+                "mt",
+                "Nf",
+                "ff",
+                "at",
+                "a_diff"
+              ],
+              [
+                "Ncx",
+                "fcx",
+                "mb",
+                "0",
+                "abx",
+                "mt",
+                "0",
+                "ff",
+                "atx",
+                "a_diffx"
+              ],
+              [
+                "Ncy",
+                "fcy",
+                "mb",
+                "g",
+                "aby",
+                "mt",
+                "Nf",
+                "0",
+                "0",
+                "a_diffy"
+              ]
+            ]
+          },
+          {
+            "input": "Friction",
+            "sub_table": [
+              [
+                "Ff",
+                "mu",
+                "Nf"
+              ],
+              [
+                "fc",
+                "mu",
+                "Nc"
+              ],
+              [
+                "ff",
+                "0",
+                "Nf"
+              ]
+            ]
+          }
+        ],
+        "name": "Setup"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Setup",
+            "sub_table": [
+              [
+                "Ncy",
+                "m",
+                "Ncx",
+                "Nc",
+                "fcy",
+                "fcx",
+                "fc",
+                "a_diffy",
+                "a_diffx",
+                "mb",
+                "abx",
+                "mt",
+                "ff",
+                "atx",
+                "g",
+                "aby",
+                "Nf",
+                "mu"
+              ],
+              [
+                "",
+                "m",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "mb",
+                "abx",
+                "mt",
+                "",
+                "atx",
+                "g",
+                "aby",
+                "",
+                "mu"
+              ]
+            ]
+          }
+        ],
+        "name": "Sol_Parametric"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Sol_Parametric",
+            "sub_table": [
+              [
+                "abx",
+                "m",
+                "mb",
+                "mu",
+                "atx",
+                "mt",
+                "aby",
+                "g"
+              ],
+              [
+                "abx",
+                "1",
+                "1",
+                ".001",
+                "atx",
+                "10",
+                "aby",
+                "-9.81"
+              ]
+            ]
+          }
+        ],
+        "name": "Problem_Numeric"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Problem_Numeric"
+          },
+          {
+            "input": "NOTE: IF at is negative or ab is positive, it means there's no slip"
+          }
+        ],
+        "name": "Sol_Numeric"
+      }
+    ],
+    "HW": [
+      {
+        "eqns": [
+          {
+            "input": "A=(1-x/(8))^3*(1-sin(x*pi/(6)))^2"
+          },
+          {
+            "input": "x=1/2*((1+s))"
+          },
+          {
+            "input": "f=A*N3*N3"
+          },
+          {
+            "input": "N1=-3+4*x"
+          },
+          {
+            "input": "N2=4-8*x"
+          },
+          {
+            "input": "N3=-1+4*x"
+          }
+        ],
+        "info": "hi",
+        "name": "F"
+      },
+      {
+        "eqns": [
+          {
+            "input": "F",
+            "sub_table": [
+              [
+                "A",
+                "x",
+                "s",
+                "f",
+                "N3",
+                "N1",
+                "N2"
+              ],
+              [
+                "A1",
+                "",
+                "-sqrt(3/5)",
+                "f1",
+                "",
+                "",
+                ""
+              ],
+              [
+                "A2",
+                "",
+                "0",
+                "f2",
+                "",
+                "",
+                ""
+              ],
+              [
+                "A3",
+                "",
+                "sqrt(3/5)",
+                "f3",
+                "",
+                "",
+                ""
+              ]
+            ]
+          },
+          {
+            "input": "int=f1*8/9+f2*5/9+f3*8/9"
+          }
+        ],
+        "name": "Boop"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Boop"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "HW Full": [
+      {
+        "eqns": [
+          {
+            "input": "A=(1-x/(8))^3*(1-sin(x*pi/(6)))^2"
+          },
+          {
+            "input": "x=1/2*((1+s))"
+          },
+          {
+            "input": "f=A*Na*Nb"
+          },
+          {
+            "input": "N1=-3+4*x"
+          },
+          {
+            "input": "N2=4-8*x"
+          },
+          {
+            "input": "N3=-1+4*x"
+          }
+        ],
+        "info": "hi",
+        "name": "F"
+      },
+      {
+        "eqns": [
+          {
+            "input": "F",
+            "sub_table": [
+              [
+                "A",
+                "x",
+                "s",
+                "f",
+                "Na",
+                "Nb",
+                "N1",
+                "N2",
+                "N3"
+              ],
+              [
+                "A1",
+                "",
+                "-sqrt(3/5)",
+                "f1",
+                "Na1",
+                "Nb1",
+                "",
+                "",
+                ""
+              ],
+              [
+                "A2",
+                "",
+                "0",
+                "f2",
+                "Na2",
+                "Nb2",
+                "",
+                "",
+                ""
+              ],
+              [
+                "A3",
+                "",
+                "sqrt(3/5)",
+                "f3",
+                "Na3",
+                "Nb3",
+                "",
+                "",
+                ""
+              ]
+            ]
+          },
+          {
+            "input": "int=f1*8/9+f2*5/9+f3*8/9"
+          }
+        ],
+        "name": "Boop"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Boop",
+            "sub_table": [
+              [
+                "A1",
+                "f1",
+                "Na1",
+                "Nb1",
+                "A2",
+                "f2",
+                "Na2",
+                "Nb2",
+                "A3",
+                "f3",
+                "Na3",
+                "Nb3",
+                "int"
+              ],
+              [
+                "A1",
+                "f1",
+                "Na1",
+                "Nb1",
+                "A2",
+                "f2",
+                "Na2",
+                "Nb2",
+                "A3",
+                "f3",
+                "Na3",
+                "Nb3",
+                "int"
+              ]
+            ]
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "Hydraulic Jump": [
+      {
+        "eqns": [
+          {
+            "input": "Fr=v/sqrt(g*h)"
+          }
+        ],
+        "name": "Froude"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Froude"
+          },
+          {
+            "input": "h2/h1=1/2*(-1+sqrt(1+8*Fr^2))"
+          }
+        ],
+        "name": "Hydraulic_Jump"
+      }
+    ],
+    "Hydraulic Jump Ex": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Fr=v/sqrt(g*h)"
+          },
+          {
+            "input": "q=v*h"
+          }
+        ],
+        "name": "Froude",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "q=Q/B"
+          },
+          {
+            "input": "Q=V/t"
+          }
+        ],
+        "name": "Flow",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Froude",
+            "sub_table": [
+              [
+                "Fr",
+                "v",
+                "g",
+                "h",
+                "q"
+              ],
+              [
+                "Fr1",
+                "v1",
+                "g",
+                "h1",
+                "q"
+              ],
+              [
+                "Fr3",
+                "v3",
+                "g",
+                "h3",
+                "q"
+              ]
+            ]
+          },
+          {
+            "input": "h2/h1=1/2*(-1+sqrt(1+8*Fr1^2))"
+          },
+          {
+            "input": "Flow",
+            "sub_table": [
+              [
+                "q",
+                "Q",
+                "B",
+                "V",
+                "t"
+              ],
+              [
+                "q",
+                "Q",
+                "B",
+                "V",
+                "t"
+              ]
+            ]
+          }
+        ],
+        "name": "Jump",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Jump",
+            "sub_table": [
+              [
+                "Fr1",
+                "v1",
+                "g",
+                "h1",
+                "q",
+                "Fr3",
+                "v3",
+                "h3",
+                "h2",
+                "Q",
+                "B",
+                "V",
+                "t"
+              ],
+              [
+                "Fr1",
+                "v1",
+                "g",
+                "h1",
+                "q",
+                "Fr3",
+                "v3",
+                "h3",
+                "h2",
+                "Q",
+                "B",
+                "V",
+                "t"
+              ]
+            ]
+          }
+        ],
+        "name": "Setup",
+        "style_display": ""
+      }
+    ],
+    "IBeam": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "A=b*h"
+          },
+          {
+            "input": "Iy=1/12*b*h^3+A*y^2"
+          },
+          {
+            "input": "Ix=1/12*h*b^3+A*x^2"
+          }
+        ],
+        "name": "Rect",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Rect",
+            "sub_table": [
+              [
+                "A",
+                "b",
+                "h",
+                "Iy",
+                "y",
+                "Ix",
+                "x"
+              ],
+              [
+                "A1",
+                "Lf",
+                "t",
+                "Iy1",
+                "-Lw/2-t/2",
+                "Ix1",
+                "x0"
+              ],
+              [
+                "A2",
+                "t",
+                "Lw",
+                "Iy2",
+                "0",
+                "Ix2",
+                "x0"
+              ],
+              [
+                "A3",
+                "Lf",
+                "t",
+                "Iy3",
+                "Lw/2+t/2",
+                "Ix3",
+                "x0"
+              ]
+            ]
+          },
+          {
+            "input": "Ix=Ix1+Ix2+Ix3"
+          },
+          {
+            "input": "Iy=Iy1+Iy2+Iy3"
+          },
+          {
+            "input": "x0=0"
+          }
+        ],
+        "name": "IBeamFull",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "IBeamFull",
+            "sub_table": [
+              [
+                "A1",
+                "Lf",
+                "t",
+                "Iy1",
+                "Lw",
+                "Ix1",
+                "x0",
+                "A2",
+                "Iy2",
+                "Ix2",
+                "A3",
+                "Iy3",
+                "Ix3",
+                "Ix",
+                "Iy"
+              ],
+              [
+                "",
+                "20",
+                "3",
+                "",
+                "20",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "Ix",
+                "Iy"
+              ]
+            ]
+          }
+        ],
+        "name": "IBeam",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "solve IBeam"
+          }
+        ],
+        "name": "Sol",
+        "style_display": ""
+      }
+    ],
+    "IBeam3D": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "c=a+b"
+          },
+          {
+            "input": "a=3"
+          },
+          {
+            "input": "b=5"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Box",
+            "sub_table": [
+              [
+                "L",
+                "H",
+                "W",
+                "x",
+                "y",
+                "z"
+              ],
+              [
+                "L",
+                "lw",
+                "t",
+                "0",
+                "0",
+                "z"
+              ],
+              [
+                "L",
+                "t",
+                "lf",
+                "0",
+                "lw/2+t/2",
+                "z"
+              ],
+              [
+                "L",
+                "t",
+                "lf",
+                "0",
+                "-lw/2-t/2",
+                "z"
+              ]
+            ]
+          }
+        ],
+        "name": "IBeam",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "IBeam",
+            "sub_table": [
+              [
+                "L",
+                "lw",
+                "t",
+                "z",
+                "lf"
+              ],
+              [
+                "L",
+                "lw",
+                "t",
+                "0",
+                "lf"
+              ],
+              [
+                "L",
+                "lw",
+                "t",
+                "zgap",
+                "lf"
+              ],
+              [
+                "L",
+                "lw",
+                "t",
+                "2*zgap",
+                "lf"
+              ]
+            ]
+          }
+        ],
+        "name": "Row",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Row",
+            "sub_table": [
+              [
+                "L",
+                "lw",
+                "t",
+                "lf",
+                "zgap"
+              ],
+              [
+                "100",
+                "5",
+                "1",
+                "5",
+                "10"
+              ]
+            ]
+          }
+        ],
+        "name": "Case",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "solve Case"
+          }
+        ],
+        "name": "Sol",
+        "style_display": ""
+      }
+    ],
+    "Lateral Earth Force": [
+      {
+        "eqns": [
+          {
+            "input": "Kp=(1+sin(phi))/(1-sin(phi))"
+          },
+          {
+            "input": "Ka=(1-sin(phi))/(1+sin(phi))"
+          }
+        ],
+        "name": "LateralFactors"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Fh=(s1+s2)/2*Ka*H"
+          },
+          {
+            "input": "LateralFactors",
+            "sub_table": [
+              [
+                "Kp",
+                "phi",
+                "Ka"
+              ],
+              [
+                "Kp",
+                "phi",
+                "Ka"
+              ]
+            ]
+          }
+        ],
+        "name": "LatForceFull"
+      },
+      {
+        "eqns": [
+          {
+            "input": "s=y*H"
+          }
+        ],
+        "name": "Stress"
+      },
+      {
+        "eqns": [
+          {
+            "input": "LatForceFull",
+            "sub_table": [
+              [
+                "Fh",
+                "s1",
+                "s2",
+                "Ka",
+                "H",
+                "Kp",
+                "phi"
+              ],
+              [
+                "Fh",
+                "s1",
+                "s2",
+                "Ka",
+                "H",
+                "",
+                "phi"
+              ]
+            ]
+          }
+        ],
+        "name": "LatForce"
+      }
+    ],
+    "Mohr": {
+      "eqns": [
+        {
+          "input": "sav=(sx+sy)/2"
+        },
+        {
+          "input": "R=sqrt(((sx-sy)/2)^2+T^2)"
+        },
+        {
+          "input": "smax=sav+R"
+        },
+        {
+          "input": "smin=sav-R"
+        },
+        {
+          "input": "tan(2*a)=2*T/(sx-sy)"
+        },
+        {
+          "input": "Tmax=1/2*(smax-smin)"
+        }
+      ]
+    },
+    "Mohr Page 546 P 11 Condensed": [
+      {
+        "eqns": [
+          {
+            "input": "sav=(sx+sy)/2"
+          },
+          {
+            "input": "Tmax=sqrt(((sx-sy)/2)^2+T^2)"
+          },
+          {
+            "input": "smax=sav+Tmax"
+          },
+          {
+            "input": "smin=sav-Tmax"
+          },
+          {
+            "input": "tan(2*a)=2*T/(sx-sy)"
+          }
+        ],
+        "name": "Mohr"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Mohr",
+            "sub_table": [
+              [
+                "sav",
+                "sx",
+                "sy",
+                "Tmax",
+                "T",
+                "smax",
+                "smin",
+                "a"
+              ],
+              [
+                "sav",
+                "20",
+                "100",
+                "Tmax",
+                "35",
+                "smax",
+                "smin",
+                "a"
+              ],
+              [
+                "sav",
+                "sx",
+                "sy",
+                "Tmax",
+                "T",
+                "smax",
+                "smin",
+                "30*3.14/180"
+              ]
+            ]
+          }
+        ],
+        "name": "P1"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve P1 for sx"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "New Pipes Network": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "v=\\frac{1}{n}\\cdot R^{\\frac{2}{3}}\\cdot S^{\\frac{1}{2}}",
+            "show_output": "none"
+          },
+          {
+            "input": "Q=v\\cdot A",
+            "show_output": "none"
+          },
+          {
+            "input": "A=3.14\\cdot R^2",
+            "show_output": "none"
+          },
+          {
+            "input": "y=L\\cdot S",
+            "show_output": "none"
+          }
+        ],
+        "name": "Pipe",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Pipe",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "v",
+                "n",
+                "R",
+                "S",
+                "Q",
+                "A",
+                "y",
+                "L"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q1",
+                "10",
+                "y1",
+                "100"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q2",
+                "10",
+                "y1",
+                "100"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q3",
+                "10",
+                "y2",
+                "300"
+              ]
+            ]
+          },
+          {
+            "input": "y=3",
+            "show_output": "none"
+          },
+          {
+            "input": "y=y1+y2",
+            "show_output": "none"
+          },
+          {
+            "input": "Q3=Q1+Q2",
+            "show_output": "none"
+          },
+          {
+            "input": "n=0.01",
+            "show_output": "none"
+          }
+        ],
+        "name": "Series",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "solveSeries",
+            "show_output": "none"
+          }
+        ],
+        "name": "Input",
+        "show_box": ""
+      }
+    ],
+    "New Pipes Network Err NaN": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "v=\\frac{1}{n}\\cdot R^{\\frac{2}{3}}\\cdot S^{\\frac{3}{2}}",
+            "show_output": "none"
+          },
+          {
+            "input": "Q=v\\cdot A",
+            "show_output": "none"
+          },
+          {
+            "input": "A=R^2",
+            "show_output": "none"
+          },
+          {
+            "input": "y=L\\cdot S",
+            "show_output": "none"
+          }
+        ],
+        "name": "Pipe",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Pipe",
+            "show_output": "block",
+            "sub_table": [
+              [
+                "v",
+                "n",
+                "R",
+                "S",
+                "Q",
+                "A",
+                "y",
+                "L"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q1",
+                "10",
+                "y1",
+                "100"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q2",
+                "10",
+                "y1",
+                "100"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q3",
+                "10",
+                "y2",
+                "300"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q3",
+                "10",
+                "y3",
+                "400"
+              ]
+            ]
+          },
+          {
+            "input": "y=3",
+            "show_output": "block"
+          },
+          {
+            "input": "y=y1+y2+y3",
+            "show_output": "block"
+          },
+          {
+            "input": "Q3=Q1+Q2",
+            "show_output": "block"
+          },
+          {
+            "input": "n=0.01",
+            "show_output": "block"
+          }
+        ],
+        "name": "Series",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "solveSeries",
+            "show_output": "none"
+          }
+        ],
+        "name": "Input",
+        "show_box": ""
+      }
+    ],
+    "New Projectile": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "y=vy\\cdot t+\\frac{1}{2}\\cdot g\\cdot t^2",
+            "show_output": "none"
+          },
+          {
+            "input": "x=vx\\cdot t",
+            "show_output": "none"
+          },
+          {
+            "input": "v^2=vx^2+vy^2",
+            "show_output": "none"
+          },
+          {
+            "input": "\\tan\\left(a\\right)=\\frac{vy}{vx}",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "rojectile",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "rojectile",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "y",
+                "vy",
+                "t",
+                "g",
+                "x",
+                "vx",
+                "v",
+                "a"
+              ],
+              [
+                "y",
+                "",
+                "t",
+                "g",
+                "0",
+                "",
+                "2",
+                ""
+              ],
+              [
+                "y",
+                "",
+                "t",
+                "g",
+                "x",
+                "",
+                "4",
+                "a2"
+              ]
+            ]
+          },
+          {
+            "input": "x=10",
+            "show_output": "none"
+          },
+          {
+            "input": "g=9.81",
+            "show_output": "none"
+          },
+          {
+            "input": "y=4",
+            "show_output": "none"
+          }
+        ],
+        "name": "Two",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "solveTwo",
+            "show_output": "none"
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "New Rod": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "af-ai=\\frac{T\\cdot L}{G\\cdot J}",
+            "show_output": "none"
+          },
+          {
+            "input": "J=\\frac{1}{4}\\cdot R^4",
+            "show_output": "none"
+          },
+          {
+            "input": "xR-xL=L",
+            "show_output": "none"
+          },
+          {
+            "input": "Rod",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "a1",
+                "a2",
+                "h",
+                "r",
+                "z0"
+              ],
+              [
+                "ai",
+                "af",
+                "L",
+                "R",
+                "xL"
+              ]
+            ]
+          }
+        ],
+        "info": "hi",
+        "name": "Torsion",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Torsion",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "af",
+                "ai",
+                "T",
+                "L",
+                "G",
+                "J",
+                "R",
+                "xR",
+                "xL"
+              ],
+              [
+                "a1",
+                "0",
+                "T",
+                "1",
+                "1",
+                "",
+                "1",
+                "x1",
+                "0"
+              ],
+              [
+                "a2",
+                "a1",
+                "T",
+                "1",
+                "1",
+                "",
+                "1",
+                "x2",
+                "x1"
+              ]
+            ]
+          },
+          {
+            "input": "T=2",
+            "show_output": "none"
+          }
+        ],
+        "name": "Bo",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\text{solve Bo}",
+            "show_output": "none"
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "New Shoaling": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Ks=\\left(\\frac{1}{2\\cdot n\\cdot\\tan\\left(k\\cdot d\\right)}\\right)^{\\frac{1}{2}}",
+            "show_output": "none"
+          },
+          {
+            "input": "n=\\frac{1+2\\cdot k\\cdot d}{2\\cdot\\sin\\left(2\\cdot k\\cdot d\\right)}",
+            "show_output": "none"
+          },
+          {
+            "input": "k=\\frac{2\\cdot3}{L}",
+            "show_output": "none"
+          },
+          {
+            "input": "\\frac{H}{H0}=Ks",
+            "show_output": "none"
+          },
+          {
+            "input": "L=g\\cdot\\frac{T^2}{2\\cdot3}\\cdot\\tan\\left(k\\cdot d\\right)",
+            "show_output": "none"
+          }
+        ],
+        "name": "Shoal",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Shoal",
+            "show_output": "block",
+            "sub_table": [
+              [
+                "Ks",
+                "n",
+                "k",
+                "d",
+                "L",
+                "H",
+                "H0",
+                "g",
+                "T"
+              ],
+              [
+                "Ks",
+                "n",
+                "k",
+                "1",
+                "L",
+                "H",
+                "3",
+                "9.81",
+                "3"
+              ]
+            ]
+          }
+        ],
+        "name": "Boop",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "solveBoop",
+            "show_output": "block"
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "NewSoilProps": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "ee=\\frac{Vv}{Vs}",
+            "show_output": "none"
+          },
+          {
+            "input": "n=\\frac{Vv}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "S=\\frac{Vw}{Vv}",
+            "show_output": "none"
+          },
+          {
+            "input": "w=\\frac{Ww}{Ws}",
+            "show_output": "none"
+          },
+          {
+            "input": "Gs=\\frac{ys}{yw}",
+            "show_output": "none"
+          },
+          {
+            "input": "ys=\\frac{Ws}{Vs}",
+            "show_output": "none"
+          },
+          {
+            "input": "yw=\\frac{Ww}{Vw}",
+            "show_output": "none"
+          },
+          {
+            "input": "yd=\\frac{Ws}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "y=\\frac{W}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "W=Ws+Ww",
+            "show_output": "none"
+          },
+          {
+            "input": "V=Vs+Vv",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\text{System}",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "ee",
+                "Vv",
+                "Vs",
+                "n",
+                "V",
+                "S",
+                "Vw",
+                "w",
+                "Ww",
+                "Ws",
+                "Gs",
+                "ys",
+                "yw",
+                "yd",
+                "y",
+                "W"
+              ],
+              [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "w",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "yd",
+                "y",
+                ""
+              ]
+            ]
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "NewSoilProps2": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "ee=\\frac{Vv}{Vs}",
+            "show_output": "none"
+          },
+          {
+            "input": "n=\\frac{Vv}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "S=\\frac{Vw}{Vv}",
+            "show_output": "none"
+          },
+          {
+            "input": "w=\\frac{Ww}{Ws}",
+            "show_output": "none"
+          },
+          {
+            "input": "Gs=\\frac{ys}{yw}",
+            "show_output": "none"
+          },
+          {
+            "input": "ys=\\frac{Ws}{Vs}",
+            "show_output": "none"
+          },
+          {
+            "input": "yw=\\frac{Ww}{Vw}",
+            "show_output": "none"
+          },
+          {
+            "input": "yd=\\frac{Ws}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "y=\\frac{W}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "W=Ws+Ww",
+            "show_output": "none"
+          },
+          {
+            "input": "V=Vs+Vv",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\text{System}",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "ee",
+                "Vv",
+                "Vs",
+                "n",
+                "V",
+                "S",
+                "Vw",
+                "w",
+                "Ww",
+                "Ws",
+                "Gs",
+                "ys",
+                "yw",
+                "yd",
+                "y",
+                "W"
+              ],
+              [
+                "ee",
+                "",
+                "",
+                "",
+                "",
+                "S",
+                "",
+                "w",
+                "",
+                "",
+                "Gs",
+                "",
+                "",
+                "",
+                "",
+                ""
+              ]
+            ]
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "NewSoilPropsErr": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "ee=\\frac{Vv}{Vs}",
+            "show_output": "none"
+          },
+          {
+            "input": "n=\\frac{Vv}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "S=\\frac{Vw}{Vv}",
+            "show_output": "none"
+          },
+          {
+            "input": "w=\\frac{Ww}{Ws}",
+            "show_output": "none"
+          },
+          {
+            "input": "Gs=\\frac{ys}{yw}",
+            "show_output": "none"
+          },
+          {
+            "input": "ys=\\frac{Ws}{Vs}",
+            "show_output": "none"
+          },
+          {
+            "input": "yw=\\frac{Ww}{Vw}",
+            "show_output": "none"
+          },
+          {
+            "input": "yd=\\frac{Ws}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "y=\\frac{W}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "W=Ws+Ww",
+            "show_output": "none"
+          },
+          {
+            "input": "V=Vs+Vv",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\text{System}",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "ee",
+                "Vv",
+                "Vs",
+                "n",
+                "V",
+                "S",
+                "Vw",
+                "w",
+                "Ww",
+                "Ws",
+                "Gs",
+                "ys",
+                "yw",
+                "yd",
+                "y",
+                "W"
+              ],
+              [
+                "ee",
+                "",
+                "",
+                "",
+                "",
+                "S",
+                "",
+                "w",
+                "",
+                "",
+                "Gs",
+                "",
+                "",
+                "",
+                "",
+                ""
+              ]
+            ]
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "NewSoilPropsTest": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "ee=\\frac{Vv}{Vs}",
+            "show_output": "none"
+          },
+          {
+            "input": "n=\\frac{Vv}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "S=\\frac{Vw}{Vv}",
+            "show_output": "none"
+          },
+          {
+            "input": "w=\\frac{Ww}{Ws}",
+            "show_output": "none"
+          },
+          {
+            "input": "Gs=\\frac{ys}{yw}",
+            "show_output": "none"
+          },
+          {
+            "input": "ys=\\frac{Ws}{Vs}",
+            "show_output": "none"
+          },
+          {
+            "input": "yw=\\frac{Ww}{Vs}",
+            "show_output": "none"
+          },
+          {
+            "input": "yd=\\frac{Ws}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "y=\\frac{W}{V}",
+            "show_output": "none"
+          },
+          {
+            "input": "W=Ws+Ww",
+            "show_output": "none"
+          },
+          {
+            "input": "V=Vs+Vv",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\text{System}",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "ee",
+                "Vv",
+                "Vs",
+                "n",
+                "V",
+                "S",
+                "Vw",
+                "w",
+                "Ww",
+                "Ws",
+                "Gs",
+                "ys",
+                "yw",
+                "yd",
+                "y",
+                "W"
+              ],
+              [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "w",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "yd",
+                "y",
+                ""
+              ]
+            ]
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "One Pipe vs Multiple": [
+      {
+        "eqns": [
+          {
+            "input": "v=1/n*R^(2/3)*sqrt(S)"
+          },
+          {
+            "input": "Q=v*A"
+          },
+          {
+            "input": "A=pi*R^2"
+          },
+          {
+            "input": "y=L*S"
+          }
+        ],
+        "name": "Pipe"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Pipe",
+            "sub_table": [
+              [
+                "v",
+                "n",
+                "R",
+                "S",
+                "Q",
+                "A",
+                "y",
+                "L"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q1",
+                "A1",
+                "y",
+                "L"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q2",
+                "A2",
+                "y",
+                "L"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Qb",
+                "A1+A2",
+                "y",
+                "L"
+              ]
+            ]
+          },
+          {
+            "input": "n=.01"
+          },
+          {
+            "input": "L=100"
+          },
+          {
+            "input": "y=1"
+          },
+          {
+            "input": "A1=1"
+          },
+          {
+            "input": "A2=1"
+          },
+          {
+            "input": "r=Qb/(Q1+Q2)"
+          }
+        ],
+        "name": "Series"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Series for r"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "Open Channel": [
+      {
+        "eqns": [
+          {
+            "input": "Q=A*v"
+          },
+          {
+            "input": "A=(B1+B2)/2*y"
+          },
+          {
+            "input": "P=B1+2*sqrt((B2-B1)/2^2+y^2)"
+          },
+          {
+            "input": "R=A/P"
+          },
+          {
+            "input": "Q=1/n*A*R^(2/3)*S^(1/2)"
+          }
+        ],
+        "name": "Trapezoid"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Trapezoid",
+            "sub_table": [
+              [
+                "Q",
+                "A",
+                "v",
+                "B1",
+                "B2",
+                "y",
+                "P",
+                "R",
+                "n",
+                "S"
+              ],
+              [
+                "Q",
+                "",
+                "",
+                "3",
+                "4",
+                "y1",
+                "",
+                "",
+                "n",
+                "S"
+              ],
+              [
+                "Q",
+                "",
+                "",
+                "3",
+                "4",
+                "y2",
+                "",
+                "",
+                "n",
+                "S"
+              ]
+            ]
+          },
+          {
+            "input": "r=y2/y1"
+          }
+        ],
+        "name": "Flow"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Flow",
+            "sub_table": [
+              [
+                "Q",
+                "S",
+                "y1",
+                "n",
+                "y2",
+                "r"
+              ],
+              [
+                "",
+                "",
+                "y1",
+                "",
+                "y2",
+                "r"
+              ]
+            ]
+          }
+        ],
+        "name": "Comparison"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Comparison"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "Pipes Network": [
+      {
+        "eqns": [
+          {
+            "input": "v=1/n*R^(2/3)*sqrt(S)"
+          },
+          {
+            "input": "Q=v*A"
+          },
+          {
+            "input": "A=pi*R^2"
+          },
+          {
+            "input": "y=L*S"
+          }
+        ],
+        "name": "Pipe"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Pipe",
+            "sub_table": [
+              [
+                "v",
+                "n",
+                "R",
+                "S",
+                "Q",
+                "A",
+                "y",
+                "L"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q1",
+                "10",
+                "y1",
+                "100"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q2",
+                "10",
+                "y1",
+                "100"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q3",
+                "10",
+                "y2",
+                "300"
+              ]
+            ]
+          },
+          {
+            "input": "y=3"
+          },
+          {
+            "input": "y=y1+y2"
+          },
+          {
+            "input": "Q3=Q1+Q2"
+          },
+          {
+            "input": "n=.01"
+          }
+        ],
+        "name": "Series"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Series"
+          }
+        ],
+        "name": "Input"
+      }
+    ],
+    "Pipes in Series": [
+      {
+        "eqns": [
+          {
+            "input": "v=1/n*R^(2/3)*sqrt(S)"
+          },
+          {
+            "input": "Q=v*A"
+          },
+          {
+            "input": "A=pi*R^2"
+          },
+          {
+            "input": "y=L*S"
+          }
+        ],
+        "name": "Pipe"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Pipe",
+            "sub_table": [
+              [
+                "v",
+                "n",
+                "R",
+                "S",
+                "Q",
+                "A",
+                "y",
+                "L"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "S1",
+                "Q",
+                "3",
+                "y1",
+                "100"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "S2",
+                "Q",
+                "3",
+                "y2",
+                "200"
+              ]
+            ]
+          },
+          {
+            "input": "4=y1+y2"
+          },
+          {
+            "input": "n=.01"
+          }
+        ],
+        "name": "Series"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Series"
+          }
+        ],
+        "name": "Input"
+      },
+      {
+        "eqns": [
+          {
+            "input": "y is change in head, NOT elevation"
+          }
+        ],
+        "name": "NOTE"
+      }
+    ],
+    "Point Line Load Comparison": [
+      {
+        "eqns": [
+          {
+            "input": "s=3*P/(2*pi*z^2*(1+(r/z)^2)^(5/2))"
+          }
+        ],
+        "name": "PointLoad"
+      },
+      {
+        "eqns": [
+          {
+            "input": "s=2*q*z^3/(pi*(x^2+z^2)^2)"
+          }
+        ],
+        "name": "LineLoad"
+      },
+      {
+        "eqns": [
+          {
+            "input": "PointLoad",
+            "sub_table": [
+              [
+                "s",
+                "P",
+                "z",
+                "r"
+              ],
+              [
+                "s1",
+                "P",
+                "z",
+                "-d"
+              ],
+              [
+                "s2",
+                "P",
+                "z",
+                "0"
+              ],
+              [
+                "s3",
+                "P",
+                "z",
+                "d"
+              ],
+              [
+                "s4",
+                "P",
+                "z",
+                "2*d"
+              ],
+              [
+                "s5",
+                "P",
+                "z",
+                "-2*d"
+              ],
+              [
+                "s6",
+                "P",
+                "z",
+                "-3*d"
+              ],
+              [
+                "s7",
+                "P",
+                "z",
+                "3*d"
+              ],
+              [
+                "s8",
+                "P",
+                "z",
+                "4*d"
+              ],
+              [
+                "s9",
+                "P",
+                "z",
+                "-4*d"
+              ]
+            ]
+          },
+          {
+            "input": "s=s1+s2+s3"
+          },
+          {
+            "input": "s_more=s1+s2+s3+s4+s5"
+          },
+          {
+            "input": "s_even_more=s1+s2+s3+s4+s5+s6+s7+s8+s9"
+          },
+          {
+            "input": "LineLoad",
+            "sub_table": [
+              [
+                "s",
+                "q",
+                "z",
+                "x"
+              ],
+              [
+                "s_line",
+                "P/d",
+                "z",
+                "0"
+              ]
+            ]
+          }
+        ],
+        "name": "Comparison"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Comparison",
+            "sub_table": [
+              [
+                "s1",
+                "P",
+                "z",
+                "d",
+                "s2",
+                "s3",
+                "s4",
+                "s5",
+                "s6",
+                "s7",
+                "s8",
+                "s9",
+                "s",
+                "s_more",
+                "s_even_more",
+                "s_line"
+              ],
+              [
+                "",
+                "",
+                "4*dist",
+                "dist",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "s",
+                "s_more",
+                "s_even_more",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "name": "Problem"
+      }
+    ],
+    "Projectile Motion": [
+      {
+        "eqns": [
+          {
+            "input": "d=v0*t+1/2*a*t^2"
+          }
+        ],
+        "name": "motion"
+      },
+      {
+        "eqns": [
+          {
+            "input": "motion",
+            "sub_table": [
+              [
+                "d",
+                "v0",
+                "t",
+                "a"
+              ],
+              [
+                "L",
+                "vx",
+                "t",
+                "0"
+              ],
+              [
+                "y",
+                "vy",
+                "t",
+                "-g"
+              ]
+            ]
+          },
+          {
+            "input": "g=9.81"
+          },
+          {
+            "input": "vx=v0*cos(a)"
+          },
+          {
+            "input": "vy=v0*sin(a)"
+          },
+          {
+            "input": "a=.1"
+          },
+          {
+            "input": "v0=20"
+          },
+          {
+            "input": "L=10"
+          }
+        ],
+        "name": "ProjEq"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve ProjEq"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "Rods": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "af-ai=\\frac{T\\cdot L}{G\\cdot J}",
+            "show_output": "none"
+          },
+          {
+            "input": "J=\\frac{1}{4}\\cdot R^4",
+            "show_output": "none"
+          },
+          {
+            "input": "xR-xL=L",
+            "show_output": "none"
+          },
+          {
+            "input": "Rod",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "a1",
+                "a2",
+                "h",
+                "r",
+                "z0"
+              ],
+              [
+                "ai",
+                "af",
+                "L",
+                "R",
+                "xL"
+              ]
+            ]
+          }
+        ],
+        "info": "hi",
+        "name": "Torsion",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\text{Torsion}",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "af",
+                "ai",
+                "T",
+                "L",
+                "G",
+                "J",
+                "R",
+                "xR",
+                "xL"
+              ],
+              [
+                "a1",
+                "0",
+                "T1",
+                "2",
+                "1",
+                "",
+                "1",
+                "x1",
+                "0"
+              ],
+              [
+                "a2",
+                "a1",
+                "T2",
+                "1",
+                "1",
+                "",
+                "1",
+                "x2",
+                "x1"
+              ],
+              [
+                "0",
+                "a2",
+                "T3",
+                "1",
+                "1",
+                "",
+                "1",
+                "",
+                "x2"
+              ]
+            ]
+          },
+          {
+            "input": "T2-T1=5",
+            "show_output": "none"
+          },
+          {
+            "input": "T3-T2=M2",
+            "show_output": "none"
+          },
+          {
+            "input": "a1=0",
+            "show_output": "none"
+          }
+        ],
+        "name": "Bo",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\text{solve Bo}",
+            "show_output": "block"
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "Sample": [
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "A=b*h"
+          },
+          {
+            "input": "Iy=1/12*b*h^3+A*y^2"
+          },
+          {
+            "input": "Ix=1/12*h*b^3+A*x^2"
+          }
+        ],
+        "name": "Rect",
+        "style_display": "none"
+      },
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "Rect",
+            "sub_table": [
+              [
+                "A",
+                "b",
+                "h",
+                "Iy",
+                "y",
+                "Ix",
+                "x"
+              ],
+              [
+                "A1",
+                "t",
+                "L-2*t",
+                "Iy1",
+                "0",
+                "Ix1",
+                "-L/2+t/2"
+              ],
+              [
+                "A2",
+                "t",
+                "L-2*t",
+                "Iy2",
+                "0",
+                "Ix2",
+                "L/2-t/2"
+              ],
+              [
+                "A3",
+                "L",
+                "t",
+                "Iy3",
+                "L/2-t/2",
+                "Ix3",
+                "0"
+              ],
+              [
+                "A4",
+                "L",
+                "t",
+                "Iy4",
+                "-L/2+t/2",
+                "Ix4",
+                "0"
+              ]
+            ]
+          },
+          {
+            "input": "Ix=Ix1+Ix2+Ix3+Ix4"
+          },
+          {
+            "input": "Iy=Iy1+Iy2+Iy3+Iy4"
+          }
+        ],
+        "name": "SquareFull",
+        "style_display": "none"
+      },
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "Rect",
+            "sub_table": [
+              [
+                "A",
+                "b",
+                "h",
+                "Iy",
+                "y",
+                "Ix",
+                "x"
+              ],
+              [
+                "A1",
+                "Lf",
+                "t",
+                "Iy1",
+                "-Lw/2-t/2",
+                "Ix1",
+                "0"
+              ],
+              [
+                "A2",
+                "t",
+                "Lw",
+                "Iy2",
+                "0",
+                "Ix2",
+                "0"
+              ],
+              [
+                "A3",
+                "Lf",
+                "t",
+                "Iy3",
+                "Lw/2+t/2",
+                "Ix3",
+                "0"
+              ]
+            ]
+          },
+          {
+            "input": "Ix=Ix1+Ix2+Ix3"
+          },
+          {
+            "input": "Iy=Iy1+Iy2+Iy3"
+          }
+        ],
+        "name": "IBeamFull",
+        "style_display": "none"
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "IBeamFull",
+            "sub_table": [
+              [
+                "A1",
+                "Lf",
+                "t",
+                "Iy1",
+                "Lw",
+                "Ix1",
+                "A2",
+                "Iy2",
+                "Ix2",
+                "A3",
+                "Iy3",
+                "Ix3",
+                "Ix",
+                "Iy"
+              ],
+              [
+                "",
+                "20",
+                "4",
+                "",
+                "20",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "Ix",
+                "Iy"
+              ]
+            ]
+          }
+        ],
+        "name": "IBeam",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "SquareFull",
+            "sub_table": [
+              [
+                "A1",
+                "t",
+                "L",
+                "Iy1",
+                "Ix1",
+                "A2",
+                "Iy2",
+                "Ix2",
+                "A3",
+                "Iy3",
+                "Ix3",
+                "A4",
+                "Iy4",
+                "Ix4",
+                "Ix",
+                "Iy"
+              ],
+              [
+                "",
+                "3",
+                "30",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "Ix",
+                "Iy"
+              ]
+            ]
+          }
+        ],
+        "name": "Square",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "solve IBeam"
+          }
+        ],
+        "name": "Sol",
+        "style_display": ""
+      }
+    ],
+    "Series Rods With Temperature": [
+      {
+        "eqns": [
+          {
+            "input": "dL=F*L/(E*A)"
+          },
+          {
+            "input": "A=pi*D^2/4"
+          }
+        ],
+        "name": "Stretch"
+      },
+      {
+        "eqns": [
+          {
+            "input": "dL=dT*L*k"
+          }
+        ],
+        "name": "Thermal"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Stretch",
+            "sub_table": [
+              [
+                "dL",
+                "F",
+                "L",
+                "E",
+                "A",
+                "D"
+              ],
+              [
+                "dL1f",
+                "F",
+                "L",
+                "E",
+                "A1",
+                "2"
+              ],
+              [
+                "dL2f",
+                "F",
+                "L",
+                "E",
+                "A2",
+                "4"
+              ]
+            ]
+          },
+          {
+            "input": "Thermal",
+            "sub_table": [
+              [
+                "dL",
+                "dT",
+                "L",
+                "k"
+              ],
+              [
+                "dL1Temp",
+                "dT",
+                "L",
+                "k"
+              ],
+              [
+                "dL2Temp",
+                "dT",
+                "L",
+                "k"
+              ]
+            ]
+          },
+          {
+            "input": "dL1Temp+dL2Temp+dL1f+dL2f=0"
+          },
+          {
+            "input": "dL1=dL1Temp+dL1f"
+          }
+        ],
+        "name": "Setup"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Setup",
+            "sub_table": [
+              [
+                "dL1f",
+                "F",
+                "L",
+                "E",
+                "A1",
+                "dL2f",
+                "A2",
+                "dL1Temp",
+                "dT",
+                "k",
+                "dL2Temp",
+                "dL1"
+              ],
+              [
+                "dL1f",
+                "F",
+                "3",
+                "10",
+                "A1",
+                "dL2f",
+                "A2",
+                "dL1Temp",
+                "4",
+                ".01",
+                "dL2Temp",
+                "dL1"
+              ]
+            ]
+          }
+        ],
+        "name": "Problem"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Problem for dL1"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "Shoaling": [
+      {
+        "eqns": [
+          {
+            "input": "Ks=sqrt(1/(2*n*tanh(k*d)))"
+          },
+          {
+            "input": "n=.5*(1+2*k*d/(sinh(2*k*d)))"
+          },
+          {
+            "input": "k=2*pi/L"
+          },
+          {
+            "input": "H/H0=Ks"
+          },
+          {
+            "input": "L=g*T^2/(2*pi)*tanh(k*d)"
+          }
+        ],
+        "name": "Shoal"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Shoal",
+            "sub_table": [
+              [
+                "Ks",
+                "n",
+                "k",
+                "d",
+                "L",
+                "H",
+                "H0",
+                "g",
+                "T"
+              ],
+              [
+                "Ks",
+                "n",
+                "k",
+                "1",
+                "L",
+                "H",
+                "3",
+                "9.81",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "name": "Problem"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Problem"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "Soil Layers": [
+      {
+        "eqns": [
+          {
+            "input": "F=(s1+s2)/2*t"
+          },
+          {
+            "input": "s2=s1+y*t"
+          }
+        ],
+        "name": "Layer"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Layer",
+            "sub_table": [
+              [
+                "F",
+                "s1",
+                "s2",
+                "t",
+                "y"
+              ],
+              [
+                "F1",
+                "0",
+                "sa",
+                "1",
+                "10"
+              ],
+              [
+                "F2",
+                "sa",
+                "sb",
+                "2",
+                "15"
+              ],
+              [
+                "F3",
+                "sb",
+                "sc",
+                "5",
+                "8"
+              ]
+            ]
+          }
+        ],
+        "name": "Layers"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Layers"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "SoilProps": [
+      {
+        "eqns": [
+          {
+            "input": "e=Vv/Vs"
+          },
+          {
+            "input": "n=Vv/V"
+          },
+          {
+            "input": "S=Vw/Vv"
+          },
+          {
+            "input": "w=Ww/Ws"
+          },
+          {
+            "input": "Gs=ys/yw"
+          },
+          {
+            "input": "ys=Ws/Vs"
+          },
+          {
+            "input": "yw=Ww/Vw"
+          },
+          {
+            "input": "yd=Ws/V"
+          },
+          {
+            "input": "y=W/V"
+          },
+          {
+            "input": "W=Ws+Ww"
+          },
+          {
+            "input": "V=Vs+Vv"
+          }
+        ],
+        "name": "SoilProps"
+      },
+      {
+        "eqns": [
+          {
+            "input": "SoilProps",
+            "sub_table": [
+              [
+                "e",
+                "Vv",
+                "Vs",
+                "n",
+                "V",
+                "S",
+                "Vw",
+                "w",
+                "Ww",
+                "Ws",
+                "Gs",
+                "ys",
+                "yw",
+                "yd",
+                "y",
+                "W"
+              ],
+              [
+                "e",
+                "",
+                "",
+                ".1",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                ""
+              ]
+            ]
+          }
+        ],
+        "name": "Problem"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Problem"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "Statics Beam Example": [
+      {
+        "eqns": [
+          {
+            "input": "A=L*h"
+          },
+          {
+            "input": "x=L/2"
+          },
+          {
+            "input": "M=A*x"
+          }
+        ],
+        "info": "hi",
+        "name": "Rectangle"
+      },
+      {
+        "eqns": [
+          {
+            "input": "A=L*h/2"
+          },
+          {
+            "input": "x=2*L/3"
+          },
+          {
+            "input": "M=A*x"
+          }
+        ],
+        "name": "Triangle"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Rectangle",
+            "sub_table": [
+              [
+                "A",
+                "L",
+                "h",
+                "x",
+                "M"
+              ],
+              [
+                "Fr",
+                "L",
+                "w1",
+                "",
+                "Mr"
+              ]
+            ]
+          },
+          {
+            "input": "Triangle",
+            "sub_table": [
+              [
+                "A",
+                "L",
+                "h",
+                "x",
+                "M"
+              ],
+              [
+                "Ft",
+                "L",
+                "ht",
+                "",
+                "Mt"
+              ]
+            ]
+          },
+          {
+            "input": "Mr+Mt=P2*L"
+          },
+          {
+            "input": "Fr+Ft=P1+P2"
+          },
+          {
+            "input": "w1+ht=w2"
+          }
+        ],
+        "name": "Setup"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Setup",
+            "sub_table": [
+              [
+                "Fr",
+                "L",
+                "w1",
+                "Mr",
+                "Ft",
+                "ht",
+                "Mt",
+                "P2",
+                "P1",
+                "w2"
+              ],
+              [
+                "",
+                "10",
+                "5",
+                "",
+                "",
+                "",
+                "",
+                "P2",
+                "P1",
+                "8"
+              ]
+            ]
+          }
+        ],
+        "name": "Problem"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Problem"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "Test": [
+      {
+        "eqns": [
+          {
+            "input": "v=1/n*R^(2/3)*sqrt(S)"
+          },
+          {
+            "input": "Q=v*A"
+          },
+          {
+            "input": "A=pi*R^2"
+          },
+          {
+            "input": "y=L*S"
+          }
+        ],
+        "name": "Pipe"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Pipe",
+            "sub_table": [
+              [
+                "v",
+                "n",
+                "R",
+                "S",
+                "Q",
+                "A",
+                "y",
+                "L"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q1",
+                "A1",
+                "y",
+                "L"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q2",
+                "A2",
+                "y",
+                "L"
+              ],
+              [
+                "",
+                "n",
+                "",
+                "",
+                "Q3",
+                "A1+A2",
+                "y",
+                "L"
+              ]
+            ]
+          },
+          {
+            "input": "n=.01"
+          },
+          {
+            "input": "A1=1"
+          },
+          {
+            "input": "A2=2"
+          },
+          {
+            "input": "r=Q3/Q1"
+          }
+        ],
+        "name": "Series"
+      }
+    ],
+    "Two Friction Disks": [
+      {
+        "eqns": [
+          {
+            "input": "vf=wf*r"
+          },
+          {
+            "input": "vi=wi*r"
+          },
+          {
+            "input": "wf=wi+alpha*t"
+          },
+          {
+            "input": "T=I*alpha"
+          },
+          {
+            "input": "T=F*r"
+          },
+          {
+            "input": "I=0.5*k*r^4"
+          }
+        ],
+        "name": "Disk"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Disk",
+            "sub_table": [
+              [
+                "vf",
+                "wf",
+                "r",
+                "vi",
+                "wi",
+                "alpha",
+                "t",
+                "T",
+                "I",
+                "F",
+                "k"
+              ],
+              [
+                "vf",
+                "",
+                "r",
+                "vi",
+                "",
+                "",
+                "t",
+                "",
+                "",
+                "F",
+                "k"
+              ],
+              [
+                "vf",
+                "",
+                "r_ratio*r",
+                "0",
+                "",
+                "",
+                "t",
+                "",
+                "",
+                "-F",
+                "k"
+              ]
+            ]
+          },
+          {
+            "input": "v_ratio=vf/vi"
+          }
+        ],
+        "name": "Setup"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Setup",
+            "sub_table": [
+              [
+                "F",
+                "t",
+                "k",
+                "r",
+                "vf",
+                "vi",
+                "r_ratio",
+                "v_ratio"
+              ],
+              [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "r_ratio",
+                "v_ratio"
+              ]
+            ]
+          }
+        ],
+        "name": "Problem"
+      }
+    ],
+    "VisTest": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Box",
+            "show_output": "none",
+            "sub_table": [
+              [
+                "L",
+                "H",
+                "W",
+                "x",
+                "y",
+                "z"
+              ],
+              [
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "solveSystem",
+            "show_output": "none"
+          }
+        ],
+        "name": "b",
+        "show_box": ""
+      }
+    ],
+    "a": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "b=3\\cdot a",
+            "show_output": "none"
+          },
+          {
+            "input": "b=a+5",
+            "show_output": "none"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "show_box": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "\\operatorname{solve}System",
+            "show_output": "none"
+          }
+        ],
+        "name": "Sol",
+        "show_box": ""
+      }
+    ],
+    "ex Jump and Contraction": [
+      {
+        "eqns": [
+          {
+            "input": "Fr=v/sqrt(g*h)"
+          }
+        ],
+        "name": "Froude"
+      },
+      {
+        "eqns": [
+          {
+            "input": "H=h+v^2/(2*g)"
+          }
+        ],
+        "name": "Ber"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Froude",
+            "sub_table": [
+              [
+                "Fr",
+                "v",
+                "g",
+                "h"
+              ],
+              [
+                "Fr",
+                "v1",
+                "g",
+                "h1"
+              ]
+            ]
+          },
+          {
+            "input": "h2/h1=1/2*(-1+sqrt(1+8*Fr^2))"
+          }
+        ],
+        "name": "Hydraulic_Jump"
+      },
+      {
+        "eqns": [
+          {
+            "input": "q=v*h"
+          },
+          {
+            "input": "Q=q*B"
+          }
+        ],
+        "name": "FlowRate"
+      },
+      {
+        "eqns": [
+          {
+            "input": "FlowRate",
+            "sub_table": [
+              [
+                "q",
+                "v",
+                "h",
+                "Q",
+                "B"
+              ],
+              [
+                "",
+                "v1",
+                "h1",
+                "Q",
+                "B1"
+              ],
+              [
+                "",
+                "v2",
+                "h2",
+                "Q",
+                "B2"
+              ]
+            ]
+          },
+          {
+            "input": "Ber",
+            "sub_table": [
+              [
+                "H",
+                "h",
+                "v",
+                "g"
+              ],
+              [
+                "H",
+                "h1",
+                "v1",
+                "g"
+              ],
+              [
+                "H",
+                "h2",
+                "v2",
+                "g"
+              ]
+            ]
+          }
+        ],
+        "name": "Contraction"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Contraction",
+            "sub_table": [
+              [
+                "B1",
+                "h1",
+                "v1",
+                "Q",
+                "B2",
+                "h2",
+                "v2",
+                "H",
+                "g"
+              ],
+              [
+                "1",
+                "1",
+                "",
+                "1",
+                "2",
+                "hb",
+                "vb",
+                "",
+                "g"
+              ]
+            ]
+          },
+          {
+            "input": "Hydraulic_Jump",
+            "sub_table": [
+              [
+                "Fr",
+                "v1",
+                "g",
+                "h1",
+                "h2"
+              ],
+              [
+                "",
+                "vb",
+                "g",
+                "hb",
+                "hc"
+              ]
+            ]
+          },
+          {
+            "input": "g=9.81"
+          }
+        ],
+        "name": "Problem"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Problem"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "four point loads": [
+      {
+        "eqns": [
+          {
+            "input": "s=3*P/(2*pi*z^2*(1+(r/z)^2)^(5/2))"
+          }
+        ],
+        "name": "PointLoad"
+      },
+      {
+        "eqns": [
+          {
+            "input": "PointLoad",
+            "sub_table": [
+              [
+                "s",
+                "P",
+                "z",
+                "r"
+              ],
+              [
+                "s",
+                "P",
+                "z",
+                "r"
+              ]
+            ]
+          },
+          {
+            "input": "r^2=(x-px)^2+(y-py)^2"
+          }
+        ],
+        "name": "Pos"
+      },
+      {
+        "eqns": [
+          {
+            "input": "Pos",
+            "sub_table": [
+              [
+                "s",
+                "P",
+                "z",
+                "r",
+                "x",
+                "px",
+                "y",
+                "py"
+              ],
+              [
+                "s1",
+                "P",
+                "z",
+                "r1",
+                "x",
+                "W/2",
+                "y",
+                "L/2"
+              ],
+              [
+                "s2",
+                "P",
+                "z",
+                "r2",
+                "x",
+                "-W/2",
+                "y",
+                "L/2"
+              ],
+              [
+                "s3",
+                "P",
+                "z",
+                "r3",
+                "x",
+                "W/2",
+                "y",
+                "-L/2"
+              ],
+              [
+                "s4",
+                "P",
+                "z",
+                "r4",
+                "x",
+                "-W/2",
+                "y",
+                "-L/2"
+              ]
+            ]
+          },
+          {
+            "input": "W=1"
+          },
+          {
+            "input": "L=1"
+          },
+          {
+            "input": "P=1"
+          },
+          {
+            "input": "z=1"
+          },
+          {
+            "input": "x=0"
+          },
+          {
+            "input": "y=1"
+          },
+          {
+            "input": "s=s1+s2+s3+s4"
+          }
+        ],
+        "name": "Problem"
+      },
+      {
+        "eqns": [
+          {
+            "input": "solve Problem for s"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "test": [
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "c=a+b"
+          },
+          {
+            "input": "a=3"
+          },
+          {
+            "input": "b=4"
+          }
+        ],
+        "info": "hi",
+        "name": "System"
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "solve System"
+          }
+        ],
+        "name": "AnotherSystem"
+      }
+    ],
+    "test2": [
+      {
+        "closed": true,
+        "eqns": [
+          {
+            "input": "c=a+b"
+          },
+          {
+            "input": "a=3"
+          },
+          {
+            "input": "b=4"
+          }
+        ],
+        "info": "hi",
+        "name": "System"
+      },
+      {
+        "closed": true,
+        "eqns": [
+          {
+            "input": "solve System"
+          }
+        ],
+        "name": "AnotherSystem"
+      }
+    ],
+    "test3": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "A=(1-x/(8))^3*(1-sin(x*pi/(6)))^2"
+          },
+          {
+            "input": "x=1/2*((1+s))"
+          },
+          {
+            "input": "f=A*N3*N3"
+          },
+          {
+            "input": "N1=-3+4*x"
+          },
+          {
+            "input": "N2=4-8*x"
+          },
+          {
+            "input": "N3=-1+4*x"
+          }
+        ],
+        "info": "hi",
+        "name": "F"
+      },
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "F",
+            "sub_table": [
+              [
+                "A",
+                "x",
+                "s",
+                "f",
+                "N3",
+                "N1",
+                "N2"
+              ],
+              [
+                "A1",
+                "",
+                "-sqrt(3/5)",
+                "f1",
+                "",
+                "",
+                ""
+              ],
+              [
+                "A2",
+                "",
+                "0",
+                "f2",
+                "",
+                "",
+                ""
+              ],
+              [
+                "A3",
+                "",
+                "sqrt(3/5)",
+                "f3",
+                "",
+                "",
+                ""
+              ]
+            ]
+          },
+          {
+            "input": "int=f1*8/9+f2*5/9+f3*8/9"
+          }
+        ],
+        "name": "Boop"
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "solve Boop"
+          }
+        ],
+        "name": "Sol"
+      }
+    ],
+    "vis": [
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "c=a+b"
+          },
+          {
+            "input": "a=3"
+          },
+          {
+            "input": "b=4"
+          }
+        ],
+        "info": "hi",
+        "name": "System",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "Box",
+            "sub_table": [
+              [
+                "L",
+                "W",
+                "H"
+              ],
+              [
+                "10",
+                "5",
+                "6"
+              ]
+            ]
+          }
+        ],
+        "name": "Bop",
+        "style_display": ""
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "solve Bo"
+          }
+        ],
+        "name": "Sol",
+        "style_display": ""
+      }
+    ],
+    "z": [
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "c=a+b"
+          },
+          {
+            "input": "a=3"
+          },
+          {
+            "input": "b=4"
+          }
+        ],
+        "info": "hi",
+        "name": "System"
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "solve System"
+          }
+        ],
+        "name": "AnotherSystem"
+      }
+    ],
+    "zz": [
+      {
+        "display": "none",
+        "eqns": [
+          {
+            "input": "c=a+b"
+          },
+          {
+            "input": "a=3"
+          },
+          {
+            "input": "b=4"
+          }
+        ],
+        "info": "hi",
+        "name": "System"
+      },
+      {
+        "display": "",
+        "eqns": [
+          {
+            "input": "solve System"
+          }
+        ],
+        "name": "AnotherSystem"
+      }
+    ]
+  },
+  "users": {
+    "JAzZEO0u0NOjrqKspX5T6yqKcPB2": {
+      "A": [
+        {
+          "display": "",
+          "eqns": [
+            {
+              "input": "4=\\omega",
+              "show_output": "none"
+            },
+            {
+              "input": "Wheel",
+              "show_output": "none"
+            }
+          ],
+          "info": "hi",
+          "name": "System",
+          "show_box": ""
+        },
+        {
+          "display": "",
+          "eqns": [
+            {
+              "input": "\\operatorname{solve}System",
+              "show_output": "none"
+            }
+          ],
+          "name": "Sol",
+          "show_box": ""
+        }
+      ],
+      "AEPH": [
+        {
+          "display": "",
+          "eqns": [
+            {
+              "input": "4=\\omega",
+              "show_output": "none"
+            },
+            {
+              "input": "Wheel",
+              "show_output": "none"
+            }
+          ],
+          "info": "hi",
+          "name": "System",
+          "show_box": ""
+        },
+        {
+          "display": "",
+          "eqns": [
+            {
+              "input": "\\operatorname{solve}System",
+              "show_output": "none"
+            }
+          ],
+          "name": "Sol",
+          "show_box": ""
+        }
+      ]
+    }
+  }
+}
