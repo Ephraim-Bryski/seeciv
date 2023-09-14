@@ -250,7 +250,7 @@ function update_sheet(all_names){
 
     window.location.hash = target;
 
-    document.getElementById("save-field").value=sheet_name
+    //document.getElementById("save-field").value=sheet_name
     if (document.body.loaded){
         send_sheet(sheet_data,0,sheet_data.length)
     }else{
