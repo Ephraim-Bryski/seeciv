@@ -1,13 +1,6 @@
 stuff to work on before releasing
 
-	only show visual when relevant (like dont show giant axes when there's no visual)
 
-
-	visuals whenever all numeric values subbed
-
-
-	show steps with forward and numeric solve too
-	initial step shown should be simplification after initial substitutions
 
 
 	cannot solve system versus too much unknown????
@@ -35,6 +28,8 @@ stuff to work on before releasing
 	displaying solution, don't have equations all in one line
 
 `	
+
+	i might want to do contradiction checks on individual equations after removing variables with a subtable (been going back and forth on it though D: )
 
 
 

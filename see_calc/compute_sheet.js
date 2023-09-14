@@ -247,6 +247,7 @@ function calc(SoEs,start_idx,end_idx){
         }else if(solve_line){
             //SOLVE need to substitute variables
             var eqns = get_ref_eqns(line)
+            //VIS need to return visuals
             const stuff = solve_eqns(eqns)
             result = stuff[0]
             solve_steps = stuff[1]
@@ -264,6 +265,7 @@ function calc(SoEs,start_idx,end_idx){
                 var eqns = [eqns]
                 var new_table = undefined
             }
+
 
             result = eqns
             
@@ -332,6 +334,7 @@ function display_vis(vis_eqns){
             }                
             vis_input[vis_var] = vis_val
         })
+        
 
         sel_vis.vis(vis_input)
 
@@ -406,6 +409,16 @@ function compute_sub_table(eqns,old_table){
         all_eqns.push(remove_vars(eqns_subbed,removed_vars))
 
     }
+
+    const solved_vis_eqns = all_eqns.flat().filter(eqn => {
+        const is_vis = eqn.includes("VISUAL")
+        const all_subbed = get_all_vars(eqn).length === 0
+
+        return is_vis && all_subbed
+    })
+
+    display_vis(solved_vis_eqns)
+
     return [all_eqns,table]
 
     function transpose(matrix) {

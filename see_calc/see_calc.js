@@ -54,6 +54,14 @@ function send_sheet(sheet,start_idx,end_idx){
     data2DOM(new_SoEs)
 }
 
+function run_sheet(){
+
+    var sheet_data=DOM2data()
+    
+
+    // fixed inputs for start and end kind of defeats the whole purpose, but it's so fast now, so does it really matter
+    send_sheet(sheet_data,0,sheet_data.length)
+}
 
 
 data2DOM(SoEs)  // performed without calculations
@@ -69,8 +77,7 @@ document.addEventListener('keyup', (e)=>{
     if (e.code==="Enter"){
         var in_field=document.activeElement
         if (e.ctrlKey){
-            var sheet_data=DOM2data()
-            send_sheet(sheet_data,0,sheet_data.length)
+            run_sheet()
         }else if(in_field.tagName=="TEXTAREA"){
             add_line(in_field)
         }else if(in_field.className=="block-name-txt"){
@@ -279,7 +286,7 @@ function create_sheet_buttons(all_names, container){
     }
 
     container.appendChild(load_btn)
-    container.appendChild(delete_btn)    
+    // container.appendChild(delete_btn)    just so ppl can't delete it, just temporary
 };
 
 
@@ -1155,7 +1162,7 @@ function setUpGS(id){
     var graphDiv = document.getElementById(id)
     window.__context= {glowscript_container: graphDiv}  
     let scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: true,userzoom: true,autoscale: true})
-    scene.forward=vec(1,-0.5,-1)
+    //scene.forward=vec(1,-0.5,-1)
 
     return scene
 }

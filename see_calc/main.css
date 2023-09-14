@@ -38,7 +38,7 @@ body{
     position:absolute;
     left:0%; /* will probably change this, vis will take over the entire area below the top bar */
     width:100%;
-    top:20%;
+    top:5%;
     height:95%;
     background-color: black;
     z-index: 0;

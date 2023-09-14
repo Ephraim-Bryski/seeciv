@@ -139,7 +139,8 @@ function solve_eqns(SoEs){
 
 
     const steps = {back: back_steps, forward: forward_steps}
-    display_vis(solved_vis_eqns)
+    //VIS no longer here
+    //display_vis(solved_vis_eqns)
     return [result,steps]
 }
 
@@ -216,6 +217,10 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
         trim_trees()
     }
     
+
+    const solved_vis_SoEs = vis_SoEs.filter(eqn => {return get_all_vars(eqn).length === 0})
+
+    display_vis(solved_vis_SoEs)
 
     // THIS is where it throws an error that it can't solve
 
