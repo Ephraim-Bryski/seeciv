@@ -187,6 +187,7 @@ function calc(SoEs,start_idx,end_idx){
         line = line.replaceAll(solve_txt,"")
 
     
+        let solve_steps
         if (line.length===0){
             if(solve_line){
                 throw new FormatError("solve must be followed by block name")
@@ -205,13 +206,17 @@ function calc(SoEs,start_idx,end_idx){
                 throw new FormatError("cannot have the name of the block as a variable")
             }else{
                 
-                //var line_math = ltx_to_math(line)
+                var line_math = ltx_to_math(line) // before getallvars so it catches 3a=4 (issue with invalid variable, not no variables!)
 
                 if (get_all_vars(line).length===0){
                     throw new FormatError("Equation must have variables")
                 }
 
-                const simplified_eqn = tree_to_eqn(eqn_to_tree(ltx_to_math(line)), true)
+                const simplified_eqn = tree_to_eqn(eqn_to_tree(line_math), true)
+
+                if (get_all_vars(simplified_eqn).length === 0){
+                    throw new FormatError(`Equation simplifies to something without variables: ${simplified_eqn}`)
+                }
 
                 var result = [simplified_eqn]
             }
@@ -240,12 +245,15 @@ function calc(SoEs,start_idx,end_idx){
             var new_table = new_stuff[1]
 
         }else if(solve_line){
+            //SOLVE need to substitute variables
             var eqns = get_ref_eqns(line)
-            result = solve_eqns(eqns)
+            const stuff = solve_eqns(eqns)
+            result = stuff[0]
+            solve_steps = stuff[1]
         }else{
             // nonvisual reference without solve, so substitute:
             var eqns = get_ref_eqns(line)
-
+            
             const has_vars = get_all_vars(eqns).length > 0
 
             if (has_vars){
@@ -267,12 +275,21 @@ function calc(SoEs,start_idx,end_idx){
         SoEs[SoE_i].eqns[line_i].result=result;
         SoEs[SoE_i].eqns[line_i].sub_table = new_table
 
+        if (solve_line){
+            SoEs[SoE_i].eqns[line_i].solve_steps = solve_steps   
+        }
+
     }
 
 
 }
 
 function find_vis_name(eqn) {
+
+    const expression = eqn.split("=")[0]
+
+    return expression.split("VISUAL")[1]
+
     const substring = "VISUAL"
     const startIndex = eqn.indexOf(substring);
     if (startIndex !== -1) {
@@ -321,7 +338,7 @@ function display_vis(vis_eqns){
 
     })
 
-    makeCoordShape()
+    //makeCoordShape()
 }
 
 function compute_sub_table(eqns,old_table){

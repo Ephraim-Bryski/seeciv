@@ -9,8 +9,8 @@ let primitive_vis = [
             "y":0,
             "z":0,
             "L":1,
-            "H":0,
-            "W":0    
+            "H":1,
+            "W":1    
         },
 
         vis: (inp)=>{

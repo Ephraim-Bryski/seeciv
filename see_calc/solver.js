@@ -58,8 +58,11 @@ function make_MQ(){
 
 function remove_vars(SoEs, vars_to_remove){
 
+    // TODO honestly might be better not to simplify the soes
     if (vars_to_remove.length === 0){
         
+
+        return SoEs
         const simplified_SoEs = SoEs.map(eqn => {
             const tree = eqn_to_tree(ltx_to_math(eqn))
             const simplified_tree = simplify_tree(tree)
@@ -86,16 +89,30 @@ function solve_eqns(SoEs){
     const vis_eqns     = SoEs.filter(eqn=>{return eqn.includes("VISUAL")})
     const non_vis_eqns = SoEs.filter(eqn=>{return !eqn.includes("VISUAL")})
 
+    const vars_with_vis = get_all_vars(SoEs)
+
+
     const vars_to_remove = get_all_vars(non_vis_eqns)
 
-    const back_solution = back_solve(non_vis_eqns, vars_to_remove, true)
+    const extra_vis_vars = vars_with_vis.filter(vis_var => {return !vars_to_remove.includes(vis_var)})
+
+    if (extra_vis_vars.length !== 0){
+        throw new TooMuchUnknownError(`Visual variables ${extra_vis_vars} are not in any equations`)
+    }
+
+
+    const back_solution = back_solve(SoEs, vars_to_remove, true)
 
     const ordered_sub = back_solution.ordered_sub
-    const steps = back_solution.steps
+    const back_steps = back_solution.steps
 
     // TODO need to add steps for forward solve
-    const solutions = forward_solve(ordered_sub)
+    const forward_solution = forward_solve(ordered_sub)
         
+
+    const solutions = forward_solution.solution
+    const forward_steps = forward_solution.steps
+
     const solve_vars = solutions.map(sol => {return sol.solve_var})
     const solve_exps = solutions.map(sol => {return sol.sol})
 
@@ -120,15 +137,16 @@ function solve_eqns(SoEs){
         return eqn
     })
 
+
+    const steps = {back: back_steps, forward: forward_steps}
     display_vis(solved_vis_eqns)
-    return result
+    return [result,steps]
 }
 
-function back_solve(SoEs, vars_to_remove, to_solve_system){
+function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
 
-    if (SoEs.some(SoE => {SoE.includes("VISUAL")})){
-        throw "solver not yet implemented for visuals"     // TODO filter out visual equations
-    }
+    const SoEs = SoEs_with_vis.filter(SoE => {return !SoE.includes("VISUAL")})
+    let vis_SoEs = SoEs_with_vis.filter(SoE => {return SoE.includes("VISUAL")})
 
     // doing this weird mapping for groupcommonterms cause otherwise the second default argument is undefined, cause javascript |:
     const trees = SoEs.map(ltx_to_math).map(eqn_to_tree).map(tree => {return group_common_terms(tree)}) // trees will be mutated in the backsolve scope
@@ -153,7 +171,7 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
             break
         }
 
-        const solution_step = {
+        const step = {
             eqn0: solution.eqn0,
             sol: tree_to_expression(solution.sol, use_ltx),
             solve_var: solution.solve_var
@@ -168,7 +186,11 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
         // this is only relevant for solving system (not removing variables)
         // not necessary but it's fine
         // TODO might need to include product branches for forward solving
-        ordered_sub.push({solve_var: solution.solve_var, sol: tree_to_expression(solution.sol)})
+
+        const solution_expression = tree_to_expression(solution.sol)
+
+
+        ordered_sub.push({solve_var: solution.solve_var, sol: solution_expression})
 
         const substitution_steps = []
         tree_idxs_with_sol_var.forEach(idx => {
@@ -181,15 +203,17 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
             update_tree(subbed_tree, idx)
         })
 
-        solution_step.substitutions = substitution_steps    // other assignments done earlier since subin mutates tree
+
+        vis_SoEs = vis_SoEs.map(SoE => {
+            return sub_all_vars(SoE, solution.solve_var, solution_expression)
+        })
+
+
+        step.substitutions = substitution_steps    // other assignments done earlier since subin mutates tree
     
-        show_step(solution_step)
+        solution_steps.push(step)
 
         trim_trees()
-
-        if (trees.filter(tree => {return tree!==null}).length < 3){
-            const bop=3
-        }
     }
     
 
@@ -199,7 +223,7 @@ function back_solve(SoEs, vars_to_remove, to_solve_system){
         throw "this shouldnt happen, should only add to to_solve_system if solving system"
     }
     
-    const remaining_trees = trees.filter(tree => {return tree !== null})
+    const remaining_trees = trees.filter(tree => {return tree !== null}).concat(vis_SoEs)
     const branching_trees = remaining_trees.filter(tree => {
         return tree.op === "*"
     })
@@ -514,10 +538,36 @@ function numeric_solve(exp_ltx){
     if (exp_vars.length!==1){throw "can only have one variable, has multiple: "+exp_vars}
     var solve_var = exp_vars[0]
     
-    var prev_guess
-    var guess = 1
+    const n_guesses = 20
 
-    var tol = 0.00001
+    const ascending = Array.from(Array(n_guesses/2), (_, index) => index + 1);
+    const guesses = ascending.map(val=>{return [10**val,10**(-val),-(10**val),-(10**(-val))]}).flat()
+
+    for (let guess of guesses){
+        try{
+            const solution = newton_raphson(exp,solve_var,0.1)//guess)
+            return {solve_var: solve_var, sol: solution}         // TODO doesn't need to output the solveVar
+        }catch (e){
+            if (e instanceof NumericSolveError || e instanceof EvaluateError){
+                continue
+            }else{
+                throw e
+            }
+        }
+    }
+
+    throw new NumericSolveError("Cannot find solution")
+
+}
+
+
+
+function newton_raphson(exp,solve_var,guess){
+
+    var prev_guess
+    
+
+    var tol = 10**(-9)
     const max_count = 100
 
     var f = (x)=>{
@@ -549,13 +599,15 @@ function numeric_solve(exp_ltx){
     if (im_comp>1e-10){throw new NumericSolveError("No real solutions")}
     
 
-    return {solve_var: solve_var, sol: num_to_string(real_comp)}    // TODO doesn't need to output the solveVar
-
+    return num_to_string(real_comp)
+    
 }
 
 function forward_solve(ordered_sub){
 
     ordered_sub.reverse()
+
+    const steps = []
 
     for (let sub_i=0;sub_i<ordered_sub.length;sub_i++){
         
@@ -566,27 +618,47 @@ function forward_solve(ordered_sub){
         // not using getallvars since trig functions (without latex backslashes) are counted as variables
         //if (get_all_vars(val).length!==0){throw new TooMuchUnknownError}
 
+        // honestly screw evaluate, it only throws an error if it has operations
+        // otherwise, it's some weird dictionary, throws an error on numtostring
+
+        const solution_step = {}
+
+
+        solution_step.eqn = `${sub.solve_var}=${sub.sol}`
+
+
         try{
             sub.sol = num_to_string(math.evaluate(val))    // this is necessary for trig functions
         }catch(e){
-            if (e.message.includes("Undefined symbol")){
-                throw new TooMuchUnknownError
-            }else{
-                throw e
-            }
+            throw new TooMuchUnknownError
         }
 
-        
-        
 
-        
-        
+
+        solution_step.sol = `${sub.solve_var}=${sub.sol}`
+
+
+
         for (let replace_i=sub_i+1; replace_i<ordered_sub.length; replace_i++){
             var next_sub = ordered_sub[replace_i]
+
+
+
             next_sub.sol = sub_all_vars(next_sub.sol, sub.solve_var, val)
+
+
+
+
+
         }
+
+        if (sub_i!==0){ // just cause the first sub isn't anything
+            steps.push(solution_step)
+        }
+
+        
     }
-    return ordered_sub
+    return {solution:ordered_sub,steps:steps}
 }
 
 
@@ -677,39 +749,3 @@ function sub_all_vars(expression,sub_in,sub_out){
 
 
 
-// TODO work on showing steps
-
-function show_step(step){
-
-    const solve_texts = []
-    const sub_texts = []
-    
-    function sp(n){
-        let txt = ""
-        for (let i=0;i<n;i++){
-            txt = txt+"\\ "
-        }
-        return txt
-    }
-    
-    const arrow = " \\ \\  \\Rightarrow \\ \\ "
-    
-    const line = `\\text{Solving} ${sp(2)} ${step.eqn0} ${sp(2)}\\text{for} ${sp(2)} ${step.solve_var} ${arrow} ${step.solve_var} = ${step.sol}`
-
-    solve_texts.push(line)
-
-    const sub_lines = step.substitutions.map(sub => {
-        return `\\text{Subbing} ${sp(2)} ${sub.eqn0} ${arrow} ${sub.eqn_subbed}`
-    })
-
-    const sub_text = sub_lines.join("\n")
-
-    sub_texts.push(sub_text)
-
-    
-    // TODO need to use the UI tree list function, but need to somehow add classes to mathquillify it
-    //const dom_solve_steps = createToggleContainer(solve_texts, sub_texts)
-    //$("#solve-steps")[0].appendChild(dom_solve_steps)
-
-    
-}

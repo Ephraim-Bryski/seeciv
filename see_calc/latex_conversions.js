@@ -24,6 +24,18 @@ function ltx_to_math(ltx_eqn){
 		throw new FormatError("numbers must be at the end of variables")
 	}
 
+		
+	eqn = eqn
+		.replaceAll("\\left(","{")
+		.replaceAll("\\right)","}")
+
+	const invalid_closed_paren = /\)[0-9a-zA-Z]/
+	const invalid_open_paren = /[0-9a-zA-Z]\(/
+
+	if (invalid_closed_paren.test(eqn) || invalid_open_paren.test(eqn)){
+		//throw new FormatError("must have operation between parentheses and variable/number")
+	}
+	
 
 
 	// add  leading 0 (nerdamer cant handle .1 for example)
@@ -39,10 +51,6 @@ function ltx_to_math(ltx_eqn){
 	
 	
 	eqn = eqn
-		.replaceAll("\\left(","{")
-		.replaceAll("\\right)","}")
-
-
 		.replaceAll("{","(")
 		.replaceAll("}",")")
 

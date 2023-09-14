@@ -1,40 +1,70 @@
-figure out whether pi should be a constant, and how to do it
+stuff to work on before releasing
+
+	only show visual when relevant (like dont show giant axes when there's no visual)
+
+
+	visuals whenever all numeric values subbed
+
+
+	show steps with forward and numeric solve too
+	initial step shown should be simplification after initial substitutions
+
+
+	cannot solve system versus too much unknown????
+
+	Option to either add blocks to sheet or replace
+	Option to clear sheet
 
 
 
-cancel out common terms at the end D:
+	save sheet in current locations with new data
 
-renaming sheet?
-
-clearer divide between output equations (larger space??)
+	renaming sheet?
 
 
-sometimes outputs -0
+	make library not super ugly
+
+	ui for creating accounts, logging in etc
+
+
+
+	tests with remove vars too??
+
+
+
+	displaying solution, don't have equations all in one line
+
+`	
+
+
+
+
+	when new sheet is loaded it still takes info from previous sheet when solving --> reset start index to 0
+
+
+
+
+	basic interactions with visuals (zoom, home, pan)
+
+
+
+
+	make sure it looks good for different window sizes!!!!!!!!!!!!!!!!!!!
+
+
+
 
 subscript with multiple characters!!!
 
 firebase commands
-	save sheet in current locations with new data
 	change sheet order in folder
 
 plotting would be really nice :D
-	
-solve_for does WEIRD mutation:try this one
-'{"op":"+","terms":[{"op":"*","terms":[{"op":"^","terms":[{"op":"*","terms":[{"op":"+","terms":[{"op":"*","terms":[{"op":"^","terms":["v2","2"]},{"op":"^","terms":["w","-1"]},"-1/2"]},"2"]},"2"]},"1/2"]},"1/4"]},{"op":"*","terms":[{"op":"+","terms":[{"op":"*","terms":["v2","1/4"]},{"op":"*","terms":[{"op":"^","terms":[{"op":"*","terms":[{"op":"^","terms":["v2","2"]},{"op":"^","terms":["w","-1"]}]},"1/2"]},"1/4"]}]},"-1"]}]}'
-for now just deepcloning subin
-
-a*0=1 --> -1=0
-then when solving gives CantSolveError cause there aren't any variables to solve for
-might want to have an error for no variables in the system
-or don't simplify line???
-or.... have an error at the line itself saying all variables eliminated <-- best option i think
 
 
-
-numeric solve doesn't handle asymptotes well obviously, e.g. a/(a+1)=3
 
 Bugs
-	greek followed by   nongreek splits
+	greek followed by nongreek splits
 
 Solver Real stuff
 
@@ -42,54 +72,19 @@ Solver Real stuff
 
 	haven't handled this: combine_solve_term(eqn_to_tree("a*(a+a*b)+d"),"a")
 
-	handle multiple product solutions (recursively solve on all permutations, after solving everything else first)
-	in eqn_to_tree, it shouldn't catch parentheses mismatch instead of infinite recursion (doesnt REALLY matter, but so ugly now)
 
 Efficiency
 	could be even faster by only simplifying where it's subbed in for sub_in function
 	could save the tree from block to block so it doesn't have to parse repeatedly
 
 
-Solving Superficial Bugs
-
-
-
 
 
 Solving Superficial stuff to add/change
 
-	displaying solution, don't have equations all in one line
-
-
 	making pi a numeric constant
 
 	show all of the error messages and highlight the rows for sub table
-
-	show steps with forward and numeric solve too
-	initial step shown should be simplification after initial substitutions
-
-
-
-
-
-Visuals
-
-	visuals whenever all numeric values subbed
-
-	implement visuals with this new solver
-
-	only show visual when relevant (like dont show giant axes when there's no visual)
-
-Superficial UI issues
-
-
-	make library not super ugly
-
-
-
-Stuff to implement
-	ui for creating accounts, logging in etc
-
 
 
 Future not very important stuff
@@ -100,18 +95,12 @@ Future not very important stuff
 
 	make visuals classes that could inherit from one another
 
-	Option to either add blocks to sheet or replace
-	Option to clear sheet
 	Draggable blocks
 
 
 
 
 
-when new sheet is loaded it still takes info from previous sheet when solving --> reset start index to 0
-	also loading a sheet has to have a callback to update the variable tracker
+loading a sheet has to have a callback to update the variable tracker
 
-
-Library (future)
 	
-	Saving something with period in name no good 

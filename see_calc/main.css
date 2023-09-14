@@ -1,5 +1,4 @@
 
-#canvas { pointer-events:none; }
 :root{
     --load-sym-size:10px;
 }
@@ -9,19 +8,21 @@ body{
     margin:0;
 }
 
-
-#transparent-div {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width:100%;
-    height: 100%;
-    background-color: transparent; /* Set the background to transparent */
-    z-index: 10000;
-    pointer-events:none;
+#page-not-found {
+    display: none;
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-.glowscript-canvas-wrapper{
+
+
+
+.BOPglowscript-canvas-wrapper{
     pointer-events: none;
 }
 
@@ -37,7 +38,7 @@ body{
     position:absolute;
     left:0%; /* will probably change this, vis will take over the entire area below the top bar */
     width:100%;
-    top:5%;
+    top:20%;
     height:95%;
     background-color: black;
     z-index: 0;

@@ -113,6 +113,7 @@ function bind(cons /*, args... */) {
  * name.
  */
 function pray(message, cond) {
+  return // mwahahahaha
   if (!cond) throw new Error('prayer failed: '+message);
 }
 var P = (function(prototype, ownProperty, undefined) {

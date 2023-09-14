@@ -1,15 +1,37 @@
 
+
 var MQ = MathQuill.getInterface(2);
 
-var scene // this gives the scene global scope, that way I can get its view inside the setGSup function so the new canvas would have the same view
 
+function removeUndefined(obj) {
+    if (Array.isArray(obj)) {
+      for (let i = 0; i < obj.length; i++) {
+        if (obj[i] === undefined) {
+          obj.splice(i, 1);
+          i--; // Adjust index after removal
+        } else if (typeof obj[i] === 'object') {
+          removeUndefined(obj[i]); // Recurse into nested object or array
+        }
+      }
+    } else if (typeof obj === 'object' && obj !== null) {
+      for (const key in obj) {
+        if (obj[key] === undefined) {
+          delete obj[key];
+        } else if (typeof obj[key] === 'object') {
+          removeUndefined(obj[key]); // Recurse into nested object or array
+        }
+      }
+    }
+  }
+  
 
 var SoEs= [
     {
         name:"System",
         info: "hi",
         eqns: [
-        {input: "(a+1)*a=4"}
+        {input: "(a+1)*a=4"},
+        {input: "b=c"}
 
         ]
     },
@@ -18,7 +40,7 @@ var SoEs= [
     {
         name:"Sol",
         eqns: [
-        {input: "\\operatorname{solve}System"},
+        {input: "System"},
                
         ]
     }
@@ -38,9 +60,10 @@ data2DOM(SoEs)  // performed without calculations
 var start_run_idx
 var end_run_idx
 
+const scene = setUpGS("vis")
 
 
-setUpGS()
+
 
 document.addEventListener('keyup', (e)=>{
     if (e.code==="Enter"){
@@ -81,6 +104,12 @@ const save_btn = document.getElementById("save-btn")
 save_btn.onclick = ()=>{
     const sheet_name = document.getElementById("save-field").value
 
+    const is_alphanumeric =  /^[a-zA-Z0-9\s]+$/.test(sheet_name)
+
+    if (!is_alphanumeric){
+        alert("sheet name must only contain letters and numbers") 
+        return
+    }
 
     const blocks = JSON.parse(JSON.stringify((DOM2data())))
 
@@ -90,10 +119,15 @@ save_btn.onclick = ()=>{
     save_content(firebase_data, "", sheet_data, true) // TODO would have to be saved in the user's folder
 
     
+    window.location.hash = sheet_name
+    send_to_url()
 
     database.set(firebase_data)
+
+
     
-    //database.child("public").child(sheet_name).set(JSON.parse(JSON.stringify((DOM2data()))))
+
+    
 }
 
 
@@ -137,7 +171,9 @@ database.on("value", (package)=>{
 
 
     replace_UI_tree(data, root, create_sheet_buttons)
-    
+
+    send_to_url()
+
 },
 (e)=>{
     throw e} 
@@ -154,32 +190,80 @@ function add_to_test(sheet_names){
     })    
 }
 
-function test_sheets(){
+
+function send_to_url(){
+
+    const target = window.location.hash.substring(1);
+    if (!target) {return}
+    const all_names = target.replaceAll("-"," ").split(".")
+    update_sheet(all_names);
+    
+
+
+}
+
+
+
+// Event listener for hashchange
+window.addEventListener('hashchange', send_to_url);
+
+
+function create_unknown_page(){
+    $("#page-not-found")[0].style.display = "block"
+    document.body.style.display = "none"
+}
+
+function update_sheet(all_names){
+
+    const target = all_names.join(".").replaceAll(" ","-")
+
+    const sheet_name = all_names[all_names.length -1]
+    
+    const path = all_names.slice(0,all_names.length-1).join("/") 
+
+    let folder_content
+    try{
+        folder_content = get_folder_content(path, firebase_data)
+    }catch (e){
+        if (typeof e === "string"){
+            create_unknown_page()
+            return
+        }
+    }
+
+    const possible_sheets = folder_content.filter(sheet => {return sheet.name === sheet_name})
+
+    if (possible_sheets.length === 0){
+        create_unknown_page()
+        return
+    }
+
+    const sheet_data = possible_sheets[0].blocks
+
+
+    window.location.hash = target;
+
+    document.getElementById("save-field").value=sheet_name
+    if (document.body.loaded){
+        send_sheet(sheet_data,0,sheet_data.length)
+    }else{
+        //! will not produce a visual right now (would have to run compute_sheet first to get the vis equations), then call use_calc_results
+        data2DOM(sheet_data)
+    }
+
 
 }
 
 
 function create_sheet_buttons(all_names, container){
     
-    const sheet_name = all_names[all_names.length -1]
-    
-    const path = all_names.slice(0,all_names.length-1).join("/") // TODO pretty ugly joining just to split again but whatever
-    const folder_content = get_folder_content(path, firebase_data)
-
-    const sheet_data = folder_content.filter(sheet => {return sheet.name === sheet_name})[0].blocks
 
     const load_btn = document.createElement("button")
 
     load_btn.innerText = "Load"
 
     load_btn.onclick=()=>{
-        document.getElementById("save-field").value=sheet_name
-        if (document.body.loaded){
-            send_sheet(sheet_data,0,sheet_data.length)
-        }else{
-            //! will not produce a visual right now (would have to run compute_sheet first to get the vis equations), then call use_calc_results
-            data2DOM(sheet_data)
-        }
+        update_sheet(all_names)
     }
 
     
@@ -193,9 +277,6 @@ function create_sheet_buttons(all_names, container){
         database.set(firebase_data)
         
     }
-
-
-
 
     container.appendChild(load_btn)
     container.appendChild(delete_btn)    
@@ -338,6 +419,79 @@ function data2DOM(SoEs){
 }
 
 
+function show_steps(steps){
+
+    // called by data2DOM directly instead
+
+    if (steps === undefined){
+        return
+    }
+
+
+    const all_lines = []
+    
+    function sp(n){
+        let txt = ""
+        for (let i=0;i<n;i++){
+            txt = txt+"\\ "
+        }
+        return txt
+    }
+    
+    const arrow = " \\ \\  \\Rightarrow \\ \\ "
+    
+
+
+    steps.back.forEach(step => {
+
+        const line = `\\text{Solving} ${sp(2)} ${step.eqn0} ${sp(2)}\\text{for} ${sp(2)} ${step.solve_var} ${arrow} ${step.solve_var} = ${step.sol}`
+
+        all_lines.push(line)
+    
+        step.substitutions.forEach(sub => {
+            const sub_line = `${sp(4)} \\text{Subbing} ${sp(2)} ${sub.eqn0} ${arrow} ${sub.eqn_subbed}`
+            
+            all_lines.push(sub_line)
+        
+        })
+    
+
+        
+    })
+
+
+    steps.forward.forEach(step => {
+        
+
+
+        const line =  `\\text{Evaluating} ${sp(2)} ${step.eqn} ${arrow} ${step.sol}`
+
+        all_lines.push(line)
+
+
+    })
+
+
+
+
+    const container = $("#solve-steps")[0]
+
+    all_lines.forEach(line => {
+
+        container.appendChild(wrap_static_MQ(line, false))
+
+    })
+
+
+    
+    // TODO need to use the UI tree list function, but need to somehow add classes to mathquillify it
+    //const dom_solve_steps = createToggleContainer(solve_texts, sub_texts)
+    //$("#solve-steps")[0].appendChild(dom_solve_steps)
+
+    
+}
+
+
 
 
 function add_line(in_field){
@@ -460,7 +614,8 @@ function make_line(eqn){
     var input = eqn.input
     input = input.replaceAll("\\ ","")
 
-    MQ(in_field).latex(input)
+    in_field.temp_ltx = input // just to store it temporarily cause mq is annoying about 
+    //MQ(in_field).latex(input)
     
     var display_eqns = eqn.result
     var show_output = eqn.show_output
@@ -478,6 +633,7 @@ function make_line(eqn){
     }else if (display_eqns instanceof Error){
         out_field.innerHTML = display_eqns  // this occurs only when it's an error or new line
         out_field.classList.add("error-msg")
+        in_field.classList.add("input-error")
         show_output = "block"
 
     }else{
@@ -547,6 +703,9 @@ function make_line(eqn){
     line.appendChild(sub_table)
     line.appendChild(output_arr)
     line.appendChild(out_field)
+
+    show_steps(eqn.solve_steps)
+
     return line
 
 
@@ -564,6 +723,7 @@ function round_decimals(expression) {
 
 
 function make_block_row(SoE){
+    // TODO no longer needed!!!!! (now that im not using a load bar)
     // this is the row of blocks
     // it contains the block and part of the load bar
     var row = document.createElement("div")
@@ -657,17 +817,19 @@ function make_block(SoE){
 
 
 
-    block.appendChild(error_field)
+    //block.appendChild(error_field)
 
-    name_line=document.createElement('div')
+    name_line=document.createElement('span')
     name_line.className="block-name"
     name_line.appendChild(close_btn)
     name_line.appendChild(name_field)
+
     name_line.appendChild(add_btn)
     name_line.appendChild(remove_button)
+    name_line.appendChild(error_field)
+
     //name_line.appendChild(info_btn)
 
-    name_line.appendChild(error_field)
     block.appendChild(name_line)
 
 
@@ -810,7 +972,7 @@ function getIndicesOf(searchStr, str) {
 
 function make_sub_table(table_data){
 
-
+    
     var table = document.createElement("table")
 
 
@@ -981,21 +1143,40 @@ function get_sub_data(table){
 
 
 
-
-function setUpGS(){
+function setUpGS(id){
     function removeAllChildNodes(parent) {
         while (parent.firstChild) {
             parent.removeChild(parent.firstChild);
         }
     }
-    removeAllChildNodes(document.getElementById("vis"))
+    removeAllChildNodes(document.getElementById(id))
     
     
-    var graphDiv = document.getElementById("vis")
+    var graphDiv = document.getElementById(id)
     window.__context= {glowscript_container: graphDiv}  
-    scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: true,userzoom: true,autoscale: true})
+    let scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: true,userzoom: true,autoscale: true})
     scene.forward=vec(1,-0.5,-1)
+
+    return scene
 }
+
+
+const zoom_factor = 4/5
+
+function zoom_in(){
+    scene.range = zoom_factor*scene.range
+}
+
+
+function zoom_out(){
+    scene.range = 1/zoom_factor*scene.range
+}
+
+function ortho_xy(){
+    scene.forward = vec(0,0,1)
+}
+
+
 
 function resetGS(){
     var reached_coord_labels = false
@@ -1038,6 +1219,29 @@ function make_tooltip(){
     return tooltip
 }
 
+function wrap_static_MQ(eqn, in_table = true){
+
+
+    // TODO call it in output lines for blocks as well
+
+    let eqn_wrapper
+
+    if (in_table){
+        eqn_wrapper = document.createElement("td") // needed since MQ turns the div into a span
+    }else{
+        eqn_wrapper = document.createElement("div")
+    }
+
+    eqn_wrapper.classList.add("display-eqn-cell")
+    var eqn_field = document.createElement("div")
+    eqn_field.innerHTML = round_decimals(eqn)
+    eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
+    
+    eqn_wrapper.appendChild(eqn_field)
+
+    return eqn_wrapper
+}
+
 function make_MQ(){
 
 
@@ -1065,6 +1269,13 @@ function make_MQ(){
 
     })
 
+
+    const in_fields = [...$(".line-input")]
+
+    in_fields.forEach(field => {
+        const ltx = field.temp_ltx
+        MQ(field).latex(ltx)
+    })
 
 }
 
@@ -1121,7 +1332,7 @@ document.addEventListener('keyup', (e)=>{
     }
 
 
-    search_for_vars()
+    //search_for_vars()
 
     // dont update if it's not in a line input
     var input_fields = $(e.target).parents(".line-input")
