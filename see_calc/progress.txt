@@ -1,50 +1,47 @@
 stuff to work on before releasing
 
 
+	bugs
+		if no lines used in block, deletes all lines
+		is nan being treated as a variable????????????????????? D:< fuck javascript
+		check for NaN before passing into glowscript
+		if there's an error, it still displays the visuals prior to the error
+		the show steps final evaluate aren't latex
 
 
-	cannot solve system versus too much unknown????
-
-	Option to either add blocks to sheet or replace
-	Option to clear sheet
-
-
-
-	save sheet in current locations with new data
-
-	renaming sheet?
+	tabular solving!!!!!!!
+		by default all blank
+		when you run it, output values are locked
+		you have to click a button to reset
 
 
-	make library not super ugly
+	zoom back to home
 
-	ui for creating accounts, logging in etc
+	accounts/library
 
+		make library not super ugly
 
+		ui for creating accounts, logging in etc
+		save sheet in current locations with new data
+		renaming sheet?
 
-	tests with remove vars too??
-
-
-
-	displaying solution, don't have equations all in one line
-
-`	
-
-	i might want to do contradiction checks on individual equations after removing variables with a subtable (been going back and forth on it though D: )
+		Option to either add blocks to sheet or replace
+		Option to clear sheet
 
 
+	solver
+		cannot solve system versus too much unknown????
+
+		tests with remove vars too?
+
+		i might want to do contradiction checks on individual equations after removing variables with a subtable (been going back and forth on it though D: )
 
 
-	when new sheet is loaded it still takes info from previous sheet when solving --> reset start index to 0
+		show more specific error in solve steps?
 
+	UI
 
-
-
-	basic interactions with visuals (zoom, home, pan)
-
-
-
-
-	make sure it looks good for different window sizes!!!!!!!!!!!!!!!!!!!
+		make sure it looks good for different window sizes!!!!!!!!!!!!!!!!!!!
 
 
 

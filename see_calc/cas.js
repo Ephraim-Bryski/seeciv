@@ -1140,7 +1140,7 @@ function remove_duplicates(tree){
 
 
 function is_near_zero(value){
-    return Math.abs(Number(value)) < 10**(-8)
+    return Math.abs(Number(value)) < 10**(-5)
 }
 
 function solve_for(unmerged_tree, variable){

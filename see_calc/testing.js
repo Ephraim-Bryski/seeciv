@@ -94,9 +94,7 @@ function test_solver(){
 
     let fail_count = 0
     sheets.forEach(sheet => {
-        if (sheet.name !== "Shoaling"){
-            return
-        }
+
         const passed = test_sheet(sheet, sheet.error_type)
 
         if (!passed){

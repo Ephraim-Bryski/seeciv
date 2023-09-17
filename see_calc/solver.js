@@ -1,3 +1,4 @@
+
 class ContradictionError extends Error {
     constructor (){
         super("contradiction in the system")
@@ -144,6 +145,15 @@ function solve_eqns(SoEs){
     return [result,steps]
 }
 
+function show_trees(trees){
+    trees.forEach(tree => {
+        if (tree === null){
+            return
+        }
+        console.log(tree_to_eqn(tree))
+    })
+}
+
 function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
 
     const SoEs = SoEs_with_vis.filter(SoE => {return !SoE.includes("VISUAL")})
@@ -261,6 +271,10 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
 
     if (no_branches && !solved){
         throw new CantSolveError
+    }
+
+    if (!solved && to_solve_system){
+        throw new TooMuchUnknownError
     }
 
     // now we know there are branches 
@@ -393,7 +407,7 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
 
                     const has_single_var = Object.keys(trees_counts[tree_idx]).length === 1
                     if (e instanceof CantSymbolicSolve && has_single_var){
-                        sol_tree = numeric_solve(expression).sol
+                        sol_tree = OLD_numeric_solve(expression).sol
                     }else if (e instanceof CantSymbolicSolve){
                         continue
                     }else if(e instanceof VariableEliminatedError){
@@ -536,7 +550,7 @@ function get_intersection(arr1,arr2){
 
 }
 
-function numeric_solve(exp_ltx){
+function OLD_numeric_solve(exp_ltx){
     //exp = exp_ltx
     exp = ltx_to_math(exp_ltx)
     var exp_vars = get_all_vars(exp_ltx)
@@ -550,7 +564,7 @@ function numeric_solve(exp_ltx){
 
     for (let guess of guesses){
         try{
-            const solution = newton_raphson(exp,solve_var,0.1)//guess)
+            const solution = newton_raphson(exp,solve_var,guess)
             return {solve_var: solve_var, sol: solution}         // TODO doesn't need to output the solveVar
         }catch (e){
             if (e instanceof NumericSolveError || e instanceof EvaluateError){
@@ -564,6 +578,154 @@ function numeric_solve(exp_ltx){
     throw new NumericSolveError("Cannot find solution")
 
 }
+
+
+
+function to_desmos(expression){
+    const var0 = get_all_vars(expression)[0]
+    console.log(sub_all_vars(expression,var0,"x"))
+}
+
+function evaluate(expression,solve_var,value){
+    return math.evaluate(
+        sub_all_vars(expression,solve_var,String(value))
+    )
+}
+
+function bisection(exp,low_bound, high_bound, solve_var = "x"){
+
+    const f = (value)=>{return evaluate(exp,solve_var,value)}
+
+    tol = 10**-9
+
+    const max_count = 100
+
+    let count = 0
+    
+    let x_low = low_bound
+
+    let x_high = high_bound
+
+    let x_mid
+
+    while (x_high-x_low>tol){
+        
+        x_mid = (x_high+x_low)/2
+
+        //! could be more efficient by not computing x_low when it's not updated
+        if (f(x_mid)*f(x_low)>0){
+            // mid and low are same signs
+            // means it's between mid and right
+            x_low = x_mid
+        }else{
+            x_high = x_mid
+        }
+
+        if (count > max_count){
+            return null
+        }
+
+        count +=1
+
+    }
+
+    return x_mid
+
+
+
+
+}
+
+
+
+function is_real(value){
+
+    var im_comp = math.im(value)
+
+    return im_comp === 0
+    
+}
+
+
+
+
+function numeric_solve(exp_ltx){
+
+    const exp = ltx_to_math(exp_ltx)
+    var exp_vars = get_all_vars(exp_ltx)
+    if (exp_vars.length!==1){throw "can only have one variable, has multiple: "+exp_vars}
+
+
+    const solve_var = exp_vars[0]
+    const f = (value)=>{return evaluate(exp,solve_var,value)}
+
+    const max_val = 1000
+
+    const n_guesses = 10**4
+
+    const ascending = Array.from(Array(n_guesses), (_, index) => index + 1);
+    const descending = ascending.map(val => {return -val})
+
+    const int_vals = [ascending,descending].flat()
+    const guesses = int_vals.map(val => {return sign(val)*val**2 * max_val/n_guesses**2})
+
+    let bound1 = null
+    let root = null
+
+    let prev_y, y
+
+    for (value of guesses){
+        
+        const y_new = f(value)
+
+        if (!is_real(y_new)){
+            bound1 = null
+            continue
+        }
+
+        prev_y = y
+    
+        y = y_new
+
+
+        if (bound1 === null || y*prev_y >= 0){
+            bound1 = value
+            continue
+
+        }
+
+        let low_bound, high_bound
+
+        if (value>0){
+            low_bound = bound1
+            high_bound = value
+        }else{
+            low_bound = value
+            high_bound = bound1
+        }
+
+        root = bisection(exp,low_bound,high_bound,solve_var)
+
+        if (root === null){
+            bound1 = value
+            continue
+        }else{
+            break
+        }
+        
+    }
+
+    if (root === null){
+        throw "nothing found"
+    }
+
+    return {solve_var: solve_var, sol: num_to_string(root)}
+  
+
+}
+
+
+
 
 
 
@@ -601,7 +763,7 @@ function newton_raphson(exp,solve_var,guess){
     var real_comp =  math.re(guess)
     var im_comp = math.im(guess)
 
-    if (im_comp>1e-10){throw new NumericSolveError("No real solutions")}
+    if (Math.abs(im_comp)>1e-10){throw new NumericSolveError("No real solutions")}
     
 
     return num_to_string(real_comp)

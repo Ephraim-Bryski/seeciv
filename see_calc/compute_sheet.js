@@ -89,6 +89,7 @@ function calc(SoEs,start_idx,end_idx){
             }catch(error){
                 solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, InvalidReference, FormatError, CantSolveError]
                 if (solve_error_types.some((type) => {return error instanceof type}) && error_in_UI){
+                    SoEs[SoE_i].eqns[line_i].sub_table=undefined
                     SoEs[SoE_i].eqns[line_i].result=error
                 }else{
                     if (typeof error==="object"){console.log(error.msg)}

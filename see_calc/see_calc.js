@@ -107,8 +107,19 @@ const database = firebase.database().ref();
 
 const auth = firebase.auth()
 
-const save_btn = document.getElementById("save-btn")
-save_btn.onclick = ()=>{
+//const save_btn = document.getElementById("save-btn")
+function save_sheet(){
+
+    const url = window.location.hash
+
+
+    const full_path = url.replaceAll("#","").split(".")
+
+    const path = full_path.slice(0,full_path.length-1).join("/")
+
+
+
+
     const sheet_name = document.getElementById("save-field").value
 
     const is_alphanumeric =  /^[a-zA-Z0-9\s]+$/.test(sheet_name)
@@ -123,19 +134,16 @@ save_btn.onclick = ()=>{
     const sheet_data = {name: sheet_name, blocks: blocks}
 
 
-    save_content(firebase_data, "", sheet_data, true) // TODO would have to be saved in the user's folder
+    // delete_content(firebase_data,dir, old_sheet_name)
+    save_content(firebase_data, path, sheet_data, true)
 
     
     window.location.hash = sheet_name
     send_to_url()
 
-    database.set(firebase_data)
-
-
-    
-
-    
+    database.set(firebase_data)    
 }
+
 
 
 
@@ -250,7 +258,7 @@ function update_sheet(all_names){
 
     window.location.hash = target;
 
-    //document.getElementById("save-field").value=sheet_name
+    document.getElementById("save-field").value=sheet_name
     if (document.body.loaded){
         send_sheet(sheet_data,0,sheet_data.length)
     }else{
