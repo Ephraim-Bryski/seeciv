@@ -89,7 +89,7 @@ function calc(SoEs,start_idx,end_idx){
             }catch(error){
                 solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, InvalidReference, FormatError, CantSolveError]
                 if (solve_error_types.some((type) => {return error instanceof type}) && error_in_UI){
-                    SoEs[SoE_i].eqns[line_i].sub_table=undefined
+                    // SoEs[SoE_i].eqns[line_i].sub_table=undefined
                     SoEs[SoE_i].eqns[line_i].result=error
                 }else{
                     if (typeof error==="object"){console.log(error.msg)}
@@ -237,7 +237,7 @@ function calc(SoEs,start_idx,end_idx){
 
 
             if (old_table === undefined){
-                old_table = [vis_vars,default_vals]
+                old_table = {data: [vis_vars,default_vals]}
             }
 
             var new_stuff = compute_sub_table([vis_eqn],old_table)
@@ -247,11 +247,30 @@ function calc(SoEs,start_idx,end_idx){
 
         }else if(solve_line){
             //SOLVE need to substitute variables
+
+
             var eqns = get_ref_eqns(line)
-            //VIS need to return visuals
-            const stuff = solve_eqns(eqns)
-            result = stuff[0]
-            solve_steps = stuff[1]
+
+            // fucking hate how js cant unpack multiple arguments properly
+            const sub_stuff = compute_sub_table(eqns,old_table,true)
+
+            const subbed_systems = sub_stuff[0]
+            new_table = sub_stuff[1]
+
+            var result = []
+            solve_steps = []
+
+            //! really gross duplicate code but i need this to happen before it hits an error so it still shows the table
+            SoEs[SoE_i].eqns[line_i].sub_table = new_table
+
+
+            subbed_systems.forEach(eqns => {
+                const stuff = solve_eqns(eqns)
+                result.push(stuff[0])
+                solve_steps.push(stuff[1])
+            })
+
+            
         }else{
             // nonvisual reference without solve, so substitute:
             var eqns = get_ref_eqns(line)
@@ -259,7 +278,7 @@ function calc(SoEs,start_idx,end_idx){
             const has_vars = get_all_vars(eqns).length > 0
 
             if (has_vars){
-                var new_stuff = compute_sub_table(eqns,old_table,block_name)
+                var new_stuff = compute_sub_table(eqns,old_table)
                 var eqns = new_stuff[0]
                 var new_table = new_stuff[1]
             }else{
@@ -275,7 +294,7 @@ function calc(SoEs,start_idx,end_idx){
 
 
         // at the very end, will round the numbers 
-        SoEs[SoE_i].eqns[line_i].result=result;
+        SoEs[SoE_i].eqns[line_i].result=result
         SoEs[SoE_i].eqns[line_i].sub_table = new_table
 
         if (solve_line){
@@ -345,17 +364,23 @@ function display_vis(vis_eqns){
     //makeCoordShape()
 }
 
-function compute_sub_table(eqns,old_table){
+function compute_sub_table(eqns,old_table, for_solving = false){
     // takes the new eqns and the current table, replaces the columns to match the variables in the new eqns, then performs substitutions
 
+
+
+
+    let output_solve_idxs
     if(old_table===undefined){  // the table hasn't been created yet
+        output_solve_idxs = []
         var old_vars = []
         var n_col = 2
     }else{
-
-        var old_vars = old_table[0]
-        var trans_table = transpose(old_table)
-        var n_col = old_table.length
+        const old_table_data = old_table.data
+        output_solve_idxs = old_table.output_solve_idxs
+        var old_vars = old_table_data[0]
+        var trans_table = transpose(old_table_data)
+        var n_col = old_table_data.length
     }
 
     
@@ -367,6 +392,10 @@ function compute_sub_table(eqns,old_table){
         var old_idx = old_vars.indexOf(new_var)
         if (old_idx!==-1){  // if old_table is undefned, it should never enter this branch (since old_vars is empty)
             new_trans_table.push(trans_table[old_idx])
+        }else if (for_solving){
+            const new_row = Array(n_col).fill("")
+            new_row[0] = new_var
+            new_trans_table.push(new_row)
         }else{
             var new_var_row=Array(n_col).fill(new_var)
             new_trans_table.push(new_var_row)
@@ -392,6 +421,14 @@ function compute_sub_table(eqns,old_table){
         const sub_out = []
 
         for (let j=0;j<sub_row.length;j++){
+
+
+            const check_same_elements = (arr1,arr2) => {return JSON.stringify(arr1)===JSON.stringify(arr2)}
+
+            const is_output_field = output_solve_idxs.some(idxs => {return check_same_elements(idxs,[i,j])})
+
+
+
             vis_sub = true
             if (sub_row[j].includes("=")){
                 throw new FormatError("cannot subsitute an equation")
@@ -399,15 +436,20 @@ function compute_sub_table(eqns,old_table){
             if (sub_row[j] === ""){
                 removed_vars.push(var_row[j])
                 vis_sub = false
-            }else{
+            }else if (!is_output_field){
                 sub_in.push(var_row[j])
                 sub_out.push(sub_row[j])
             }
         }
 
+        //SOLVE check if sub_out has variables if it's for solving
         eqns_subbed = eqns_subbed.map(eqn => {return sub_all_vars(eqn, sub_in, sub_out)})
+        if (!for_solving){
+            eqns_subbed = remove_vars(eqns_subbed,removed_vars)
+        }
+
+        all_eqns.push(eqns_subbed)
         
-        all_eqns.push(remove_vars(eqns_subbed,removed_vars))
 
     }
 

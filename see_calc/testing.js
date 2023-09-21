@@ -182,8 +182,9 @@ function test_sheet(sheet, error_type){
 
 
 
-function check_solution(eqns, sols){
+function check_solution(eqns, all_row_sols){
     
+    const sols = all_row_sols[0]
 
 
     const sol_vals = sols.map(sol => {return sol.split("=")[1]}).map(ltx_to_math)

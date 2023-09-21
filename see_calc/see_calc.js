@@ -442,6 +442,8 @@ function show_steps(steps){
         return
     }
 
+    //! for now just showing steps for first row
+    steps = steps[0]
 
     const all_lines = []
     
@@ -673,7 +675,9 @@ function make_line(eqn){
         if (typeof display_eqns[0]==="string"){display_eqns = [display_eqns]}
 
         var table = document.createElement("table")
-        
+        var row = document.createElement("tr")
+        row.innerText = " "
+        table.appendChild(row)
         display_eqns.forEach(arr_row=>{
             var row = document.createElement("tr")
             arr_row.forEach(eqn=>{
@@ -694,14 +698,21 @@ function make_line(eqn){
         out_field.appendChild(table)
     }
 
-    var sub_table = make_sub_table(eqn.sub_table) //! would need new field for eqn, in compute_sub_table, it would take the equations and old table to generate the new table and update the field
-
-
+    const is_solve_line = eqn.input.includes("\\operatorname{solve}")
+    /*
+    let solve_result
+    if (is_solve_line){
+        solve_result = eqn.result
+    }else{
+        solve_result = [[]]
+    }
+    */
+    sub_table = make_sub_table(eqn.sub_table, eqn.result, is_solve_line)
 
     
     out_field.style.display = show_output
     
-    if (show_output==="none"  || show_output===""){
+    if (show_output==="none"  || show_output===""){  
         output_arr.classList.remove("collapse-left")
         output_arr.classList.add("collapse-right")
     }else if (show_output==="block"){
@@ -716,9 +727,13 @@ function make_line(eqn){
     line.appendChild(add_btn)
     line.appendChild(in_field)
     line.appendChild(sub_table)
-    line.appendChild(output_arr)
-    line.appendChild(out_field)
 
+    if (!is_solve_line){
+        line.appendChild(output_arr)
+        line.appendChild(out_field)    
+    }
+    
+    //! for now just showing steps for first one
     show_steps(eqn.solve_steps)
 
     return line
@@ -985,18 +1000,30 @@ function getIndicesOf(searchStr, str) {
 
 
 
-function make_sub_table(table_data){
+function make_sub_table(table_data, solve_result, is_solve_line){
+
 
     
     var table = document.createElement("table")
 
+    let base_vars
 
     if (table_data!==undefined && table_data.length!==0){
-        var base_vars = table_data[0]
+        base_vars = table_data[0]
+
         for (let i=0;i<table_data.length;i++){
-			if (i==0){var editable = false}
-			else{var editable = true}
-            table.appendChild(make_row(table_data[i],editable))
+
+            let solve_output_eqns
+
+            const editable = i!==0
+
+            if (i===0 || solve_result instanceof Error || !is_solve_line){
+                solve_output_eqns = []
+            }else{
+                solve_output_eqns = solve_result[i-1]
+            }
+
+			table.appendChild(make_row(table_data[i],editable,solve_output_eqns))
         }
     
 
@@ -1012,9 +1039,32 @@ function make_sub_table(table_data){
     table.classList.add(".sub-table")
     return table
 
-    function make_row(vars,editable){
+    function make_row(vars,not_first_row,solve_output_eqns){
+
+
+        // a bit ugly, just cause of making a new row
+        /*
+        let is_solve_line
+        if (solve_output_eqns === undefined){
+            solve_output_eqns = []
+            is_solve_line = false
+        }else{
+            is_solve_line = true
+        }
+        */
+
+        const solve_output = {}
+
+        solve_output_eqns.forEach(eqn => {
+            const stuff = eqn.split("=")
+            const solve_var = stuff[0]
+            const solve_val = stuff[1]
+            solve_output[solve_var] = solve_val
+        })
+
+
     	var row = document.createElement("tr")
-    	vars.forEach((var_name)=>{
+    	vars.forEach((cell_val,idx)=>{
 
             // const ltx_exp = math_to_ltx(var_name)
 
@@ -1022,9 +1072,27 @@ function make_sub_table(table_data){
 
             var in_field = document.createElement("div")
 
+            const base_var = base_vars[idx]
 
+            let is_output = false
 
-            if (editable){
+            if (Object.keys(solve_output).includes(base_var)){
+
+                if (cell_val !== ""){
+                    console.log("overwriting data")
+                }
+
+                cell_val = solve_output[base_var]
+                is_output = true
+
+            }
+
+            // cause double negatives are great :)
+            if (!not_first_row || is_output){
+                MQ.StaticMath(in_field)
+            }else{
+
+            
                 //MQ
                 MQ.MathField(in_field, {handlers: {edit: function() {
                     if(in_field.parentElement===null){
@@ -1034,12 +1102,9 @@ function make_sub_table(table_data){
 
                 }}})
 
-
-
-            }else{
-                MQ.StaticMath(in_field)
             }
-            MQ(in_field).latex(var_name)
+            
+            MQ(in_field).latex(cell_val)
 
 
 
@@ -1050,7 +1115,7 @@ function make_sub_table(table_data){
 
 
 		})
-		if (editable){
+		if (not_first_row){
 			row.appendChild(make_row_ops())
 		}else{
 			row.classList.add("top-row")
@@ -1064,7 +1129,15 @@ function make_sub_table(table_data){
             add.classList.add("table-add")
 			add.innerText="+"
 			add.onclick = (e)=>{
-				table.insertBefore(make_row(base_vars,true),row.nextSibling)
+                let new_vars
+                if (is_solve_line){
+                    const blank = [];base_vars.forEach(()=>{blank.push("")})
+
+                    new_vars = blank
+                }else{
+                    new_vars = base_vars
+                }
+				table.insertBefore(make_row(new_vars,true,[]),row.nextSibling)
                 change_start_idx($(e.target).parents(".calc-row").index())
 
 				make_MQ()
@@ -1090,28 +1163,13 @@ function make_sub_table(table_data){
 
 				var blank = [];base_vars.forEach(()=>{blank.push("")})
 
-				table.insertBefore(make_row(blank,true),row.nextSibling)
+				table.insertBefore(make_row(blank,true,[]),row.nextSibling)
 				
 				row.remove()
 
 			}
 
-			var copy = document.createElement("button")
-			copy.innerText = "||"
-            copy.classList.add("table-copy")
-			copy.onclick = (e)=>{
-	
-				var cells = [...row.children]
-				cells.pop()
-				var row_values = cells.map(cell=>{return MQ(cell.children[0]).latex()})
-
-				table.insertBefore(make_row(row_values,true),row.nextSibling)
-                change_start_idx($(e.target).parents(".calc-row").index())
-
-				
-			}
-
-			[add,remove,clear,copy].forEach((btn)=>{
+			[add,remove,clear].forEach((btn)=>{
                 btn.appendChild(make_tooltip())
 				ops.appendChild(btn)
 				btn.classList.add("sub-table-btn")
@@ -1136,24 +1194,30 @@ function make_sub_table(table_data){
 
 // will be called in DOM2data
 function get_sub_data(table){
-    if (table!==undefined){ // if it's just a placeholder, returns undefined, which is checked in the function call
-        var data = []
-        var rows = table.children
-        // array with each element representing a row of substitutions, each in that representing a substitution, and a 2 element array in that with the input and output
-        for (let i=0;i<rows.length;i++){
-            var row = rows[i]
-            var cells = row.children
-            data.push([])
-            for (let j=0;j<cells.length;j++){
-                var cell = cells[j]
-                var mq_field = cell.children[0]
-                if(!(mq_field.className.includes("mq"))){continue}
-                var ltx = MQ(mq_field).latex()
-                data[i].push(ltx)
+    const output_solve_idxs = []
+    if (table===undefined){return} // if it's just a placeholder, returns undefined, which is checked in the function call
+    
+    var data = []
+    var rows = table.children
+    // array with each element representing a row of substitutions, each in that representing a substitution, and a 2 element array in that with the input and output
+    for (let i=0;i<rows.length;i++){
+        var row = rows[i]
+        var cells = row.children
+        data.push([])
+        for (let j=0;j<cells.length;j++){
+            var cell = cells[j]
+            var mq_field = cell.children[0]
+            if(!(mq_field.className.includes("mq"))){continue}
+            var ltx = MQ(mq_field).latex()
+            data[i].push(ltx)
+
+            if (i>0 && !([...mq_field.classList].includes("mq-editable-field"))){
+                output_solve_idxs.push([i,j])
             }
         }
-        return data
     }
+    return {data:data,output_solve_idxs:output_solve_idxs}
+
 }
 
 

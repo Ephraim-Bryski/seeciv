@@ -175,6 +175,8 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
     
     while (true){  
 
+        trim_trees()
+
         const solution = find_solution()
 
         if (solution === null){
@@ -224,7 +226,6 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
     
         solution_steps.push(step)
 
-        trim_trees()
     }
     
 

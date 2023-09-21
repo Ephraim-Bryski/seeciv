@@ -8,6 +8,8 @@ stuff to work on before releasing
 		if there's an error, it still displays the visuals prior to the error
 		the show steps final evaluate aren't latex
 
+		output display equation still including unnecesary parentheses D: <-- because it was never converted into tree, just subbed
+
 
 	tabular solving!!!!!!!
 		by default all blank
@@ -30,7 +32,7 @@ stuff to work on before releasing
 
 
 	solver
-		cannot solve system versus too much unknown????
+		cannot solve system versus too much unknown???? <-- makes sense, cant solve means ended up with a system for which it couldn't solve for any variables
 
 		tests with remove vars too?
 
@@ -40,6 +42,7 @@ stuff to work on before releasing
 		show more specific error in solve steps?
 
 	UI
+		block and/or sheet info
 
 		make sure it looks good for different window sizes!!!!!!!!!!!!!!!!!!!
 
