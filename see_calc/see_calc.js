@@ -130,10 +130,11 @@ function save_sheet(){
     }
 
     const blocks = JSON.parse(JSON.stringify((DOM2data())))
+    const solved_blocks = calc(blocks,0,blocks.length)
+    const sheet_data = {name: sheet_name, blocks: solved_blocks}
 
-    const sheet_data = {name: sheet_name, blocks: blocks}
 
-
+    
     // delete_content(firebase_data,dir, old_sheet_name)
     save_content(firebase_data, path, sheet_data, true)
 
