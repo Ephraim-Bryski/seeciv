@@ -261,7 +261,7 @@ function calc(SoEs,start_idx,end_idx){
 
             const subbed_systems = sub_stuff[0]
             new_table = sub_stuff[1]
-
+            solve_steps = sub_stuff[2]
             result = subbed_systems
             /*
             var result = []
@@ -434,6 +434,7 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
     // perform substitutions:
     var all_eqns = []
     var var_row = table[0]
+    const solve_steps = []
 
     const error_msgs = []
 
@@ -475,6 +476,7 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
             if (for_solving){
                 const stuff = solve_eqns(eqns_subbed)
                 eqns_subbed = stuff[0]
+                solve_steps.push(stuff[1]) // amazing code (---:
                 
             }else{
                 eqns_subbed = remove_vars(eqns_subbed,removed_vars)
@@ -506,7 +508,7 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
 
     display_vis(solved_vis_eqns)
 
-    return [all_eqns,table]
+    return [all_eqns,table, solve_steps]
 
     function transpose(matrix) {
         const rows = matrix.length, cols = matrix[0].length;
