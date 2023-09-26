@@ -160,6 +160,10 @@ function calc(SoEs,start_idx,end_idx){
         line = strip_text(line)
         */
 
+        if (line === ""){
+            throw new FormatError("line cannot be blank")
+        }
+
         line = line.replaceAll("\\ ","")
 
         var vis_vars = []
@@ -176,6 +180,8 @@ function calc(SoEs,start_idx,end_idx){
         const solve_txt_once = line.indexOf(solve_txt) === line.lastIndexOf(solve_txt)
 
         const has_solve_txt = line.includes(solve_txt)
+
+
 
         if (has_solve_txt && !solve_line ){
             throw new FormatError("solve keyword must occur once at the start of the line")
@@ -229,34 +235,35 @@ function calc(SoEs,start_idx,end_idx){
             const vis_block = match_vis_blocks[0]
 
             const vis_vars = Object.keys(vis_block.vars)
-            const default_vals = Object.values(vis_block.vars).map(val=>{return String(val)})
+            //const default_vals = Object.values(vis_block.vars).map(val=>{return String(val)})
 
             const vis_eqn = vis_vars.map(vis_var=>{
                 return vis_var+"|"
             }).join("")+"VISUAL"+line
 
-
+            /*
             if (old_table === undefined){
-                old_table = {data: [vis_vars,default_vals]}
+                old_table = {data: [vis_vars,default_vals],output_solve_idxs:[]}
             }
+            */
 
-            var new_stuff = compute_sub_table([vis_eqn],old_table)
+            var new_stuff = compute_sub_table([vis_eqn],old_table,false,vis_block.vars)
 
-            var result = new_stuff[0].flat()
+            var result = new_stuff[0]//.flat()
             var new_table = new_stuff[1]
 
         }else if(solve_line){
-            //SOLVE need to substitute variables
 
 
             var eqns = get_ref_eqns(line)
 
-            // fucking hate how js cant unpack multiple arguments properly
             const sub_stuff = compute_sub_table(eqns,old_table,true)
 
             const subbed_systems = sub_stuff[0]
             new_table = sub_stuff[1]
 
+            result = subbed_systems
+            /*
             var result = []
             solve_steps = []
 
@@ -265,10 +272,12 @@ function calc(SoEs,start_idx,end_idx){
 
 
             subbed_systems.forEach(eqns => {
+
                 const stuff = solve_eqns(eqns)
                 result.push(stuff[0])
                 solve_steps.push(stuff[1])
             })
+            */
 
             
         }else{
@@ -295,7 +304,12 @@ function calc(SoEs,start_idx,end_idx){
 
         // at the very end, will round the numbers 
         SoEs[SoE_i].eqns[line_i].result=result
-        SoEs[SoE_i].eqns[line_i].sub_table = new_table
+
+        // kind of hacky but whatever (just to prevent firebase being annoying)
+        if (new_table !== undefined){
+            SoEs[SoE_i].eqns[line_i].sub_table = new_table
+        }
+        
 
         if (solve_line){
             SoEs[SoE_i].eqns[line_i].solve_steps = solve_steps   
@@ -364,7 +378,7 @@ function display_vis(vis_eqns){
     //makeCoordShape()
 }
 
-function compute_sub_table(eqns,old_table, for_solving = false){
+function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals = undefined){
     // takes the new eqns and the current table, replaces the columns to match the variables in the new eqns, then performs substitutions
 
 
@@ -383,23 +397,36 @@ function compute_sub_table(eqns,old_table, for_solving = false){
         var n_col = old_table_data.length
     }
 
+    let new_vars = get_all_vars(eqns)
+
+    /*
+    if (default_vis_vals === undefined){
+        new_vars = get_all_vars(eqns)
+    }else{
+        new_vars = Object.keys(default_vis_vals)
+    }
+    */
     
-    var new_vars = get_all_vars(eqns)
 
     var new_trans_table = []
 
     new_vars.forEach((new_var)=>{
         var old_idx = old_vars.indexOf(new_var)
+        let new_row
         if (old_idx!==-1){  // if old_table is undefned, it should never enter this branch (since old_vars is empty)
-            new_trans_table.push(trans_table[old_idx])
+            new_row = trans_table[old_idx]
         }else if (for_solving){
-            const new_row = Array(n_col).fill("")
+            new_row = Array(n_col).fill("")
             new_row[0] = new_var
-            new_trans_table.push(new_row)
+        }else if(default_vis_vals !== undefined){
+           const default_val = String(default_vis_vals[new_var])
+           new_row = Array(n_col).fill(default_val)
+           new_row[0] = new_var
         }else{
-            var new_var_row=Array(n_col).fill(new_var)
-            new_trans_table.push(new_var_row)
+            new_row=Array(n_col).fill(new_var)
+            
         }
+        new_trans_table.push(new_row)
     })
 
     table = transpose(new_trans_table)
@@ -444,16 +471,33 @@ function compute_sub_table(eqns,old_table, for_solving = false){
 
         //SOLVE check if sub_out has variables if it's for solving
         eqns_subbed = eqns_subbed.map(eqn => {return sub_all_vars(eqn, sub_in, sub_out)})
-        if (!for_solving){
-            eqns_subbed = remove_vars(eqns_subbed,removed_vars)
-        }
+        try{
+            if (for_solving){
+                const stuff = solve_eqns(eqns_subbed)
+                eqns_subbed = stuff[0]
+                
+            }else{
+                eqns_subbed = remove_vars(eqns_subbed,removed_vars)
+            }
+    
+        }catch(error){
+            solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, CantSolveError]
+            if (solve_error_types.some((type) => {return error instanceof type})){
+            
+                eqns_subbed = error
+            }else{
+                throw error 
+            }
 
+        }
+        
         all_eqns.push(eqns_subbed)
         
 
     }
 
     const solved_vis_eqns = all_eqns.flat().filter(eqn => {
+        if (eqn instanceof Error){return false}
         const is_vis = eqn.includes("VISUAL")
         const all_subbed = get_all_vars(eqn).length === 0
 

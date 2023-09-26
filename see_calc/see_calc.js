@@ -401,6 +401,11 @@ function DOM2data(){
             data[block_i].eqns.push(eqn_info)
 
         })
+
+        // keeps a single blank line
+        if (data[block_i].eqns.length === 0){
+            data[block_i].eqns.push({input:"",show_output:true})
+        }
     })
 
     return data
@@ -642,7 +647,8 @@ function make_line(eqn){
     }
     
 
-        
+    const is_solve_line = eqn.input.includes("\\operatorname{solve}")
+
 
     if(display_eqns === undefined){
         out_field.innerHTML = ""
@@ -679,26 +685,32 @@ function make_line(eqn){
         row.innerText = " "
         table.appendChild(row)
         display_eqns.forEach(arr_row=>{
+            
             var row = document.createElement("tr")
-            arr_row.forEach(eqn=>{
+            if (arr_row instanceof Error){row.innerText = arr_row.message}
+            else if(is_solve_line){
+                row.innerText = ""
+            }else{
+                arr_row.forEach(eqn=>{
 
-                var eqn_wrapper = document.createElement("td") // needed since MQ turns the div into a span
-                eqn_wrapper.classList.add("display-eqn-cell")
-                var eqn_field = document.createElement("div")
-                eqn_field.innerHTML = round_decimals(eqn)
-                eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
+                    var eqn_wrapper = document.createElement("td") // needed since MQ turns the div into a span
+                    eqn_wrapper.classList.add("display-eqn-cell")
+                    var eqn_field = document.createElement("div")
+                    eqn_field.innerHTML = round_decimals(eqn)
+                    eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
+                    
+                    eqn_wrapper.appendChild(eqn_field)
+                    row.appendChild(eqn_wrapper)
+    
+                })
                 
-                eqn_wrapper.appendChild(eqn_field)
-                row.appendChild(eqn_wrapper)
-
-            })
+            }
             table.appendChild(row)
 
         })
         out_field.appendChild(table)
     }
 
-    const is_solve_line = eqn.input.includes("\\operatorname{solve}")
     /*
     let solve_result
     if (is_solve_line){
@@ -728,7 +740,7 @@ function make_line(eqn){
     line.appendChild(in_field)
     line.appendChild(sub_table)
 
-    if (!is_solve_line){
+    if (true){
         line.appendChild(output_arr)
         line.appendChild(out_field)    
     }
@@ -852,10 +864,12 @@ function make_block(SoE){
     name_line=document.createElement('span')
     name_line.className="block-name"
     name_line.appendChild(close_btn)
-    name_line.appendChild(name_field)
-
+    
     name_line.appendChild(add_btn)
     name_line.appendChild(remove_button)
+    
+    name_line.appendChild(name_field)
+
     name_line.appendChild(error_field)
 
     //name_line.appendChild(info_btn)
@@ -1017,13 +1031,24 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
             const editable = i!==0
 
-            if (i===0 || solve_result instanceof Error || !is_solve_line){
+            //! should only be an array containing an error now
+            const contains_error = solve_result instanceof Error || solve_result!== undefined && solve_result[i-1] instanceof Error
+            if (i===0 || contains_error || !is_solve_line){
                 solve_output_eqns = []
             }else{
                 solve_output_eqns = solve_result[i-1]
             }
 
-			table.appendChild(make_row(table_data[i],editable,solve_output_eqns))
+            const new_row = make_row(table_data[i],editable,solve_output_eqns)
+
+            if (contains_error){
+                //const cells = [...new_row.children]
+                //cells.pop()
+                //cells.forEach(cell => {cell.style.outline="solid green"})
+                new_row.style.outline="thin solid red"
+                //new_row.classList.add("input-error")
+            }
+			table.appendChild(new_row)
         }
     
 
@@ -1172,6 +1197,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 			[add,remove,clear].forEach((btn)=>{
                 btn.appendChild(make_tooltip())
 				ops.appendChild(btn)
+                ops.style.whiteSpace = "nowrap"
 				btn.classList.add("sub-table-btn")
 
 
@@ -1199,6 +1225,9 @@ function get_sub_data(table){
     
     var data = []
     var rows = table.children
+
+    if (rows.length === 0){return}
+
     // array with each element representing a row of substitutions, each in that representing a substitution, and a 2 element array in that with the input and output
     for (let i=0;i<rows.length;i++){
         var row = rows[i]
@@ -1391,7 +1420,7 @@ function redo(){
 document.addEventListener('keyup', (e)=>{
     // every key stroke it updates the variable tracker and untextifies input keywords
 
-    track_dom()
+    //track_dom()
     function track_dom(){
 
         var current_dom = DOM2data()

@@ -23,10 +23,13 @@
 .block-name{
     margin-bottom: 10px;
     font-size: large;
+    white-space: nowrap;
+    display: flex;
 
 }
 
 .block-name-txt{
+    margin-left:20px;
     margin-right:50px;
     font-size: inherit;
     width: 100px;
@@ -34,12 +37,10 @@
 }
 
 .add-block-btn{
-    float:right;
     position: relative;
 }
 
 .remove-block-btn{
-    float:right;
     position: relative;
 }
 
@@ -87,6 +88,7 @@
     background-color: white;
     color:darkgray;
     text-align: center;
+    display: inline-block;
 }
 
 .add-remove-btn:hover{
