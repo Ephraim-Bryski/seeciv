@@ -448,8 +448,15 @@ function show_steps(steps){
         return
     }
 
-    //! for now just showing steps for first row
-    steps = steps[0]
+
+    // stupid firebase removes empty arrays D:
+    if (steps.forward === undefined){
+        steps.forward = []
+    }
+
+    if (steps.back === undefined){
+        steps.back = []
+    }
 
     const all_lines = []
     
@@ -471,6 +478,11 @@ function show_steps(steps){
 
         all_lines.push(line)
     
+        // same issue with firebase ):<
+        if (step.substitutions === undefined){
+            step.substitutions = []
+        }
+
         step.substitutions.forEach(sub => {
             const sub_line = `${sp(4)} \\text{Subbing} ${sp(2)} ${sub.eqn0} ${arrow} ${sub.eqn_subbed}`
             
