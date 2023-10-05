@@ -1,9 +1,8 @@
 stuff to work on before releasing
 
 
-	needs to save the table output
-
 	bugs
+		figure out undo and redo
 		is nan being treated as a variable????????????????????? D:< fuck javascript
 		check for NaN before passing into glowscript
 		if there's an error, it still displays the visuals prior to the error
