@@ -695,23 +695,26 @@ function make_line(eqn){
         table.appendChild(row)
         display_eqns.forEach(arr_row=>{
             var row = document.createElement("tr")
+<<<<<<< HEAD
+            arr_row.forEach(eqn=>{
+=======
             if (arr_row.error instanceof Error){row.innerText = arr_row.error.message}
             else if(is_solve_line){
                 row.innerText = ""
             }else{
                 arr_row.forEach(eqn=>{
+>>>>>>> 58854a530029a972d6d60f38f8e70a2739d8a42d
 
-                    var eqn_wrapper = document.createElement("td") // needed since MQ turns the div into a span
-                    eqn_wrapper.classList.add("display-eqn-cell")
-                    var eqn_field = document.createElement("div")
-                    eqn_field.innerHTML = round_decimals(eqn)
-                    eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
-                    
-                    eqn_wrapper.appendChild(eqn_field)
-                    row.appendChild(eqn_wrapper)
-                })
+                var eqn_wrapper = document.createElement("td") // needed since MQ turns the div into a span
+                eqn_wrapper.classList.add("display-eqn-cell")
+                var eqn_field = document.createElement("div")
+                eqn_field.innerHTML = round_decimals(eqn)
+                eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
+                
+                eqn_wrapper.appendChild(eqn_field)
+                row.appendChild(eqn_wrapper)
 
-            }
+            })
             table.appendChild(row)
 
         })
@@ -1037,14 +1040,21 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
             const editable = i!==0
 
+<<<<<<< HEAD
+            if (i===0 || solve_result instanceof Error || !is_solve_line){
+=======
             //! should only be an array containing an error now
             const contains_error = editable &&solve_result!== undefined && solve_result[i-1].error !== undefined
             if (i===0 || contains_error || !is_solve_line){
+>>>>>>> 58854a530029a972d6d60f38f8e70a2739d8a42d
                 solve_output_eqns = []
             }else{
                 solve_output_eqns = solve_result[i-1]
             }
 
+<<<<<<< HEAD
+			table.appendChild(make_row(table_data[i],editable,solve_output_eqns))
+=======
             let blank_idxs
             if (contains_error){
                 blank_idxs = solve_result[i-1].output_idxs
@@ -1063,6 +1073,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                 //new_row.classList.add("input-error")
             }
 			table.appendChild(new_row)
+>>>>>>> 58854a530029a972d6d60f38f8e70a2739d8a42d
         }
     
 
