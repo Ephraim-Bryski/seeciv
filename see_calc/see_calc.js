@@ -685,15 +685,7 @@ function make_line(eqn){
         table.appendChild(row)
         display_eqns.forEach(arr_row=>{
             var row = document.createElement("tr")
-<<<<<<< HEAD
             arr_row.forEach(eqn=>{
-=======
-            if (arr_row instanceof Error){row.innerText = arr_row.message}
-            else if(is_solve_line){
-                row.innerText = ""
-            }else{
-                arr_row.forEach(eqn=>{
->>>>>>> parent of 58854a53 (stuff)
 
                 var eqn_wrapper = document.createElement("td") // needed since MQ turns the div into a span
                 eqn_wrapper.classList.add("display-eqn-cell")
@@ -1030,32 +1022,13 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
             const editable = i!==0
 
-<<<<<<< HEAD
             if (i===0 || solve_result instanceof Error || !is_solve_line){
-=======
-            //! should only be an array containing an error now
-            const contains_error = solve_result instanceof Error || solve_result!== undefined && solve_result[i-1] instanceof Error
-            if (i===0 || contains_error || !is_solve_line){
->>>>>>> parent of 58854a53 (stuff)
                 solve_output_eqns = []
             }else{
                 solve_output_eqns = solve_result[i-1]
             }
 
-<<<<<<< HEAD
 			table.appendChild(make_row(table_data[i],editable,solve_output_eqns))
-=======
-            const new_row = make_row(table_data[i],editable,solve_output_eqns)
-
-            if (contains_error){
-                //const cells = [...new_row.children]
-                //cells.pop()
-                //cells.forEach(cell => {cell.style.outline="solid green"})
-                new_row.style.outline="thin solid red"
-                //new_row.classList.add("input-error")
-            }
-			table.appendChild(new_row)
->>>>>>> parent of 58854a53 (stuff)
         }
     
 
