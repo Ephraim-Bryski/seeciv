@@ -311,7 +311,7 @@ function calc(SoEs,start_idx,end_idx){
         }
         
 
-        if (solve_steps !== undefined){
+        if (solve_line){
             SoEs[SoE_i].eqns[line_i].solve_steps = solve_steps   
         }
 
@@ -435,8 +435,6 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
     var all_eqns = []
     var var_row = table[0]
 
-    let solve_steps
-
     const error_msgs = []
 
     for (let i=1;i<table.length;i++){
@@ -477,7 +475,12 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
             if (for_solving){
                 const stuff = solve_eqns(eqns_subbed)
                 eqns_subbed = stuff[0]
+<<<<<<< HEAD
                 solve_steps = stuff[1]
+=======
+                solve_steps.push(stuff[1]) // amazing code (---:
+                
+>>>>>>> parent of bc46e63c (Merge branch 'main' of https://github.com/Ephraim-Bryski/seeciv)
             }else{
                 eqns_subbed = remove_vars(eqns_subbed,removed_vars)
             }
@@ -508,7 +511,11 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
 
     display_vis(solved_vis_eqns)
 
+<<<<<<< HEAD
     return [all_eqns,table,solve_steps]
+=======
+    return [all_eqns,table, solve_steps]
+>>>>>>> parent of bc46e63c (Merge branch 'main' of https://github.com/Ephraim-Bryski/seeciv)
 
     function transpose(matrix) {
         const rows = matrix.length, cols = matrix[0].length;

@@ -442,15 +442,8 @@ function show_steps(steps){
         return
     }
 
-
-    // stupid firebase removes empty arrays D:
-    if (steps.forward === undefined){
-        steps.forward = []
-    }
-
-    if (steps.back === undefined){
-        steps.back = []
-    }
+    //! for now just showing steps for first row
+    steps = steps[0]
 
 
     
@@ -477,11 +470,6 @@ function show_steps(steps){
 
         all_lines.push(line)
     
-        // same issue with firebase ):<
-        if (step.substitutions === undefined){
-            step.substitutions = []
-        }
-
         step.substitutions.forEach(sub => {
             const sub_line = `${sp(4)} \\text{Subbing} ${sp(2)} ${sub.eqn0} ${arrow} ${sub.eqn_subbed}`
             
@@ -697,11 +685,15 @@ function make_line(eqn){
         table.appendChild(row)
         display_eqns.forEach(arr_row=>{
             var row = document.createElement("tr")
+<<<<<<< HEAD
             if (arr_row instanceof Error){row.innerText = arr_row.message}
             else if(is_solve_line){
                 row.innerText = ""
             }else{
                 arr_row.forEach(eqn=>{
+=======
+            arr_row.forEach(eqn=>{
+>>>>>>> parent of bc46e63c (Merge branch 'main' of https://github.com/Ephraim-Bryski/seeciv)
 
                     var eqn_wrapper = document.createElement("td") // needed since MQ turns the div into a span
                     eqn_wrapper.classList.add("display-eqn-cell")
@@ -1039,14 +1031,19 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
             const editable = i!==0
 
+<<<<<<< HEAD
             //! should only be an array containing an error now
             const contains_error = solve_result instanceof Error || solve_result!== undefined && solve_result[i-1] instanceof Error
             if (i===0 || contains_error || !is_solve_line){
+=======
+            if (i===0 || solve_result instanceof Error || !is_solve_line){
+>>>>>>> parent of bc46e63c (Merge branch 'main' of https://github.com/Ephraim-Bryski/seeciv)
                 solve_output_eqns = []
             }else{
                 solve_output_eqns = solve_result[i-1]
             }
 
+<<<<<<< HEAD
             const new_row = make_row(table_data[i],editable,solve_output_eqns)
 
             if (contains_error){
@@ -1057,6 +1054,9 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                 //new_row.classList.add("input-error")
             }
 			table.appendChild(new_row)
+=======
+			table.appendChild(make_row(table_data[i],editable,solve_output_eqns))
+>>>>>>> parent of bc46e63c (Merge branch 'main' of https://github.com/Ephraim-Bryski/seeciv)
         }
     
 
