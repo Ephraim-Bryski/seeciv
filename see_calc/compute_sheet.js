@@ -146,8 +146,6 @@ function calc(SoEs,start_idx,end_idx){
                     boop
                 }
                 if (ref_eqns instanceof Error){
-                    throw "didnt know this could also happen"
-                }else if (ref_eqns.some(eqn=>{return eqn.error instanceof Error})){    
                     throw new InvalidReference(ref+" has an error")
                 }
     
@@ -264,11 +262,22 @@ function calc(SoEs,start_idx,end_idx){
             const subbed_systems = sub_stuff[0]
             new_table = sub_stuff[1]
             solve_steps = sub_stuff[2]
-<<<<<<< HEAD
-=======
-
->>>>>>> 58854a530029a972d6d60f38f8e70a2739d8a42d
             result = subbed_systems
+            /*
+            var result = []
+            solve_steps = []
+
+            //! really gross duplicate code but i need this to happen before it hits an error so it still shows the table
+            SoEs[SoE_i].eqns[line_i].sub_table = new_table
+
+
+            subbed_systems.forEach(eqns => {
+
+                const stuff = solve_eqns(eqns)
+                result.push(stuff[0])
+                solve_steps.push(stuff[1])
+            })
+            */
 
             
         }else{
@@ -302,7 +311,7 @@ function calc(SoEs,start_idx,end_idx){
         }
         
 
-        if (solve_steps !== undefined){
+        if (solve_line){
             SoEs[SoE_i].eqns[line_i].solve_steps = solve_steps   
         }
 
@@ -427,8 +436,6 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
     var var_row = table[0]
     const solve_steps = []
 
-    let solve_steps
-
     const error_msgs = []
 
     for (let i=1;i<table.length;i++){
@@ -469,24 +476,17 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
             if (for_solving){
                 const stuff = solve_eqns(eqns_subbed)
                 eqns_subbed = stuff[0]
-<<<<<<< HEAD
                 solve_steps.push(stuff[1]) // amazing code (---:
                 
-=======
-                solve_steps = stuff[1]
->>>>>>> 58854a530029a972d6d60f38f8e70a2739d8a42d
             }else{
                 eqns_subbed = remove_vars(eqns_subbed,removed_vars)
             }
     
         }catch(error){
-            //ERROR needs to store which cells are outputs
             solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, CantSolveError]
             if (solve_error_types.some((type) => {return error instanceof type})){
-                const row_output_idxs = output_solve_idxs.filter((idx)=> {return idx[0] === i}).map((idx) => {return idx[1]})
-
+            
                 eqns_subbed = error
-                eqns_subbed = {error:error,output_idxs: row_output_idxs}
             }else{
                 throw error 
             }
@@ -499,7 +499,7 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
     }
 
     const solved_vis_eqns = all_eqns.flat().filter(eqn => {
-        if (eqn.error !== undefined){return false}
+        if (eqn instanceof Error){return false}
         const is_vis = eqn.includes("VISUAL")
         const all_subbed = get_all_vars(eqn).length === 0
 
@@ -508,11 +508,7 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
 
     display_vis(solved_vis_eqns)
 
-<<<<<<< HEAD
     return [all_eqns,table, solve_steps]
-=======
-    return [all_eqns,table,solve_steps]
->>>>>>> 58854a530029a972d6d60f38f8e70a2739d8a42d
 
     function transpose(matrix) {
         const rows = matrix.length, cols = matrix[0].length;
