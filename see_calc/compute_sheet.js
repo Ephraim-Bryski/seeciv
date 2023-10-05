@@ -421,7 +421,6 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
     // perform substitutions:
     var all_eqns = []
     var var_row = table[0]
-    const solve_steps = []
 
     let solve_steps
 
