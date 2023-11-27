@@ -371,7 +371,7 @@ function is_fraction(term){
 
 function eqn_to_tree(eqn){
 
-
+    eqn = eqn.replaceAll(" ","")
 
     const eqn_sides = eqn.split("=")
 

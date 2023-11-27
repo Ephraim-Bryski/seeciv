@@ -1,69 +1,6 @@
-
-
-
-function add_text(all_names, container){
-    container.innerText = all_names[all_names.length-1]
+function is_folder(content){
+    return Object.keys(content).includes('children')
 }
-
-function something_cool(all_names, container){
-    const btn = document.createElement("button")
-    btn.onclick = ()=>{console.log(`${all_names} cool :)`)}
-
-    btn.innerText = all_names.join("|")
-
-    container.appendChild(btn)
-}
-
-
-function create_firebase_callback(path, container){
-    
-}
-
-
-const SAMPLE_trees = 
-[
-    {
-        name: "a",
-        children: [
-            
-            {
-                name: "a1",
-                children: [
-                    {
-                        name: "a boop",
-                        blocks: [
-
-                        ]
-                    }
-                ]
-            },
-            {
-                name: "a2",
-                children: [
-                    {name: "a bop"}
-                ]
-            }
-        ]
-    },
-    {
-        name: "b",
-        children: [
-            {
-                name: "b1",
-                children: [
-                    {name: "b boop"}
-                ]
-            },
-            {
-                name: "b2",
-                children: [
-                    {name: "b bop"}
-                ]
-            }
-        ]
-    }
-]
-
 
 
 function get_folder_content(path, trees){
@@ -111,6 +48,7 @@ function save_folder(trees, directory,folder_name ){
 
 function save_content(trees, directory, content, allow_overwrite = false){
     
+
     if (typeof content !== "object"){
         throw "content must be an object"
     }
@@ -129,26 +67,49 @@ function save_content(trees, directory, content, allow_overwrite = false){
     const content_idx = other_names.indexOf(content.name)
 
 
+
     if (content_idx === -1){
         siblings.push(content)
-    }else{
-        if (!allow_overwrite){
-            throw `${content.name} already a name in the directory`
-        }
-        siblings[content_idx] = content
+        return
     }
+
+
+
+    const competing_content = siblings[content_idx]
+
+    const is_conflict = is_folder(content) === is_folder(competing_content)
+
+    
+    if (!is_conflict){
+        siblings.push(content)
+        return
+    }
+
+
+    if (!allow_overwrite){
+        let content_type
+        if (is_folder(content)){content_type = "folder"}
+        else{content_type = "sheet"}
+        throw `${content.name} already a ${content_type} in the directory`
+    }
+
+    siblings[content_idx] = content
+
 
     
 }
 
 
-function delete_content(trees, directory, content_name){
+
+function delete_content(trees, directory, content_name, should_delete_folder = false){
 
     // could be either a folder or content
 
     const old_siblings = get_folder_content(directory, trees)
     
-    const contents = old_siblings.filter(sibling => {return   sibling.name === content_name})
+    const all_contents = old_siblings.filter(sibling => {return   sibling.name === content_name})
+
+    const contents = all_contents.filter(content => {return is_folder(content) === should_delete_folder})
 
     if (contents.length === 0){
         throw `${content_name} not in directory`
@@ -208,13 +169,23 @@ function create_UI_tree_list(trees, item_function, past_names = undefined) {
         all_names.push(subname)
 
 
+        if (tree.children === undefined){
+            
+            const item_container = document.createElement("div")
+
+            item_function(all_names, item_container)
+
+            container.appendChild(item_container)
+
+            continue
+        }
 
         // Create the arrow button
         const arrowButton = document.createElement('button');
         arrowButton.innerText = '▶';
 
         // Add CSS class to the button
-        arrowButton.classList.add('arrow-button');
+        arrowButton.classList.add('library-arrow-button');
 
         // Create the text element
         const textElement = document.createElement('span');

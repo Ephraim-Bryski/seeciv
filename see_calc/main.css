@@ -21,11 +21,6 @@ body{
 
 
 
-
-.BOPglowscript-canvas-wrapper{
-    pointer-events: none;
-}
-
 #calc{
     position: absolute;
     top:5%;
@@ -47,11 +42,12 @@ body{
 #popup{
     /* general window for variable tracking, showing steps, library etc. */
     position:absolute;
-    right:3%;
-    top:7%;
+    right:0%;
+    height: 100%;
+    
     z-index: 2;
     background-color: white;
-    border-radius: 5px;
+    
     padding-left: 10px;
 }
 
@@ -92,6 +88,61 @@ body{
 
 .search-sel{
     background-color: lightgray;
+}
+
+
+.library-arrow-button{
+    background-color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.library-load-btn {
+
+        
+        font-weight: bold;
+        color: #333; /* Initial text color */
+    
+        /* Transition for a smooth color change */
+        transition: color 0.3s ease-in-out;
+        border:none;
+        background-color: white;
+}    
+.library-load-btn:hover {
+    color: lightblue; /* Color on hover */
+    cursor: pointer;
+}
+
+.check-delete-btn {
+    display: inline-block;
+   
+    cursor: pointer;
+    color: #ffffff;
+    background-color: #ac1515e6;
+    border:none;
+    border-radius: 2px; /* Adjust the radius to control the level of rounding */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Adjust the values for the desired 3D effect */
+    transition: background-color 0.3s ease-in-out;
+    padding-top:2px;
+    padding-bottom: 2px;
+    padding-left: 6px;
+    padding-right: 6px;
+    margin: 5px;
+    font-weight: bold;
+
+  }
+  
+.check-delete-btn:hover {
+    background-color: rgb(154, 15, 15);
+}
+
+
+
+  
+
+.toggle-div {
+    padding-top: 2px;
+    padding-bottom: 7px;
 }
 
 /* #endregion */

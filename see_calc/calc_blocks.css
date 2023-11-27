@@ -92,6 +92,8 @@
 }
 
 .add-remove-btn:hover{
+    transition: color 0.3s ease-in-out;
+
     color:black;
     cursor: pointer;
 }
@@ -111,6 +113,7 @@
 }
 
 .collapse-arrow:hover{
+    transition: color 0.3s ease-in-out;
     border-color:black;
     cursor: pointer;
 }
@@ -250,13 +253,6 @@ single button for running entire sheet instead
 
 */
 
-.load-bar {
-    /* container for run arrows */
-    display: flex;
-    justify-content: flex-end;
-    flex-direction: column;
-    width: 20px;
-}
 
 .run-arrow {
     border-top: calc(0.7*var(--load-sym-size)) solid transparent;
