@@ -1,34 +1,118 @@
+visuals to create
+	hydrualics
+		pipes (network)
+		open channel
+		water waves (probably sine/cnoidal/whatever profile would be built into visual)
+		weirs (discharge of different shapes?)
+	mechanics
+		basically all the stuff from old seeciv 
+		mohr's circle <-- could be very useful
+		3d stress strain (you could fix things like strain in one direction)
+		torsion (and with multiple rods)
+		beam moment shear (distributions would be built into the visual)
+		bending (honestly not that interesting a visual)
+	3bar linkage, already have 
+		could do other mechanisms even 3D
+	planetary gears, maybe even auto transmission
+	statics
+		might need vector primitive to be very useful
+		could have forces on something balanced out
+	geotech/foundations
+		soil properties, could have soil layers visual made of cylinders
+		soil layers stresses
+			would want to have functions, but could use trapezoids
+		soil stress over area from loads
+			would need color plot (more generally subbing an expresion instead of a value)
+		foundations
+			issue is a lot of them are piecewise
+	
+	structural
+		section properties
+
+		beam loading??
+			again would need function
+	
+	physics
+
+		springs and forces and stuff (probably not dynamic)
+
+		projectile motion (would just need sphere primitive)
+
+	water treatment
+
+		size of things like the spinny things
+	
+	numerical analysis??? need to think about that
+
+
+
+stuff that would be useful for it
+	visual color as another input
+	input expressions instead of just values!!!!!!!!
+	sliders, or even play <-- would allow for a lot of dynamics stuff to actually make sense
+	if stat  ements
+		ideally symbolic
+	max and min and/or inequalities <-- need to think about this
+
+		
+
+gonna fix this greek letter and double subscript stuffffffffffffffffff
+
+
+
+maybe only sub default values when solve keyword before visual
+
+
+
+
+
+
+doesn't show visual when loading (need to run it first), options:
+	leave it as is
+	always run the sheet first
+	save the visual equations as well
+
+
+
+
+
+not zooming to full extent
+
+
+
+doesn't show steps if there's an error when solving
+
 stuff to work on before releasing
 
 
-	needs to save the table output
+
+	DEFINITELY only want the output to be blank on a solve error 
+		prevents losing your input
+		some variables keep their values --> need to figure that out 
+
+
+	solve error should stay open
+		not sure if i should keep the arrow to toggle
+		may depend on if i have errors for subbing, so will come back to this
+
+		
+	get rid of extra parentheses for subbing
+		need to think about whether im simplifying when subbing
+		probably do NOT want to simply on just eqn input cause i want to remove output for them
+
 
 	bugs
-		is nan being treated as a variable????????????????????? D:< fuck javascript
-		check for NaN before passing into glowscript
-		if there's an error, it still displays the visuals prior to the error
-		the show steps final evaluate aren't latex
-
-		output display equation still including unnecesary parentheses D: <-- because it was never converted into tree, just subbed
-
-
 
 	zoom back to home
 
 	accounts/library
 
-		make library not super ugly
 
-		ui for creating accounts, logging in etc
-		save sheet in current locations with new data
-		renaming sheet?
 
 		Option to either add blocks to sheet or replace
-		Option to clear sheet
 
 
 	solver
-		cannot solve system versus too much unknown???? <-- makes sense, cant solve means ended up with a system for which it couldn't solve for any variables
 
 		tests with remove vars too?
 
@@ -75,8 +159,6 @@ Solving Superficial stuff to add/change
 
 	making pi a numeric constant
 
-	show all of the error messages and highlight the rows for sub table
-
 
 Future not very important stuff
 
@@ -89,9 +171,6 @@ Future not very important stuff
 	Draggable blocks
 
 
-
-
-
-loading a sheet has to have a callback to update the variable tracker
+	loading a sheet has to have a callback to update the variable tracker
 
 	

@@ -166,7 +166,6 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
     const trees_counts = trees_info.map(info => {return info[1]})
     const tree_idxs = trees.map((_, idx) => {return idx})   // this shouldnt be mutated, only read (just for convenience)
     
-    const numeric_trees = []    // only relevant if to_solve_system is true // TODO change this name
     const ordered_sub = []  // again only relevant for solving the system
     
     const solution_steps = []
@@ -195,11 +194,6 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
             return Object.keys(trees_counts[idx]).includes(solution.solve_var) && trees[idx] !== null
         })
     
-
-        // this is only relevant for solving system (not removing variables)
-        // not necessary but it's fine
-        // TODO might need to include product branches for forward solving
-
         const solution_expression = tree_to_expression(solution.sol)
 
 
@@ -231,14 +225,11 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
 
     const solved_vis_SoEs = vis_SoEs.filter(eqn => {return get_all_vars(eqn).length === 0})
 
-    display_vis(solved_vis_SoEs)
+    // display_vis(solved_vis_SoEs)
+    equation_visuals.push(solved_vis_SoEs)
 
     // THIS is where it throws an error that it can't solve
 
-    if (!to_solve_system && numeric_trees.length !== 0){
-        throw "this shouldnt happen, should only add to to_solve_system if solving system"
-    }
-    
     const remaining_trees = trees.filter(tree => {return tree !== null}).concat(vis_SoEs)
     const branching_trees = remaining_trees.filter(tree => {
         return tree.op === "*"
@@ -408,7 +399,7 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
 
                     const has_single_var = Object.keys(trees_counts[tree_idx]).length === 1
                     if (e instanceof CantSymbolicSolve && has_single_var){
-                        sol_tree = OLD_numeric_solve(expression).sol
+                        sol_tree = OLD_numeric_solve(expression)
                     }else if (e instanceof CantSymbolicSolve){
                         continue
                     }else if(e instanceof VariableEliminatedError){
@@ -566,7 +557,7 @@ function OLD_numeric_solve(exp_ltx){
     for (let guess of guesses){
         try{
             const solution = newton_raphson(exp,solve_var,guess)
-            return {solve_var: solve_var, sol: solution}         // TODO doesn't need to output the solveVar
+            return solution        
         }catch (e){
             if (e instanceof NumericSolveError || e instanceof EvaluateError){
                 continue
@@ -720,7 +711,7 @@ function numeric_solve(exp_ltx){
         throw "nothing found"
     }
 
-    return {solve_var: solve_var, sol: num_to_string(root)}
+    return num_to_string(root)
   
 
 }
@@ -791,8 +782,9 @@ function forward_solve(ordered_sub){
 
         const solution_step = {}
 
+        const ltx_expression = tree_to_expression(eqn_to_tree(sub.sol),true)
 
-        solution_step.eqn = `${sub.solve_var}=${sub.sol}`
+        solution_step.eqn = `${sub.solve_var}=${ltx_expression}`
 
 
         try{

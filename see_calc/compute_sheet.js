@@ -161,13 +161,12 @@ function calc(SoEs,start_idx,end_idx){
         */
 
         if (line === ""){
-            throw new FormatError("line cannot be blank")
+            throw new FormatError("Line cannot be blank")
         }
 
         line = line.replaceAll("\\ ","")
 
         var vis_vars = []
-        match_vis_blocks = vis_blocks.filter((vis_block)=>{return vis_block["name"]===line})
 
     
         var new_table = undefined // removes table unless there is a substitution (removes if obsolete)
@@ -193,11 +192,13 @@ function calc(SoEs,start_idx,end_idx){
 
         line = line.replaceAll(solve_txt,"")
 
+        const match_vis_blocks = vis_blocks.filter((vis_block)=>{return vis_block["name"]===line})
+
     
         let solve_steps
         if (line.length===0){
             if(solve_line){
-                throw new FormatError("solve must be followed by block name")
+                throw new FormatError("Solve must be followed by block name")
             }
         }else if(!(/^\w+$/.test(line))){    // checks if not alphanumeric (also allows underscores)
 
@@ -210,7 +211,7 @@ function calc(SoEs,start_idx,end_idx){
             }else if (eqn_split.some((exp)=>{return exp.length==0})){
                 throw new FormatError("Terms on both side of equal sign required")
             }else if(get_all_vars(line).includes(block_name)){
-                throw new FormatError("cannot have the name of the block as a variable")
+                throw new FormatError("Cannot have the name of the block as a variable")
             }else{
                 
                 var line_math = ltx_to_math(line) // before getallvars so it catches 3a=4 (issue with invalid variable, not no variables!)
@@ -337,9 +338,9 @@ function find_vis_name(eqn) {
 
 
 function display_vis(vis_eqns){
-
+    
     resetGS()
-
+    
     vis_eqns.forEach(eqn=>{
         const vis_name = find_vis_name(eqn)
 
@@ -361,6 +362,9 @@ function display_vis(vis_eqns){
         vis_vars.forEach((_,i)=>{
             const vis_var = vis_vars[i]
             const vis_exp = vis_exps[i]
+            if (vis_exp.includes("NaN")){
+                throw "shouldnt have nan"
+            }
             try{
                 var vis_val = math.evaluate(vis_exp)
             }catch{
@@ -368,7 +372,6 @@ function display_vis(vis_eqns){
             }                
             vis_input[vis_var] = vis_val
         })
-        
 
         sel_vis.vis(vis_input)
 
@@ -380,8 +383,6 @@ function display_vis(vis_eqns){
 
 function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals = undefined){
     // takes the new eqns and the current table, replaces the columns to match the variables in the new eqns, then performs substitutions
-
-
 
 
     let output_solve_idxs
@@ -397,16 +398,15 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
         var n_col = old_table_data.length
     }
 
+
+    if (!for_solving){
+        output_solve_idxs = []
+    }
+
+
     let new_vars = get_all_vars(eqns)
 
-    /*
-    if (default_vis_vals === undefined){
-        new_vars = get_all_vars(eqns)
-    }else{
-        new_vars = Object.keys(default_vis_vals)
-    }
-    */
-    
+
 
     var new_trans_table = []
 
@@ -448,6 +448,7 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
         const sub_in = []
         const sub_out = []
 
+
         for (let j=0;j<sub_row.length;j++){
 
 
@@ -458,9 +459,9 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
 
 
             vis_sub = true
-            if (sub_row[j].includes("=")){
-                throw new FormatError("cannot subsitute an equation")
-            }
+
+
+
             if (sub_row[j] === ""){
                 removed_vars.push(var_row[j])
                 vis_sub = false
@@ -470,9 +471,20 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
             }
         }
 
-        //SOLVE check if sub_out has variables if it's for solving
         eqns_subbed = eqns_subbed.map(eqn => {return sub_all_vars(eqn, sub_in, sub_out)})
-        try{
+        try{    
+
+            if (sub_row.some(cell => {return cell.includes("=")})){
+                throw new FormatError("cannot substitute an equation")
+            }
+
+            if (for_solving && sub_row.some(cell => {return isNaN(cell)})){
+                throw new FormatError("cannot substitute a variable when solving")
+            }
+
+
+
+
             if (for_solving){
                 const stuff = solve_eqns(eqns_subbed)
                 eqns_subbed = stuff[0]
@@ -483,10 +495,12 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
             }
     
         }catch(error){
-            solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, CantSolveError]
+            solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, CantSolveError, FormatError]
             if (solve_error_types.some((type) => {return error instanceof type})){
             
-                eqns_subbed = error
+                let col_idxs = output_solve_idxs.map(row_col => {return row_col[1]})
+
+                eqns_subbed = {error: error, output_idxs: col_idxs}
             }else{
                 throw error 
             }
@@ -499,14 +513,15 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
     }
 
     const solved_vis_eqns = all_eqns.flat().filter(eqn => {
-        if (eqn instanceof Error){return false}
+        if (eqn.error instanceof Error){return false}
         const is_vis = eqn.includes("VISUAL")
         const all_subbed = get_all_vars(eqn).length === 0
 
         return is_vis && all_subbed
     })
 
-    display_vis(solved_vis_eqns)
+    // display_vis(solved_vis_eqns)
+    equation_visuals.push(solved_vis_eqns)
 
     return [all_eqns,table, solve_steps]
 

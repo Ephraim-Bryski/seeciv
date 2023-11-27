@@ -5,6 +5,10 @@
 
 function ltx_to_math(ltx_eqn){
 
+	if (ltx_eqn.indexOf("_{") !== -1){
+		// TODO allow this
+		throw new FormatError("Currently not allowing subscripts with multiple characters")
+	}
 
 	let eqn = ltx_eqn 
 

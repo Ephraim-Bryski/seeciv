@@ -3,6 +3,8 @@
 var MQ = MathQuill.getInterface(2);
 
 
+CURRENT_USER = null
+
 function removeUndefined(obj) {
     if (Array.isArray(obj)) {
       for (let i = 0; i < obj.length; i++) {
@@ -22,7 +24,7 @@ function removeUndefined(obj) {
         }
       }
     }
-  }
+}
   
 
 var SoEs= [
@@ -30,8 +32,8 @@ var SoEs= [
         name:"System",
         info: "hi",
         eqns: [
-        {input: "(a+1)*a=4"},
-        {input: "b=c"}
+        {input: "(a+1)\\cdot a=4"},
+        {input: "Box"}
 
         ]
     },
@@ -40,18 +42,29 @@ var SoEs= [
     {
         name:"Sol",
         eqns: [
-        {input: "System"},
+        {input: "solve System"},
                
         ]
     }
 
 ]
 
+const equation_visuals = []
+
+function clear_equation_visuals(){
+    while (equation_visuals.length > 0){
+        equation_visuals.pop()
+    }
+}
+
 function send_sheet(sheet,start_idx,end_idx){
     // start is inclusive, end is exclusive (1 to 2 means just 1)
     if (end_idx<=start_idx){return}
+    clear_equation_visuals()
     const new_SoEs = calc(sheet,start_idx,end_idx)
     data2DOM(new_SoEs)
+    display_vis(equation_visuals.flat())
+
 }
 
 function run_sheet(){
@@ -64,19 +77,38 @@ function run_sheet(){
 }
 
 
+
+function resetGS(){
+    var reached_coord_labels = false
+    scene.objects.forEach(obj=>{
+        // this code would prevent it from removing the axes:
+        /*
+        if (obj.constructor.name==="label"){
+            reached_coord_labels = true
+            return
+        }
+        if (!reached_coord_labels){return}
+        */
+        obj.visible=false
+    })
+
+}
+
+
 data2DOM(SoEs)  // performed without calculations
 var start_run_idx
 var end_run_idx
 
 const scene = setUpGS("vis")
 
-
+box({size:vec(2,0.5,1)})
 
 
 document.addEventListener('keyup', (e)=>{
     if (e.code==="Enter"){
         var in_field=document.activeElement
         if (e.ctrlKey){
+            // resetGS()
             run_sheet()
         }else if(in_field.tagName=="TEXTAREA"){
             add_line(in_field)
@@ -107,21 +139,32 @@ const database = firebase.database().ref();
 
 const auth = firebase.auth()
 
+function clear_sheet(){
+    $(".calc-row").remove()
+    document.body.appendChild(make_block_row())
+    window.location.hash = ""
+
+}
+
 //const save_btn = document.getElementById("save-btn")
 function save_sheet(){
 
-    const url = window.location.hash
+    // const url = window.location.hash
 
+    
 
-    const path_list = url.replaceAll("#","").split(".")
+    // const path_list = url.replaceAll("#","").split(".")
 
-    const folder_path = path_list.slice(0,path_list.length-1).join("/")
-
-    const full_path = path_list.join(".")
+    // const folder_path = path_list.slice(0,path_list.length-1).join("/")
 
 
     const sheet_name = document.getElementById("save-field").value
 
+
+    // const sheet_name_target = all_names.join(".").replaceAll(" ","-")
+
+
+    
     const is_alphanumeric =  /^[a-zA-Z0-9\s]+$/.test(sheet_name)
 
     if (!is_alphanumeric){
@@ -129,88 +172,172 @@ function save_sheet(){
         return
     }
 
+
+    write_url(CURRENT_USER, [sheet_name])
+
+
     const blocks = JSON.parse(JSON.stringify((DOM2data())))
     const solved_blocks = calc(blocks,0,blocks.length)
-    const sheet_data = {name: sheet_name, blocks: solved_blocks}
-
-
     
+    const sanitized_solved_blocks = replace_errors_with_messages(solved_blocks)
+    
+
+    const sheet_data = {name: sheet_name, blocks: sanitized_solved_blocks}
+    
+
+    //! for now always saving into top folder
+    // save_content(firebase_data, "", sheet_data, true)
+    
+    save_content(get_firebase_data(CURRENT_USER), "", sheet_data, true)
+
     // delete_content(firebase_data,dir, old_sheet_name)
-    save_content(firebase_data, folder_path, sheet_data, true)
+    // save_content(firebase_data, folder_path, sheet_data, true)
 
-    
-    window.location.hash = full_path
-    send_to_url()
+    // window.location.hash = full_path
+    // send_to_url()
 
     database.set(firebase_data)    
 }
 
 
-//sign_in("ebryski1@gmail.com", "boopbop")
+function log_in(){
+    // TODO check if already account
+        // need to figure out registering vs logging in 
 
 
-function sign_out(){
-    auth.signOut()
-    save_btn.style.display = "none"
+    
+    const logged_in_user = document.getElementById("username").value
+
+    const is_alphanumeric =  /^[a-zA-Z0-9\s]+$/.test(logged_in_user)
+
+    if (!is_alphanumeric){
+        alert("username must only contain letters and numbers") 
+        return
+    }
+
+
+    CURRENT_USER = logged_in_user
+
+    const all_users = Object.keys(firebase_data.Users)
+
+    const already_a_user = all_users.some(user => {return user == logged_in_user})
+
+    if (!already_a_user){
+        firebase_data.Users[logged_in_user] = ["blank"] // cause stupid firebase doesn't understand empty arrays
+    }
+
+
+
+    document.getElementById("logged_in").style.display = "block";
+    document.getElementById("logged_out").style.display = "none";
+
+    update_library()
+
 }
 
-function sign_in(email, password){
+function log_out(){
+    CURRENT_USER = null
 
+    
+    document.getElementById("logged_out").style.display = "block";
+    document.getElementById("logged_in").style.display = "none";
 
-    auth.signInWithEmailAndPassword(email, password).then(()=>{
-
-        database.child("users").child(auth.currentUser.uid).on("value", (package)=>{
-            create_fb_callbacks(database, package, false)},
-            (e)=>{throw e} 
-        )
-        
-        save_btn.style.display = "none"
-
-        
-
-    })
+    update_library()
 }
 
 let firebase_data
 
-database.on("value", (package)=>{
-    const data = package.val()
-    firebase_data = data
-    //package_firebase(data)
+function get_firebase_data(owner){
+    if (owner){
+        return firebase_data.Users[owner]
+    }else{
+        return firebase_data.Library
+    }
+}
+
+
+database.on("value", update_library,(e)=>{throw e});
+
+function update_library(package = null){
+
+    if (package !== null){
+        const data = package.val()
+        firebase_data = data //Object.values(data)  
+        send_to_url()
+  
+    }
+    
     const load_btns = [...document.getElementsByClassName("sheet-load-btn")]
     load_btns.forEach((btn)=>{btn.remove()})
+
+    const library_root = document.getElementById("library")
+    const user_content_root = document.getElementById("user-content")
+
+
+    // const library_data = firebase_data.filter(entry => {return !entry.owner})
+    // const user_data = firebase_data.filter(entry => {return entry.owner === CURRENT_USER})
+
+
+    const create_library_buttons = (names, container)=>{create_sheet_buttons(names, container, null)}
+    const create_user_buttons = (names, container)=>{create_sheet_buttons(names, container, CURRENT_USER)}
+
+    let user_data
+    if (!firebase_data.Users || !firebase_data.Users[CURRENT_USER]){
+        user_data = []
+    }else{
+        user_data = firebase_data.Users[CURRENT_USER]
+    }
+
+    replace_UI_tree(firebase_data.Library, library_root, create_library_buttons)
+    replace_UI_tree(user_data, user_content_root, create_user_buttons)
+
     
-    var root = document.getElementById("library")
-
-
-
-    replace_UI_tree(data, root, create_sheet_buttons)
-
-    send_to_url()
-
-},
-(e)=>{
-    throw e} 
-);
-
-
+}
 
 test_folder_name = "Tests"
 
 function add_to_test(sheet_names){
 
     sheet_names.forEach(name => {
-        move_content(firebase_data, "",test_folder_name, name)
+        move_content(firebase_data.Library, "",test_folder_name, name)
     })    
 }
 
+
+function write_url(owner, path_split){
+
+    //URL add folder, need to join with periods
+
+    let username_path
+    if (owner){
+        username_path = `${owner}|`
+    }else{
+        username_path = ""
+    }
+    const target = `${username_path}${path_split.join(".").replaceAll(" ","-")}`
+
+    window.location.hash = target;
+
+}
 
 function send_to_url(){
 
     const target = window.location.hash.substring(1);
     if (!target) {return}
-    const all_names = target.replaceAll("-"," ").split(".")
-    update_sheet(all_names);
+    const stuff = target.split("|")
+
+    let owner, content_target
+    if (stuff.length === 1){
+        owner = null
+        content_target = stuff[0]
+    }else if (stuff.length === 2){
+        owner = stuff[0]
+        content_target = stuff[1]
+    }else{
+        throw "should only have one pipe in the url"
+    }
+    const split_path = content_target.replaceAll("-"," ").split(".")
+    load_sheet(split_path, owner);
     
 
 
@@ -218,7 +345,6 @@ function send_to_url(){
 
 
 
-// Event listener for hashchange
 window.addEventListener('hashchange', send_to_url);
 
 
@@ -227,37 +353,58 @@ function create_unknown_page(){
     document.body.style.display = "none"
 }
 
-function update_sheet(all_names){
+function load_sheet(all_names, owner){
 
-    const target = all_names.join(".").replaceAll(" ","-")
-
-    const sheet_name = all_names[all_names.length -1]
+    const sheet_name = all_names[all_names. length-1]
     
     const path = all_names.slice(0,all_names.length-1).join("/") 
 
+
     let folder_content
     try{
-        folder_content = get_folder_content(path, firebase_data)
+        folder_content = get_folder_content(path, get_firebase_data(owner))
     }catch (e){
         if (typeof e === "string"){
             create_unknown_page()
             return
+        }else{
+            throw e
         }
     }
 
-    const possible_sheets = folder_content.filter(sheet => {return sheet.name === sheet_name})
+    const possible_sheets = folder_content.filter(sheet => {
+
+
+        const is_sheet = !sheet.children
+
+        const is_correct_name = sheet.name === sheet_name
+
+        // second check is since old sheets in the library could be undefined instead of null
+        // one undefined and the other null should also match
+        // const is_correct_owner = (sheet.owner === owner) || (!sheet.owner && !owner)
+        
+        return is_sheet && is_correct_name // && is_correct_owner
+    })
 
     if (possible_sheets.length === 0){
         create_unknown_page()
         return
     }
 
-    const sheet_data = possible_sheets[0].blocks
+    if (possible_sheets.length > 1){
+        throw "check whats going on, there should only be one sheet"
+    }
+
+    const sanitezed_sheet_data = possible_sheets[0].blocks
+
+    const sheet_data = replace_messages_with_errors(sanitezed_sheet_data)
 
 
-    window.location.hash = target;
+
+    resetGS()    
 
     document.getElementById("save-field").value=sheet_name
+    // TODO right now im never setting loaded
     if (document.body.loaded){
         send_sheet(sheet_data,0,sheet_data.length)
     }else{
@@ -269,31 +416,89 @@ function update_sheet(all_names){
 }
 
 
-function create_sheet_buttons(all_names, container){
-    
+function create_sheet_buttons(all_names, container, owner){
+
+    const sheet_name = all_names[all_names.length-1]
 
     const load_btn = document.createElement("button")
+    load_btn.classList.add("library-load-btn")
 
-    load_btn.innerText = "Load"
+    load_btn.innerText = sheet_name
 
     load_btn.onclick=()=>{
-        update_sheet(all_names)
+        // writing the url will automatically update the sheet
+        write_url(owner, all_names)
+        // load_sheet(all_names, owner)
     }
 
     
     const delete_btn = document.createElement("button")
 
-    delete_btn.innerText = "Delete"
+    delete_btn.classList.add("add-remove-btn")
+    delete_btn.classList.add("ibrary-delete-btn")
+    delete_btn.innerText = "X"
+
+    const really_delete_btn = document.createElement('button')
+    really_delete_btn.innerText = `Delete ${sheet_name}`
+    const cancel_delete_btn = document.createElement('button')
+    cancel_delete_btn.innerText = `Cancel`
+    
+    really_delete_btn.className = 'check-delete-btn'
+    cancel_delete_btn.style.backgroundColor = 'white'
+    cancel_delete_btn.style.border = 'none'
+    cancel_delete_btn.style.fontWeight = 'bold'
+    cancel_delete_btn.style.cursor = 'pointer'
+    cancel_delete_btn.style.color = 'green'
+    
+    // cancel_delete_btn.className = 'check-delete-btn'
+    // cancel_delete_btn.style.backgroundColor = 'green'
+
+
+    really_delete_btn.style.display = 'none'
+    cancel_delete_btn.style.display = 'none'
+
 
     delete_btn.onclick=()=>{
-        
-        delete_content(firebase_data, path,sheet_name)
+
+        load_btn.style.display = 'none'
+        delete_btn.style.display = 'none'
+
+        really_delete_btn.style.display = ''
+        cancel_delete_btn.style.display = ''
+    }
+
+    really_delete_btn.onclick=()=>{
+
+
+        if (sheet_name === window.location.hash.replace("#","")){
+            window.location.hash = ""
+        }
+
+        const all_dir_names = JSON.parse(JSON.stringify(all_names))
+
+        all_dir_names.pop()
+
+        const path = all_dir_names.join("/")
+
+        delete_content(get_firebase_data(owner), path,sheet_name)
         database.set(firebase_data)
         
     }
 
+    cancel_delete_btn.onclick = ()=>{
+        load_btn.style.display = ''
+        delete_btn.style.display = ''
+        really_delete_btn.style.display = 'none'
+        cancel_delete_btn.style.display = 'none'
+    }
+
+
+    container.appendChild(delete_btn)
+
+    container.appendChild(cancel_delete_btn)
+    container.appendChild(really_delete_btn)
+
     container.appendChild(load_btn)
-    // container.appendChild(delete_btn)    just so ppl can't delete it, just temporary
 };
 
 
@@ -438,13 +643,15 @@ function data2DOM(SoEs){
 }
 
 
-function show_steps(steps){
+function show_steps(steps_all_eqns){
 
     // called by data2DOM directly instead
 
-    if (steps === undefined){
+    if (steps_all_eqns === undefined || steps_all_eqns.length === 0){
         return
     }
+
+    const steps = steps_all_eqns[0] // for now just showing steps for the first one
 
 
     // stupid firebase removes empty arrays D:
@@ -467,7 +674,7 @@ function show_steps(steps){
     }
     
     const arrow = " \\ \\  \\Rightarrow \\ \\ "
-    
+
 
 
     steps.back.forEach(step => {
@@ -516,10 +723,6 @@ function show_steps(steps){
     })
 
 
-    
-    // TODO need to use the UI tree list function, but need to somehow add classes to mathquillify it
-    //const dom_solve_steps = createToggleContainer(solve_texts, sub_texts)
-    //$("#solve-steps")[0].appendChild(dom_solve_steps)
 
     
 }
@@ -660,11 +863,19 @@ function make_line(eqn){
 
     const is_solve_line = eqn.input.includes("\\operatorname{solve}")
 
+    const is_error = display_eqns instanceof Error
+
+
+    // Trying to not have the output arrows if there's an error for tabular solve
+    // not doing that for now though:
+
+    // const has_tabular_error = Array.isArray(eqn) && display_eqns.some(eqn => {return eqn.error instanceof Error})
+    // const has_error = is_error || has_tabular_error
 
     if(display_eqns === undefined){
         out_field.innerHTML = ""
         show_output = "block"
-    }else if (display_eqns instanceof Error){
+    }else if (is_error){
         out_field.innerHTML = display_eqns  // this occurs only when it's an error or new line
         out_field.classList.add("error-msg")
         in_field.classList.add("input-error")
@@ -703,14 +914,8 @@ function make_line(eqn){
                 row.innerText = ""
             }else{
                 arr_row.forEach(eqn=>{
-
-                    var eqn_wrapper = document.createElement("td") // needed since MQ turns the div into a span
-                    eqn_wrapper.classList.add("display-eqn-cell")
-                    var eqn_field = document.createElement("div")
-                    eqn_field.innerHTML = round_decimals(eqn)
-                    eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
-                    
-                    eqn_wrapper.appendChild(eqn_field)
+                    eqn = format_visual_eqn(eqn)
+                    const eqn_wrapper = wrap_static_MQ(eqn)
                     row.appendChild(eqn_wrapper)
     
                 })
@@ -764,19 +969,57 @@ function make_line(eqn){
 
 }
 
-function round_decimals(expression) {
+function format_visual_eqn(eqn){
+    const parts = eqn.split("|VISUAL")
+    if (parts.length === 1){
+        return eqn
+    }else if(parts.length > 2){
+        throw "should only be split once"
+    }
+    const values = parts[0].split("|")
+    const visual_name = parts[1]
+    const visuals = vis_blocks.filter(block =>{ return block.name === visual_name} )
+
+    if (visuals.length !== 1){
+        throw "should be one match"
+    }
+
+    const visual = visuals[0]
+
+    const visual_vars = Object.keys(visual.vars)
+
+    if (values.length !== visual_vars.length){
+        throw "should be same number of variables and subbed values"
+    }
+
+    const n_vars = visual_vars.length
+
+    let new_text = visual_name+"("
+
+    let i = 0 // cause js doesn't have range ):<
+    while(i<n_vars){
+        new_text += `${visual_vars[i]}=${values[i]},`
+        i++
+    }   
+
+    new_text = new_text.slice(0,-1)+")"
+
+    return new_text
+}
+
+function round_decimals(expression, n_places) {
 
     //const regex = /[0-9]\.[0-9]+/g
     const regex = /\d*\.\d*/g
     return expression.replace(regex, match => {
-        const roundedNumber = parseFloat(match).toFixed(5)
+        const roundedNumber = parseFloat(match).toFixed(n_places)
         return parseFloat(roundedNumber).toString()
     });
 }
 
 
 function make_block_row(SoE){
-    // TODO no longer needed!!!!! (now that im not using a load bar)
+    //! im not creating a load bar any more so i should just make_block directly
     // this is the row of blocks
     // it contains the block and part of the load bar
     var row = document.createElement("div")
@@ -1022,6 +1265,50 @@ function getIndicesOf(searchStr, str) {
 }
 
 
+function replace_errors_with_messages(obj) {
+
+    // used for saving to firebase, since it can't save errors
+    if (obj instanceof Error) {
+        return obj.message;
+    } else if (Array.isArray(obj)) {
+        return obj.map(replace_errors_with_messages);
+    } else if (obj !== null && typeof obj === 'object') {
+        const result = {};
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                result[key] = replace_errors_with_messages(obj[key]);
+            }
+        }
+        return result;
+    }
+    return obj;
+}
+
+function replace_messages_with_errors(obj) {
+
+    // used for saving to firebase, since it can't save errors
+    if (Array.isArray(obj)) {
+        return obj.map(replace_messages_with_errors);
+    } else if (obj !== null && typeof obj === 'object') {
+        const result = {};
+        for (const key in obj) {
+            if (!obj.hasOwnProperty(key)) {continue}
+            
+            if (key === 'error'){
+                if (typeof obj[key] !== 'string'){
+                    throw "errors should always be saved as strings in firebase"
+                }
+                result[key] = new Error(obj[key])
+            }else{
+                result[key] = replace_messages_with_errors(obj[key])
+            }
+        }
+        return result;
+    }
+    return obj;
+}
+
+  
 
 
 
@@ -1057,6 +1344,10 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                 blank_idxs = []
             }
             
+            const fuck_firebase = blank_idxs === undefined
+            if (fuck_firebase){
+                blank_idxs = []
+            }
 
             const new_row = make_row(table_data[i],editable,solve_output_eqns,blank_idxs)
 
@@ -1103,7 +1394,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
             // maybe just keep the backslash instead
 
-            var in_field = document.createElement("div")
+            let in_field = document.createElement("div")
 
             const base_var = base_vars[idx]
 
@@ -1111,9 +1402,6 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
             if (Object.keys(solve_output).includes(base_var)){
 
-                if (cell_val !== ""){
-                    console.log("overwriting data")
-                }
 
                 cell_val = solve_output[base_var]
                 is_output = true
@@ -1123,6 +1411,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
             // cause double negatives are great :)
             if (!not_first_row || is_output){
                 MQ.StaticMath(in_field)
+                
             }else{
 
             
@@ -1138,7 +1427,11 @@ function make_sub_table(table_data, solve_result, is_solve_line){
             }
             
             if (!blank_idxs.includes(idx)){
-                MQ(in_field).latex(cell_val)
+                // round_decimals is actually overkill
+                    // that rounds all numbers in an expression
+                    // i only need to round a single number
+                const rounded_cell_val = round_decimals(cell_val, 3)
+                MQ(in_field).latex(rounded_cell_val)
             }
            
 
@@ -1292,25 +1585,12 @@ function zoom_out(){
 }
 
 function ortho_xy(){
-    scene.forward = vec(0,0,1)
+    scene.forward = vec(0,0,-1)
 }
 
 
 
-function resetGS(){
-    var reached_coord_labels = false
-    scene.objects.forEach(obj=>{
-        // this code would prevent it from removing the axes:
-        /*
-        if (obj.constructor.name==="label"){
-            reached_coord_labels = true
-            return
-        }
-        if (!reached_coord_labels){return}
-        */
-        obj.visible=false
-    })
-}
+
 
 
 function makeCoordShape(coordShapePos=vec(0,0,0),coordShapeScale=1){
@@ -1340,9 +1620,6 @@ function make_tooltip(){
 
 function wrap_static_MQ(eqn, in_table = true){
 
-
-    // TODO call it in output lines for blocks as well
-
     let eqn_wrapper
 
     if (in_table){
@@ -1353,7 +1630,7 @@ function wrap_static_MQ(eqn, in_table = true){
 
     eqn_wrapper.classList.add("display-eqn-cell")
     var eqn_field = document.createElement("div")
-    eqn_field.innerHTML = round_decimals(eqn)
+    eqn_field.innerHTML = round_decimals(eqn, 5)
     eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
     
     eqn_wrapper.appendChild(eqn_field)
@@ -1454,6 +1731,8 @@ document.addEventListener('keyup', (e)=>{
     //search_for_vars()
 
     // dont update if it's not in a line input
+
+    // TODO none of this should be needed
     var input_fields = $(e.target).parents(".line-input")
     if(input_fields.length===0){return}
 
