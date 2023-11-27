@@ -825,9 +825,11 @@ function forward_solve(ordered_sub){
 function get_all_vars(eqns){
 
 
-    // TODO ideally i wouldnt be using this and JUST using the tree functions, but it's fine for now
 
-    
+
+    // TODO ideally i wouldnt be using this and JUST using the tree functions, but it's fine for now
+    // TODO most of this isn't necessary now that i put placeholders for backslashes and underscores, but keeping for now
+    //GREEK don't have this, will replace backslash for greek
     const greek_letters = [
         'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota',
         'Kappa', 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron', 'Pi', 'Rho', 'Sigma', 'Tau',
@@ -837,6 +839,9 @@ function get_all_vars(eqns){
 	]//.filter(letter => {return letter !== "pi"})
 
     if (typeof eqns ==="string"){eqns = [eqns]}
+
+    eqns = eqns.map(add_char_placeholders)
+
     var regex = /\W[a-zA-Z](\w?)+/g
     var vars = []
     eqns.forEach((eqn)=>{
@@ -863,6 +868,8 @@ function get_all_vars(eqns){
     let all_vars = [...new Set(vars.flat())]
 
     all_vars = all_vars.filter(test_var=>{return !test_var.includes("VISUAL")})
+
+    all_vars = all_vars.map(remove_char_placeholders)
     
     return all_vars
 }

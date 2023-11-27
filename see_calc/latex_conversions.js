@@ -1,16 +1,108 @@
 
 
+const space = "SP__"
+
+const back_slash = "BS__"
+
+const open_brace = "OB__"
+const closed_brace = "CB__"
+
+const greek_letters = [
+	'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota',
+	'Kappa', 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron', 'Pi', 'Rho', 'Sigma', 'Tau',
+	'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega', 'alpha', 'beta', 'gamma', 'delta',
+	'epsilon', 'zeta', 'eta', 'theta', 'iota', 'kappa', 'lambda', 'mu', 'nu', 'xi',
+	'omicron', 'pi', 'rho', 'sigma', 'tau', 'upsilon', 'phi', 'chi', 'psi', 'omega'
+	]; // TODO now in three different places............
+
+function add_char_placeholders(eqn){
+
+    
+
+
+    greek_letters.forEach(letter => {
+        const before = "\\"+letter
+
+
+        const boop = before+" "
+        const boop_after = before+space
+        eqn = eqn.replaceAll(boop, boop_after)
+
+
+        const after = back_slash+letter
+        eqn = eqn.replaceAll(before, after)
+
+    })
+
+
+    const eqn_split = eqn.split("")
+
+    for (let i=0;i<eqn_split.length;i++){
+        const char1 = eqn_split[i]
+        const char2 = eqn_split[i+1]
+
+        if (char1 === "_" && char2 === "{"){
+            const open_idx = i+1
+            const closed_idx = find_closed_brace(eqn_split, open_idx)
+            eqn_split[open_idx] = open_brace
+            eqn_split[closed_idx] = closed_brace
+        }
+    }
+
+    eqn = eqn_split.join("")
+    return eqn
+}
+
+
+function find_closed_brace(txt,open_idx){
+    //! basically copying from cas (for brace instead of parentheses), but it's fineeeeeeee
+    if (txt[open_idx]!=="{"){throw "needs to be open brace"}
+
+	var idx = open_idx
+	var level_count = 0
+
+	while (true){
+		idx += 1
+
+		if (idx===txt.length){throw "no closed brace"}
+
+		if (txt[idx]==="{"){
+			level_count+=1
+		}else if(txt[idx]=="}"){
+			level_count-=1
+		}
+
+
+		if(level_count<0){
+			return idx
+		}
+		
+	}
+
+}
+
+function remove_char_placeholders(eqn){
+    eqn = eqn.replaceAll(space," ")
+    eqn = eqn.replaceAll(back_slash,"\\")
+    eqn = eqn.replaceAll(open_brace,"{")
+    eqn = eqn.replaceAll(closed_brace,"}")
+    return eqn
+}
+
+
+
+
+
 
 
 
 function ltx_to_math(ltx_eqn){
 
-	if (ltx_eqn.indexOf("_{") !== -1){
-		// TODO allow this
-		throw new FormatError("Currently not allowing subscripts with multiple characters")
-	}
 
 	let eqn = ltx_eqn 
+
+	//GREEK add placeholders
+	eqn = add_char_placeholders(eqn)
 
 	eqn = eqn.replaceAll(" ","")
 

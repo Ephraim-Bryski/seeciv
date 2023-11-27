@@ -1911,8 +1911,12 @@ function tree_to_eqn(tree, use_ltx = false, parent){
     const expressions = expression_trees.map(tree => {return tree_to_expression(tree, use_ltx)})
 
 
-    return expressions[0] + "=" + expressions[1]
+    let eqn = expressions[0] + "=" + expressions[1]
 
+    //GREEK remove placeholders (can be done even if not use_ltx, it could have come from latex)
+    eqn = remove_char_placeholders(eqn)
+
+    return eqn
 }
 
 function tree_to_expression(tree, use_ltx, parent){

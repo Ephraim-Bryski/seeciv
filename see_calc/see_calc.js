@@ -852,7 +852,6 @@ function make_line(eqn){
 
     in_field.temp_ltx = input // just to store it temporarily cause mq is annoying about 
     //MQ(in_field).latex(input)
-    
     var display_eqns = eqn.result
     var show_output = eqn.show_output
 

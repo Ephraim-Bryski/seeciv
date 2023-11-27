@@ -61,6 +61,15 @@
             "skipFiles": [
                 "https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.js"
             ]
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "liro extra chrome debug",
+            "file": "C:\\Users\\BryskiE\\OneDrive - LiRo Group\\Documents\\My Documents\\Coding\\seeciv\\see_calc\\test.html",
+            "skipFiles": [
+                "https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.js"
+            ]
         }
     ]
 }
