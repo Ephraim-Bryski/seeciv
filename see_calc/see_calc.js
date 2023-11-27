@@ -657,7 +657,8 @@ function make_line(eqn){
     }
     
 
-        
+    const is_solve_line = eqn.input.includes("\\operatorname{solve}")
+
 
     if(display_eqns === undefined){
         out_field.innerHTML = ""
@@ -718,7 +719,6 @@ function make_line(eqn){
         out_field.appendChild(table)
     }
 
-    const is_solve_line = eqn.input.includes("\\operatorname{solve}")
     /*
     let solve_result
     if (is_solve_line){
