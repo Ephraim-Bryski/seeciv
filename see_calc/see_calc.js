@@ -178,11 +178,12 @@ function save_sheet(){
 
     const blocks = JSON.parse(JSON.stringify((DOM2data())))
     const solved_blocks = calc(blocks,0,blocks.length)
+
     
     const sanitized_solved_blocks = replace_errors_with_messages(solved_blocks)
     
 
-    const sheet_data = {name: sheet_name, blocks: sanitized_solved_blocks}
+    const sheet_data = {name: sheet_name, blocks: sanitized_solved_blocks, visuals: equation_visuals}
     
 
     //! for now always saving into top folder
@@ -395,9 +396,11 @@ function load_sheet(all_names, owner){
         throw "check whats going on, there should only be one sheet"
     }
 
-    const sanitezed_sheet_data = possible_sheets[0].blocks
+    const sheet_visuals = possible_sheets[0].visuals
+    
+    const sanitized_sheet_data = possible_sheets[0].blocks
 
-    const sheet_data = replace_messages_with_errors(sanitezed_sheet_data)
+    const sheet_data = replace_messages_with_errors(sanitized_sheet_data)
 
 
 
@@ -410,6 +413,12 @@ function load_sheet(all_names, owner){
     }else{
         //! will not produce a visual right now (would have to run compute_sheet first to get the vis equations), then call use_calc_results
         data2DOM(sheet_data)
+
+        if (sheet_visuals !== undefined){
+            // getting dictionary values cause of stupid firebase ):<
+            display_vis(Object.values(sheet_visuals).flat())
+        }
+        
     }
 
 
