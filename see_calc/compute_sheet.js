@@ -92,7 +92,7 @@ function calc(SoEs,start_idx,end_idx){
                     // SoEs[SoE_i].eqns[line_i].sub_table=undefined
                     SoEs[SoE_i].eqns[line_i].result=error
                 }else{
-                    if (typeof error==="object"){console.log(error.msg)}
+                    if (typeof error==="object"){console.log(error)}
                     throw error
                 }
             }
@@ -235,7 +235,7 @@ function calc(SoEs,start_idx,end_idx){
 
             const vis_block = match_vis_blocks[0]
 
-            const vis_vars = Object.keys(vis_block.vars)
+            const vis_vars = Object.keys(vis_block.vars).map(add_char_placeholders)
             //const default_vals = Object.values(vis_block.vars).map(val=>{return String(val)})
 
             const vis_eqn = vis_vars.map(vis_var=>{
@@ -360,7 +360,7 @@ function display_vis(vis_eqns){
 
         if (vis_vars.length !== vis_exps.length){throw "should be same argument length"}
         vis_vars.forEach((_,i)=>{
-            const vis_var = vis_vars[i]
+            const vis_var = vis_vars[i] // remove placeholders so i can use the original latex 
             const vis_exp = vis_exps[i]
             if (vis_exp.includes("NaN")){
                 throw "shouldnt have nan"
@@ -419,9 +419,10 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
             new_row = Array(n_col).fill("")
             new_row[0] = new_var
         }else if(default_vis_vals !== undefined){
-           const default_val = String(default_vis_vals[new_var])
-           new_row = Array(n_col).fill(default_val)
-           new_row[0] = new_var
+            const cleaned_var = remove_char_placeholders(new_var)
+            const default_val = String(default_vis_vals[cleaned_var])
+            new_row = Array(n_col).fill(default_val)
+            new_row[0] = new_var
         }else{
             new_row=Array(n_col).fill(new_var)
             

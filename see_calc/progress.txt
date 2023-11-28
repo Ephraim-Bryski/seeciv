@@ -1,3 +1,5 @@
+saving the file caused the visual to disappear, couldn't replicate :/
+
 big black region to the right of the library
 
 visuals to create
@@ -57,8 +59,8 @@ stuff that would be useful for it
 	max and min and/or inequalities <-- need to think about this
 
 		
+adding a row to sub tableadds these weird dolar signs
 
-gonna fix this greek letter and double subscript stuffffffffffffffffff
 
 
 

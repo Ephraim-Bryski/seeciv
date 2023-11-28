@@ -27,10 +27,42 @@ window.__context= {glowscript_container: graphDiv}
 let scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: true,userzoom: true,autoscale: true})
 
 
-makeYourGraphics(1,2,0,0,5,0,1,-0.2,0,0.1,0,0)
+vars = {
+    "\\sigma_x": 1,
+    "\\sigma_y": 0,
+    "\\sigma_z": 0,
+    "\\epsilon_x": 0,
+    "\\epsilon_y":0,
+    "\\epsilon_z":0,
+    "\\tau_{xy}":0,
+    "\\tau_{xz}": 0,
+    "\\tau_{yz}": 0,
+    "\\gamma_{xy}": 0,
+    "\\gamma_{xz}": 0,
+    "\\gamma_{yz}": 0
+}
+
+makeYourGraphics(vars)
 // You can also create an array for the text in the text box and refer to it in the changeStageGraphics method
-function makeYourGraphics(stress_xx,stress_yy,stress_zz,stress_xy,stress_xz,stress_yz,strain_xx,strain_yy,strain_zz,strain_xy,strain_xz,strain_yz){
+function makeYourGraphics(inp){
     
+
+    const stress_xx = inp["\\sigma_x"]
+    const stress_yy = inp["\\sigma_y"]
+    const stress_zz = inp["\\sigma_z"]
+
+    const strain_xx = inp["\\epsilon_x"]
+    const strain_yy = inp["\\epsilon_y"]
+    const strain_zz = inp["\\epsilon_z"]
+
+    const stress_xy = inp["\\tau_{xy}"]
+    const stress_xz = inp["\\tau_{xz}"]
+    const stress_yz = inp["\\tau_{yz}"]
+
+    const strain_xy = inp["\\gamma_{xy}"]
+    const strain_xz = inp["\\gamma_{xz}"]
+    const strain_yz = inp["\\gamma_{yz}"]
+
 
     //#region <Create GlowScript graphics and combine in array>
 
@@ -96,7 +128,11 @@ function makeYourGraphics(stress_xx,stress_yy,stress_zz,stress_xy,stress_xz,stre
 
 
 
-    var M=[[stress_xx,stress_xy,stress_xz],[stress_xy,stress_yy,stress_yz],[stress_xz,stress_yz,stress_zz]]
+    var M=[
+        [stress_xx,stress_xy,stress_xz],
+        [stress_xy,stress_yy,stress_yz],
+        [stress_xz,stress_yz,stress_zz]
+    ]
 
     
     const unit =
