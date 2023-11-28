@@ -409,12 +409,14 @@ function load_sheet(all_names, owner){
     document.getElementById("save-field").value=sheet_name
     // TODO right now im never setting loaded
     if (document.body.loaded){
+        throw "should never reach this point"
         send_sheet(sheet_data,0,sheet_data.length)
     }else{
         //! will not produce a visual right now (would have to run compute_sheet first to get the vis equations), then call use_calc_results
         data2DOM(sheet_data)
 
         if (sheet_visuals !== undefined){
+            // checking if undefined just cause of stuff i saved before adding the visuals attribute
             // getting dictionary values cause of stupid firebase ):<
             display_vis(Object.values(sheet_visuals).flat())
         }

@@ -1,4 +1,3 @@
-saving the file caused the visual to disappear, couldn't replicate :/
 
 big black region to the right of the library
 
