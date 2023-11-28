@@ -840,7 +840,6 @@ function get_all_vars(eqns){
 
     if (typeof eqns ==="string"){eqns = [eqns]}
 
-    eqns = eqns.map(add_char_placeholders)
 
     var regex = /\W[a-zA-Z](\w?)+/g
     var vars = []
@@ -869,7 +868,6 @@ function get_all_vars(eqns){
 
     all_vars = all_vars.filter(test_var=>{return !test_var.includes("VISUAL")})
 
-    all_vars = all_vars.map(remove_char_placeholders)
     
     return all_vars
 }

@@ -1913,8 +1913,6 @@ function tree_to_eqn(tree, use_ltx = false, parent){
 
     let eqn = expressions[0] + "=" + expressions[1]
 
-    //GREEK remove placeholders (can be done even if not use_ltx, it could have come from latex)
-    eqn = remove_char_placeholders(eqn)
 
     return eqn
 }

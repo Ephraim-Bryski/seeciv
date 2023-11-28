@@ -568,8 +568,8 @@ function DOM2data(){
         lines.each(function(line_i){
             var eqn_row = $(this)
             data[block_i].display = ""
-            var input=MQ(eqn_row.find(".line-input")[0]).latex()
-
+            const input_raw =MQ(eqn_row.find(".line-input")[0]).latex()
+            var input = add_char_placeholders(input_raw)
             if (input===""){return}
 
             var sub_table = eqn_row.find(".sub-table")[0]
@@ -850,7 +850,7 @@ function make_line(eqn){
     var input = eqn.input
     input = input.replaceAll("\\ ","")
 
-    in_field.temp_ltx = input // just to store it temporarily cause mq is annoying about 
+    in_field.temp_ltx = remove_char_placeholders(input) // just to store it temporarily cause mq is annoying about 
     //MQ(in_field).latex(input)
     var display_eqns = eqn.result
     var show_output = eqn.show_output
@@ -1429,7 +1429,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                 // round_decimals is actually overkill
                     // that rounds all numbers in an expression
                     // i only need to round a single number
-                const rounded_cell_val = round_decimals(cell_val, 3)
+                const rounded_cell_val = remove_char_placeholders( round_decimals(cell_val, 3))
                 MQ(in_field).latex(rounded_cell_val)
             }
            
@@ -1540,7 +1540,8 @@ function get_sub_data(table){
             var cell = cells[j]
             var mq_field = cell.children[0]
             if(!(mq_field.className.includes("mq"))){continue}
-            var ltx = MQ(mq_field).latex()
+            const ltx_raw = MQ(mq_field).latex()
+            var ltx = add_char_placeholders(ltx_raw)
             data[i].push(ltx)
 
             if (i>0 && !([...mq_field.classList].includes("mq-editable-field"))){
@@ -1629,7 +1630,7 @@ function wrap_static_MQ(eqn, in_table = true){
 
     eqn_wrapper.classList.add("display-eqn-cell")
     var eqn_field = document.createElement("div")
-    eqn_field.innerHTML = round_decimals(eqn, 5)
+    eqn_field.innerHTML = remove_char_placeholders(round_decimals(eqn, 5))
     eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
     
     eqn_wrapper.appendChild(eqn_field)
@@ -1656,6 +1657,7 @@ function make_MQ(){
             field.style.display = "block"
         })
 
+        field.innerText = field.innerText
         MQ.StaticMath(field)
 
         outer_fields.forEach((field,idx)=>{
@@ -1668,7 +1670,8 @@ function make_MQ(){
     const in_fields = [...$(".line-input")]
 
     in_fields.forEach(field => {
-        const ltx = field.temp_ltx
+
+        let ltx = field.temp_ltx
         MQ(field).latex(ltx)
     })
 

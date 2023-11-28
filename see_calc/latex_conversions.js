@@ -101,8 +101,6 @@ function ltx_to_math(ltx_eqn){
 
 	let eqn = ltx_eqn 
 
-	//GREEK add placeholders
-	eqn = add_char_placeholders(eqn)
 
 	eqn = eqn.replaceAll(" ","")
 
