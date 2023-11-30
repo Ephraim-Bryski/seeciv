@@ -113,6 +113,13 @@ body{
     cursor: pointer;
 }
 
+.library-load-btn-sel{
+    background-color: lightblue;
+    border:none;
+    font-weight: bold;
+    border-radius: 10px;
+}
+
 .check-delete-btn {
     display: inline-block;
    

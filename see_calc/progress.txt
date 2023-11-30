@@ -47,7 +47,10 @@ visuals to create
 	
 	numerical analysis??? need to think about that
 
+solve lines shouldn't have arrows
+the solve line in a block shouldn't have any effect when referencing it
 
+i honestly might just put a single solve line on the bottom instead
 
 stuff that would be useful for it
 	visual color as another input
@@ -57,8 +60,6 @@ stuff that would be useful for it
 		ideally symbolic
 	max and min and/or inequalities <-- need to think about this
 
-		
-adding a row to sub tableadds these weird dolar signs
 
 
 
@@ -70,18 +71,13 @@ maybe only sub default values when solve keyword before visual
 
 
 
-doesn't show visual when loading (need to run it first), options:
-	leave it as is
-	always run the sheet first
-	save the visual equations as well
 
 
+doesn't load anything when the name is what's currently loaded
+	probably good, but maybe don't highlight on hover then
 
-
-
-not zooming to full extent
-
-
+firebase is becoming reallyyyyyyyyyyy slow D:
+	gets slower and slower over time, not sure if firebase or just loading a new page
 
 doesn't show steps if there's an error when solving
 
@@ -132,7 +128,6 @@ stuff to work on before releasing
 
 
 
-subscript with multiple characters!!!
 
 firebase commands
 	change sheet order in folder
@@ -140,9 +135,6 @@ firebase commands
 plotting would be really nice :D
 
 
-
-Bugs
-	greek followed by nongreek splits
 
 Solver Real stuff
 

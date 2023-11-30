@@ -337,6 +337,83 @@ function find_vis_name(eqn) {
 }
 
 
+
+function get_quad_range(quad_object, dim){
+    
+    const vertex_keys = ["v0","v1","v2","v3"]
+
+    const coords = vertex_keys.map((vertex) => {
+        return quad_object[vertex]["pos"][dim]
+    })
+
+    return [min(coords), max(coords)]
+}
+
+
+function adjust_scale(){
+
+
+    
+    if (scene.objects.length === 0){
+        return
+    }
+    
+    
+    const dim_keys = ["x","y","z"]
+
+    const bounds = {}
+
+    for (object of scene.objects) {
+
+        if (!object.visible){
+            continue
+        }
+
+        for (dim of dim_keys){
+
+            let range
+
+            if (object instanceof quad){
+                range = get_quad_range(object, dim)
+            }else{
+                const min_pos = object.pos[dim] - object.size[dim]/2
+                const max_pos = object.pos[dim] + object.size[dim]/2
+                range =  [min_pos,max_pos]    
+            }
+
+            const new_bounds = range.map((val,idx) => {
+
+                if (bounds[dim] === undefined){
+                    return val
+                }
+
+                let compare_func
+                if (idx == 0){compare_func = min}
+                else {compare_func = max}
+                return compare_func(val, bounds[dim][idx])
+            })
+
+            bounds[dim] = new_bounds
+        }
+    }
+
+    const center = Object.values(bounds).map(bound => {
+        return (bound[1]+bound[0])/2
+    })
+
+    const ranges = Object.values(bounds).map(bound => {
+        return bound[1]-bound[0]
+    })
+    
+    const range = max(ranges)
+
+    scene.center = vec(...center)
+    scene.range = range
+    
+}
+
+
+
 function display_vis(vis_eqns){
     
     resetGS()
@@ -375,8 +452,9 @@ function display_vis(vis_eqns){
 
         sel_vis.vis(vis_input)
 
-
     })
+
+    adjust_scale()
 
     //makeCoordShape()
 }

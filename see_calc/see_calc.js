@@ -429,17 +429,40 @@ function load_sheet(all_names, owner){
 
 function create_sheet_buttons(all_names, container, owner){
 
+
+    const library_btn_class = "library-load-btn"
+    const sel_class = "library-load-btn-sel"
+
     const sheet_name = all_names[all_names.length-1]
 
     const load_btn = document.createElement("button")
-    load_btn.classList.add("library-load-btn")
+    load_btn.classList.add(library_btn_class)
 
     load_btn.innerText = sheet_name
 
     load_btn.onclick=()=>{
         // writing the url will automatically update the sheet
         write_url(owner, all_names)
-        // load_sheet(all_names, owner)
+
+        
+
+        const prev_sel_btns = document.getElementsByClassName(sel_class)
+
+
+        if (prev_sel_btns.length > 1){
+            throw "only one should be selected"
+        }
+
+        if (prev_sel_btns.length === 1){
+            const prev_sel_btn = prev_sel_btns[0]
+            prev_sel_btn.classList.remove(sel_class)
+            prev_sel_btn.classList.add(library_btn_class)
+        }
+        
+        load_btn.classList.remove(library_btn_class)
+        load_btn.classList.add(sel_class)
+
+        
     }
 
     
@@ -1479,7 +1502,6 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 				table.insertBefore(make_row(new_vars,true,[],[]),row.nextSibling)
                 change_start_idx($(e.target).parents(".calc-row").index())
 
-				make_MQ()
 			}
 
 
