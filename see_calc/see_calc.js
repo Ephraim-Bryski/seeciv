@@ -653,6 +653,9 @@ function data2DOM(SoEs){
 
     $(".calc-row").remove()
 
+    
+    console.log(`number of fields: ${[...$(".eqn-field")].length}`)
+
     const main = document.body
 
     for (let i=0;i<SoEs.length;i++){
@@ -679,6 +682,10 @@ function data2DOM(SoEs){
 
 function show_steps(steps_all_eqns){
 
+
+    // clear the solve steps from the previous step
+    $("#solve-steps")[0].innerHTML = ""
+    
     // called by data2DOM directly instead
 
     if (steps_all_eqns === undefined || steps_all_eqns.length === 0){

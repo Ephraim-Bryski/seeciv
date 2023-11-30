@@ -76,9 +76,6 @@ maybe only sub default values when solve keyword before visual
 doesn't load anything when the name is what's currently loaded
 	probably good, but maybe don't highlight on hover then
 
-firebase is becoming reallyyyyyyyyyyy slow D:
-	gets slower and slower over time, not sure if firebase or just loading a new page
-
 doesn't show steps if there's an error when solving
 
 stuff to work on before releasing
