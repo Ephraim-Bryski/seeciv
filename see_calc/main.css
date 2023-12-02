@@ -114,9 +114,10 @@ body{
 }
 
 .library-load-btn-sel{
-    background-color: lightblue;
+    background-color: darkgray;
     border:none;
     font-weight: bold;
+    color:white;
     border-radius: 10px;
 }
 

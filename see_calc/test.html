@@ -31,10 +31,38 @@
 <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>-->
 <script src="mathquill/mathquill.js"></script>
 
-<div id="vis" style="width:100%;height:100%"></div>
+<div id="math" style="width:100px"></div>
 
 
+<script>
+    var MQ = MathQuill.getInterface(2);
+
+    const field = document.getElementById("math")
+    field.boop = 'hi'
+    MQ.MathField(field, {
+        //autoCommands: "sqrt", // to just type instead of backslash
+        autoOperatorNames: "boop",
+        handlers: {edit: function() {
+        
+        return
+        var calc_row = in_field.parentElement.parentElement.parentElement
+        var idx = [].indexOf.call(calc_row.parentNode.children, calc_row);       
+        change_start_idx(idx)
+
+        var row = $(in_field).parents(".line")
 
 
+        var remove_classes = [".collapse-arrow",".error-msg",".display-eqn-cell"]//,".sub-table"]
+
+        remove_classes.forEach((cl)=>{
+            var item = row.find(cl)[0]
+            if (item===undefined){return}
+            item.style.display = "none"
+        })
+
+    }}})   // editing it should change the start_idx for solving
+
+
+</script>
 
 <script src="test.js"></script>

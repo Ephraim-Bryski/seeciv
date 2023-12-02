@@ -2012,7 +2012,7 @@ function tree_to_expression(tree, use_ltx, parent){
         const non_coeffs = terms.filter(term => {return !is_number(term)})
 
         if (coeffs.length > 1){
-            throw "there should only be one coefficient"
+            console.warn("there should only be one coefficient, only OK if tree not simplified")
         }
 
         let rearranged_terms

@@ -756,6 +756,7 @@ function newton_raphson(exp,solve_var,guess){
 
     if (Math.abs(im_comp)>1e-10){throw new NumericSolveError("No real solutions")}
     
+    if (real_comp === Infinity || real_comp === -Infinity){throw new NumericSolveError("Solution is infinite")}
 
     return num_to_string(real_comp)
     
