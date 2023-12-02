@@ -92,12 +92,6 @@ doesn't show steps if there's an error when solving
 
 stuff to work on before releasing
 
-
-	DEFINITELY only want the output to be blank on a solve error 
-		prevents losing your input
-		some variables keep their values --> need to figure that out 
-
-
 	solve error should stay open
 		not sure if i should keep the arrow to toggle
 		may depend on if i have errors for subbing, so will come back to this
