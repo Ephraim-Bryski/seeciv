@@ -1,5 +1,4 @@
 
-
 var MQ = MathQuill.getInterface(2);
 
 
@@ -1637,16 +1636,7 @@ function setUpGS(id){
 }
 
 
-const zoom_factor = 4/5
 
-function zoom_in(){
-    scene.range = zoom_factor*scene.range
-}
-
-
-function zoom_out(){
-    scene.range = 1/zoom_factor*scene.range
-}
 
 function ortho_xy(){
     scene.forward = vec(0,0,-1)
@@ -1654,27 +1644,6 @@ function ortho_xy(){
 
 
 
-
-
-
-function makeCoordShape(coordShapePos=vec(0,0,0),coordShapeScale=1){
-    
-    var coordTextGap=.1
-
-    var xDir=arrow({axis:vec(1,0,0).multiply(coordShapeScale),pos:coordShapePos})
-    var yDir=arrow({axis:vec(0,1,0).multiply(coordShapeScale),pos:coordShapePos})
-    var zDir=arrow({axis:vec(0,0,1).multiply(coordShapeScale),pos:coordShapePos})
-
-
-    var xText=label({text:"x",pos:vec(1+coordTextGap,0,0).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
-    var yText=label({text:"y",pos:vec(0,1+coordTextGap,0).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
-    var zText=label({text:"z",pos:vec(0,0,1+coordTextGap).multiply(coordShapeScale).add(coordShapePos), box: false, opacity: 0})
-
-    var coordShape=[xDir,yDir,zDir,xText,yText,zText]
-    
-    return coordShape
-
-}
 
 function make_tooltip(){
     var tooltip = document.createElement("div")
@@ -2085,4 +2054,213 @@ function switch_popup(sel_child_name,e){
 
     }
 
+}
+
+
+
+function display_vis(vis_eqns){
+    
+    resetGS()
+    
+    vis_eqns.forEach(eqn=>{
+        const vis_name = find_vis_name(eqn)
+
+        const sel_vis_blocks = vis_blocks.filter((block)=>{return block.name === vis_name})
+
+        if (sel_vis_blocks.length !== 1){throw "should have had exactly one vis???"}
+
+        const sel_vis = sel_vis_blocks[0]
+
+
+        const vis_vars = Object.keys(sel_vis.vars)
+        const vis_exps = eqn.split("|")
+        
+        vis_exps.pop()
+
+        const vis_input = {}
+
+        if (vis_vars.length !== vis_exps.length){throw "should be same argument length"}
+        vis_vars.forEach((_,i)=>{
+            const vis_var = vis_vars[i] // remove placeholders so i can use the original latex 
+            const vis_exp = vis_exps[i]
+            if (vis_exp.includes("NaN")){
+                throw "shouldnt have nan"
+            }
+            try{
+                var vis_val = math.evaluate(vis_exp)
+            }catch{
+                throw "could not solve for all values for visual "+vis_name+" shouldnt happen??"
+            }                
+            vis_input[vis_var] = vis_val
+        })
+
+        sel_vis.vis(vis_input)
+
+    })
+
+    adjust_scale()
+
+    draw_coordinate_system()
+    
+    // calling twice to readjust for the coordinate system
+    // need to call it the first time so it knows the proper range when drawing the coordinate system    
+    adjust_scale() 
+    scene.center = vec(0,0,0)
+}
+
+
+function adjust_scale(){
+ 
+    const dim_keys = ["x","y","z"]
+
+    const bounds = {}
+
+    let bounds_set = false
+
+    for (object of scene.objects) {
+
+        if (!object.visible){
+            continue
+        }
+
+        for (dim of dim_keys){
+
+            let range
+
+            if (object instanceof label){
+                break
+            }if (object instanceof quad){
+                range = get_quad_range(object, dim)
+            }else{
+                const min_pos = object.pos[dim] - object.size[dim]/2
+                const max_pos = object.pos[dim] + object.size[dim]/2
+                range =  [min_pos,max_pos]    
+            }
+
+            const new_bounds = range.map((val,idx) => {
+
+                if (bounds[dim] === undefined){
+                    return val
+                }
+
+                let compare_func
+                if (idx == 0){compare_func = min}
+                else {compare_func = max}
+                return compare_func(val, bounds[dim][idx])
+            })
+
+            bounds_set = true
+            bounds[dim] = new_bounds
+        }
+    }
+
+    if (!bounds_set){
+        return
+    }
+
+    const center = Object.values(bounds).map(bound => {
+        return (bound[1]+bound[0])/2
+    })
+
+    const ranges = Object.values(bounds).map(bound => {
+        return bound[1]-bound[0]
+    })
+    
+    const range = max(ranges)
+
+    scene.center = vec(...center)
+    scene.range = range
+    
+}
+
+
+
+function draw_coordinate_system(){
+
+    const scene_range = scene.range
+
+    const tick_sphere_radius = 0.02*scene_range
+    const shaft_width = 0.02*scene_range
+    const head_length = 3*shaft_width // based on glowscript's doc
+
+    const increment = find_increment(scene_range)
+
+    const n_increments = Math.floor(scene_range/increment)
+    
+    for (dim of ["x","y","z"]){
+        make_axis(dim)
+    }
+    
+    
+    function find_increment(scene_range){
+    
+        // TODO make it in increments of 1, 2, or 5
+
+        // screw it just do powers of 10 instead
+        const min_steps = 2
+    
+        const power = Math.floor(Math.log10(scene_range))
+    
+        const boop = 10**power
+    
+        if (scene_range/boop >= min_steps){
+            return boop
+        }else{
+            return boop/10
+        }
+    
+    }
+    
+    function make_axis(dim){
+    
+        // TODO use range
+
+        const tick_shift_dims = {x: 'y', y: 'z', z: 'x'}
+
+        for (let i=1; i<n_increments; i++){
+            const tick_pos = i*increment
+
+            for (sign of [1,-1]){
+
+                const tick_vec = vec(0,0,0)
+                tick_vec[dim] = sign*tick_pos
+                sphere({pos: tick_vec, radius: tick_sphere_radius})
+
+                const label_vec = vec(0,0,0)
+                label_vec[dim] = sign*tick_pos
+                
+                label_vec[tick_shift_dims[dim]] = -0.06*scene_range
+
+                label({'text': sign*tick_pos, 'pos': label_vec, height: 10, box: false, opacity:0})
+            }
+            
+        }
+ 
+        const arrow_extra_factor = 0.2
+        const label_extra_factor = 0.1
+        const arrow_length = scene_range*(2+arrow_extra_factor)
+
+        direction = vec(0, 0, 0)
+        
+        direction[dim] = arrow_length
+    
+        position = vec(0, 0, 0)
+    
+        position[dim] = -arrow_length/2+head_length
+    
+    
+        const coord_arrow = arrow({pos: position, axis: direction, round: true, shaftwidth: shaft_width})
+        // coord_arrow.visible = false
+    
+        const text_position = vec(0, 0, 0)
+    
+        text_position[dim] = arrow_length/2*(1+label_extra_factor)
+    
+        
+        label({text: dim, pos: text_position, box: false, opacity:0})
+        // boop.visible = false
+    
+    
+    }
+    
 }

@@ -2,8 +2,9 @@
 big black region to the right of the library
 
 
+create 404 page (have something see_calc.html but not implemented fully)
 
-
+visual keyword
 
 firebase commands
 	change sheet order in folder
@@ -12,8 +13,7 @@ firebase commands
 make undo and redo work again
 	i think i got rid of it cause getting caught in tracking changes got annoying
 
-	
-disable hover effect on remove line button if it's the first line (both for blocks and sub table)
+	<script src="https://kit.fontawesome.com/9e1305c2e0.js" crossorigin="anonymous"></script>
 
 in showing solve stops, evaluating just jumps to the value simplified instead of showing the initial substitution
 

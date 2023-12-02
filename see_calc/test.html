@@ -1,63 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Login</title>
-    <!-- Include the Google API client library -->
-    <script src="https://apis.google.com/js/api.js"></script>
-    <!-- Include the Google Sign-In API -->
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
-</head>
-<body>
 
-<!-- Add a button to trigger the Google Sign-In -->
-<button onclick="googleSignIn()">Sign in with Google</button>
 
-<!-- Display user's email if successfully signed in -->
-<p id="userEmail"></p>
+<link type="text/css" href="https://www.glowscript.org/css/redmond/2.1/jquery-ui.custom.css" rel="stylesheet" />
+<link type="text/css" href="https://www.glowscript.org/css/ide.css" rel="stylesheet" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
 
-<script>
-// Replace with your own Google API Client ID
-const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
 
-// Load the Google API client library
-gapi.load('client:auth2', initGoogleSignIn);
 
-// Initialize Google Sign-In
-function initGoogleSignIn() {
-    gapi.client.init({
-        'clientId': CLIENT_ID,
-        'scope': 'email',
-    }).then(function() {
-        // Initialize the Google Sign-In API
-        initAuth2();
-    }, function(error) {
-        console.error('Error initializing Google API client:', error);
-    });
-}
 
-// Initialize the Google Sign-In API
-function initAuth2() {
-    gapi.auth2.init({
-        client_id: CLIENT_ID,
-    }).then(function() {
-        console.log('Google API client and Sign-In API initialized successfully');
-    }, function(error) {
-        console.error('Error initializing Google Sign-In API:', error);
-    });
-}
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery-ui.custom.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/glow.3.0.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/RSrun.3.0.min.js"></script>
 
-// Trigger Google Sign-In
-function googleSignIn() {
-    gapi.auth2.getAuthInstance().signIn().then(function(googleUser) {
-        // Get user's email
-        const userEmail = googleUser.getBasicProfile().getEmail();
-        // Display user's email
-        document.getElementById('userEmail').innerText = 'Logged in as: ' + userEmail;
-    });
-}
-</script>
 
-</body>
-</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>  
+
+
+<!-- not needed since its imported in worker, only including it so i can use it in the debugger-->
+
+
+
+<!-- firebase-->
+<script src="https://www.gstatic.com/firebasejs/3.5.2/firebase.js"></script>
+
+<!-- mathquill -->
+<link rel="stylesheet" href="mathquill/mathquill.css"/>
+<!-- interferes with GS and it looks like mathquill doesnt require it (i think as long as it has the other jquery version)-->
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>-->
+<script src="mathquill/mathquill.js"></script>
+
+<div id="vis" style="width:100%;height:100%"></div>
+
+
+
+
+
+<script src="test.js"></script>
