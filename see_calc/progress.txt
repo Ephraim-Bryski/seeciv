@@ -104,7 +104,6 @@ stuff to work on before releasing
 
 	bugs
 
-	zoom back to home
 
 	accounts/library
 		Option to either add blocks to sheet or replace

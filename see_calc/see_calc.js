@@ -1094,6 +1094,11 @@ function make_block(SoE){
 
     var remove_button=document.createElement('button')
     remove_button.onclick=function(event){
+
+        if (($(".block")).length === 1){
+            return
+        }
+
         var button=event.target
         var row=button.parentNode.parentNode.parentNode
         var outer=row.parentNode
