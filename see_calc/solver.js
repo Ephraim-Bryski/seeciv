@@ -398,7 +398,7 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
 
                     const has_single_var = Object.keys(trees_counts[tree_idx]).length === 1
                     if (e instanceof CantSymbolicSolve && has_single_var){
-                        sol_tree = OLD_numeric_solve(expression)
+                        sol_tree = numeric_solve(expression)
                     }else if (e instanceof CantSymbolicSolve){
                         continue
                     }else if(e instanceof VariableEliminatedError){
@@ -541,7 +541,7 @@ function get_intersection(arr1,arr2){
 
 }
 
-function OLD_numeric_solve(exp_ltx){
+function numeric_solve(exp_ltx){
     //exp = exp_ltx
     exp = ltx_to_math(exp_ltx)
     var exp_vars = get_all_vars(exp_ltx)
@@ -640,7 +640,12 @@ function is_real(value){
 
 
 
-function numeric_solve(exp_ltx){
+function NOT_USED_numeric_solve(exp_ltx){
+
+    /*
+    uses bisection instead so things don't shoot off to infinity
+    but has its own issus, can't really remember
+    */
 
     const exp = ltx_to_math(exp_ltx)
     var exp_vars = get_all_vars(exp_ltx)

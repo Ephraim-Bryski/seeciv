@@ -100,6 +100,8 @@ function calc(SoEs,start_idx,end_idx){
     }
 
 
+    GLOBAL_solve_stuff = GLOBAL_solve_stuff+" did stuff :)"
+
     prev_SoEs = SoEs
 
     // vis_eqns are the eqns to visualize, will figure out the visual by the variable names

@@ -1,11 +1,5 @@
 /* #region blocks -- general */
 
-.calc-row {
-    /* large row containing block and arrows */
-    display: grid;
-    grid-template-columns: 0.03fr 0.97fr;
-    grid-gap: 0px;
-}
 
 .block{
     border-style: solid;

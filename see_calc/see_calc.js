@@ -49,6 +49,7 @@ var SoEs= [
 ]
 
 const equation_visuals = []
+var GLOBAL_solve_stuff = null // oh god......
 
 function clear_equation_visuals(){
     while (equation_visuals.length > 0){
@@ -139,8 +140,8 @@ const database = firebase.database().ref();
 const auth = firebase.auth()
 
 function clear_sheet(){
-    $(".calc-row").remove()
-    document.body.appendChild(make_block_row())
+    $(".block").remove()
+    document.body.appendChild(make_block())
     window.location.hash = ""
 
 }
@@ -645,19 +646,24 @@ function DOM2data(){
         }
     })
 
+    // oh god this is awful
+
+    GLOBAL_solve_stuff = $("#solve-field")[0].value
+
+
     return data
 } 
 
 function data2DOM(SoEs){
 
-    $(".calc-row").remove()
+    $(".block").remove()
 
     
     const main = document.body
 
     for (let i=0;i<SoEs.length;i++){
  
-        var row = make_block_row(SoEs[i])
+        var row = make_block(SoEs[i])
 
         if (SoEs[i].show_box == "none"){
             lines = [...row.querySelectorAll(".line")]
@@ -669,6 +675,8 @@ function data2DOM(SoEs){
         }
         main.appendChild(row)
     }
+
+    $("#solve-output")[0].innerText = GLOBAL_solve_stuff
 
     start_run_idx = end_run_idx
     end_run_idx = SoEs.length
@@ -802,7 +810,7 @@ function make_line(eqn){
         var line = $(button).parents(".line")
         var outer = line.parent()
         var n_lines = outer.children(".line").length
-        change_start_idx($(button).parents(".calc-row").index())
+        change_start_idx($(button).parents(".block").index())
 
         outer[0].removeChild(line[0])
         if (n_lines===1){
@@ -1055,26 +1063,14 @@ function round_decimals(expression, n_places) {
 }
 
 
-function make_block_row(SoE){
-    //! im not creating a load bar any more so i should just make_block directly
-    // this is the row of blocks
-    // it contains the block and part of the load bar
-    var row = document.createElement("div")
-    row.classList.add("calc-row")
-    row.appendChild(make_block(SoE))
-
-    return row
-
-}
 
 function add_block(field){
     // called both by the button to add a block and by pressing Enter
     // field could either be the X button or the input field
-    var block=field.parentNode.parentNode
-    var block_row = block.parentNode
-    var main = block_row.parentNode
-    var next_row=block_row.nextElementSibling
-    var new_row=make_block_row()
+    var block= $(field).parents(".block")[0]
+    var main = block.parentNode
+    var next_row = block.nextElementSibling
+    var new_row=make_block()
     main.insertBefore(new_row,next_row)
     //$(new_row).find(".line-input")[0].focus()
 
@@ -1085,11 +1081,42 @@ function add_block(field){
     change_start_idx(idx)
 }
 
+
+function make_solve_block(solve_info){
+
+    solve_info.input
+    solve_info.sub_table
+
+    const block = document.createElement("div")
+    block.classList.add(".block")
+
+
+    var name_field=document.createElement('input')
+    name_field.spellcheck = false
+    name_field.classList.add("block-name-txt")
+    name_field.oninput = (e)=>{
+        
+        name_field.classList.remove("input-error")
+        
+        // TODO figure out where to find the error message
+        // $(name_field).parents(".block").find(".block-error-msg")[0].style.display = "none"
+        
+    }
+
+    name_field.value = "hullo"
+
+    block.appendChild(name_field)
+    
+    return block
+}
+
 function make_block(SoE){
 
     var block=document.createElement('div')
+    
 
     block.className="block"
+
 
     var remove_button=document.createElement('button')
     remove_button.onclick=function(event){
@@ -1098,16 +1125,12 @@ function make_block(SoE){
             return
         }
 
-        var button=event.target
-        var row=button.parentNode.parentNode.parentNode
-        var outer=row.parentNode
+        var outer=block.parentNode
 
-        if (outer.children.length>1){ // one for the name and one for the remaining line
-            var prev_row = row.previousSibling
-            change_start_idx([].indexOf.call(row.parentNode.children, row) )
+        change_start_idx([].indexOf.call(block.parentNode.children, block) )
 
-            outer.removeChild(row)
-        }
+        outer.removeChild(block)
+
     }
     remove_button.innerHTML="X"
     remove_button.className="block-remove"
@@ -1462,7 +1485,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                     if(in_field.parentElement===null){
                         return 
                     }
-                    change_start_idx($(in_field).parents(".calc-row").index())
+                    change_start_idx($(in_field).parents(".block").index())
 
                 }}})
 
@@ -1509,7 +1532,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                     new_vars = base_vars
                 }
 				table.insertBefore(make_row(new_vars,true,[],[]),row.nextSibling)
-                change_start_idx($(e.target).parents(".calc-row").index())
+                change_start_idx($(e.target).parents(".block").index())
 
 			}
 
@@ -1518,7 +1541,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
             remove.classList.add("table-remove")
 			remove.innerText = "X"
 			remove.onclick = (e)=>{
-                change_start_idx($(e.target).parents(".calc-row").index())
+                change_start_idx($(e.target).parents(".block").index())
 
 				if(table.childElementCount>2){
 					row.remove()
@@ -1529,7 +1552,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
             clear.classList.add("table-clear")
 			clear.innerText="-"
 			clear.onclick = (e)=>{
-                change_start_idx($(e.target).parents(".calc-row").index())
+                change_start_idx($(e.target).parents(".block").index())
 
 				var blank = [];base_vars.forEach(()=>{blank.push("")})
 
@@ -1763,22 +1786,7 @@ document.addEventListener('keyup', (e)=>{
     }
 
 
-    //search_for_vars()
 
-    // dont update if it's not in a line input
-
-    // TODO none of this should be needed
-    var input_fields = $(e.target).parents(".line-input")
-    if(input_fields.length===0){return}
-
-    var input_field = MQ(input_fields[0])
-    var input = input_field.latex()
-
-    var output = strip_text(input)
-
-    if (input!==output){
-        input_field.latex(output)
-    }
 })
 
 

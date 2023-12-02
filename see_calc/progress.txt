@@ -7,13 +7,11 @@ what would change
 
 quick stuff to do
 
-	infinity can appear as an output
 	function to change sheet order (not exposed to user for now)
-	making pi a numeric constant
 	visual color as another input
 	input line shouldn't have arrows (i don't think looking at the simplified is useful)
 	Option to either add blocks to sheet or replace
-
+	stupid tiny sub table rectangle
 
 do when moving solving out of line
 
@@ -29,11 +27,12 @@ stuff to do at end
 	fix 404 page
 	undo and redo, i think i got rid of it cause getting caught in tracking changes got annoying
 	block and/or sheet info
-	make sure it looks good for different window sizes!!!!!!!!!!!!!!!!!!!
+	make sure it looks good for different window sizes
 	add fontawesome icons
 	figure out what tooltips to have
 	try to have google sign in
 	improve numeric solver
+	making pi a numeric constant <-- could be harder than it looks....
 
 Harder stuff
 
