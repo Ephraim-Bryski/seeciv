@@ -20,8 +20,7 @@ var prev_SoEs   // this variable is global EVERYWHERE (even outside this script)
 function calc(SoEs,start_idx,end_idx){
 
 
-    // clear the solve steps from the previous step
-    $("#solve-steps")[0].innerHTML = ""
+
 
 
     if (prev_SoEs===undefined && start_idx!==0){
@@ -264,21 +263,7 @@ function calc(SoEs,start_idx,end_idx){
             new_table = sub_stuff[1]
             solve_steps = sub_stuff[2]
             result = subbed_systems
-            /*
-            var result = []
-            solve_steps = []
 
-            //! really gross duplicate code but i need this to happen before it hits an error so it still shows the table
-            SoEs[SoE_i].eqns[line_i].sub_table = new_table
-
-
-            subbed_systems.forEach(eqns => {
-
-                const stuff = solve_eqns(eqns)
-                result.push(stuff[0])
-                solve_steps.push(stuff[1])
-            })
-            */
 
             
         }else{

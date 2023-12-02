@@ -654,8 +654,6 @@ function data2DOM(SoEs){
     $(".calc-row").remove()
 
     
-    console.log(`number of fields: ${[...$(".eqn-field")].length}`)
-
     const main = document.body
 
     for (let i=0;i<SoEs.length;i++){
@@ -1531,7 +1529,28 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
 				var blank = [];base_vars.forEach(()=>{blank.push("")})
 
-				table.insertBefore(make_row(blank,true,[],[]),row.nextSibling)
+                const new_row = make_row(blank,true,[],[])
+
+                for (let i=0; i<row.children.length; i++){
+
+                    if (!is_solve_line){
+                        break
+                    }
+
+                    const old_cell = row.children[i]
+                    const new_cell = new_row.children[i]
+                    const old_MQ_field = old_cell.children[0]
+                    const new_MQ_field = new_cell.children[0]
+                    const is_editable = [...old_MQ_field.classList].includes('mq-editable-field')
+                    if (is_editable){
+
+                        MQ(new_MQ_field).latex(old_MQ_field.innerText)
+                        // MQ_field.innerText = ""
+                    }
+                    // console.log(`${MQ_field.innerText}: ${is_editable}`)
+                }
+
+				table.insertBefore(new_row, row.nextSibling)
 				
 				row.remove()
 

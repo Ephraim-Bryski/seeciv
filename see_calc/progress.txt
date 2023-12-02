@@ -1,6 +1,22 @@
 
 big black region to the right of the library
 
+
+
+
+
+firebase commands
+	change sheet order in folder
+
+
+make undo and redo work again
+	i think i got rid of it cause getting caught in tracking changes got annoying
+
+	
+disable hover effect on remove line button if it's the first line (both for blocks and sub table)
+
+in showing solve stops, evaluating just jumps to the value simplified instead of showing the initial substitution
+
 visuals to create
 	hydrualics
 		pipes (network)
@@ -51,35 +67,30 @@ solve lines shouldn't have arrows
 the solve line in a block shouldn't have any effect when referencing it
 
 i honestly might just put a single solve line on the bottom instead
+reasons for doing it
+	not meaningful to have it in a line, since solve output not used (or shouldn't be used, rn still is), when referencing
+	line gets in the way when you're looking at the visual and want to update the values
+	i basically only ever do one solve at one point, where the block is just that one solve line
+	wouldn't require someone knowing the solve keyword, would be immediately obvious how to solve a system of equations
+reasons for not
+	work......... not too much though
+	more panels --> maybe leads to more confusion??
+
 
 stuff that would be useful for it
 	visual color as another input
-	input expressions instead of just values!!!!!!!!
+	input expressions instead of just values!!!!!!!! allow for plotting curves and surfaces (defined parametrically)
 	sliders, or even play <-- would allow for a lot of dynamics stuff to actually make sense
-	if stat  ements
+	if statements
 		ideally symbolic
 	max and min and/or inequalities <-- need to think about this
 
 
 
 
-
-maybe only sub default values when solve keyword before visual
-
-
-
-
-
-
-
-
-doesn't load anything when the name is what's currently loaded
-	probably good, but maybe don't highlight on hover then
-
 doesn't show steps if there's an error when solving
 
 stuff to work on before releasing
-
 
 
 	DEFINITELY only want the output to be blank on a solve error 
@@ -102,19 +113,13 @@ stuff to work on before releasing
 	zoom back to home
 
 	accounts/library
-
-
-
 		Option to either add blocks to sheet or replace
 
 
 	solver
 
 		tests with remove vars too?
-
 		i might want to do contradiction checks on individual equations after removing variables with a subtable (been going back and forth on it though D: )
-
-
 		show more specific error in solve steps?
 
 	UI
@@ -124,10 +129,6 @@ stuff to work on before releasing
 
 
 
-
-
-firebase commands
-	change sheet order in folder
 
 plotting would be really nice :D
 
