@@ -107,7 +107,6 @@ function solve_eqns(SoEs){
     const ordered_sub = back_solution.ordered_sub
     const back_steps = back_solution.steps
 
-    // TODO need to add steps for forward solve
     const forward_solution = forward_solve(ordered_sub)
         
 
@@ -782,7 +781,8 @@ function forward_solve(ordered_sub){
 
         const solution_step = {}
 
-        const ltx_expression = tree_to_expression(eqn_to_tree(sub.sol),true)
+        const tree = eqn_to_tree(sub.sol, do_simplification = false)
+        const ltx_expression = tree_to_expression(tree,true)
 
         solution_step.eqn = `${sub.solve_var}=${ltx_expression}`
 

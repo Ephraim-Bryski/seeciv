@@ -334,7 +334,7 @@ function send_to_url(){
         owner = stuff[0]
         content_target = stuff[1]
     }else{
-        throw "should only have one pipe in the url"
+        throw "should only have one pipe in the url"    // TODO should be a page not found error as well
     }
     const split_path = content_target.replaceAll("-"," ").split(".")
     load_sheet(split_path, owner);
@@ -350,7 +350,7 @@ window.addEventListener('hashchange', send_to_url);
 
 function create_unknown_page(){
     $("#page-not-found")[0].style.display = "block"
-    document.body.style.display = "none"
+    // document.body.style.display = "none"
 }
 
 function load_sheet(all_names, owner){

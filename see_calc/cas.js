@@ -369,7 +369,7 @@ function is_fraction(term){
 //#region equation --> tree
 
 
-function eqn_to_tree(eqn){
+function eqn_to_tree(eqn, do_simplification = true){
 
     eqn = eqn.replaceAll(" ","")
 
@@ -424,7 +424,12 @@ function eqn_to_tree(eqn){
         combined_tree = {op: "+", terms: [tree1, tree2]}
     }
 
-    return simplify_tree(combined_tree)
+    if (do_simplification){
+        return simplify_tree(combined_tree)
+    }else{
+        return combined_tree
+    }
+    
 
     function search_down_eqn(items){
 

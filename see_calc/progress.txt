@@ -2,7 +2,7 @@
 big black region to the right of the library
 
 
-create 404 page (have something see_calc.html but not implemented fully)
+fix 404 page
 
 visual keyword
 
@@ -15,7 +15,6 @@ make undo and redo work again
 
 	<script src="https://kit.fontawesome.com/9e1305c2e0.js" crossorigin="anonymous"></script>
 
-in showing solve stops, evaluating just jumps to the value simplified instead of showing the initial substitution
 
 visuals to create
 	hydrualics
