@@ -31,30 +31,6 @@ class TooMuchUnknownError extends Error {
 }
 
 
-function make_MQ(){
-
-    const out_fields = [...$(".eqn-field")]
-
-    out_fields.forEach(field=>{
-
-        // if the mq field is hidden when it's mqilified, parentheses don't show up
-        // so i have all its parents displayed as blocks, store the original display, and revert it back after
-        
-        const outer_fields = [...$(field).parents()]
-
-        const outer_style = []
-        outer_fields.forEach(field=>{
-            outer_style.push(field.style.display)
-            field.style.display = "block"
-        })
-
-        MQ.StaticMath(field)
-
-        outer_fields.forEach((field,idx)=>{
-            field.style.display = outer_style[idx]
-        })
-    })
-}
 
 
 function remove_vars(SoEs, vars_to_remove){

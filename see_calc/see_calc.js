@@ -584,6 +584,11 @@ function DOM2data(){
 
     SoE_boxes.each(function(block_i){
         var block = $(this)
+
+        if (block[0].id === "solve-block"){
+            return
+        }
+
         var name_field = name_fields[block_i].value
         var info = info_blocks[block_i].innerHTML
 
@@ -680,6 +685,8 @@ function data2DOM(SoEs){
 
     start_run_idx = end_run_idx
     end_run_idx = SoEs.length
+
+    // main.appendChild(make_solve_block())
 
     make_MQ()
 }
@@ -1084,28 +1091,31 @@ function add_block(field){
 
 function make_solve_block(solve_info){
 
-    solve_info.input
-    solve_info.sub_table
+    // you do need to have a result so sub table knows what's input vs output
+    // i could change this though........
+
 
     const block = document.createElement("div")
-    block.classList.add(".block")
+    block.id = "solve-block"
+    block.classList.add("block")
 
+    const solve_span = document.createElement("span")
+    solve_span.innerText = "solve"
 
-    var name_field=document.createElement('input')
-    name_field.spellcheck = false
-    name_field.classList.add("block-name-txt")
-    name_field.oninput = (e)=>{
-        
-        name_field.classList.remove("input-error")
-        
-        // TODO figure out where to find the error message
-        // $(name_field).parents(".block").find(".block-error-msg")[0].style.display = "none"
-        
-    }
+    const reference_line = document.createElement("div")
+    block.appendChild(reference_line)
 
-    name_field.value = "hullo"
+    var in_field=document.createElement('div')
+    MQ.MathField(in_field)
+    MQ(in_field).latex('hullo')
+    
 
-    block.appendChild(name_field)
+    const table = make_sub_table([[":)",":D"],["10","20"]],undefined,true)
+
+    block.appendChild(table)
+
+    reference_line.appendChild(solve_span)
+    reference_line.appendChild(in_field)
     
     return block
 }
