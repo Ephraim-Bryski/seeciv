@@ -8,6 +8,14 @@ idk why i didn't think of this earlier
 
 quick stuff to do
 
+	hitting enter on Solve reference creates a line
+
+
+	with solve error, don't need red boxes around the input and the row, instead maybe make the error message red
+
+	if more variables are inserted before in a sub table, and this leads to an error, the variables after will not be cleared,
+		instead will just be considered an input FIX THIS
+
 	fix show steps
 	remove output line for solve is soooo tiny
 	remove solve kewyord
@@ -29,6 +37,8 @@ do when moving solving out of line
 	variable cell width
 
 stuff to do at end
+
+	figure what to do with remove parentheses or some simplfiy for sub table
 
 	visual keyword
 	big black region to the right of the library

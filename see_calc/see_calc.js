@@ -139,6 +139,7 @@ const database = firebase.database().ref();
 const auth = firebase.auth()
 
 function clear_sheet(){
+    GLOBAL_solve_stuff = {reference:""}
     $(".block").remove()
     document.body.appendChild(make_block())
     document.body.appendChild(make_solve_block())
@@ -149,13 +150,13 @@ function clear_sheet(){
 //const save_btn = document.getElementById("save-btn")
 function save_sheet(){
 
-    // const url = window.location.hash
+    const url = window.location.hash
 
     
 
-    // const path_list = url.replaceAll("#","").split(".")
+    const path_list = url.replaceAll("#","").split(".")
 
-    // const folder_path = path_list.slice(0,path_list.length-1).join("/")
+    const folder_path = path_list.slice(0,path_list.length-1)
 
 
     const sheet_name = document.getElementById("save-field").value
@@ -173,7 +174,7 @@ function save_sheet(){
     }
 
 
-    write_url(CURRENT_USER, [sheet_name])
+    write_url(CURRENT_USER, [folder_path,sheet_name].flat())
 
 
     const blocks = JSON.parse(JSON.stringify((DOM2data())))
@@ -189,7 +190,9 @@ function save_sheet(){
     //! for now always saving into top folder
     // save_content(firebase_data, "", sheet_data, true)
     
-    save_content(get_firebase_data(CURRENT_USER), "", sheet_data, true)
+    const place_to_save = get_folder_content(folder_path.join("/"),get_firebase_data(CURRENT_USER))
+
+    save_content(place_to_save, "", sheet_data, true)
 
     // delete_content(firebase_data,dir, old_sheet_name)
     // save_content(firebase_data, folder_path, sheet_data, true)
@@ -649,7 +652,7 @@ function DOM2data(){
 
         // keeps a single blank line
         if (data[block_i].eqns.length === 0){
-            data[block_i].eqns.push({input:"",show_output:true})
+            data[block_i].eqns.push({input:"",show_output:""})
         }
     })
 
@@ -661,10 +664,12 @@ function DOM2data(){
 
     GLOBAL_solve_stuff = {
         reference: block_to_solve,
-        table: table_for_solving
     }
     
-    
+    // so firebase doesn't complain about undefined
+    if (table_for_solving){
+        GLOBAL_solve_stuff.table = table_for_solving
+    }    
 
 
     return data
@@ -714,7 +719,14 @@ function show_steps(steps_all_eqns){
         return
     }
 
-    const steps = steps_all_eqns[0] // for now just showing steps for the first one
+
+    // just a temporary thing to bring over sheets where there wasn't an array of steps
+    let steps
+    if (Array.isArray(steps)){
+        steps = steps_all_eqns[0] // for now just showing steps for the first one
+    }else{
+        steps = steps_all_eqns
+    }
 
 
     // stupid firebase removes empty arrays D:
@@ -971,6 +983,14 @@ function make_line(eqn){
             
             var row = document.createElement("tr")
             if (arr_row.error instanceof Error){row.innerText = arr_row.error.message}
+            else if (typeof(arr_row) === "string"){
+                // this is soooooooo fucking bad
+                // firebase can't save error messages, so i replaced them with strings
+                // i then undo this when loading the sheet, but i check for error attributes
+                // here it's not saved as an error attribute
+                // so it doesn't convert from string
+                row.innerText = arr_row
+            }
             else if(is_solve_line){
                 row.innerText = ""
             }else{

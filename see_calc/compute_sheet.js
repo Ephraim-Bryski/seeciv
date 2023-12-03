@@ -53,6 +53,11 @@ function calc(SoEs,start_idx,end_idx){
     var known_SoEs=SoEs_before.map((SoE)=>{return SoE.name})
 
 
+    function is_ui_error(error){
+        const solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, InvalidReference, FormatError, CantSolveError]
+        return solve_error_types.some((type) => {return error instanceof type}) && error_in_UI
+    }
+    
 
 
     for (var SoE_i=start_idx;SoE_i<end_idx;SoE_i++){
@@ -86,8 +91,7 @@ function calc(SoEs,start_idx,end_idx){
                 parse_eqn_input(SoE[line_i].input,SoE[line_i].sub_table,name)
                 
             }catch(error){
-                solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, InvalidReference, FormatError, CantSolveError]
-                if (solve_error_types.some((type) => {return error instanceof type}) && error_in_UI){
+                if (is_ui_error(error)){
                     // SoEs[SoE_i].eqns[line_i].sub_table=undefined
                     SoEs[SoE_i].eqns[line_i].result=error
                 }else{
@@ -102,7 +106,14 @@ function calc(SoEs,start_idx,end_idx){
     const solve_name = GLOBAL_solve_stuff.reference
     const old_solve_table = GLOBAL_solve_stuff.table
 
-    parse_eqn_input(solve_name, old_solve_table, null, true)
+    try{
+        parse_eqn_input(solve_name, old_solve_table, null, true)
+    }catch(error){
+        if (is_ui_error(error)){
+            GLOBAL_solve_stuff.result = [{error:error}]
+        }
+    }
+    
 
 
 

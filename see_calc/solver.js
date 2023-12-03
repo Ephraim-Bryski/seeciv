@@ -890,16 +890,21 @@ function sub_all_vars(expression,sub_in,sub_out){
 
 
     const subbed_expression = new_terms.join("")
-
-    return remove_unneeded_parentheses(subbed_expression)
+    return subbed_expression
+    // return remove_unneeded_parentheses(subbed_expression)
 
 }
 
-
 function remove_unneeded_parentheses(eqn){
+    return eqn
+}
+function OLD_remove_unneeded_parentheses(eqn){
+
 
     /*
     
+    \sin(a) --> \sina
+
     removes parentheses surroundings single variables, for outputting substitution results
 
     limitation: only removes parentheses surrounding a single variable
