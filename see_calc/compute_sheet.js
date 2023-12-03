@@ -99,8 +99,15 @@ function calc(SoEs,start_idx,end_idx){
         known_SoEs.push(name)
     }
 
+    const solve_name = GLOBAL_solve_stuff.reference
+    const old_solve_table = GLOBAL_solve_stuff.table
 
-    GLOBAL_solve_stuff = GLOBAL_solve_stuff+" did stuff :)"
+    parse_eqn_input(solve_name, old_solve_table, null, true)
+
+
+
+
+
 
     prev_SoEs = SoEs
 
@@ -110,7 +117,9 @@ function calc(SoEs,start_idx,end_idx){
 
     
 
-    function parse_eqn_input(line,old_table,block_name){
+    
+
+    function parse_eqn_input(line,old_table, block_name, solve_line = false){
 
         function get_ref_eqns(ref){
 
@@ -162,7 +171,13 @@ function calc(SoEs,start_idx,end_idx){
         */
 
         if (line === ""){
-            throw new FormatError("Line cannot be blank")
+            if (solve_line){
+                console.warn("BLANK LINE FOUND")
+            }else{
+                throw new FormatError("Line cannot be blank")
+            }
+            
+            
         }
 
         line = line.replaceAll("\\ ","")
@@ -175,7 +190,7 @@ function calc(SoEs,start_idx,end_idx){
 
         const solve_txt = "\\operatorname{solve}"
 
-        const solve_line = line.startsWith(solve_txt)
+        // const solve_line = line.startsWith(solve_txt)
 
         const solve_txt_once = line.indexOf(solve_txt) === line.lastIndexOf(solve_txt)
 
@@ -198,8 +213,8 @@ function calc(SoEs,start_idx,end_idx){
     
         let solve_steps
         if (line.length===0){
-            if(solve_line){
-                throw new FormatError("Solve must be followed by block name")
+            if(!solve_line){
+                throw "should never happen, should have already been caught"
             }
         }else if(!(/^\w+$/.test(line))){    // checks if not alphanumeric (also allows underscores)
 
@@ -211,8 +226,6 @@ function calc(SoEs,start_idx,end_idx){
                 throw new FormatError("Only single equation allowed")
             }else if (eqn_split.some((exp)=>{return exp.length==0})){
                 throw new FormatError("Terms on both side of equal sign required")
-            }else if(get_all_vars(line).includes(block_name)){
-                throw new FormatError("Cannot have the name of the block as a variable")
             }else{
                 
                 var line_math = ltx_to_math(line) // before getallvars so it catches 3a=4 (issue with invalid variable, not no variables!)
@@ -261,12 +274,14 @@ function calc(SoEs,start_idx,end_idx){
 
             const sub_stuff = compute_sub_table(eqns,old_table,true)
 
+            
             const subbed_systems = sub_stuff[0]
             new_table = sub_stuff[1]
             solve_steps = sub_stuff[2]
             result = subbed_systems
 
-
+            GLOBAL_solve_stuff.table = new_table
+            GLOBAL_solve_stuff.result = result
             
         }else{
             // nonvisual reference without solve, so substitute:
@@ -289,6 +304,12 @@ function calc(SoEs,start_idx,end_idx){
         }
 
 
+
+        if (solve_line){
+
+            GLOBAL_solve_stuff
+            return
+        }
 
         // at the very end, will round the numbers 
         SoEs[SoE_i].eqns[line_i].result=result
@@ -340,7 +361,7 @@ function get_quad_range(quad_object, dim){
 
 
 
-function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals = undefined){
+function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals = undefined){
     // takes the new eqns and the current table, replaces the columns to match the variables in the new eqns, then performs substitutions
 
 
@@ -372,7 +393,7 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
     new_vars.forEach((new_var)=>{
         var old_idx = old_vars.indexOf(new_var)
         let new_row
-        if (old_idx!==-1){  // if old_table is undefned, it should never enter this branch (since old_vars is empty)
+        if (old_idx!==-1){  // if old_table is undefined, it should never enter this branch (since old_vars is empty)
             new_row = trans_table[old_idx]
         }else if (for_solving){
             new_row = Array(n_col).fill("")
@@ -384,7 +405,6 @@ function compute_sub_table(eqns,old_table, for_solving = false,default_vis_vals 
             new_row[0] = new_var
         }else{
             new_row=Array(n_col).fill(new_var)
-            
         }
         new_trans_table.push(new_row)
     })

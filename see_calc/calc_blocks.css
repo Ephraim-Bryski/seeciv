@@ -30,6 +30,17 @@
     font-family: "Times New Roman", serif;
 }
 
+
+#solve-txt{
+    margin-right:10px;
+    font-size: 15px;
+    font-family: "Times New Roman", serif;
+}
+
+#solve-field {
+    width:100px;
+}
+
 .add-block-btn{
     position: relative;
 }

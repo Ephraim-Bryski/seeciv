@@ -1,11 +1,19 @@
-what would change
-	D2d: create separate entry for solve
-	calc: stuff outside
 
+idk why i didn't think of this earlier
+	option to hide all the blocks EXCEPT the solve block
+	then when you want to see the visual without the solve block getting in the way just hide all the other ones
+		that way the solve block would get pushed up to the top and would no longer be in the way :D
 
-
+		could make it so all the block names are shown in line on the top
 
 quick stuff to do
+
+	fix show steps
+	remove output line for solve is soooo tiny
+	remove solve kewyord
+
+	transfer all the sheets to this new form
+
 
 	function to change sheet order (not exposed to user for now)
 	visual color as another input
@@ -31,6 +39,7 @@ stuff to do at end
 	add fontawesome icons
 	figure out what tooltips to have
 	try to have google sign in
+	don't allow people to delete library sheets
 	improve numeric solver
 	making pi a numeric constant <-- could be harder than it looks....
 

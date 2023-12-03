@@ -241,7 +241,7 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
     }
 
     if (!solved && to_solve_system){
-        throw new TooMuchUnknownError
+        // throw new TooMuchUnknownError
     }
 
     // now we know there are branches 

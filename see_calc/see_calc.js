@@ -101,7 +101,6 @@ var end_run_idx
 
 const scene = setUpGS("vis")
 
-box({size:vec(2,0.5,1)})
 
 
 document.addEventListener('keyup', (e)=>{
@@ -142,6 +141,7 @@ const auth = firebase.auth()
 function clear_sheet(){
     $(".block").remove()
     document.body.appendChild(make_block())
+    document.body.appendChild(make_solve_block())
     window.location.hash = ""
 
 }
@@ -183,7 +183,7 @@ function save_sheet(){
     const sanitized_solved_blocks = replace_errors_with_messages(solved_blocks)
     
 
-    const sheet_data = {name: sheet_name, blocks: sanitized_solved_blocks, visuals: equation_visuals}
+    const sheet_data = {name: sheet_name, blocks: sanitized_solved_blocks, visuals: equation_visuals, solve_stuff: GLOBAL_solve_stuff}
     
 
     //! for now always saving into top folder
@@ -398,6 +398,8 @@ function load_sheet(all_names, owner){
 
     const sheet_visuals = possible_sheets[0].visuals
     
+    GLOBAL_solve_stuff = possible_sheets[0].solve_stuff
+
     const sanitized_sheet_data = possible_sheets[0].blocks
 
     const sheet_data = replace_messages_with_errors(sanitized_sheet_data)
@@ -653,7 +655,16 @@ function DOM2data(){
 
     // oh god this is awful
 
-    GLOBAL_solve_stuff = $("#solve-field")[0].value
+
+    const block_to_solve = MQ($("#solve-field")[0]).latex()
+    const table_for_solving = get_sub_data($("#solve-table")[0])
+
+    GLOBAL_solve_stuff = {
+        reference: block_to_solve,
+        table: table_for_solving
+    }
+    
+    
 
 
     return data
@@ -681,12 +692,11 @@ function data2DOM(SoEs){
         main.appendChild(row)
     }
 
-    $("#solve-output")[0].innerText = GLOBAL_solve_stuff
 
     start_run_idx = end_run_idx
     end_run_idx = SoEs.length
 
-    // main.appendChild(make_solve_block())
+    main.appendChild(make_solve_block())
 
     make_MQ()
 }
@@ -855,21 +865,20 @@ function make_line(eqn){
         autoOperatorNames: text_convert,
         handlers: {edit: function() {
 
-        // i update it before appending it to the document when textifying solve
-        if($(in_field).parents("#calc").length===0){return}
-
-
         // for some reason, MQ runs it on creation, before there are parent elements ):<
         if(in_field.parentElement===null){
             return 
         }
 
-        
-        in_field.classList.remove(".input-error")
-
         var calc_row = in_field.parentElement.parentElement.parentElement
         var idx = [].indexOf.call(calc_row.parentNode.children, calc_row);       
         change_start_idx(idx)
+
+        return
+
+
+        in_field.classList.remove("input-error")
+
 
         var row = $(in_field).parents(".line")
 
@@ -1089,33 +1098,77 @@ function add_block(field){
 }
 
 
-function make_solve_block(solve_info){
+function make_solve_block(){
 
     // you do need to have a result so sub table knows what's input vs output
     // i could change this though........
 
 
+
+
     const block = document.createElement("div")
     block.id = "solve-block"
     block.classList.add("block")
+    block.style.marginTop = "30px"
+
+    const solve_span_height = "20px" // cause screw css's attempt at variables
 
     const solve_span = document.createElement("span")
-    solve_span.innerText = "solve"
+    solve_span.innerText = "Solve"
+    solve_span.style.fontSize = solve_span_height
+    solve_span.id = "solve-txt"
 
     const reference_line = document.createElement("div")
+    reference_line.style.marginTop = "10px"
+    reference_line.style.marginBottom = "25px"
+    reference_line.style.marginRight = "20px"
+    reference_line.style.height = solve_span_height
+    reference_line.style.fontSize = solve_span_height
+
     block.appendChild(reference_line)
 
     var in_field=document.createElement('div')
+    in_field.id = "solve-field"
     MQ.MathField(in_field)
-    MQ(in_field).latex('hullo')
-    
-
-    const table = make_sub_table([[":)",":D"],["10","20"]],undefined,true)
-
-    block.appendChild(table)
 
     reference_line.appendChild(solve_span)
     reference_line.appendChild(in_field)
+
+    let table
+    if (!GLOBAL_solve_stuff){
+        return block
+    }
+    
+    MQ(in_field).latex(GLOBAL_solve_stuff.reference)
+
+
+    if (!GLOBAL_solve_stuff.result){
+        return block
+    }
+    
+    table = make_sub_table(GLOBAL_solve_stuff.table, GLOBAL_solve_stuff.result, true)
+    table.id = "solve-table"
+
+
+    block.appendChild(table)
+
+
+
+
+    const solve_result = GLOBAL_solve_stuff.result[0]
+    
+    if (solve_result.error instanceof Error){
+        const error_field=document.createElement('span')
+
+        error_field.innerHTML = solve_result.error.message  // this occurs only when it's an error or new line
+        // error_field.classList.add("error-msg")
+        // in_field.classList.add("input-error")
+        show_output = "block"    
+
+        block.appendChild(error_field)
+    }
+    
+
     
     return block
 }
@@ -1169,8 +1222,8 @@ function make_block(SoE){
     name_field.spellcheck = false
     name_field.classList.add("block-name-txt")
     name_field.oninput = (e)=>{
-        name_field.classList.remove("input-error")
-        $(name_field).parents(".block").find(".block-error-msg")[0].style.display = "none"
+        // name_field.classList.remove("input-error")
+        // $(name_field).parents(".block").find(".block-error-msg")[0].style.display = "none"
         var row = e.target.parentElement.parentElement.parentElement
         change_start_idx([].indexOf.call(row.parentNode.children, row))
     }
@@ -1405,7 +1458,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
             const editable = i!==0
 
             //! should only be an array containing an error now
-            const contains_error = editable &&solve_result!== undefined && solve_result[i-1].error !== undefined
+            const contains_error = editable && solve_result!== undefined && solve_result[i-1].error !== undefined
             if (i===0 || contains_error || !is_solve_line){
                 solve_output_eqns = []
             }else{
@@ -1427,11 +1480,9 @@ function make_sub_table(table_data, solve_result, is_solve_line){
             const new_row = make_row(table_data[i],editable,solve_output_eqns,blank_idxs)
 
             if (contains_error){
-                //const cells = [...new_row.children]
-                //cells.pop()
-                //cells.forEach(cell => {cell.style.outline="solid green"})
+                
                 new_row.style.outline="thin solid red"
-                //new_row.classList.add("input-error")
+                
             }
 			table.appendChild(new_row)
         }
@@ -1593,7 +1644,14 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
 			}
 
-			[add,remove,clear].forEach((btn)=>{
+            let btns_to_include
+            if (is_solve_line){
+                btns_to_include = [clear]
+            }else{
+                btns_to_include = [add, remove, clear]
+            }
+
+			btns_to_include.forEach((btn)=>{
                 btn.appendChild(make_tooltip())
 				ops.appendChild(btn)
                 ops.style.whiteSpace = "nowrap"
@@ -2118,7 +2176,7 @@ function display_vis(vis_eqns){
 
     adjust_scale()
 
-    draw_coordinate_system()
+    // draw_coordinate_system()
     
     // calling twice to readjust for the coordinate system
     // need to call it the first time so it knows the proper range when drawing the coordinate system    
