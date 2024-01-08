@@ -1,13 +1,14 @@
 
 class ContradictionError extends Error {
     constructor (){
-        super("contradiction in the system")
+        super("\\text{Contradiction found in the system.}")
     }
+    
 }
 
 class CantSolveError extends Error {
     constructor (){
-        super("cannot solve the system")
+        super("\\text{Unable solve the system any further. This could be due to too many unknowns or just a limitation of the solver.}")
     }
 }
 
@@ -26,7 +27,7 @@ class NumericSolveError extends Error {
 
 class TooMuchUnknownError extends Error {
     constructor (){
-        super("Too much unknown to solve the system")
+        super("\\text{Too much unknown to solve the system.}")
     }
 }
 
@@ -54,7 +55,7 @@ function remove_vars(SoEs, vars_to_remove){
     const remaining_trees = back_solution.remaining_trees
     const steps = back_solution.steps
     
-    const final_eqns = remaining_trees.map(tree => {return tree_to_eqn(tree, true)})
+    const final_eqns = remaining_trees.map(tree => {return tree_to_eqn(simplify_tree(tree), true)})
     
 
 
@@ -62,6 +63,8 @@ function remove_vars(SoEs, vars_to_remove){
 }
 
 function solve_eqns(SoEs){
+
+    GLOBAL_solve_stuff.steps = {back: [], forward: []}
 
     const vis_eqns     = SoEs.filter(eqn=>{return eqn.includes("VISUAL")})
     const non_vis_eqns = SoEs.filter(eqn=>{return !eqn.includes("VISUAL")})
@@ -195,6 +198,8 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
     
         solution_steps.push(step)
 
+        GLOBAL_solve_stuff.steps.back.push(step)
+
     }
     
 
@@ -299,6 +304,7 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
         return !has_contradictions
     })
 
+
     
     function get_n_eqns(solution){
 
@@ -314,6 +320,30 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
     if (branched_solutions.length === 0){
         throw new ContradictionError
     }
+
+
+    if (branched_solutions.length > 1){
+
+        branched_solutions = branched_solutions.filter(solution => {
+
+            if (solution.remaining_trees.length !== 1){
+                return true
+            }
+
+            const solution_tree = solution.remaining_trees[0]
+
+            const solution_tree_copy = JSON.parse(JSON.stringify(solution_tree))
+
+
+            const simplified_tree = simplify_tree(solution_tree_copy)
+
+            is_zero_solution = typeof simplified_tree === "string"
+
+            return !is_zero_solution
+        })
+    
+    }
+    
 
     // TODO for now using the solution with the most eqns, probably not the best approach
     branched_solutions = sorted(branched_solutions,key = get_n_eqns)
@@ -542,7 +572,7 @@ function numeric_solve(exp_ltx){
         }
     }
 
-    throw new NumericSolveError("Cannot find solution")
+    throw new NumericSolveError(`\\text{Can't find numeric solution for } ${exp_ltx}=0`)
 
 }
 
@@ -763,6 +793,7 @@ function forward_solve(ordered_sub){
 
         const solution_step = {}
 
+        // just being done to convert it to latex
         const tree = eqn_to_tree(sub.sol, do_simplification = false)
         const ltx_expression = tree_to_expression(tree,true)
 
@@ -796,10 +827,12 @@ function forward_solve(ordered_sub){
 
         if (sub_i!==0){ // just cause the first sub isn't anything
             steps.push(solution_step)
+            GLOBAL_solve_stuff.steps.forward.push(solution_step)
         }
 
         
     }
+
     return {solution:ordered_sub,steps:steps}
 }
 

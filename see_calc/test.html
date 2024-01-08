@@ -31,27 +31,13 @@
 <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>-->
 <script src="mathquill/mathquill.js"></script>
 
-<div id="math" style="width:100px"></div>
-
+<div id="math">ymax=ymin+\delta</div>
 
 <script>
 
-
-    var a
-
-    function do_stuff(){ 
-        a = 5
-    }
-
-    function check(){
-        console.log(a)
-    }
+var MQ = MathQuill.getInterface(2)
 
 
-    do_stuff()
-    check()
-
+MQ.StaticMath(document.getElementById("math"))
 
 </script>
-
-<script src="test.js"></script>

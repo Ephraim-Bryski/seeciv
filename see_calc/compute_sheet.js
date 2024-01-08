@@ -143,6 +143,8 @@ function calc(SoEs,start_idx,end_idx){
             }else if(ref_idx===-1){
                 if(all_SoE_names.includes(ref)){
                     throw new InvalidReference("Cannot reference future block")
+                }else if (solve_line){
+                    throw new InvalidReference(`"${ref}" is not a block name`)
                 }else{
                     throw new InvalidReference('"'+ref+'"'+' is not an equation or block name')
                 }
@@ -221,13 +223,15 @@ function calc(SoEs,start_idx,end_idx){
 
         const match_vis_blocks = vis_blocks.filter((vis_block)=>{return vis_block["name"]===line})
 
-    
-        let solve_steps
         if (line.length===0){
             if(!solve_line){
                 throw "should never happen, should have already been caught"
             }
         }else if(!(/^\w+$/.test(line))){    // checks if not alphanumeric (also allows underscores)
+
+            if (solve_line){
+                throw new FormatError("Must input a reference to a block name, not an expression or equation") 
+            }
 
             var eqn_split = line.split("=")
 
@@ -288,11 +292,12 @@ function calc(SoEs,start_idx,end_idx){
             
             const subbed_systems = sub_stuff[0]
             new_table = sub_stuff[1]
-            solve_steps = sub_stuff[2]
+            const solve_steps = sub_stuff[2]
             result = subbed_systems
 
             GLOBAL_solve_stuff.table = new_table
             GLOBAL_solve_stuff.result = result
+            // GLOBAL_solve_stuff.solve_steps = solve_steps
             
         }else{
             // nonvisual reference without solve, so substitute:
@@ -330,11 +335,6 @@ function calc(SoEs,start_idx,end_idx){
             SoEs[SoE_i].eqns[line_i].sub_table = new_table
         }
         
-
-        if (solve_line){
-            SoEs[SoE_i].eqns[line_i].solve_steps = solve_steps   
-        }
-
     }
 
 
@@ -376,26 +376,27 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
     // takes the new eqns and the current table, replaces the columns to match the variables in the new eqns, then performs substitutions
 
 
-    let output_solve_idxs
+    let old_output_solve_idxs
     if(old_table===undefined){  // the table hasn't been created yet
-        output_solve_idxs = []
+        old_output_solve_idxs = []
         var old_vars = []
         var n_col = 2
     }else{
         const old_table_data = old_table.data
-        output_solve_idxs = old_table.output_solve_idxs
+        old_output_solve_idxs = old_table.output_solve_idxs.map(idx_pair => {return idx_pair[1]}) //! only valid for single row of solve table (where first index doesnt matter)
         var old_vars = old_table_data[0]
         var trans_table = transpose(old_table_data)
         var n_col = old_table_data.length
     }
 
 
-    if (!for_solving){
-        output_solve_idxs = []
-    }
 
 
-    let new_vars = get_all_vars(eqns)
+
+
+
+
+    const new_vars = get_all_vars(eqns)
 
 
 
@@ -429,6 +430,38 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
 
     const error_msgs = []
 
+    
+    const var_row_idxs = [...var_row.keys()]
+
+    let output_solve_idxs
+
+    if (for_solving){
+
+        output_solve_idxs = var_row_idxs.filter(idx => {
+
+            const new_var = var_row[idx]
+    
+            const new_var_idx = old_vars.indexOf(new_var)
+    
+            const is_idx_of_new_var = new_var_idx == -1
+    
+            const was_output_before = old_output_solve_idxs.includes(new_var_idx) 
+    
+            return is_idx_of_new_var || was_output_before
+    
+        })
+
+    }else{
+        output_solve_idxs = []
+    }
+        
+
+
+
+    const output_vars = output_solve_idxs.map(idx => {
+        return new_vars[idx]
+    })
+
     for (let i=1;i<table.length;i++){
         var sub_row = table[i]
         var removed_vars = []
@@ -443,9 +476,12 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
         for (let j=0;j<sub_row.length;j++){
 
 
-            const check_same_elements = (arr1,arr2) => {return JSON.stringify(arr1)===JSON.stringify(arr2)}
 
-            const is_output_field = output_solve_idxs.some(idxs => {return check_same_elements(idxs,[i,j])})
+            // const check_same_elements = (arr1,arr2) => {return JSON.stringify(arr1)===JSON.stringify(arr2)}
+
+            const is_output_field = output_vars.includes(var_row[j])
+
+            // const is_output_field = output_solve_idxs.some(idxs => {return check_same_elements(idxs,[i,j])})
 
 
 
@@ -470,7 +506,7 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
             }
 
             if (for_solving && sub_row.some(cell => {return isNaN(cell)})){
-                throw new FormatError("cannot substitute a variable when solving")
+                throw new FormatError("can only substitute in a number when solving")
             }
 
 
@@ -488,8 +524,8 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
         }catch(error){
             solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, CantSolveError, FormatError]
             if (solve_error_types.some((type) => {return error instanceof type})){
-            
-                let col_idxs = output_solve_idxs.map(row_col => {return row_col[1]})
+                GLOBAL_solve_stuff.steps.error = error.message
+                let col_idxs = output_solve_idxs
 
                 eqns_subbed = {error: error, output_idxs: col_idxs}
             }else{

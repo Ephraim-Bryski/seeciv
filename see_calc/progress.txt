@@ -1,4 +1,8 @@
 
+the view doesn't adjust when the visual translates, only when zoom changes
+	still need to decide whether to center at origin
+
+
 idk why i didn't think of this earlier
 	option to hide all the blocks EXCEPT the solve block
 	then when you want to see the visual without the solve block getting in the way just hide all the other ones
@@ -8,15 +12,11 @@ idk why i didn't think of this earlier
 
 quick stuff to do
 
-	hitting enter on Solve reference creates a line
 
+	sheet is cleared sometimes when saving -- due to error???
 
-	with solve error, don't need red boxes around the input and the row, instead maybe make the error message red
+	max, min, deg are keywords in mathquill -- get rid of this
 
-	if more variables are inserted before in a sub table, and this leads to an error, the variables after will not be cleared,
-		instead will just be considered an input FIX THIS
-
-	fix show steps
 	remove output line for solve is soooo tiny
 	remove solve kewyord
 
@@ -25,9 +25,14 @@ quick stuff to do
 
 	function to change sheet order (not exposed to user for now)
 	visual color as another input
-	input line shouldn't have arrows (i don't think looking at the simplified is useful)
 	Option to either add blocks to sheet or replace
-	stupid tiny sub table rectangle
+
+	simplify top exponent out and top product coefficients????
+		getting stuck on this
+
+
+oh god back to cas
+	0=0 should be removed, at least from eqns to display
 
 do when moving solving out of line
 
@@ -52,6 +57,7 @@ stuff to do at end
 	don't allow people to delete library sheets
 	improve numeric solver
 	making pi a numeric constant <-- could be harder than it looks....
+	stupid tiny sub table rectangle
 
 Harder stuff
 

@@ -113,9 +113,10 @@ function ltx_to_math(ltx_eqn){
 
 
 	// check if there's any invalid variables, numbers immediately followed by letters
-	const invalid_var = /\d(?=[a-zA-Z])/;
-	if (invalid_var.test(eqn)){
-		throw new FormatError("numbers must be at the end of variables")
+	const invalid_var = /[^a-zA-Z0-9_][0-9][a-zA-Z_]/;
+	const invalid_var_start = /^[0-9][a-zA-Z_]/;
+	if (invalid_var.test(eqn) || invalid_var_start.test(eqn)){
+		throw new FormatError("cannot start a variable with a number")
 	}
 
 		

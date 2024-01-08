@@ -810,7 +810,8 @@ function simplify_tree(tree0, parent){
 
     if (typeof tree0 === "string"){return tree0}
 
-    
+
+
 
     tree0.terms.forEach((term)=>{simplify_tree(term, tree0)})
     

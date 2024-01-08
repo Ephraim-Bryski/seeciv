@@ -28,23 +28,13 @@ function removeUndefined(obj) {
 
 var SoEs= [
     {
-        name:"System",
+        name:"A",
         info: "hi",
         eqns: [
-        {input: "(a+1)\\cdot a=4"},
-        {input: "Box"}
-
+            {input: "x^2-x+4=0"},
         ]
     },
 
-
-    {
-        name:"Sol",
-        eqns: [
-        {input: "solve System"},
-               
-        ]
-    }
 
 ]
 
@@ -111,8 +101,18 @@ document.addEventListener('keyup', (e)=>{
             run_sheet()
         }else if(in_field.tagName=="TEXTAREA"){
             add_line(in_field)
+
+            
         }else if(in_field.className=="block-name-txt"){
-            add_block(in_field)
+            
+            
+            const is_solve_field = in_field.id === "solve-field"
+
+            if (!is_solve_field){
+                add_block(in_field)    
+            }
+            
+            
         }
     }else if(e.code ==="KeyZ" && e.ctrlKey){
         undo()
@@ -659,7 +659,8 @@ function DOM2data(){
     // oh god this is awful
 
 
-    const block_to_solve = MQ($("#solve-field")[0]).latex()
+    const block_to_solve = $("#solve-field")[0].value
+//    MQ($("#solve-field")[0]).latex()
     const table_for_solving = get_sub_data($("#solve-table")[0])
 
     GLOBAL_solve_stuff = {
@@ -703,11 +704,20 @@ function data2DOM(SoEs){
 
     main.appendChild(make_solve_block())
 
+    if (GLOBAL_solve_stuff){
+        show_steps(GLOBAL_solve_stuff.steps)
+    }
+    
+    const steps_element = $("#solve-steps")[0]
+
+    if (steps_element.innerText.replaceAll("\n","").replaceAll(" ","") === ""){
+        steps_element.innerText = "Shows steps of solved system, but no system is being solved.\n Fill solve field with block name to solve the system."
+    }
     make_MQ()
 }
 
 
-function show_steps(steps_all_eqns){
+function show_steps(steps){
 
 
     // clear the solve steps from the previous step
@@ -715,18 +725,10 @@ function show_steps(steps_all_eqns){
     
     // called by data2DOM directly instead
 
-    if (steps_all_eqns === undefined || steps_all_eqns.length === 0){
+    if (steps === undefined){
         return
     }
 
-
-    // just a temporary thing to bring over sheets where there wasn't an array of steps
-    let steps
-    if (Array.isArray(steps)){
-        steps = steps_all_eqns[0] // for now just showing steps for the first one
-    }else{
-        steps = steps_all_eqns
-    }
 
 
     // stupid firebase removes empty arrays D:
@@ -749,7 +751,6 @@ function show_steps(steps_all_eqns){
     }
     
     const arrow = " \\ \\  \\Rightarrow \\ \\ "
-
 
 
     steps.back.forEach(step => {
@@ -776,8 +777,6 @@ function show_steps(steps_all_eqns){
 
 
     steps.forward.forEach(step => {
-        
-
 
         const line =  `\\text{Evaluating} ${sp(2)} ${step.eqn} ${arrow} ${step.sol}`
 
@@ -786,6 +785,10 @@ function show_steps(steps_all_eqns){
 
     })
 
+
+    if (steps.error){
+        all_lines.push(steps.error)
+    }
 
 
 
@@ -876,34 +879,35 @@ function make_line(eqn){
         //autoCommands: "sqrt", // to just type instead of backslash
         autoOperatorNames: text_convert,
         handlers: {edit: function() {
+        
+            // for some reason, MQ runs it on creation, before there are parent elements ):<
+            if(in_field.parentElement===null){
+                return 
+            }
 
-        // for some reason, MQ runs it on creation, before there are parent elements ):<
-        if(in_field.parentElement===null){
-            return 
-        }
+            var calc_row = in_field.parentElement.parentElement.parentElement
+            var idx = [].indexOf.call(calc_row.parentNode.children, calc_row);       
+            change_start_idx(idx)
 
-        var calc_row = in_field.parentElement.parentElement.parentElement
-        var idx = [].indexOf.call(calc_row.parentNode.children, calc_row);       
-        change_start_idx(idx)
-
-        return
-
-
-        in_field.classList.remove("input-error")
+            return
 
 
-        var row = $(in_field).parents(".line")
+            in_field.classList.remove("input-error")
 
 
-        var remove_classes = [".collapse-arrow",".error-msg",".display-eqn-cell"]//,".sub-table"]
+            var row = $(in_field).parents(".line")
 
-        remove_classes.forEach((cl)=>{
-            var item = row.find(cl)[0]
-            if (item===undefined){return}
-            item.style.display = "none"
-        })
 
-    }}})   // editing it should change the start_idx for solving
+            var remove_classes = [".collapse-arrow",".error-msg",".display-eqn-cell"]//,".sub-table"]
+
+            remove_classes.forEach((cl)=>{
+                var item = row.find(cl)[0]
+                if (item===undefined){return}
+                item.style.display = "none"
+            })
+
+    }}
+    })   // editing it should change the start_idx for solving
 
 
 
@@ -1037,13 +1041,13 @@ function make_line(eqn){
     line.appendChild(in_field)
     line.appendChild(sub_table)
 
-    if (true){
+    if (eqn.sub_table){
         line.appendChild(output_arr)
         line.appendChild(out_field)    
     }
     
     //! for now just showing steps for first one
-    show_steps(eqn.solve_steps)
+    // show_steps(eqn.solve_steps)
 
     return line
 
@@ -1147,9 +1151,10 @@ function make_solve_block(){
 
     block.appendChild(reference_line)
 
-    var in_field=document.createElement('div')
+    var in_field = document.createElement('input')
     in_field.id = "solve-field"
-    MQ.MathField(in_field)
+    in_field.classList.add("block-name-txt")
+    // MQ.MathField(in_field)
 
     reference_line.appendChild(solve_span)
     reference_line.appendChild(in_field)
@@ -1158,8 +1163,9 @@ function make_solve_block(){
     if (!GLOBAL_solve_stuff){
         return block
     }
-    
-    MQ(in_field).latex(GLOBAL_solve_stuff.reference)
+    in_field.value = GLOBAL_solve_stuff.reference
+
+    // MQ(in_field).latex(GLOBAL_solve_stuff.reference)
 
 
     if (!GLOBAL_solve_stuff.result){
@@ -1179,8 +1185,9 @@ function make_solve_block(){
     
     if (solve_result.error instanceof Error){
         const error_field=document.createElement('span')
-
-        error_field.innerHTML = solve_result.error.message  // this occurs only when it's an error or new line
+        error_field.style.color = 'rgb(200,0,0)'
+        const error_message = solve_result.error.message.replaceAll("\\text{","").replaceAll("}","").replaceAll("{","")
+        error_field.innerHTML = error_message  // this occurs only when it's an error or new line
         // error_field.classList.add("error-msg")
         // in_field.classList.add("input-error")
         show_output = "block"    
@@ -2183,7 +2190,7 @@ function display_vis(vis_eqns){
                 throw "shouldnt have nan"
             }
             try{
-                var vis_val = math.evaluate(vis_exp)
+                var vis_val = math.evaluate(ltx_to_math(vis_exp))
             }catch{
                 throw "could not solve for all values for visual "+vis_name+" shouldnt happen??"
             }                
