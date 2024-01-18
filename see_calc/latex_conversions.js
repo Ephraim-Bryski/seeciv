@@ -101,6 +101,7 @@ function ltx_to_math(ltx_eqn){
 
 	let eqn = ltx_eqn 
 
+	eqn = eqn.replaceAll("BS__pi",Math.PI.toString())
 
 	eqn = eqn.replaceAll(" ","")
 

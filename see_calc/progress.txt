@@ -1,67 +1,46 @@
 
-the view doesn't adjust when the visual translates, only when zoom changes
-	still need to decide whether to center at origin
-
-
-idk why i didn't think of this earlier
-	option to hide all the blocks EXCEPT the solve block
-	then when you want to see the visual without the solve block getting in the way just hide all the other ones
-		that way the solve block would get pushed up to the top and would no longer be in the way :D
-
-		could make it so all the block names are shown in line on the top
-
 quick stuff to do
 
-
-	sheet is cleared sometimes when saving -- due to error???
-
 	max, min, deg are keywords in mathquill -- get rid of this
+	
 
-	remove output line for solve is soooo tiny
-	remove solve kewyord
-
-	transfer all the sheets to this new form
-
-
-	function to change sheet order (not exposed to user for now)
-	visual color as another input
-	Option to either add blocks to sheet or replace
-
-	simplify top exponent out and top product coefficients????
-		getting stuck on this
+	the view doesn't adjust when the visual translates, only when zoom changes
+		still need to decide whether to center at origin
 
 
-oh god back to cas
-	0=0 should be removed, at least from eqns to display
 
-do when moving solving out of line
+stupid CSS
+	
+	when it saves a solve block when there's an error, it gets rid of it
 
-	sliders, or even play <-- would allow for a lot of dynamics stuff to actually make sense
-	doesn't show steps if there's an error when solving
-	show more specific error in solve steps?
-	variable cell width
+	figure out what tooltips to have
+		Undo and Redo if i use arrows
+		really don't think add and delete buttons need tooltips but ok for now
+
+	make it so some top menu buttons appear conditionally
+		log in --> save field and button
+
+	add fontawesome icons
+
+
 
 stuff to do at end
 
 	figure what to do with remove parentheses or some simplfiy for sub table
 
 	visual keyword
-	big black region to the right of the library
-	fix 404 page
+
 	undo and redo, i think i got rid of it cause getting caught in tracking changes got annoying
 	block and/or sheet info
-	make sure it looks good for different window sizes
-	add fontawesome icons
-	figure out what tooltips to have
+
 	try to have google sign in
 	don't allow people to delete library sheets
 	improve numeric solver
-	making pi a numeric constant <-- could be harder than it looks....
 	stupid tiny sub table rectangle
 
-Harder stuff
+	catch all error so it doesn't break if some weird error comes up
 
-	input expressions instead of just values to plotting
+
 
 visuals to create
 	hydrualics
@@ -112,6 +91,10 @@ visuals to create
 
 CAS
 	
+	0=0 should be removed, at least from eqns to display
+	simplify top exponent out and top product coefficients????
+		getting stuck on this
+
 	tests with remove vars too?
 	y=x^2 complexity is taken as 3 since *-1 adds to the complexity --> too much
 	haven't handled this: combine_solve_term(eqn_to_tree("a*(a+a*b)+d"),"a")
@@ -123,10 +106,15 @@ Efficiency
 
 Future not very important stuff
 
+	visual color as another input
+
+	input expressions instead of just values to plotting
+
 	make visuals classes that could inherit from one another
 	Draggable blocks
 	loading a sheet has to have a callback to update the variable tracker
 	Symbolic if statements
 	Max, min, and inequalities
 
-	
+	sliders, or even play <-- would allow for a lot of dynamics stuff to actually make sense
+

@@ -6,10 +6,12 @@
     border-width: 2.5px;
     border-color: black;
     background-color: white;
+    
     margin-top: 10px;
     margin-bottom: 10px;
-    width: fit-content; 
     padding: 10px;
+    
+    width: fit-content; 
     border-radius: 5px;
     position: relative;
 }
@@ -88,7 +90,7 @@
 .add-remove-btn{
     font-size: inherit;
     border:none;
-    background-color: white;
+    background-color:transparent;
     color:darkgray;
     text-align: center;
     display: inline-block;
@@ -154,7 +156,7 @@
 
 .sub-table-btn{
     margin:auto;
-    font-size: 10px;
+    font-size: 15px;
     padding: 3px;
     border:none;
     background-color: white;
@@ -217,100 +219,5 @@ might replace with menu option
     cursor: pointer;
 }
   
-/* #endregion */
-
-/* #region tooltips */
-
-.run-arrow:hover .tooltip {display: block;--tooltip-text: "Run to here";}
-.remove-block-btn:hover .tooltip {display: block;--tooltip-text:"Delete block";}
-.remove-line-btn:hover .tooltip {display: block;--tooltip-text:"Delete line";}
-.add-block-btn:hover .tooltip {display: block;--tooltip-text:"Create new block";}
-.add-line-btn:hover .tooltip {display: block;--tooltip-text:"Create new line";}
-.table-add:hover .tooltip {display: block;--tooltip-text:"Create new row";}
-.table-remove:hover .tooltip {display: block;--tooltip-text:"Delete row";}
-.table-clear:hover .tooltip {display: block;--tooltip-text:"Clear row";}
-.table-copy:hover .tooltip {display: block;--tooltip-text:"Duplicate row";}
-
-.tooltip {
-    display: none;
-    background: #C8C8C8;
-    border-radius: 5px;
-    margin-left: 10px;
-    padding: 10px;
-    width: fit-content;
-    position: absolute;
-    z-index: 2;
-    --tooltip-text: inherit;
-}
-  
-.tooltip::after{
-    content: var(--tooltip-text);
-}
-
-/* #endregion */
-
-/* #region run indicators */
-/*
-will likely only include the check and x
-single button for running entire sheet instead
-
-*/
 
 
-.run-arrow {
-    border-top: calc(0.7*var(--load-sym-size)) solid transparent;
-    border-left: var(--load-sym-size) solid blue;
-    border-bottom: calc(0.7*var(--load-sym-size)) solid transparent;
-    margin-left: 5px;
-    padding-right: 5px;
-    margin-bottom: -5px;
-}
-
-.run-arrow:hover{cursor: pointer;}
-
-.spinner {
-    bottom: 0;
-    width: var(--load-sym-size);
-    height: var(--load-sym-size);
-    --color: blue;
-    content: " ";
-    display: block;
-    border-radius: 50%;
-    border:  calc(0.3*var(--load-sym-size)) solid #fff;
-    border-color: var(--color) transparent var(--color) transparent;
-    /* animation: spinner 1.2s linear infinite; */
-}
-
-@keyframes spinner {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-.check {
-    bottom: 0;
-    --borderColor: #78b13f;
-    --borderWidth: calc(0.25*var(--load-sym-size));
-    display: inline-block;
-    transform: rotate(45deg);
-    height: var(--load-sym-size);
-    width: calc(var(--load-sym-size)*0.5);
-    margin-left: calc(var(--load-sym-size)*0.5);
-
-    border-bottom: var(--borderWidth) solid var(--borderColor);
-    border-right: var(--borderWidth) solid var(--borderColor);
-}
-
-.cross::after {
-    bottom: 0;
-    font-size: var(--load-sym-size);
-    content: "\274c"; /* use the hex value here... */
-    color: red;
-    text-align: center;
-}
-
-
-/* #endregion */

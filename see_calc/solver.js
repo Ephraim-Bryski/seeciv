@@ -1,14 +1,14 @@
 
 class ContradictionError extends Error {
     constructor (){
-        super("\\text{Contradiction found in the system.}")
+        super("Contradiction found in the system")
     }
     
 }
 
 class CantSolveError extends Error {
     constructor (){
-        super("\\text{Unable solve the system any further. This could be due to too many unknowns or just a limitation of the solver.}")
+        super("Unable solve the system any further This could be due to too many unknowns or just a limitation of the solver")
     }
 }
 
@@ -27,7 +27,7 @@ class NumericSolveError extends Error {
 
 class TooMuchUnknownError extends Error {
     constructor (){
-        super("\\text{Too much unknown to solve the system.}")
+        super("Too much unknown to solve the system")
     }
 }
 
@@ -64,7 +64,7 @@ function remove_vars(SoEs, vars_to_remove){
 
 function solve_eqns(SoEs){
 
-    GLOBAL_solve_stuff.steps = {back: [], forward: []}
+
 
     const vis_eqns     = SoEs.filter(eqn=>{return eqn.includes("VISUAL")})
     const non_vis_eqns = SoEs.filter(eqn=>{return !eqn.includes("VISUAL")})
@@ -198,7 +198,10 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
     
         solution_steps.push(step)
 
-        GLOBAL_solve_stuff.steps.back.push(step)
+        if (to_solve_system){
+            GLOBAL_solve_stuff.steps.back.push(step)
+        }
+        
 
     }
     
@@ -572,7 +575,7 @@ function numeric_solve(exp_ltx){
         }
     }
 
-    throw new NumericSolveError(`\\text{Can't find numeric solution for } ${exp_ltx}=0`)
+    throw new NumericSolveError("Can't find numeric solution")
 
 }
 

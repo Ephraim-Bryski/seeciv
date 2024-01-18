@@ -111,6 +111,8 @@ function calc(SoEs,start_idx,end_idx){
     }catch(error){
         if (is_ui_error(error)){
             GLOBAL_solve_stuff.result = [{error:error}]
+        }else{
+            throw error
         }
     }
     
@@ -499,6 +501,11 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
         }
 
         eqns_subbed = eqns_subbed.map(eqn => {return sub_all_vars(eqn, sub_in, sub_out)})
+
+        if (for_solving){
+            GLOBAL_solve_stuff.steps = {back: [], forward: []}
+        }
+
         try{    
 
             if (sub_row.some(cell => {return cell.includes("=")})){

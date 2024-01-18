@@ -46,6 +46,42 @@ function save_folder(trees, directory,folder_name ){
 
 }
 
+function change_content_order(trees, directory, name, name_to_go_before){
+    
+    const siblings = get_folder_content(directory, trees)
+
+    const indices = [...siblings.keys()]
+
+
+    const from_index = indices.filter(idx => {return siblings[idx].name === name})[0]
+
+    if (!from_index){
+        throw `${name} is not a sheet name`
+    }
+
+
+
+    const item = siblings[from_index]
+
+    const to_index = indices.filter(idx => {return siblings[idx].name === name_to_go_before})[0]
+
+    if (!to_index){
+        throw `${name_to_go_after} is not a sheet name`
+    }
+
+    siblings.splice(from_index,1)
+    siblings.splice(to_index,0,item)
+
+
+}
+
+function arraymove(arr, fromIndex, toIndex) {
+    var element = arr[fromIndex];
+    arr.splice(fromIndex, 1);
+    arr.splice(toIndex, 0, element);
+    return arr
+}
+
 function save_content(trees, directory, content, allow_overwrite = false){
     
 
@@ -156,7 +192,7 @@ function create_UI_tree_list(trees, item_function, past_names = undefined) {
     // Create the main container element
     const container = document.createElement('div');
     
-    container.style.paddingLeft = depth*10
+    container.style.paddingLeft = `${depth*15}px`
 
     for (const tree of trees) {
 

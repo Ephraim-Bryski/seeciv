@@ -13,6 +13,7 @@ body{
     text-align: center;
     max-width: 400px;
     margin: 0 auto;
+    margin-top: 50px;
     padding: 20px;
     background-color: #fff;
     border-radius: 5px;
@@ -33,36 +34,82 @@ body{
     position:absolute;
     left:0%; /* will probably change this, vis will take over the entire area below the top bar */
     width:100%;
-    top:5%;
-    height:95%;
+    top: 0px;
+    height: 100%;
     background-color: black;
-    z-index: 0;
+    z-index: -5;
 }
 
 #popup{
     /* general window for variable tracking, showing steps, library etc. */
     position:absolute;
     right:0%;
-    height: 100%;
-    
+    margin-top:10px;
     z-index: 2;
     background-color: white;
+    border-radius: 5px;
     
-    padding-left: 10px;
 }
 
 .popup-sel-btn{
     height: 100%;
     border:none;
+    padding: 10px 16px;
+    background-color: transparent;
+    position: relative;
 }
 
 .popup-sel-btn:hover{
-    background-color: lightgray;
+    background-color: #eeeeee;
+    
 }
+
+.popup-sel-btn:hover {
+    cursor:pointer;
+}
+
+#run-button:hover .tooltip {display: block; --tooltip-text: "Compute Sheet (Ctrl+Enter)";} 
+
 
 .popup-sel-btn-selected{
     background-color: lightgray;
 }
+
+
+/* #endregion */
+
+/* #region tooltips */
+
+.run-arrow:hover .tooltip {display: block;--tooltip-text: "Run to here";}
+.remove-block-btn:hover .tooltip {display: block;--tooltip-text:"Delete block";}
+.remove-line-btn:hover .tooltip {display: block;--tooltip-text:"Delete line";}
+.add-block-btn:hover .tooltip {display: block;--tooltip-text:"Create new block";}
+.add-line-btn:hover .tooltip {display: block;--tooltip-text:"Create new line";}
+.table-add:hover .tooltip {display: block;--tooltip-text:"Create new row";}
+.table-remove:hover .tooltip {display: block;--tooltip-text:"Delete row";}
+.table-clear:hover .tooltip {display: block;--tooltip-text:"Clear row";}
+.solve-table-clear:hover .tooltip {display: block;--tooltip-text:"Clear output";}
+.table-copy:hover .tooltip {display: block;--tooltip-text:"Duplicate row";}
+
+.tooltip {
+    display: none;
+    background: #C8C8C8;
+    border-radius: 5px;
+    margin-left: 10px;
+    padding: 10px;
+    width: fit-content;
+    position: absolute;
+    z-index: 1000;
+    --tooltip-text: inherit;
+
+}
+  
+.tooltip::after{
+    content: var(--tooltip-text);       
+}
+
+#element::after{content: "my content"}
+/* #endregion */
 
 
 /* #region sheet library */
@@ -92,10 +139,11 @@ body{
 
 
 .library-arrow-button{
-    background-color: white;
+    background-color: transparent;
     border: none;
     cursor: pointer;
 }
+
 
 .library-load-btn {
 
@@ -154,4 +202,6 @@ body{
 }
 
 /* #endregion */
+
+
 

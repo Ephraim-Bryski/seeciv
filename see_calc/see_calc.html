@@ -6,7 +6,7 @@
 
 -->
 
-
+<!DOCTYPE html>
 <script>
   function signOut() {
     var auth2 = gapi.auth2.getAuthInstance();
@@ -77,24 +77,30 @@
 
 
 
-<div id="top-menu" style="width:100%;height:5%;background-color: black;">
+<div id="top-menu" style="width:100%;background-color: white;">
+
+    <button  id="toggle-blocks" class="popup-sel-btn" onclick="toggle_blocks()">Hide Blocks</button>
+    <button  class="popup-sel-btn" onclick="clear_sheet()">Clear Sheet</button>
+
     <button  class="popup-sel-btn" onclick="undo()">Undo</button>
 
-    <button  class="popup-sel-btn" onclick="run_sheet()">▶</button>
+    <button  id="run-button" class="popup-sel-btn" onclick="run_sheet()">▶</button>
 
     <button  class="popup-sel-btn" onclick="redo()">Redo</button>
-    <button  class="popup-sel-btn" onclick="toggle_var_search(event)">Track Variables</button>
-    <button  class="popup-sel-btn" onclick="toggle_solve_steps(event)">Show Steps</button>
-    
-    <button  class="popup-sel-btn" onclick="toggle_library(event)">Library</button>
-    
-    <button  class="popup-sel-btn" onclick="clear_sheet()">Clear</button>
 
-    <button  class="popup-sel-btn" onclick="ortho_xy()">XY</button>
-
-    <input style="height:100%;margin-left:30px" id="save-field">
+    <input style="height:100%;margin-left:30px" id="save-field" placeholder="Sheet name">
 
     <button class="popup-sel-btn" onclick="save_sheet()">Save</button>
+
+    <button  class="popup-sel-btn visual-toggle" onclick="ortho_xy()" style="display:none">XY</button>
+
+    <button  style="float:right" class="popup-sel-btn" onclick="toggle_solve_steps(event)" id="toggle-solve-steps" style="display:none">Solve Steps</button>
+    
+    <button  style="float:right" class="popup-sel-btn" onclick="toggle_library(event)">Library</button>
+    
+
+
+
 
 
 
@@ -129,7 +135,7 @@
     </table>
     
 
-    <div id="solve-steps" style="display: none;">
+    <div id="solve-steps" style="display: none;margin:10px">
 
     </div>
 
@@ -165,8 +171,6 @@
 
 
 </div>
-
-
 
 
 

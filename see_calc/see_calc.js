@@ -4,6 +4,7 @@ var MQ = MathQuill.getInterface(2);
 
 CURRENT_USER = null
 
+
 function removeUndefined(obj) {
     if (Array.isArray(obj)) {
       for (let i = 0; i < obj.length; i++) {
@@ -100,8 +101,12 @@ document.addEventListener('keyup', (e)=>{
             // resetGS()
             run_sheet()
         }else if(in_field.tagName=="TEXTAREA"){
-            add_line(in_field)
 
+            const in_table = $(in_field).parents("td").length === 1
+
+            if (!in_table){ 
+                add_line(in_field)
+            }
             
         }else if(in_field.className=="block-name-txt"){
             
@@ -168,8 +173,12 @@ function save_sheet(){
     
     const is_alphanumeric =  /^[a-zA-Z0-9\s]+$/.test(sheet_name)
 
+    if (sheet_name === ""){
+        alert("Sheet name cannot be blank.")
+        return
+    }
     if (!is_alphanumeric){
-        alert("sheet name must only contain letters and numbers") 
+        alert("Sheet name must only contain letters and numbers.") 
         return
     }
 
@@ -295,6 +304,7 @@ function update_library(package = null){
     replace_UI_tree(firebase_data.Library, library_root, create_library_buttons)
     replace_UI_tree(user_data, user_content_root, create_user_buttons)
 
+
     
 }
 
@@ -354,6 +364,16 @@ window.addEventListener('hashchange', send_to_url);
 
 function create_unknown_page(){
     $("#page-not-found")[0].style.display = "block"
+
+    remove_element_ids = ["top-menu","popup","vis"]
+
+    for (id of remove_element_ids){
+        $(`#${id}`)[0].style.display = 'none'
+    }
+
+    $(".block").remove()
+
+
     // document.body.style.display = "none"
 }
 
@@ -474,11 +494,11 @@ function create_sheet_buttons(all_names, container, owner){
     const delete_btn = document.createElement("button")
 
     delete_btn.classList.add("add-remove-btn")
-    delete_btn.classList.add("ibrary-delete-btn")
+    delete_btn.classList.add("library-delete-btn")
     delete_btn.innerText = "X"
 
     const really_delete_btn = document.createElement('button')
-    really_delete_btn.innerText = `Delete ${sheet_name}`
+    really_delete_btn.innerText = `Delete`
     const cancel_delete_btn = document.createElement('button')
     cancel_delete_btn.innerText = `Cancel`
     
@@ -676,10 +696,19 @@ function DOM2data(){
     return data
 } 
 
+
+function toggle_visual_buttons(display){
+    const visual_buttons = $(".visual-toggle")
+    for (button of visual_buttons){
+        button.style.display = display
+    }
+}
+
 function data2DOM(SoEs){
 
     $(".block").remove()
 
+    toggle_visual_buttons("none")
     
     const main = document.body
 
@@ -711,7 +740,7 @@ function data2DOM(SoEs){
     const steps_element = $("#solve-steps")[0]
 
     if (steps_element.innerText.replaceAll("\n","").replaceAll(" ","") === ""){
-        steps_element.innerText = "Shows steps of solved system, but no system is being solved.\n Fill solve field with block name to solve the system."
+        steps_element.innerText = "Not solving an actual block."
     }
     make_MQ()
 }
@@ -787,7 +816,7 @@ function show_steps(steps){
 
 
     if (steps.error){
-        all_lines.push(steps.error)
+        all_lines.push(`\\text{${steps.error}}`)
     }
 
 
@@ -805,7 +834,37 @@ function show_steps(steps){
     
 }
 
+function toggle_blocks(){
 
+
+    blocks = [...$(".block")]
+    toggle_blocks_button = $("#toggle-blocks")[0]
+    toggle_blocks_text = toggle_blocks_button.innerText
+
+    let show
+    if (toggle_blocks_text === "Show Blocks"){
+        toggle_blocks_button.innerText = "Hide Blocks"
+        show = true
+    }else{
+        toggle_blocks_button.innerText = "Show Blocks"
+        show = false
+    }
+
+    for (block of blocks){
+        
+        if (block.id === 'solve-block'){
+            continue
+        }
+
+        if (show){
+            block.style.display = ''
+        }else{
+            block.style.display = 'none'
+        }
+  
+    }
+
+}
 
 
 function add_line(in_field){
@@ -860,24 +919,10 @@ function make_line(eqn){
     in_field.classList.add("MQ-input")
     
     const trig_names = "sin cos tan csc sec cot sinh cosh tanh csch sech coth arcsin arccos arctan arccsc arcsec arccot arcsinh arccosh arctanh arccsch arcsech arccoth"
-
-    const text_convert = combine_with_space(["solve",trig_names])
-
-    function combine_with_space(strings){
-        let combined = ""
-        strings.forEach(string=>{
-            combined+=string
-            combined+=" "
-
-        })
-        combined = combined.slice(0,-1)
-
-        return combined
-    }
     //MQ
     MQ.MathField(in_field, {
         //autoCommands: "sqrt", // to just type instead of backslash
-        autoOperatorNames: text_convert,
+        autoOperatorNames: trig_names,
         handlers: {edit: function() {
         
             // for some reason, MQ runs it on creation, before there are parent elements ):<
@@ -1041,7 +1086,7 @@ function make_line(eqn){
     line.appendChild(in_field)
     line.appendChild(sub_table)
 
-    if (eqn.sub_table){
+    if (eqn.sub_table || is_error){
         line.appendChild(output_arr)
         line.appendChild(out_field)    
     }
@@ -1133,8 +1178,7 @@ function make_solve_block(){
     const block = document.createElement("div")
     block.id = "solve-block"
     block.classList.add("block")
-    block.style.marginTop = "30px"
-
+    
     const solve_span_height = "20px" // cause screw css's attempt at variables
 
     const solve_span = document.createElement("span")
@@ -1154,24 +1198,34 @@ function make_solve_block(){
     var in_field = document.createElement('input')
     in_field.id = "solve-field"
     in_field.classList.add("block-name-txt")
+    in_field.placeholder = "Block to solve"
+    in_field.style.width="150px"
+    in_field.style.marginRight="0px"
     // MQ.MathField(in_field)
 
     reference_line.appendChild(solve_span)
     reference_line.appendChild(in_field)
 
     let table
-    if (!GLOBAL_solve_stuff){
+
+
+    if (!GLOBAL_solve_stuff || !GLOBAL_solve_stuff.result){
+        $("#toggle-solve-steps")[0].style.display="none"
         return block
     }
-    in_field.value = GLOBAL_solve_stuff.reference
+
+
+
+
 
     // MQ(in_field).latex(GLOBAL_solve_stuff.reference)
 
 
-    if (!GLOBAL_solve_stuff.result){
-        return block
-    }
-    
+    in_field.value = GLOBAL_solve_stuff.reference
+
+    $("#toggle-solve-steps")[0].style.display=""
+
+
     table = make_sub_table(GLOBAL_solve_stuff.table, GLOBAL_solve_stuff.result, true)
     table.id = "solve-table"
 
@@ -1186,7 +1240,7 @@ function make_solve_block(){
     if (solve_result.error instanceof Error){
         const error_field=document.createElement('span')
         error_field.style.color = 'rgb(200,0,0)'
-        const error_message = solve_result.error.message.replaceAll("\\text{","").replaceAll("}","").replaceAll("{","")
+        const error_message = solve_result.error.message
         error_field.innerHTML = error_message  // this occurs only when it's an error or new line
         // error_field.classList.add("error-msg")
         // in_field.classList.add("input-error")
@@ -1207,11 +1261,17 @@ function make_block(SoE){
 
     block.className="block"
 
+    // TODO copy and paste i am beyond caring at this point though
+    toggle_blocks_button = $("#toggle-blocks")[0]
+    toggle_blocks_text = toggle_blocks_button.innerText
+    if (toggle_blocks_text === "Show Blocks"){
+        block.style.display = 'none'
+    }
 
     var remove_button=document.createElement('button')
     remove_button.onclick=function(event){
 
-        if (($(".block")).length === 1){
+        if (($(".block")).length === 2){
             return
         }
 
@@ -1254,7 +1314,7 @@ function make_block(SoE){
         var row = e.target.parentElement.parentElement.parentElement
         change_start_idx([].indexOf.call(row.parentNode.children, row))
     }
-    
+    name_field.placeholder = "Block name"
     var error_field = document.createElement('span')
     error_field.classList.add("block-error-msg")    // right now just for finding it so it can be removed on edit (no style)
 
@@ -1361,6 +1421,10 @@ function make_block(SoE){
 
     //lines.forEach((line)=>{line.style.display = SoE.display})
 
+    if ($("#toggle-blocks")[0] === "Show Blocks"){
+        block.style.display = 'none'
+    }
+
     return block
 
 
@@ -1463,7 +1527,6 @@ function replace_messages_with_errors(obj) {
     return obj;
 }
 
-  
 
 
 
@@ -1473,12 +1536,34 @@ function make_sub_table(table_data, solve_result, is_solve_line){
     
     var table = document.createElement("table")
 
+
     let base_vars
 
     if (table_data!==undefined && table_data.length!==0){
+
         base_vars = table_data[0]
 
+        const unsorted_base_vars = JSON.parse(JSON.stringify(base_vars))
+
+        table_data[0] = unsorted_base_vars
+
+        base_vars.sort()
+
+
+        const sort_idxs = base_vars.map(unsorted_var => {
+            return unsorted_base_vars.indexOf(unsorted_var)
+        })
+
+
+
         for (let i=0;i<table_data.length;i++){
+
+            const row = table_data[i]
+            const sorted_row = sort_idxs.map(idx => {
+                return row[idx]
+            })
+
+
 
             let solve_output_eqns
 
@@ -1494,7 +1579,11 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
             let blank_idxs
             if (contains_error){
-                blank_idxs = solve_result[i-1].output_idxs
+                const sorted_output_idxs = sort_idxs.map(sort_idx => {
+                    return solve_result[i-1].output_idxs[sort_idx]
+                })
+    
+                blank_idxs = sorted_output_idxs
             }else{
                 blank_idxs = []
             }
@@ -1504,7 +1593,8 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                 blank_idxs = []
             }
 
-            const new_row = make_row(table_data[i],editable,solve_output_eqns,blank_idxs)
+
+            const new_row = make_row(sorted_row,editable,solve_output_eqns,blank_idxs)
 
             if (contains_error){
                 
@@ -1579,11 +1669,13 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
             }
             
+            let rounded_cell_val
+
             if (!blank_idxs.includes(idx)){
                 // round_decimals is actually overkill
                     // that rounds all numbers in an expression
                     // i only need to round a single number
-                const rounded_cell_val = remove_char_placeholders( round_decimals(cell_val, 3))
+                rounded_cell_val = remove_char_placeholders( round_decimals(cell_val, 3))
                 MQ(in_field).latex(rounded_cell_val)
             }
            
@@ -1591,7 +1683,20 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
 
             var cell = document.createElement("td")
-            in_field.style.width = "50px"
+
+            if (is_solve_line && not_first_row){
+                let n_digits
+                if (rounded_cell_val){
+                    n_digits = rounded_cell_val.toString().length
+                }else{
+                    n_digits = 0
+                }
+                width = Math.max(n_digits*10+20,50)
+            }else{
+                width = 50
+            }
+
+            in_field.style.width = `${width}px`
             cell.appendChild(in_field)
             row.appendChild(cell)
 
@@ -1637,7 +1742,13 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 			}
 
 			var clear = document.createElement("button")
-            clear.classList.add("table-clear")
+
+            if (is_solve_line){
+                clear.classList.add("solve-table-clear")
+            }else{
+                clear.classList.add("table-clear")
+            }
+            
 			clear.innerText="-"
 			clear.onclick = (e)=>{
                 change_start_idx($(e.target).parents(".block").index())
@@ -1768,6 +1879,8 @@ function make_tooltip(){
     tooltip.classList.add("tooltip")
     return tooltip
 }
+
+$("#run-button")[0].appendChild(make_tooltip())
 
 function wrap_static_MQ(eqn, in_table = true){
 
@@ -2163,6 +2276,13 @@ function switch_popup(sel_child_name,e){
 
 function display_vis(vis_eqns){
     
+
+    if (vis_eqns.length > 0){
+        toggle_visual_buttons("")
+    }
+    
+
+
     resetGS()
     
     vis_eqns.forEach(eqn=>{

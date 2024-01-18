@@ -1,43 +1,7 @@
+<style>
+  input[type=text] {
+    color: black; /* set the text color to black */
+  }
+</style>
 
-
-<link type="text/css" href="https://www.glowscript.org/css/redmond/2.1/jquery-ui.custom.css" rel="stylesheet" />
-<link type="text/css" href="https://www.glowscript.org/css/ide.css" rel="stylesheet" />
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-<script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
-
-
-
-
-<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery.min.js"></script>
-<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery-ui.custom.min.js"></script>
-<script type="text/javascript" src="https://www.glowscript.org/package/glow.3.0.min.js"></script>
-<script type="text/javascript" src="https://www.glowscript.org/package/RSrun.3.0.min.js"></script>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.js"></script>
-<script src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>  
-
-
-<!-- not needed since its imported in worker, only including it so i can use it in the debugger-->
-
-
-
-<!-- firebase-->
-<script src="https://www.gstatic.com/firebasejs/3.5.2/firebase.js"></script>
-
-<!-- mathquill -->
-<link rel="stylesheet" href="mathquill/mathquill.css"/>
-<!-- interferes with GS and it looks like mathquill doesnt require it (i think as long as it has the other jquery version)-->
-<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>-->
-<script src="mathquill/mathquill.js"></script>
-
-<div id="math">ymax=ymin+\delta</div>
-
-<script>
-
-var MQ = MathQuill.getInterface(2)
-
-
-MQ.StaticMath(document.getElementById("math"))
-
-</script>
+<input type="text" placeholder="Enter your name">
