@@ -11,7 +11,8 @@ quick stuff to do
 
 stupid CSS
 	
-	when it saves a solve block when there's an error, it gets rid of it
+	sub table errors shouldn't have arrows you have to expand
+		and it should be red
 
 	figure out what tooltips to have
 		Undo and Redo if i use arrows

@@ -189,11 +189,11 @@ function save_sheet(){
     const blocks = JSON.parse(JSON.stringify((DOM2data())))
     const solved_blocks = calc(blocks,0,blocks.length)
 
-    
+    // just cause of firebase
     const sanitized_solved_blocks = replace_errors_with_messages(solved_blocks)
-    
+    const sanitized_solve_stuff = replace_errors_with_messages(GLOBAL_solve_stuff)
 
-    const sheet_data = {name: sheet_name, blocks: sanitized_solved_blocks, visuals: equation_visuals, solve_stuff: GLOBAL_solve_stuff}
+    const sheet_data = {name: sheet_name, blocks: sanitized_solved_blocks, visuals: equation_visuals, solve_stuff: sanitized_solve_stuff}
     
 
     //! for now always saving into top folder
@@ -998,7 +998,7 @@ function make_line(eqn){
         out_field.innerHTML = ""
         show_output = "block"
     }else if (is_error){
-        out_field.innerHTML = display_eqns  // this occurs only when it's an error or new line
+        out_field.innerHTML = display_eqns.message  // this occurs only when it's an error or new line
         out_field.classList.add("error-msg")
         in_field.classList.add("input-error")
         show_output = "block"
@@ -1226,6 +1226,8 @@ function make_solve_block(){
     $("#toggle-solve-steps")[0].style.display=""
 
 
+
+     
     table = make_sub_table(GLOBAL_solve_stuff.table, GLOBAL_solve_stuff.result, true)
     table.id = "solve-table"
 
@@ -1237,16 +1239,18 @@ function make_solve_block(){
 
     const solve_result = GLOBAL_solve_stuff.result[0]
     
-    if (solve_result.error instanceof Error){
+    if (solve_result.error !== undefined){
         const error_field=document.createElement('span')
         error_field.style.color = 'rgb(200,0,0)'
-        const error_message = solve_result.error.message
+        const error_message = solve_result.error
         error_field.innerHTML = error_message  // this occurs only when it's an error or new line
         // error_field.classList.add("error-msg")
         // in_field.classList.add("input-error")
         show_output = "block"    
 
         block.appendChild(error_field)
+    }else{
+        
     }
     
 
@@ -1539,7 +1543,11 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
     let base_vars
 
-    if (table_data!==undefined && table_data.length!==0){
+    // my code has descended into madness
+    // checking outputsolveidxs undefined since
+        // if it's not undefined, it's still the old table before it hit an error
+        // this happens if you create a table, then do something after that immediately hits an error (e.g. invalid block name)
+    if (table_data!==undefined && table_data.output_solve_idxs === undefined && table_data.length!==0){
 
         base_vars = table_data[0]
 
@@ -1555,6 +1563,10 @@ function make_sub_table(table_data, solve_result, is_solve_line){
         })
 
 
+        // fuck firebase omg
+        if (solve_result[0].output_idxs === undefined){
+            solve_result[0].output_idxs = []
+        }
 
         for (let i=0;i<table_data.length;i++){
 
@@ -1583,7 +1595,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                     return solve_result[i-1].output_idxs[sort_idx]
                 })
     
-                blank_idxs = sorted_output_idxs
+                blank_idxs = sorted_output_idxs.filter(idx => {return idx !== undefined})
             }else{
                 blank_idxs = []
             }

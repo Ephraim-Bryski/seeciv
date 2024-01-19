@@ -152,7 +152,21 @@ function calc(SoEs,start_idx,end_idx){
                 }
             }
             
-            
+            function contains_error(object){
+                if (typeof object === 'string'){
+                    return false
+                }
+                for (key of Object.keys(object)){
+                    const sub_object = object[key]
+                    if (sub_object instanceof Error){
+                        return true
+                    }
+                    if (contains_error(sub_object)){
+                        return true
+                    }
+                }
+                return false
+            }
 
 
             if (ref_idx<start_idx){
@@ -162,7 +176,11 @@ function calc(SoEs,start_idx,end_idx){
             }
             var ref_SoE=ref_SoEs[ref_idx].eqns
             var eqns = []
+            if (contains_error(ref_SoEs[ref_idx])){
+                throw new InvalidReference(ref+" has an error")
+            }
             if (ref_SoEs[ref_idx].result instanceof Error){
+                throw "should have been caught"
                 throw new InvalidReference(ref+" has an error")
             }
             ref_SoE.forEach(ref_line => {
@@ -171,9 +189,11 @@ function calc(SoEs,start_idx,end_idx){
                     boop
                 }
                 if (ref_eqns instanceof Error){
+                    throw "should have been caught"
                     throw new InvalidReference(ref+" has an error")
                 }
     
+
     
                 eqns.push(ref_eqns.flat())
             });
@@ -531,10 +551,14 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
         }catch(error){
             solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, CantSolveError, FormatError]
             if (solve_error_types.some((type) => {return error instanceof type})){
-                GLOBAL_solve_stuff.steps.error = error.message
+                
                 let col_idxs = output_solve_idxs
 
                 eqns_subbed = {error: error, output_idxs: col_idxs}
+
+                if (for_solving){
+                    GLOBAL_solve_stuff.steps.error = error.message
+                }
             }else{
                 throw error 
             }
