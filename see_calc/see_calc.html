@@ -75,6 +75,66 @@
 <body>
 
 
+    
+<!-- Include Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+<!-- Your Firebase Config -->
+<script>
+
+
+
+
+
+
+const oldfirebaseConfig = {
+  apiKey: "AIzaSyDUuFHtA_-CFs90xbX-Z1Ros3QGwegFvcg",
+  authDomain: "test-7af03.firebaseapp.com",
+  databaseURL: "https://test-7af03-default-rtdb.firebaseio.com",
+  projectId: "test-7af03",
+  storageBucket: "test-7af03.appspot.com",
+  messagingSenderId: "772660129335",
+  appId: "1:772660129335:web:79af91672aff96686159b2",
+  measurementId: "G-D312DPNMBZ"
+};
+
+const fb_config = {
+    apiKey: "AIzaSyBrjMcMVh5Qe4i1wI28Hu6cWtlBLn-1Fpc",
+    authDomain: "see-calc-8d690.firebaseapp.com",
+    databaseURL: "https://see-calc-8d690-default-rtdb.firebaseio.com",
+    projectId: "see-calc-8d690",
+    storageBucket: "see-calc-8d690.appspot.com",
+    messagingSenderId: "712428414817",
+    appId: "1:712428414817:web:13ebddba5db433e5960720",
+    measurementId: "G-GP5ZDNCTXX"
+};
+
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+// Sign in with Google
+function signInWithGoogle() {
+  var provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider).then(function(result) {
+    // User signed in successfully
+    var user = result.user;
+    console.log(user.email);
+    //alert(`logged in as ${user.email}`)
+  }).catch(function(error) {
+    // Handle errors
+    console.error(error);
+  });
+}
+firebase.database().ref();
+
+// Add a button in your HTML to trigger the sign-in
+</script>
+<button onclick="signInWithGoogle()">Sign in with Google</button>
+
+
+
 
 
 <div id="top-menu" style="width:100%;background-color: white;">
