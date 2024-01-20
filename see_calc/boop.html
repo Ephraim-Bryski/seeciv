@@ -1,0 +1,80 @@
+
+
+<!-- fb log in -->
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<button onclick="signInWithGoogle()">Sign in with Google</button>
+
+<script>
+var firebase_log_in = firebase
+
+
+const fb_config_log_in = {
+  apiKey: "AIzaSyDUuFHtA_-CFs90xbX-Z1Ros3QGwegFvcg",
+  authDomain: "test-7af03.firebaseapp.com",
+  databaseURL: "https://test-7af03-default-rtdb.firebaseio.com",
+  projectId: "test-7af03",
+  storageBucket: "test-7af03.appspot.com",
+  messagingSenderId: "772660129335",
+  appId: "1:772660129335:web:79af91672aff96686159b2",
+  measurementId: "G-D312DPNMBZ"
+};
+
+  // Initialize Firebase
+  firebase_log_in.initializeApp(fb_config_log_in);
+
+
+
+// Sign in with Google
+function signInWithGoogle() {
+  var provider = new firebase_log_in.auth.GoogleAuthProvider();
+  firebase_log_in.auth().signInWithPopup(provider).then(function(result) {
+    // User signed in successfully
+    var user = result.user;
+    console.log(user.email);
+    //alert(`logged in as ${user.email}`)
+  }).catch(function(error) {
+    // Handle errors
+    console.error(error);
+  });
+}
+// Add a button in your HTML to trigger the sign-in
+</script>
+
+
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/3.5.2/firebase.js"></script>
+
+<script>
+    const fb_config = {
+    apiKey: "AIzaSyBrjMcMVh5Qe4i1wI28Hu6cWtlBLn-1Fpc",
+    authDomain: "see-calc-8d690.firebaseapp.com",
+    databaseURL: "https://see-calc-8d690-default-rtdb.firebaseio.com",
+    projectId: "see-calc-8d690",
+    storageBucket: "see-calc-8d690.appspot.com",
+    messagingSenderId: "712428414817",
+    appId: "1:712428414817:web:13ebddba5db433e5960720",
+    measurementId: "G-GP5ZDNCTXX"
+};
+
+
+firebase.initializeApp(fb_config)
+
+database = firebase.database().ref()
+
+
+database.on("value", update_library,(e)=>{throw e});
+
+function update_library(package = null){
+
+    if (package !== null){
+        const data = package.val()
+        firebase_data = data //Object.values(data)  
+        console.log(firebase_data)
+    }
+  }
+</script>
