@@ -544,11 +544,11 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
         try{    
 
             if (sub_row.some(cell => {return cell.includes("=")})){
-                throw new FormatError("cannot substitute an equation")
+                throw new FormatError("Cannot substitute an equation")
             }
 
             if (for_solving && sub_row.some(cell => {return isNaN(cell)})){
-                throw new FormatError("can only substitute in a number when solving")
+                throw new FormatError("When solving, can only substitute numbers")
             }
 
 

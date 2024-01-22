@@ -280,14 +280,34 @@ function take_exponent(base,exponent){
 
 function take_trig_func(trig_func,value){
 
-    const evaluated_value = String(evaluate_fraction(value))
+    const is_inverse = trig_func.startsWith("a")
+    const is_hyperbolic = trig_func.replace("(","").endsWith("h")
+
+
+    const evaluated_value_deg = String(evaluate_fraction(value))
+
+    let evaluated_value
+    if (!is_inverse && !is_hyperbolic){
+        evaluated_value = evaluated_value_deg + "*pi/180"
+    }else{
+        evaluated_value = evaluated_value_deg
+    }
 
     const expression = trig_func + evaluated_value + ")" 
 
-    const result = math.evaluate(expression)
+    const result_rad = math.evaluate(expression)
 
-    if (Math.abs(result.im) > 10 ** -8){
+
+
+    if (result_rad.im !== undefined){
         throw new EvaluateError("trig function evaluated outside of domain")
+    }
+
+    let result
+    if (is_inverse && !is_hyperbolic){
+        result = result_rad * 180/Math.PI
+    }else{
+        result = result_rad
     }
 
     return num_to_string(result)    

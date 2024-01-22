@@ -3,6 +3,9 @@ var MQ = MathQuill.getInterface(2);
 
 CURRENT_USER = null
 
+const trig_names = "sin cos tan csc sec cot sinh cosh tanh csch sech coth arcsin arccos arctan arccsc arcsec arccot arcsinh arccosh arctanh arccsch arcsech arccoth"
+const selected_greek_names = "pi alpha theta omega tau"
+
 
 function removeUndefined(obj) {
     if (Array.isArray(obj)) {
@@ -912,8 +915,6 @@ function make_line(eqn){
     in_field.classList.add("line-input")
     in_field.classList.add("MQ-input")
     
-    const trig_names = "sin cos tan csc sec cot sinh cosh tanh csch sech coth arcsin arccos arctan arccsc arcsec arccot arcsinh arccosh arctanh arccsch arcsech arccoth"
-    const selected_greek_names = "pi alpha theta omega tau"
 
     //MQ
     MQ.MathField(in_field, {
@@ -1028,14 +1029,18 @@ function make_line(eqn){
         display_eqns.forEach(arr_row=>{
             
             var row = document.createElement("tr")
-            if (arr_row.error instanceof Error){row.innerText = arr_row.error.message}
-            else if (typeof(arr_row) === "string"){
+            if (arr_row.error instanceof Error){
+                row.innerText = arr_row.error.message
+                row.classList.add("error-msg")
+            }else if (typeof(arr_row) === "string"){
                 // this is soooooooo fucking bad
                 // firebase can't save error messages, so i replaced them with strings
                 // i then undo this when loading the sheet, but i check for error attributes
                 // here it's not saved as an error attribute
                 // so it doesn't convert from string
                 row.innerText = arr_row
+                row.classList.add("error-msg")
+
             }
             else if(is_solve_line){
                 row.innerText = ""
@@ -1239,7 +1244,13 @@ function make_solve_block(){
     if (solve_result.error !== undefined){
         const error_field=document.createElement('span')
         error_field.style.color = 'rgb(200,0,0)'
-        const error_message = solve_result.error
+        const error = solve_result.error
+        let error_message
+        if (error instanceof Error){
+            error_message = error.message
+        }else{
+            error_message = error // this happens when you're loading what was saved, cause you can't save an error
+        }
         error_field.innerHTML = error_message  // this occurs only when it's an error or new line
         // error_field.classList.add("error-msg")
         // in_field.classList.add("input-error")
@@ -1671,7 +1682,11 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
             
                 //MQ
-                MQ.MathField(in_field, {handlers: {edit: function() {
+                MQ.MathField(in_field, {
+                    autoCommands: selected_greek_names,
+                    autoOperatorNames: trig_names,
+                    handlers: {edit: function() {
+                    
                     if(in_field.parentElement===null){
                         return 
                     }
@@ -1870,7 +1885,7 @@ function setUpGS(id){
     
     var graphDiv = document.getElementById(id)
     window.__context= {glowscript_container: graphDiv}  
-    let scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: true,userzoom: true,autoscale: true})
+    let scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: true,userzoom: true,autoscale: true,resizable:false})
     //scene.forward=vec(1,-0.5,-1)
 
     return scene
@@ -2344,7 +2359,7 @@ function display_vis(vis_eqns){
     // calling twice to readjust for the coordinate system
     // need to call it the first time so it knows the proper range when drawing the coordinate system    
     adjust_scale() 
-    scene.center = vec(0,0,0)
+    
 }
 
 
@@ -2407,6 +2422,7 @@ function adjust_scale(){
     
     const range = max(ranges)
 
+    // alternatively set the center to vec(0,0,0) and for the range consider the max of the absolute distance from the origin
     scene.center = vec(...center)
     scene.range = range
     

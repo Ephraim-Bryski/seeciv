@@ -17,8 +17,9 @@ const greek_letters = [
 
 function add_char_placeholders(eqn){
 
-    
-
+	eqn = eqn.replaceAll("\\max","max")
+	eqn = eqn.replaceAll("\\min","min")
+	eqn = eqn.replaceAll("\\deg","deg")
 
     greek_letters.forEach(letter => {
         const before = "\\"+letter

@@ -1,56 +1,110 @@
+Undo and redo
 
-the only issue with login is it doesn't work with launch.json
-so i have to wait until the end to transfer everything over
+events that trigger it
+	keypress
+	end of data2DOM (that handles loading sheets)
 
-
-
-quick stuff to do
-
-	use degrees instead of radians would actually be pretty simple
-		just change take_trig_func in cas
-
-	max, min, deg are keywords in mathquill -- get rid of this
+what info does it need
+	should just be DOM2data() and solve stuff
 	
 
-	the view doesn't adjust when the visual translates, only when zoom changes
-		still need to decide whether to center at origin
+
+update the style of the top menu
+	i think just white text with the same black background would be better
 
 
+improve numeric solver
+	just the obvious like don't check 10**10
 
-stupid CSS
+visual color as another input
 
-	prevent the glowscript canvas from going just a tad bit outside the window
-		leads to annoying scroll bars
-			
-	sub table errors shouldn't have arrows you have to expand
-		and it should be red
+sliders, or even play <-- would allow for a lot of dynamics stuff to actually make sense
 
+figure what to do with remove parentheses or some simplfiy for sub table
 
+To do at end
 
-stuff to do at end
-
-	figure what to do with remove parentheses or some simplfiy for sub table
-
-	visual keyword
-
-	undo and redo, i think i got rid of it cause getting caught in tracking changes got annoying
-	block and/or sheet info
-
-	don't allow people to delete library sheets
-	improve numeric solver
-	stupid tiny sub table rectangle
-
+	the only issue with login is it doesn't work with launch.json
+	so i have to wait until the end to transfer everything over
+	
 	catch all error so it doesn't break if some weird error comes up
 
 
 
 visuals to create
 
+	basic statics, equilibrium loads
+		simplest it's just levers
+		but could also have distributed loads
+		of course much more limited than skyciv but nice how you'd see loads update real time
+
+	light ray refraction
+		could have multiple layers
+		could determine path it would have to take
+	
+	surface bending with poisson
+		could fix 0 bending one way, and determines moment required
+
+	spinning pendulum
+		how it angles higher the faster it spins
+
+	multiple loads on a cable
+		assume cable is weightless, so just straight lines
+
+	ramps
+		rolling, moment of inertia
+		mech advantage
+
+	the pulling wheel by string "paradox"
+
+	equilibrium of chemical reactions?
+		concentrations at equilibrium
+
+
+
+	ideal gas law
+		n of little spheres and color for T, and arrows for P
+		kind of pointless though unless you do something else with it
+		could go all out and actually create the model with collisions
+			could just do 2d
+			could even show expected vs actual averaged pressure
+
+		not super useful to hav a cas at that point, since P would almost always be the output
+			could also show plot (or at least a point on the plot), then moving it shows the different parameters
+
+	buoyancy?
+		not really much you can do with it without integrating
+
+	tiny space truss
+		super simple things
+		still would have to deal with 3d eqns, annoying cause i don't have vectors 
+
+	planes connected in shear
+		not that interesting but pretty simple
+			would just need a quad primitive, which is anyway a gs primitive so super easy
+
+
+	wedge
+		super simple, could just be 2d, three forces
+
+	multiple stacked blocks in friction
+		issue is i don't have inequalities, max, or min, so i can't say something like when one of the surfaces slips
+
+	the arched stack blocks thing
+		issue is i don't have sum
+			might still be ok, since you would just add to the one above
+
+	
+
+
+
+
 	for bars in tension in compression, i could have diagonal lines both ways (creating squares)
 		then the squares will deform
 
 	random stuff
 		balloon, how the pressure after a certain point goes down cause the rubber thins
+			or the two balloons thing, issue is it would need to find the two different solutions
 		you could have load suspended 3 points in 3d space, show how the tension changes with the angles
 		car differential
 		different stuff for mechanical advantage
@@ -97,24 +151,24 @@ visuals to create
 	numerical analysis??? need to think about that
 
 
-CAS
-	
-	0=0 should be removed, at least from eqns to display
-	simplify top exponent out and top product coefficients????
-		getting stuck on this
+Future??
 
-	tests with remove vars too?
-	y=x^2 complexity is taken as 3 since *-1 adds to the complexity --> too much
-	haven't handled this: combine_solve_term(eqn_to_tree("a*(a+a*b)+d"),"a")
+	CAS
+		
+		0=0 should be removed, at least from eqns to display
+		simplify top exponent out and top product coefficients????
+			getting stuck on this
 
-Efficiency
+		tests with remove vars too?
+		y=x^2 complexity is taken as 3 since *-1 adds to the complexity --> too much
+		haven't handled this: combine_solve_term(eqn_to_tree("a*(a+a*b)+d"),"a")
 
-	could be even faster by only simplifying where it's subbed in for sub_in function
-	could save the tree from block to block so it doesn't have to parse repeatedly
+	Efficiency
 
-Future not very important stuff
+		could be even faster by only simplifying where it's subbed in for sub_in function
+		could save the tree from block to block so it doesn't have to parse repeatedly
 
-	visual color as another input
+
 
 	input expressions instead of just values to plotting
 
@@ -124,5 +178,4 @@ Future not very important stuff
 	Symbolic if statements
 	Max, min, and inequalities
 
-	sliders, or even play <-- would allow for a lot of dynamics stuff to actually make sense
 
