@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+
+
+<link type="text/css" href="https://www.glowscript.org/css/redmond/2.1/jquery-ui.custom.css" rel="stylesheet" />
+<link type="text/css" href="https://www.glowscript.org/css/ide.css" rel="stylesheet" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+
+
+
+
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery-ui.custom.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/glow.3.0.min.js"></script>
+<script type="text/javascript" src="https://www.glowscript.org/package/RSrun.3.0.min.js"></script>
+
+<div id="vis" style="width:100%;height:100%"></div>
+
+<script>
+
+
+    window.__context= {glowscript_container: $("#vis")[0]}  
+    canvas()
+
+    function draw_surface(){}
+
+    make_water_wave(5,3,2,1,0,20,1)
+
+    function make_water_wave(depth,height,length,T,time,channel_length,channel_width){
+
+        const water_color = vec(0,0,0.7)
+
+        const n_steps = 100
+
+        function get_elevation(x){
+            return depth+height/2*Math.cos(x/length-2*Math.PI*time/T)
+        }
+        
+        function linspace(start, end, steps) {
+            const stepSize = (end - start) / (steps - 1);
+            return Array.from({ length: steps }, (_, index) => start + index * stepSize);
+        }
+
+        
+        const x_positions = linspace(0, channel_length, n_steps);
+
+        const elevations = x_positions.map(get_elevation)
+        
+        for (let i=0;i<elevations.length-1;i++){
+            const y_1 = elevations[i]
+            const y_2 = elevations[i+1]
+            const x_1 = x_positions[i]
+            const x_2 = x_positions[i+1]
+
+            const z_f = 0
+            const z_b = channel_width
+
+            const points = [
+                [x_1,0,z_f], // 0
+                [x_2,0,z_f], // 1
+                [x_1,y_1,z_f],// 2
+                [x_2,y_2,z_f],// 3
+                [x_1,0,z_b], // 4
+                [x_2,0,z_b], // 5
+                [x_1,y_1,z_b], //6
+                [x_2,y_2,z_b], //7
+            ]
+
+            const quad_point_idxs = [
+                [0,1,3,2],
+                [4,5,7,6],
+                [2,3,7,6],
+                [0,1,5,4]
+            ]
+            
+            const vertices = points.map(p => {
+                return vertex({pos:vec(...p),color:water_color}) 
+            })
+
+
+            quad_point_idxs.forEach(idxs => {
+                quad_vertices = idxs.map(idx => {
+                    return vertices[idx]
+                })
+
+                quad({vs:quad_vertices})
+            })
+            
+            
+        }
+
+
+
+        
+    }
+
+
+</script>

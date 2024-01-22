@@ -66,6 +66,22 @@ let primitive_vis = [
 
 
     {
+        name: "Sphere",
+
+        vars: {
+            "x_0":0,
+            "y_0":0,
+            "z_0":0,
+            "r":1},
+        
+        vis: (inp)=>{
+            sphere({pos:vec(inp.x_0,inp.y_0,inp.z_0),
+                    radius:inp.r})
+        }
+    },
+
+
+    {
 
         // gonna be assumed it's running along the z axis and is at y=0
 

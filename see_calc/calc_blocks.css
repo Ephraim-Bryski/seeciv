@@ -14,6 +14,7 @@
     width: fit-content; 
     border-radius: 5px;
     position: relative;
+    pointer-events: auto;
 }
 
 .block-name{

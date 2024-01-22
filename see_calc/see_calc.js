@@ -1,7 +1,6 @@
 
 var MQ = MathQuill.getInterface(2);
 
-
 CURRENT_USER = null
 
 
@@ -146,8 +145,9 @@ const auth = firebase.auth()
 function clear_sheet(){
     GLOBAL_solve_stuff = {reference:""}
     $(".block").remove()
-    document.body.appendChild(make_block())
-    document.body.appendChild(make_solve_block())
+    const main  = $("#calc")[0]
+    main.appendChild(make_block())
+    main.appendChild(make_solve_block())
     window.location.hash = ""
 
 }
@@ -373,8 +373,6 @@ function create_unknown_page(){
 
     $(".block").remove()
 
-
-    // document.body.style.display = "none"
 }
 
 function load_sheet(all_names, owner){
@@ -432,21 +430,17 @@ function load_sheet(all_names, owner){
     resetGS()    
 
     document.getElementById("save-field").value=sheet_name
-    // TODO right now im never setting loaded
-    if (document.body.loaded){
-        throw "should never reach this point"
-        send_sheet(sheet_data,0,sheet_data.length)
-    }else{
-        //! will not produce a visual right now (would have to run compute_sheet first to get the vis equations), then call use_calc_results
-        data2DOM(sheet_data)
 
-        if (sheet_visuals !== undefined){
-            // checking if undefined just cause of stuff i saved before adding the visuals attribute
-            // getting dictionary values cause of stupid firebase ):<
-            display_vis(Object.values(sheet_visuals).flat())
-        }
-        
+    //! will not produce a visual right now (would have to run compute_sheet first to get the vis equations), then call use_calc_results
+    data2DOM(sheet_data)
+
+    if (sheet_visuals !== undefined){
+        // checking if undefined just cause of stuff i saved before adding the visuals attribute
+        // getting dictionary values cause of stupid firebase ):<
+        display_vis(Object.values(sheet_visuals).flat())
     }
+    
+
 
 
 }
@@ -710,7 +704,7 @@ function data2DOM(SoEs){
 
     toggle_visual_buttons("none")
     
-    const main = document.body
+    const main = $("#calc")[0]
 
     for (let i=0;i<SoEs.length;i++){
  
@@ -919,9 +913,12 @@ function make_line(eqn){
     in_field.classList.add("MQ-input")
     
     const trig_names = "sin cos tan csc sec cot sinh cosh tanh csch sech coth arcsin arccos arctan arccsc arcsec arccot arcsinh arccosh arctanh arccsch arcsech arccoth"
+    const selected_greek_names = "pi alpha theta omega tau"
+
     //MQ
     MQ.MathField(in_field, {
         //autoCommands: "sqrt", // to just type instead of backslash
+        autoCommands: selected_greek_names,
         autoOperatorNames: trig_names,
         handlers: {edit: function() {
         
@@ -1564,7 +1561,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
 
         // fuck firebase omg
-        if (solve_result[0].output_idxs === undefined){
+        if (solve_result !== undefined && solve_result[0].output_idxs === undefined){
             solve_result[0].output_idxs = []
         }
 
@@ -1591,11 +1588,14 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
             let blank_idxs
             if (contains_error){
-                const sorted_output_idxs = sort_idxs.map(sort_idx => {
-                    return solve_result[i-1].output_idxs[sort_idx]
+
+                const output_idxs = solve_result[i-1].output_idxs
+
+                blank_idxs = output_idxs.map(output_idx => {
+                    return sort_idxs.indexOf(output_idx)
                 })
-    
-                blank_idxs = sorted_output_idxs.filter(idx => {return idx !== undefined})
+
+
             }else{
                 blank_idxs = []
             }
@@ -1960,6 +1960,10 @@ var hist_idx = 0
 max_hist = 10
 
 // ill just save the data instead of DOMs (adding doms messes up mq focus fields for some reason)
+
+
+
+
 
 function undo(){
     var past_dom = hist_doms[hist_idx-1]

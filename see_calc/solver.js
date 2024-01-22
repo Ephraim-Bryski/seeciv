@@ -886,6 +886,8 @@ function get_all_vars(eqns){
 
     all_vars = all_vars.filter(test_var=>{return !test_var.includes("VISUAL")})
 
+    // just in case it's not in latex
+    all_vars = all_vars.filter(test_var => {return !trig_funcs.includes(test_var)})
     
     return all_vars
 }

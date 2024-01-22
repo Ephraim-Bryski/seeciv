@@ -1,5 +1,13 @@
 
+the only issue with login is it doesn't work with launch.json
+so i have to wait until the end to transfer everything over
+
+
+
 quick stuff to do
+
+	use degrees instead of radians would actually be pretty simple
+		just change take_trig_func in cas
 
 	max, min, deg are keywords in mathquill -- get rid of this
 	
@@ -10,18 +18,12 @@ quick stuff to do
 
 
 stupid CSS
-	
+
+	prevent the glowscript canvas from going just a tad bit outside the window
+		leads to annoying scroll bars
+			
 	sub table errors shouldn't have arrows you have to expand
 		and it should be red
-
-	figure out what tooltips to have
-		Undo and Redo if i use arrows
-		really don't think add and delete buttons need tooltips but ok for now
-
-	make it so some top menu buttons appear conditionally
-		log in --> save field and button
-
-	add fontawesome icons
 
 
 
@@ -34,7 +36,6 @@ stuff to do at end
 	undo and redo, i think i got rid of it cause getting caught in tracking changes got annoying
 	block and/or sheet info
 
-	try to have google sign in
 	don't allow people to delete library sheets
 	improve numeric solver
 	stupid tiny sub table rectangle
@@ -44,27 +45,33 @@ stuff to do at end
 
 
 visuals to create
+
+	for bars in tension in compression, i could have diagonal lines both ways (creating squares)
+		then the squares will deform
+
+	random stuff
+		balloon, how the pressure after a certain point goes down cause the rubber thins
+		you could have load suspended 3 points in 3d space, show how the tension changes with the angles
+		car differential
+		different stuff for mechanical advantage
+
 	hydrualics
 		pipes (network)
-		open channel
-		water waves (probably sine/cnoidal/whatever profile would be built into visual)
+		pipes in series with grad lines
 		weirs (discharge of different shapes?)
 	mechanics
 		basically all the stuff from old seeciv 
 		mohr's circle <-- could be very useful
-		3d stress strain (you could fix things like strain in one direction)
 		torsion (and with multiple rods)
 		beam moment shear (distributions would be built into the visual)
 		bending (honestly not that interesting a visual)
 	3bar linkage, already have 
 		could do other mechanisms even 3D
-	planetary gears, maybe even auto transmission
 	statics
 		might need vector primitive to be very useful
 		could have forces on something balanced out
 	geotech/foundations
-		soil properties, could have soil layers visual made of cylinders
-		soil layers stresses
+ 		soil layers stresses
 			would want to have functions, but could use trapezoids
 		soil stress over area from loads
 			would need color plot (more generally subbing an expresion instead of a value)

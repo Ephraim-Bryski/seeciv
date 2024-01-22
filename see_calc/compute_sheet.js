@@ -309,15 +309,30 @@ function calc(SoEs,start_idx,end_idx){
 
             var eqns = get_ref_eqns(line)
 
-            const sub_stuff = compute_sub_table(eqns,old_table,true)
+
+
+            const has_vars = get_all_vars(eqns).length > 0
+
+
+            let subbed_systems, new_table, solve_steps
+            if (has_vars){
+                var new_stuff = compute_sub_table(eqns,old_table,true)
+                subbed_systems = new_stuff[0]
+                new_table = new_stuff[1]
+                solve_steps = new_stuff[2]
+            }else{
+                subbed_systems = [eqns]
+                new_table = undefined
+                solve_steps = []
+            }
 
             
-            const subbed_systems = sub_stuff[0]
-            new_table = sub_stuff[1]
-            const solve_steps = sub_stuff[2]
             result = subbed_systems
 
-            GLOBAL_solve_stuff.table = new_table
+            if (new_table !== undefined){
+                GLOBAL_solve_stuff.table = new_table
+            }
+            
             GLOBAL_solve_stuff.result = result
             // GLOBAL_solve_stuff.solve_steps = solve_steps
             
@@ -443,8 +458,8 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
         new_trans_table.push(new_row)
     })
 
-    table = transpose(new_trans_table)
 
+    const table = transpose(new_trans_table)
     // perform substitutions:
     var all_eqns = []
     var var_row = table[0]
