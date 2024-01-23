@@ -175,41 +175,48 @@ function signInWithGoogle() {
 </script>
 
 
+<!--
+<img class="menu-symbol-img" src='icons/arrow-rotate-left-solid-gray.svg' onmouseover="this.src='icons/arrow-rotate-left-solid-white.svg';" onmouseout="this.src='icons/arrow-rotate-left-solid-gray.svg';" />
+      <img class="menu-symbol-img" src='icons/arrow-rotate-right-solid-gray.svg' onmouseover="this.src='icons/arrow-rotate-right-solid-white.svg';" onmouseout="this.src='icons/arrow-rotate-right-solid-gray.svg';" />
+
+-->
 
 
 
 <div id="top-menu">
 
-    <button  id="toggle-blocks" class="popup-sel-btn" onclick="toggle_blocks()">Hide Blocks</button>
-    <button  class="popup-sel-btn" onclick="clear_sheet()">Clear Sheet</button>
+    <button  id="toggle-blocks" class="menu-text" onclick="toggle_blocks()">Hide</button>
 
-    <button  class="popup-sel-btn" onclick="undo()">
-      <img src="icons/rotate-left-solid.svg">
+    <button  class="menu-text" onclick="undo()">
+      Undo
+
+
     </button>
 
-    <button  id="run-button" class="popup-sel-btn" onclick="run_sheet()">
-      <img src="icons/play-solid.svg">   
+    <button  id="run-button" class="menu-text" onclick="run_sheet()">
+      Run
     </button>
 
-    <button  class="popup-sel-btn" onclick="redo()">
-      <img src="icons/rotate-right-solid.svg">
+    <button  class="menu-text" onclick="redo()"> 
+      Redo
+
     </button>
 
-    <input style="height:100%;margin-left:30px" id="save-field" placeholder="Sheet name">
+    <input style="height:100%" id="save-field" placeholder="Sheet name">
 
-    <button  class="popup-sel-btn" onclick="save_sheet()" id="save-button">Save</button>
+    <button  class="menu-text" onclick="save_sheet()" id="save-button">Save</button>
 
-    <button  class="popup-sel-btn visual-toggle" onclick="ortho_xy()" style="display:none">XY</button>
+    <button  class="menu-text visual-toggle" onclick="ortho_xy()" style="display:none">XY</button>
 
-    <button  style="float:right" class="popup-sel-btn" onclick="toggle_solve_steps(event)" id="toggle-solve-steps" style="display:none">Solve Steps</button>
+    <button  style="float:right" class="menu-text" onclick="toggle_solve_steps(event)" id="toggle-solve-steps" style="display:none">Solve Steps</button>
     
-    <button  style="float:right" class="popup-sel-btn" onclick="toggle_library(event)">Library</button>
+    <button  style="float:right" class="menu-text" onclick="toggle_library(event)">Library</button>
     
      
 
 
-    <button style="display:none; float:right" id="sign-in" class="popup-sel-btn" onclick="signInWithGoogle()" >Sign in with Google</button>
-    <button style="display:none; float:right" id="sign-out" class="popup-sel-btn" onclick="signOutUser()">Sign out</button>
+    <button style="display:none; float:right" id="sign-in" class="menu-text" onclick="signInWithGoogle()" >Sign in with Google</button>
+    <button style="display:none; float:right" id="sign-out" class="menu-text" onclick="signOutUser()">Sign out</button>
 
 
 

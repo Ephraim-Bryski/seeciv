@@ -9,7 +9,6 @@ what info does it need
 
 
 
-
 update the style of the top menu
 	i think just white text with the same black background would be better
 

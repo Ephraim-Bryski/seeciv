@@ -839,11 +839,11 @@ function toggle_blocks(){
     toggle_blocks_text = toggle_blocks_button.innerText
 
     let show
-    if (toggle_blocks_text === "Show Blocks"){
-        toggle_blocks_button.innerText = "Hide Blocks"
+    if (toggle_blocks_text === "Show"){
+        toggle_blocks_button.innerText = "Hide"
         show = true
     }else{
-        toggle_blocks_button.innerText = "Show Blocks"
+        toggle_blocks_button.innerText = "Show"
         show = false
     }
 
@@ -1276,7 +1276,7 @@ function make_block(SoE){
     // TODO copy and paste i am beyond caring at this point though
     toggle_blocks_button = $("#toggle-blocks")[0]
     toggle_blocks_text = toggle_blocks_button.innerText
-    if (toggle_blocks_text === "Show Blocks"){
+    if (toggle_blocks_text === "Show"){
         block.style.display = 'none'
     }
 
@@ -1433,7 +1433,7 @@ function make_block(SoE){
 
     //lines.forEach((line)=>{line.style.display = SoE.display})
 
-    if ($("#toggle-blocks")[0] === "Show Blocks"){
+    if ($("#toggle-blocks")[0] === "Show"){
         block.style.display = 'none'
     }
 
@@ -2282,7 +2282,7 @@ function switch_popup(sel_child_name,e){
     const all_btns = [...sel_btn.parentNode.children]
 
     all_btns.forEach(btn=>{
-        btn.classList.remove("popup-sel-btn-selected")
+        btn.classList.remove("menu-text-selected")
     })
 
 
@@ -2307,7 +2307,7 @@ function switch_popup(sel_child_name,e){
         sel_child.style.display = "none"
     }else{
         sel_child.style.display = "block"
-        sel_btn.classList.add("popup-sel-btn-selected")
+        sel_btn.classList.add("menu-text-selected")
 
     }
 

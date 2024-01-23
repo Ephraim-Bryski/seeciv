@@ -44,7 +44,6 @@ body{
     /* general window for variable tracking, showing steps, library etc. */
     position:absolute;
     right:0%;
-    margin-top:10px;
     z-index: 2;
     background-color: white;
     border-radius: 5px;
@@ -56,21 +55,44 @@ body{
     pointer-events: auto;
     width:100%;
 }
-.popup-sel-btn{
+.menu-text{
     height: 100%;
     border:none;
     padding: 10px 16px;
     background-color: transparent;
     position: relative;
     color:lightgray;
+    font-family: "Arial", Arial, sans-serif;
+    font-weight: bold;
+    font-size:15px;
+    padding-top:15px;
+    padding-bottom:15px;
+}
+
+
+.menu-text:hover{
+    color:white;
+    cursor:pointer;
+
+    
+}
+
+.menu-symbol{
+    height: 100%;
+    border:none;
+    padding: 10px 16px;
+    background-color: transparent;
+    position: relative;
     font-family: "Arial", Arial, sans-serif
 
 }
 
+.menu-symbol-img {
+    width: 15px;
+}
 
 
-.popup-sel-btn:hover{
-    color:white;
+.menu-symbol-img:hover{
     cursor:pointer;
 
     
@@ -89,11 +111,19 @@ body{
 }
 
 
+#run-button {
+    color:lightblue;
+}
+#run-button:hover{
+    color: white;
+    .tooltip {display: block; --tooltip-text: "(Ctrl+Enter)";} 
+}
 
-#run-button:hover .tooltip {display: block; --tooltip-text: "Compute Sheet (Ctrl+Enter)";} 
+#toggle-blocks{
+    width: 70px;
+}
 
-
-.popup-sel-btn-selected{
+.menu-text-selected{
     color:white
 }
 
@@ -116,13 +146,16 @@ body{
 .tooltip {
     display: none;
     background: #C8C8C8;
+    color:black;
     border-radius: 5px;
-    margin-left: 10px;
+    margin-left: 0px;
+    margin-top:10px;
     padding: 10px;
     width: fit-content;
     position: absolute;
     z-index: 1000;
     --tooltip-text: inherit;
+    cursor:default;
 
 }
   
