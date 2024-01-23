@@ -54,6 +54,7 @@ body{
 
 #top-menu {
     pointer-events: auto;
+    width:100%;
 }
 .popup-sel-btn{
     height: 100%;
@@ -61,22 +62,39 @@ body{
     padding: 10px 16px;
     background-color: transparent;
     position: relative;
+    color:lightgray;
+    font-family: "Arial", Arial, sans-serif
+
 }
 
+
+
 .popup-sel-btn:hover{
-    background-color: #eeeeee;
+    color:white;
+    cursor:pointer;
+
     
 }
 
-.popup-sel-btn:hover {
-    cursor:pointer;
+
+
+#pretty{
+    color:lightgray;
+    text-decoration: none;
 }
+#pretty:hover {
+    cursor: pointer;
+    color:white;
+   
+}
+
+
 
 #run-button:hover .tooltip {display: block; --tooltip-text: "Compute Sheet (Ctrl+Enter)";} 
 
 
 .popup-sel-btn-selected{
-    background-color: lightgray;
+    color:white
 }
 
 

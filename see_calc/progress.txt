@@ -13,6 +13,13 @@ what info does it need
 update the style of the top menu
 	i think just white text with the same black background would be better
 
+	left side
+		Hide Undo Run Redo, lined up so edge is at edge of blocks (no clear sheet)
+	right side
+		Log In Library, also ligned up
+	when logged in field and Save is in the center
+	when there's a visual, visual ones are to the right of Redo
+
 
 improve numeric solver
 	just the obvious like don't check 10**10
@@ -32,8 +39,9 @@ To do at end
 
 
 Solver issues
-	sometimes want positive values only, getting negative can screw things up
-		circulur pendulum, where r=L*sin(theta) instead of r/L=sin(theta) would make r<0 for some reason, screws everything else up
+	sometimes want negative value instead
+		with pendulum, have to set the position to -ybob so it's down
+		
 	
 
 visuals to create

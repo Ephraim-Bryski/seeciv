@@ -1985,18 +1985,28 @@ function undo(){
 
     if (past_dom===undefined){return}
     //  in reality would be a callback
+    // data2DOM(calc(past_dom,0,past_dom.length))
     data2DOM(past_dom)
-
     hist_idx-=1
     //document.body.appendChild(past_dom[0])
 }
 
 function redo(){
+
+
+    function copy(stuff){
+        // idk how but calc must mutate the data somehow cause it leads to error when i don't copy
+        // now it works :)
+        // don't even question it
+        return JSON.parse(JSON.stringify(stuff))
+    }
+
     var future_dom = hist_doms[hist_idx+1]
 
+    // if i don't peform a calc, it loses the sub table data
+
     if (future_dom===undefined){return}
-    //  in reality would be a callback
-    data2DOM(future_dom)
+    data2DOM(calc(copy(future_dom),0,future_dom.length))
 
     hist_idx+=1
 }
@@ -2005,7 +2015,7 @@ function redo(){
 document.addEventListener('keyup', (e)=>{
     // every key stroke it updates the variable tracker and untextifies input keywords
 
-    //track_dom()
+    track_dom()
     function track_dom(){
 
         var current_dom = DOM2data()
