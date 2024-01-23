@@ -613,8 +613,7 @@ function newton_raphson(exp,solve_var,guess){
     const max_count = 100
 
     var f = (x)=>{
-        // not using math.evaluate cause i'm using degrees instead of radians
-        return eqn_to_tree(
+        return math.evaluate(
             sub_all_vars(exp,solve_var,x.toString())
         )
     }
@@ -675,7 +674,7 @@ function forward_solve(ordered_sub){
 
 
         try{
-            sub.sol = eqn_to_tree(val)   // this is necessary for trig functions
+            sub.sol = num_to_string(math.evaluate(val))    // this is necessary for trig functions
         }catch(e){
             throw new TooMuchUnknownError
         }

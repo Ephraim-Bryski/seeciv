@@ -5,9 +5,6 @@
     
 //#region operation information
 
-
-
-
 const arithmetic_ops = ["+","-","*","/","^"]
 
 const inverse_op = {
@@ -96,11 +93,6 @@ const sqrt_op = "sqrt("
 const unitary_ops = [paren_op, sqrt_op].concat(trig_func_ops)
 
 //#endregion
-
-
-function evaluate_with_degrees(){
-    
-}
 
 
 //#region construct and operate on fractions
@@ -288,34 +280,14 @@ function take_exponent(base,exponent){
 
 function take_trig_func(trig_func,value){
 
-    const is_inverse = trig_func.startsWith("a")
-    const is_hyperbolic = trig_func.replace("(","").endsWith("h")
-
-
-    const evaluated_value_deg = String(evaluate_fraction(value))
-
-    let evaluated_value
-    if (!is_inverse && !is_hyperbolic){
-        evaluated_value = evaluated_value_deg + "*pi/180"
-    }else{
-        evaluated_value = evaluated_value_deg
-    }
+    const evaluated_value = String(evaluate_fraction(value))
 
     const expression = trig_func + evaluated_value + ")" 
 
-    const result_rad = math.evaluate(expression)
+    const result = math.evaluate(expression)
 
-
-
-    if (result_rad.im !== undefined){
+    if (Math.abs(result.im) > 10 ** -8){
         throw new EvaluateError("trig function evaluated outside of domain")
-    }
-
-    let result
-    if (is_inverse && !is_hyperbolic){
-        result = result_rad * 180/Math.PI
-    }else{
-        result = result_rad
     }
 
     return num_to_string(result)    
