@@ -5,6 +5,9 @@
     
 //#region operation information
 
+
+
+
 const arithmetic_ops = ["+","-","*","/","^"]
 
 const inverse_op = {
@@ -93,6 +96,11 @@ const sqrt_op = "sqrt("
 const unitary_ops = [paren_op, sqrt_op].concat(trig_func_ops)
 
 //#endregion
+
+
+function evaluate_with_degrees(){
+    
+}
 
 
 //#region construct and operate on fractions

@@ -334,7 +334,6 @@ function calc(SoEs,start_idx,end_idx){
             }
             
             GLOBAL_solve_stuff.result = result
-            // GLOBAL_solve_stuff.solve_steps = solve_steps
             
         }else{
             // nonvisual reference without solve, so substitute:

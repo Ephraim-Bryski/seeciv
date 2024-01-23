@@ -6,7 +6,8 @@ events that trigger it
 
 what info does it need
 	should just be DOM2data() and solve stuff
-	
+
+
 
 
 update the style of the top menu
@@ -30,6 +31,10 @@ To do at end
 	catch all error so it doesn't break if some weird error comes up
 
 
+Solver issues
+	sometimes want positive values only, getting negative can screw things up
+		circulur pendulum, where r=L*sin(theta) instead of r/L=sin(theta) would make r<0 for some reason, screws everything else up
+	
 
 visuals to create
 

@@ -1985,7 +1985,7 @@ function undo(){
 
     if (past_dom===undefined){return}
     //  in reality would be a callback
-    data2DOM(past_dom)
+    data2DOM(calc(past_dom,0,past_dom.length))
 
     hist_idx-=1
     //document.body.appendChild(past_dom[0])
@@ -1996,7 +1996,7 @@ function redo(){
 
     if (future_dom===undefined){return}
     //  in reality would be a callback
-    data2DOM(future_dom)
+    data2DOM(calc(future_dom))
 
     hist_idx+=1
 }
@@ -2005,7 +2005,7 @@ function redo(){
 document.addEventListener('keyup', (e)=>{
     // every key stroke it updates the variable tracker and untextifies input keywords
 
-    //track_dom()
+    track_dom()
     function track_dom(){
 
         var current_dom = DOM2data()
@@ -2341,7 +2341,7 @@ function display_vis(vis_eqns){
                 throw "shouldnt have nan"
             }
             try{
-                var vis_val = math.evaluate(ltx_to_math(vis_exp))
+                var vis_val = eqn_to_tree(ltx_to_math(vis_exp))
             }catch{
                 throw "could not solve for all values for visual "+vis_name+" shouldnt happen??"
             }                
