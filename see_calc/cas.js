@@ -2069,12 +2069,12 @@ function tree_to_expression(tree, use_ltx, parent){
     }
 
 
-    const unitary_times = /(?<=[^a-zA-Z0-9])1\*/g
+    const unitary_times = /(?<=[^a-zA-Z0-9_])1\*/g
 
     
     const start_unitary_times = /^1\*/g
 
-    const ltx_unitary_times = /(?<=[^a-zA-Z0-9])1\\cdot/g
+    const ltx_unitary_times = /(?<=[^a-zA-Z0-9_])1\\cdot/g
 
     
     const start_ltx_unitary_times = /^1\\cdot/g
