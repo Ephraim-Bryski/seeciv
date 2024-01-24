@@ -1,4 +1,9 @@
-Undo and redo
+visuals still showing even when there's an error
+	i thought i resolved this D:
+
+	
+link ctrl+z and ctrl+y to undo and redo
+	probably don't need buttons then
 
 events that trigger it
 	keypress
@@ -8,16 +13,6 @@ what info does it need
 	should just be DOM2data() and solve stuff
 
 
-
-update the style of the top menu
-	i think just white text with the same black background would be better
-
-	left side
-		Hide Undo Run Redo, lined up so edge is at edge of blocks (no clear sheet)
-	right side
-		Log In Library, also ligned up
-	when logged in field and Save is in the center
-	when there's a visual, visual ones are to the right of Redo
 
 
 improve numeric solver

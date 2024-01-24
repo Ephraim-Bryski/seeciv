@@ -34,7 +34,7 @@ var SoEs= [
         name:"A",
         info: "hi",
         eqns: [
-            {input: "x^2-x+4=0"},
+            {input: "x-4=3"},
         ]
     },
 
@@ -885,7 +885,9 @@ function make_line(eqn){
     var add_btn = document.createElement("button")
     add_btn.innerText = "+"
     add_btn.onclick = (e)=>{
-        add_line(e.target)}
+        add_line(e.target)
+        track_dom()
+    }
 
     add_btn.classList.add("add-remove-btn")
     add_btn.classList.add("add-line-btn")
@@ -904,6 +906,7 @@ function make_line(eqn){
         if (n_lines===1){
             outer[0].appendChild(make_line())
         }  
+        track_dom()
     }
     
     remove_button.className="line-btn"  // i dont think this is used
@@ -1230,7 +1233,7 @@ function make_solve_block(){
 
 
      
-    table = make_sub_table(GLOBAL_solve_stuff.table, GLOBAL_solve_stuff.result, true)
+    table = make_sub_table(GLOBAL_solve_stuff.solved_table, GLOBAL_solve_stuff.result, true)
     table.id = "solve-table"
 
 
@@ -1292,6 +1295,7 @@ function make_block(SoE){
         change_start_idx([].indexOf.call(block.parentNode.children, block) )
 
         outer.removeChild(block)
+        track_dom()
 
     }
     remove_button.innerHTML="X"
@@ -1303,6 +1307,7 @@ function make_block(SoE){
     var add_btn = document.createElement("button")
     add_btn.onclick = (e) => {
         add_block(e.target)
+        track_dom()
     }
     add_btn.innerHTML = "+"
     add_btn.classList.add("add-remove-btn")
@@ -1753,7 +1758,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                 }
 				table.insertBefore(make_row(new_vars,true,[],[]),row.nextSibling)
                 change_start_idx($(e.target).parents(".block").index())
-
+                track_dom()
 			}
 
 
@@ -1766,6 +1771,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 				if(table.childElementCount>2){
 					row.remove()
 				}
+                track_dom()
 			}
 
 			var clear = document.createElement("button")
@@ -1806,6 +1812,8 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 				table.insertBefore(new_row, row.nextSibling)
 				
 				row.remove()
+
+                track_dom()
 
 			}
 
@@ -1969,7 +1977,7 @@ function make_MQ(){
 }
 
 
-var hist_doms = [DOM2data()]
+var hist_doms = [[DOM2data(),GLOBAL_solve_stuff]]
 var hist_idx = 0
 
 max_hist = 10
@@ -1980,13 +1988,23 @@ max_hist = 10
 
 
 
+function copy(stuff){
+    // idk how but calc must mutate the data somehow cause it leads to error when i don't copy
+    // now it works :)
+    // don't even question it
+    return JSON.parse(JSON.stringify(stuff))
+}
+
+
 function undo(){
     var past_dom = hist_doms[hist_idx-1]
 
     if (past_dom===undefined){return}
     //  in reality would be a callback
     // data2DOM(calc(past_dom,0,past_dom.length))
-    data2DOM(past_dom)
+    GLOBAL_solve_stuff = past_dom[1]
+    const non_solve_stuff = past_dom[0]
+    data2DOM(calc(copy(non_solve_stuff),0,non_solve_stuff.length))
     hist_idx-=1
     //document.body.appendChild(past_dom[0])
 }
@@ -1994,50 +2012,59 @@ function undo(){
 function redo(){
 
 
-    function copy(stuff){
-        // idk how but calc must mutate the data somehow cause it leads to error when i don't copy
-        // now it works :)
-        // don't even question it
-        return JSON.parse(JSON.stringify(stuff))
-    }
-
     var future_dom = hist_doms[hist_idx+1]
 
-    // if i don't peform a calc, it loses the sub table data
+    // if i don't peform a calc, it loses the sub table data, don't even ask
 
     if (future_dom===undefined){return}
-    data2DOM(calc(copy(future_dom),0,future_dom.length))
+
+    GLOBAL_solve_stuff = future_dom[1]
+    
+    const non_solve_stuff = future_dom[0] // amazing variable name :)
+    data2DOM(calc(copy(non_solve_stuff),0,non_solve_stuff.length))
 
     hist_idx+=1
 }
 
 
-document.addEventListener('keyup', (e)=>{
-    // every key stroke it updates the variable tracker and untextifies input keywords
+function track_dom(){
 
-    track_dom()
-    function track_dom(){
+    var current_dom = [DOM2data(),copy(GLOBAL_solve_stuff)]
 
-        var current_dom = DOM2data()
-    
-        var past_dom = hist_doms[hist_idx]
+    var past_dom = hist_doms[hist_idx]
 
 
 
-        if (JSON.stringify(current_dom)!==JSON.stringify(past_dom)){
-            hist_idx+=1
-            hist_doms = hist_doms.slice(0,hist_idx)
-            hist_doms.push(current_dom)
-        }
-
-
-
+    if (JSON.stringify(current_dom)!==JSON.stringify(past_dom)){
+        hist_idx+=1
+        hist_doms = hist_doms.slice(0,hist_idx)
+        hist_doms.push(current_dom)
     }
 
 
 
-})
+}
 
+
+document.addEventListener('keyup', track_dom)
+
+/*
+const modify_buttons = [...$(".add-remove-btn")]
+
+modify_buttons.forEach(button => {
+    if ([...button.classList].includes("library-delete-btn")){
+        return
+    }
+    const old_on_click = button.onclick
+
+    const new_on_click = (e => {
+        old_on_click(e)
+        console.log('hi')
+    })
+
+    button.onclick = new_on_click
+})
+*/
 
 function strip_text(input){  
     var output

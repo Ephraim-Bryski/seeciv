@@ -272,7 +272,7 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
     })
 
 
-    
+
 
 
     const nested_branched_solutions = []
@@ -284,7 +284,7 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
             const solution = back_solve(branch_eqns, remaining_vars_to_remove)
             nested_branched_solutions.push(solution)
         }catch(e){
-            if (e instanceof CantSolveError || e instanceof EvaluateError || e instanceof ContradictionError){
+            if (e instanceof EvaluateError || e instanceof ContradictionError){
                 return
             }
             throw e
@@ -407,6 +407,12 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
 
                     const has_single_var = Object.keys(trees_counts[tree_idx]).length === 1
                     if (e instanceof CantSymbolicSolve && has_single_var){
+
+                        if (has_infinite_solutions(expression)){
+                            delete_tree(tree_idx)
+                            break
+                        }
+
                         sol_tree = numeric_solve(expression)
                     }else if (e instanceof CantSymbolicSolve){
                         continue
@@ -550,7 +556,43 @@ function get_intersection(arr1,arr2){
 
 }
 
+function has_infinite_solutions(exp_ltx){
+    
+    const exp = ltx_to_math(exp_ltx)
+
+    // copy pasted from numeric solve
+    const exp_vars = get_all_vars(exp_ltx)
+    if (exp_vars.length!==1){throw "can only have one variable, has multiple: "+exp_vars}
+    const solve_var = exp_vars[0]
+    
+    // copy and pasted from newton raphson, it's fine...
+    var f = (x)=>{
+        return math.evaluate(
+            sub_all_vars(exp,solve_var,x.toString())
+        )
+    }
+
+    const random_guesses = [3.23,230.2390,12321.239,9023.23432] // just random stuff, idc, if they're all zero, no way it's a coincedence
+
+    for (guess of random_guesses){
+
+        // check
+        const value = f(guess)
+
+        if (!is_near_zero(value)){
+            
+            return false 
+        }
+    }
+
+    console.log("numeric solve infinite solutions found")
+
+    return true
+
+}
+
 function numeric_solve(exp_ltx){
+
     //exp = exp_ltx
     exp = ltx_to_math(exp_ltx)
     var exp_vars = get_all_vars(exp_ltx)
@@ -561,6 +603,8 @@ function numeric_solve(exp_ltx){
 
     const ascending = Array.from(Array(n_guesses/2), (_, index) => index + 1);
     const guesses = ascending.map(val=>{return [10**val,10**(-val),-(10**val),-(10**(-val))]}).flat()
+
+
 
     for (let guess of guesses){
         try{
@@ -604,7 +648,10 @@ function is_real(value){
 
 
 
+
 function newton_raphson(exp,solve_var,guess){
+
+
 
     var prev_guess
     
@@ -625,6 +672,11 @@ function newton_raphson(exp,solve_var,guess){
 
     var iter_count = 0
     while (prev_guess===undefined || math.abs(math.subtract(guess,prev_guess))>tol){
+
+        if (iter_count == 0 && f(guess) == 0){
+            is_supicious(exp)
+        }
+
         var new_guess = math.subtract(guess,math.divide(f(guess),fprime(guess)))
         var prev_guess = guess
         var guess = new_guess

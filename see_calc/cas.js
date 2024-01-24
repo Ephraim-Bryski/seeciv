@@ -1847,6 +1847,7 @@ class VariableEliminatedError extends Error {
 
 //#region tree --> equation
 
+tree_to_eqn(eqn_to_tree("g_1*c"),true)
 
 function tree_to_eqn(tree, use_ltx = false, parent){
 

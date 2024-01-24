@@ -330,7 +330,7 @@ function calc(SoEs,start_idx,end_idx){
             result = subbed_systems
 
             if (new_table !== undefined){
-                GLOBAL_solve_stuff.table = new_table
+                GLOBAL_solve_stuff.solved_table = new_table
             }
             
             GLOBAL_solve_stuff.result = result
