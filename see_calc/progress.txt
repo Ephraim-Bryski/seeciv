@@ -1,19 +1,15 @@
+slider in progress!!!
+
+
 visuals still showing even when there's an error
 	i thought i resolved this D:
 
-	
-link ctrl+z and ctrl+y to undo and redo
-	probably don't need buttons then
 
-events that trigger it
-	keypress
-	end of data2DOM (that handles loading sheets)
+rough timing
+	0.12 to 0.13 seconds for pipe
+	0.016 for linkage
 
-what info does it need
-	should just be DOM2data() and solve stuff
-
-
-
+when you click on the vis div (most of the screen), it stays focused on the mq element
 
 improve numeric solver
 	just the obvious like don't check 10**10
@@ -30,12 +26,7 @@ To do at end
 	so i have to wait until the end to transfer everything over
 	
 	catch all error so it doesn't break if some weird error comes up
-
-
-Solver issues
-	sometimes want negative value instead
-		with pendulum, have to set the position to -ybob so it's down
-		
+	
 	
 
 visuals to create
@@ -170,6 +161,9 @@ Future??
 		y=x^2 complexity is taken as 3 since *-1 adds to the complexity --> too much
 		haven't handled this: combine_solve_term(eqn_to_tree("a*(a+a*b)+d"),"a")
 
+		sometimes want negative value instead
+				with pendulum, have to set the position to -ybob so it's down
+			
 	Efficiency
 
 		could be even faster by only simplifying where it's subbed in for sub_in function

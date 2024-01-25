@@ -24,36 +24,4 @@
 <script type="text/javascript" src="https://www.glowscript.org/package/RSrun.3.0.min.js"></script>
 <div id="vis"></div>
 
-<div id="pretty">hullo</div>
-
-<a>hi</a>
-<style>
-    /* The link element */
-a {
-  display: inline-block; /* Make the underline span just the width of the text */
-  color: white; /* Set the text color */
-  text-decoration: none; /* Remove the default underline */
-  position: relative; /* Set the position to relative for the pseudo-element */
-}
-
-/* The pseudo-element that creates the underline */
-a::after {
-  content: ''; /* Add an empty content */
-  position: absolute; /* Position it absolutely below the link */
-  width: 100%; /* Set the width to 100% of the link */
-  height: 2px; /* Set the height of the underline */
-  bottom: 0; /* Align it to the bottom of the link */
-  left: 0; /* Align it to the left of the link */
-  background-color: yellow; /* Set the underline color */
-  transform: scaleX(0); /* Initially hide the underline by scaling it to zero */
-  transform-origin: left; /* Set the transform origin to the left */
-  transition: transform 0.25s ease-out; /* Add a transition effect for the transform property */
-}
-
-/* The hover state of the link */
-a:hover::after {
-  transform: scaleX(1); /* Show the underline by scaling it to one */
-}
-
-
-</style>
+<script src="slider.js"></script>

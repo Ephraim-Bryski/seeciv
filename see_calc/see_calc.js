@@ -1264,9 +1264,61 @@ function make_solve_block(){
         
     }
     
+    const value_slider = document.createElement("input")
+
+    value_slider.addEventListener('input',boop)
+    value_slider.type = "range"
+
+
+    block.appendChild(value_slider)
 
     
     return block
+}
+
+function boop(){
+
+    
+
+    const solve_table = $("#solve-table")[0]
+
+    const top_row = solve_table.children[0]
+    const value_row = solve_table.children[1]
+
+    const top_cells = [...top_row.children]
+    const value_cells = [...value_row.children]
+
+
+    top_cells.forEach((var_cell,idx)=>{
+        const value_cell = value_cells[idx]
+
+        const var_cell_MQ = MQ(var_cell.children[0])
+        const value_cell_MQ = MQ(value_cell.children[0])
+
+        value_cell_MQ.latex("20")
+
+
+    })
+
+    /*
+
+
+    what would it actually have to do
+
+        ideally just perform solve equations
+            worst case to do all of calc
+
+        update the slider range stuff easy
+
+        update the solve table
+            wouldn't construct it at all
+            would only have to modify all static math fields based on the result of solve eqns, that's it
+    */
+
+
+
+
+    console.log("i was moved :O")
 }
 
 function make_block(SoE){

@@ -22,16 +22,25 @@ adjust_elements.forEach(element => {
     element.addEventListener('input',boop)
 })
 
+const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
-function boop (){
 
 
-    const lower = parseFloat(lower_bound.value)
-    const percentage = parseFloat(slider.value)
-    const upper = parseFloat(upper_bound.value)
+async function boop (){
 
-    const value = (upper-lower)*percentage/100+lower
-    console.log(`value: ${value}`)
+    await sleep(240)
+    
+    do_stuff()
+    function do_stuff(){
+        console.log('done :)')
+        const lower = parseFloat(lower_bound.value)
+        const percentage = parseFloat(slider.value)
+        const upper = parseFloat(upper_bound.value)
+    
+        const value = (upper-lower)*percentage/100+lower
+        console.log(`value: ${value}`)
+    }
+    
 }
 
 
