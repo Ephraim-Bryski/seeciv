@@ -1298,7 +1298,7 @@ function make_solve_block(){
 
 function boop(){
 
-    
+    clear_equation_visuals()
 
     const solve_table = $("#solve-table")[0]
 
@@ -1337,7 +1337,8 @@ function boop(){
     })
 
 
-    calc(DOM2data())
+    const sheet_data= DOM2data()
+    calc(DOM2data(sheet_data),0,sheet_data.length)
 
 
     /*
@@ -1410,6 +1411,8 @@ function boop(){
     })
 
 
+    display_vis(equation_visuals.flat())
+    
     /*
 
 
@@ -2551,13 +2554,12 @@ function display_vis(vis_eqns){
 
     })
 
-    adjust_scale()
+    // adjust_scale()
 
     // draw_coordinate_system()
     
     // calling twice to readjust for the coordinate system
     // need to call it the first time so it knows the proper range when drawing the coordinate system    
-    adjust_scale() 
     
 }
 
