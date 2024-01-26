@@ -64,7 +64,6 @@ function resetGS(){
 }
 
 
-var graphDiv = document.getElementById("vis")
 window.__context= {glowscript_container: graphDiv}  
 var scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: true,userzoom: true,autoscale: true})
 //scene.forward=vec(1,-0.5,-1)

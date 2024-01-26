@@ -1,3 +1,12 @@
+CAS issues i'm saying fuck it for
+	sometimes want negative value instead
+		with pendulum, have to set the position to -ybob so it's down
+	for the linkage specifying L gives a random gues for theta
+		hasinfinitesolutions SHOULD work BUT...
+			(1-sin(x)^2)^0.5-cos(x) is actually only sometimes zero cause the square is moved over to the other side
+			(1-sin(x)^2)-cos(x)^2 would of course have worked
+
+			
 slider in progress!!!
 
 
@@ -9,14 +18,11 @@ rough timing
 	0.12 to 0.13 seconds for pipe
 	0.016 for linkage
 
-when you click on the vis div (most of the screen), it stays focused on the mq element
-
 improve numeric solver
 	just the obvious like don't check 10**10
 
 visual color as another input
 
-sliders, or even play <-- would allow for a lot of dynamics stuff to actually make sense
 
 figure what to do with remove parentheses or some simplfiy for sub table
 
@@ -26,6 +32,9 @@ To do at end
 	so i have to wait until the end to transfer everything over
 	
 	catch all error so it doesn't break if some weird error comes up
+
+clicking on the glowscript element does not focus you out of an input field (mathquill or regular)
+	i think i'll ask the forum once i have the rest of the site up and running so it's clear why it's an issue
 	
 	
 
@@ -161,8 +170,7 @@ Future??
 		y=x^2 complexity is taken as 3 since *-1 adds to the complexity --> too much
 		haven't handled this: combine_solve_term(eqn_to_tree("a*(a+a*b)+d"),"a")
 
-		sometimes want negative value instead
-				with pendulum, have to set the position to -ybob so it's down
+
 			
 	Efficiency
 

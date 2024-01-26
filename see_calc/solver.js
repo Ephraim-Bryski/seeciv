@@ -137,8 +137,8 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
     const SoEs = SoEs_with_vis.filter(SoE => {return !SoE.includes("VISUAL")})
     let vis_SoEs = SoEs_with_vis.filter(SoE => {return SoE.includes("VISUAL")})
 
-    // doing this weird mapping for groupcommonterms cause otherwise the second default argument is undefined, cause javascript |:
-    const trees = SoEs.map(ltx_to_math).map(eqn_to_tree).map(tree => {return group_common_terms(tree)}) // trees will be mutated in the backsolve scope
+    // doing this weird mapping for groupcommonterms and eqntotree cause otherwise the second default argument is undefined, cause javascript |:
+    const trees = SoEs.map(ltx_to_math).map(eqn => {return eqn_to_tree(eqn,true)}).map(tree => {return group_common_terms(tree)}) // trees will be mutated in the backsolve scope
     const trees_info = trees.map(get_tree_info)          
     const trees_complexity = trees_info.map(info => {return info[0]})
     const trees_counts = trees_info.map(info => {return info[1]})
@@ -674,7 +674,7 @@ function newton_raphson(exp,solve_var,guess){
     while (prev_guess===undefined || math.abs(math.subtract(guess,prev_guess))>tol){
 
         if (iter_count == 0 && f(guess) == 0){
-            is_supicious(exp)
+            // is_supicious(exp)
         }
 
         var new_guess = math.subtract(guess,math.divide(f(guess),fprime(guess)))

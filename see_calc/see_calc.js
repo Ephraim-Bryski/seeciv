@@ -34,7 +34,7 @@ var SoEs= [
         name:"A",
         info: "hi",
         eqns: [
-            {input: "x-4=3"},
+            {input: "a^b=2"},
         ]
     },
 
@@ -1246,7 +1246,8 @@ function make_solve_block(){
     
     if (solve_result.error !== undefined){
         const error_field=document.createElement('span')
-        error_field.style.color = 'rgb(200,0,0)'
+        // error_field.style.color = 'rgb(200,0,0)'
+        error_field.classList.add("error-msg")
         const error = solve_result.error
         let error_message
         if (error instanceof Error){
@@ -1264,13 +1265,32 @@ function make_solve_block(){
         
     }
     
+
+    const slider_adjust_container = document.createElement("div")
+
+    const variable_adjust_input = document.createElement("span")
+    variable_adjust_input.id = "solve-slider-variable"
+    MQ.MathField(variable_adjust_input, {
+        autoCommands: selected_greek_names,
+        handlers: {edit: boop} // TODO not sure if there should be a handler
+    })
+
     const value_slider = document.createElement("input")
+    value_slider.id = "solve-slider"
 
     value_slider.addEventListener('input',boop)
     value_slider.type = "range"
 
+    // can't use the usual error field cause that's created in makesolveblock
+    const slider_error_message = document.createElement("div")
+    slider_error_message.classList.add("error-msg")
+    slider_error_message.id = "slider-error-msg"
+    
+    slider_adjust_container.appendChild(variable_adjust_input)
+    slider_adjust_container.appendChild(value_slider)
+    slider_adjust_container.appendChild(slider_error_message)
 
-    block.appendChild(value_slider)
+    block.appendChild(slider_adjust_container)
 
     
     return block
@@ -1288,6 +1308,13 @@ function boop(){
     const top_cells = [...top_row.children]
     const value_cells = [...value_row.children]
 
+    // TODO check if valid variable
+    const adjust_variable = MQ($("#solve-slider-variable")[0]).latex()
+
+    // TODO adjust with bounds
+    const adjust_value = $("#solve-slider")[0].value
+
+
 
     top_cells.forEach((var_cell,idx)=>{
         const value_cell = value_cells[idx]
@@ -1295,10 +1322,93 @@ function boop(){
         const var_cell_MQ = MQ(var_cell.children[0])
         const value_cell_MQ = MQ(value_cell.children[0])
 
-        value_cell_MQ.latex("20")
+        const variable = var_cell_MQ.latex()
 
+        if (variable !== adjust_variable){
+            return
+        }
+
+
+
+        value_cell_MQ.latex(String(adjust_value))
+
+        // TODO only allow adjust if it's an input
 
     })
+
+
+    calc(DOM2data())
+
+
+    /*
+
+
+    the OPTION to use a slider only comes up once it's succesfully solved
+    in that situation the results will only modify static math MQ
+    then in D2d --> get_sub_data it won't confuse the output for the input
+    so this issue won't arise
+
+    in that case you could probably just generate the slider once it's solved AND there's at least one input
+        instead of having them click on a button
+        could even automatically have the field filled in with one of the variables and the slider set at the input value
+
+
+    
+
+    */
+
+
+    // TODO check if the result's an error
+
+    /*
+
+    it has to 
+
+    */
+
+    const solve_output_eqns = GLOBAL_solve_stuff.result[0]
+    const solve_output = {}
+
+
+    const error_field = $("#slider-error-msg")[0]
+    if (solve_output_eqns.error instanceof Error){
+        const error_message = solve_output_eqns.error.message
+
+        error_field.innerText = error_message
+
+        return
+
+    }else{
+        error_field.innerText = ""
+    }
+
+    solve_output_eqns.forEach(eqn => {
+        const stuff = eqn.split("=")
+        const solve_var = stuff[0]
+        const solve_val = stuff[1]
+        solve_output[solve_var] = solve_val
+    })
+
+
+    
+
+    top_cells.forEach((var_cell, idx) => {
+        const value_cell = value_cells[idx]
+        const value_field = MQ(value_cell.children[0])
+
+        const variable = MQ(var_cell.children[0]).latex()
+
+        
+        const new_value = solve_output[variable]
+
+        if (new_value === undefined){
+            return
+        }
+
+        value_field.latex(String(new_value))
+        
+    })
+
 
     /*
 
