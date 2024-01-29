@@ -1800,7 +1800,12 @@ function sub_in(tree, variable, solve_tree, parent){
 
 
     if (tree === variable){
-        update_parent(tree, parent, solve_tree)
+        if (parent){
+            update_parent(tree, parent, solve_tree)
+        }else{
+            return solve_tree
+        }
+        
     }
 
 
@@ -2327,6 +2332,7 @@ function draw(tree){
 
 function update_parent(tree, parent, new_tree){
     let tree_idxs
+    
     try{
         tree_idxs = [...Array(parent.terms.length).keys()].filter((idx)=>{return parent.terms[idx] === tree})
     }catch{

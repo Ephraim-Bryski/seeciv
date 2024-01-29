@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="mathquill/mathquill.css"/>
 <!-- interferes with GS and it looks like mathquill doesnt require it (i think as long as it has the other jquery version)-->
 <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>-->
-<script src="mathquill/mathquill.js"></script>
+
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
@@ -22,11 +22,60 @@
 <script type="text/javascript" src="https://www.glowscript.org/lib/jquery/2.1/jquery-ui.custom.min.js"></script>
 <script type="text/javascript" src="https://www.glowscript.org/package/glow.3.0.min.js"></script>
 <script type="text/javascript" src="https://www.glowscript.org/package/RSrun.3.0.min.js"></script>
-<div id="vis" style="height: 100px;width:100px;"></div>
-<input style="float:right">
+<div id="vis" style="height: 100%;width:100%;"></div>
+
+<button id="button">
+  Press and hold!
+</button>
+
+<div id="counter">
+  0
+</div>
+
 <script>
-    const graphDiv = $("#vis")[0]
-    window.__context= {glowscript_container: graphDiv}  
-    canvas()
-    box()
+
+let last_down = null
+let n_since_last_down = null
+
+function boop(){
+
+
+
+
+
+  if (n_since_last_down === 0){
+    console.log('started')
+    console.log(last_down)
+
+  }
+
+  if (n_since_last_down > 3){
+    console.log('held')
+  }
+  
+  if (n_since_last_down !== null){
+    n_since_last_down ++
+  }
+  
+  
+}
+
+
+setInterval(boop,100)
+let counter = 0
+
+let button = document.getElementById('button')
+
+
+button.onmousedown = (e)=>{
+  last_down = e.target
+  n_since_last_down = 0
+}
+
+button.onmouseup = (e)=>{
+  last_down = null
+  n_since_last_down = null
+}
+
+
 </script>

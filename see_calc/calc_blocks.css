@@ -172,6 +172,43 @@
     cursor: pointer;
 }
 
+.solve-spinner{
+    border:none;
+    background-color: white;
+    color: gray;
+    font-size:18px;
+    margin: 0px;
+    padding:0px;
+}
+
+.solve-spinner:hover {
+    cursor: pointer;
+    color:black;
+}
+
+.spinner-step {
+    height: 10px;
+    font-size: 10px;
+    width:16px;
+    border-width:0px;
+    top:50%
+}
+
+
+.spinner-step:focus{
+    outline:none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+  }
+
 /* #endregion */
 
 /* #region information box for each block */

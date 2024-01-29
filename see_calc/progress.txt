@@ -6,17 +6,21 @@ CAS issues i'm saying fuck it for
 			(1-sin(x)^2)^0.5-cos(x) is actually only sometimes zero cause the square is moved over to the other side
 			(1-sin(x)^2)-cos(x)^2 would of course have worked
 
-			
-slider in progress!!!
 
+dont allow variables to be removed form visuals
+
+scale has to be reset when loading a new visual
+	that's fine, it will happen once i fix resetting
+
+
+point visual, can have coordinate, useful for
+	linkage
+	mohrs circle
+	actually lots of stuff even as a quick check
+	could make 
 
 visuals still showing even when there's an error
 	i thought i resolved this D:
-
-
-rough timing
-	0.12 to 0.13 seconds for pipe
-	0.016 for linkage
 
 improve numeric solver
 	just the obvious like don't check 10**10
@@ -51,9 +55,6 @@ visuals to create
 	
 	surface bending with poisson
 		could fix 0 bending one way, and determines moment required
-
-	spinning pendulum
-		how it angles higher the faster it spins
 
 	multiple loads on a cable
 		assume cable is weightless, so just straight lines

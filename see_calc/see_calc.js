@@ -34,7 +34,7 @@ var SoEs= [
         name:"A",
         info: "hi",
         eqns: [
-            {input: "a^b=2"},
+            {input: "a+b=2"},
         ]
     },
 
@@ -683,6 +683,13 @@ function DOM2data(){
     GLOBAL_solve_stuff = {
         reference: block_to_solve,
     }
+
+    const step_spinners = [...$("#spinner-row").children().children(".spinner-step")]
+
+    const step_sizes = step_spinners.map(spinner => {return spinner.value})
+
+    GLOBAL_solve_stuff.step_sizes = step_sizes
+    
     
     // so firebase doesn't complain about undefined
     if (table_for_solving){
@@ -1240,14 +1247,19 @@ function make_solve_block(){
     block.appendChild(table)
 
 
-
-
     const solve_result = GLOBAL_solve_stuff.result[0]
+
+
+    const has_error = solve_result.error !== undefined
+
     
-    if (solve_result.error !== undefined){
-        const error_field=document.createElement('span')
-        // error_field.style.color = 'rgb(200,0,0)'
-        error_field.classList.add("error-msg")
+    const error_field=document.createElement('span')
+    error_field.id = "solve-error-msg"
+    error_field.classList.add("error-msg")
+    block.appendChild(error_field)
+
+    if (has_error){
+
         const error = solve_result.error
         let error_message
         if (error instanceof Error){
@@ -1255,184 +1267,23 @@ function make_solve_block(){
         }else{
             error_message = error // this happens when you're loading what was saved, cause you can't save an error
         }
-        error_field.innerHTML = error_message  // this occurs only when it's an error or new line
+        error_field.innerText = error_message  // this occurs only when it's an error or new line
         // error_field.classList.add("error-msg")
         // in_field.classList.add("input-error")
         show_output = "block"    
 
-        block.appendChild(error_field)
-    }else{
         
     }
-    
 
-    const slider_adjust_container = document.createElement("div")
-
-    const variable_adjust_input = document.createElement("span")
-    variable_adjust_input.id = "solve-slider-variable"
-    MQ.MathField(variable_adjust_input, {
-        autoCommands: selected_greek_names,
-        handlers: {edit: boop} // TODO not sure if there should be a handler
-    })
-
-    const value_slider = document.createElement("input")
-    value_slider.id = "solve-slider"
-
-    value_slider.addEventListener('input',boop)
-    value_slider.type = "range"
-
-    // can't use the usual error field cause that's created in makesolveblock
-    const slider_error_message = document.createElement("div")
-    slider_error_message.classList.add("error-msg")
-    slider_error_message.id = "slider-error-msg"
-    
-    slider_adjust_container.appendChild(variable_adjust_input)
-    slider_adjust_container.appendChild(value_slider)
-    slider_adjust_container.appendChild(slider_error_message)
-
-    block.appendChild(slider_adjust_container)
-
-    
     return block
+
+    
 }
 
-function boop(){
-
-    clear_equation_visuals()
-
-    const solve_table = $("#solve-table")[0]
-
-    const top_row = solve_table.children[0]
-    const value_row = solve_table.children[1]
-
-    const top_cells = [...top_row.children]
-    const value_cells = [...value_row.children]
-
-    // TODO check if valid variable
-    const adjust_variable = MQ($("#solve-slider-variable")[0]).latex()
-
-    // TODO adjust with bounds
-    const adjust_value = $("#solve-slider")[0].value
-
-
-
-    top_cells.forEach((var_cell,idx)=>{
-        const value_cell = value_cells[idx]
-
-        const var_cell_MQ = MQ(var_cell.children[0])
-        const value_cell_MQ = MQ(value_cell.children[0])
-
-        const variable = var_cell_MQ.latex()
-
-        if (variable !== adjust_variable){
-            return
-        }
-
-
-
-        value_cell_MQ.latex(String(adjust_value))
-
-        // TODO only allow adjust if it's an input
-
-    })
-
-
-    const sheet_data= DOM2data()
-    calc(DOM2data(sheet_data),0,sheet_data.length)
-
-
-    /*
-
-
-    the OPTION to use a slider only comes up once it's succesfully solved
-    in that situation the results will only modify static math MQ
-    then in D2d --> get_sub_data it won't confuse the output for the input
-    so this issue won't arise
-
-    in that case you could probably just generate the slider once it's solved AND there's at least one input
-        instead of having them click on a button
-        could even automatically have the field filled in with one of the variables and the slider set at the input value
-
-
-    
-
-    */
-
-
-    // TODO check if the result's an error
-
-    /*
-
-    it has to 
-
-    */
-
-    const solve_output_eqns = GLOBAL_solve_stuff.result[0]
-    const solve_output = {}
-
-
-    const error_field = $("#slider-error-msg")[0]
-    if (solve_output_eqns.error instanceof Error){
-        const error_message = solve_output_eqns.error.message
-
-        error_field.innerText = error_message
-
-        return
-
-    }else{
-        error_field.innerText = ""
-    }
-
-    solve_output_eqns.forEach(eqn => {
-        const stuff = eqn.split("=")
-        const solve_var = stuff[0]
-        const solve_val = stuff[1]
-        solve_output[solve_var] = solve_val
-    })
-
-
-    
-
-    top_cells.forEach((var_cell, idx) => {
-        const value_cell = value_cells[idx]
-        const value_field = MQ(value_cell.children[0])
-
-        const variable = MQ(var_cell.children[0]).latex()
-
-        
-        const new_value = solve_output[variable]
-
-        if (new_value === undefined){
-            return
-        }
-
-        value_field.latex(String(new_value))
-        
-    })
-
-
-    display_vis(equation_visuals.flat())
-    
-    /*
-
-
-    what would it actually have to do
-
-        ideally just perform solve equations
-            worst case to do all of calc
-
-        update the slider range stuff easy
-
-        update the solve table
-            wouldn't construct it at all
-            would only have to modify all static math fields based on the result of solve eqns, that's it
-    */
 
 
 
 
-    console.log("i was moved :O")
-}
 
 function make_block(SoE){
 
@@ -1710,6 +1561,129 @@ function replace_messages_with_errors(obj) {
 }
 
 
+function spinner_adjust(spinner_button,sign){
+    
+    const cell = $(spinner_button).parents("td")[0]
+    const all_cells = [...$("#spinner-row").children("td")]
+    const cell_idx = all_cells.indexOf(cell)
+    
+    const step_field = $(spinner_button).siblings(".spinner-step")[0]
+    const step_size = Number(step_field.value)*sign
+
+    
+    const top_cells = [...$("#solve-table")[0].children[0].children]
+    const value_cells = [...$("#solve-table")[0].children[1].children]
+
+    const value_cell = value_cells[cell_idx]
+
+    const value_field_MQ = MQ(value_cell.children[0])
+
+    const old_value = Number(value_field_MQ.latex())
+    const new_value = old_value+step_size
+
+    const n_places = 3
+    const new_rounded_value = Math.round(new_value*10**n_places)/10**n_places
+
+    value_field_MQ.latex(String(new_rounded_value))
+
+
+    clear_equation_visuals()
+
+    const sheet_data= DOM2data()
+    calc(DOM2data(sheet_data),0,sheet_data.length)
+
+    const solve_output_eqns = GLOBAL_solve_stuff.result[0]
+    const solve_output = {}
+
+
+    const error_field = $("#solve-error-msg")[0]
+    if (solve_output_eqns.error instanceof Error){
+        const error_message = solve_output_eqns.error.message
+
+        error_field.innerText = error_message
+
+        return
+
+    }else{
+        error_field.innerText = ""
+    }
+
+    solve_output_eqns.forEach(eqn => {
+        const stuff = eqn.split("=")
+        const solve_var = stuff[0]
+        const solve_val = stuff[1]
+        solve_output[solve_var] = solve_val
+    })
+
+
+    
+
+    top_cells.forEach((var_cell, idx) => {
+        const value_cell = value_cells[idx]
+        const value_field = MQ(value_cell.children[0])
+
+        const variable = MQ(var_cell.children[0]).latex()
+
+        
+        const new_value = solve_output[variable]
+
+        if (new_value === undefined){
+            return
+        }
+
+
+        const rounded_cell_val = round_decimals(new_value, 3)
+
+        value_field.latex(rounded_cell_val)
+
+
+        
+        
+    })
+
+
+    display_vis(equation_visuals.flat())
+
+}
+
+
+
+let last_spinner_pressed = null
+let n_since_spinner_pressed = null
+
+setInterval(check_spinner_pressed,100)
+
+function check_spinner_pressed(){
+
+
+    const just_clicked = n_since_spinner_pressed === 0
+
+    const held_down = n_since_spinner_pressed > 3
+
+    if (just_clicked || held_down){
+ 
+        const siblings = [...last_spinner_pressed.parentNode.children]
+        const spinner_idx = siblings.indexOf(last_spinner_pressed)
+    
+        let sign
+        if (spinner_idx == 0){
+            sign = -1
+        }else if(spinner_idx === 2){
+            sign = 1
+        }else{
+            throw "index isn't at spinner??"
+        }
+    
+        spinner_adjust(last_spinner_pressed,sign)
+      
+    }
+      
+    if (n_since_spinner_pressed !== null){
+        n_since_spinner_pressed ++
+    }
+    
+
+}
 
 
 function make_sub_table(table_data, solve_result, is_solve_line){
@@ -1801,8 +1775,83 @@ function make_sub_table(table_data, solve_result, is_solve_line){
         table.className = "sub-table"
     
     
+        if (is_solve_line && !solve_result[0].error){
+            const spinner_row = document.createElement("tr")
+            spinner_row.id = "spinner-row"
+            const value_row = table.children[1]
+            const value_cells = [...value_row.children]
+    
+            let input_count = 0
+
+            value_cells.forEach(value_cell => {
+                const mq_field = value_cell.children[0]
+                const is_input = [...mq_field.classList].includes('mq-editable-field')
+            
+
+                spinner_row.appendChild(make_spinner_field(is_input,input_count))
+                
+                if (is_input){input_count+=1}
+
+            })
+            table.appendChild(spinner_row)
+
+        }
+
+
+
     }
     
+    function make_spinner_field(is_spinner,input_count){
+
+        const field = document.createElement("td")
+
+        
+        if (is_spinner){
+            let step_size
+            if(GLOBAL_solve_stuff.step_sizes){
+                step_size = GLOBAL_solve_stuff.step_sizes[input_count]
+            }else{
+                step_size = 1
+            }
+            const left_spinner = document.createElement("button")
+            left_spinner.innerText = "◀"
+            left_spinner.classList.add("solve-spinner")
+            // left_spinner.onclick = spinner_decrement
+
+            const step_size_field = document.createElement("input")
+            step_size_field.type = 'number'
+            step_size_field.classList.add("spinner-step")
+            step_size_field.value = step_size
+
+            const right_spinner = document.createElement("button")
+            right_spinner.innerText = "▶"
+            right_spinner.classList.add("solve-spinner")
+
+
+            const update_down_press =  (e) => {
+                last_spinner_pressed = e.target
+                n_since_spinner_pressed = 0
+            }
+            const update_up_press = (e) => {
+                last_spinner_pressed = null
+                n_since_spinner_pressed = null
+            }
+
+            left_spinner.onmousedown = update_down_press
+            right_spinner.onmousedown = update_down_press
+            left_spinner.onmouseup = update_up_press
+            right_spinner.onmouseup = update_up_press
+
+
+            field.appendChild(left_spinner)
+            field.appendChild(step_size_field)
+            field.appendChild(right_spinner)            
+            
+        }
+        return field
+    }
+
+
     if (table_data==undefined){
         table.style.display = "none"
     }
@@ -1949,6 +1998,11 @@ function make_sub_table(table_data, solve_result, is_solve_line){
             
 			clear.innerText="-"
 			clear.onclick = (e)=>{
+
+                if (is_solve_line){
+                    $("#spinner-row")[0].style.display = 'none'
+                }
+                
                 change_start_idx($(e.target).parents(".block").index())
 
 				var blank = [];base_vars.forEach(()=>{blank.push("")})
@@ -2026,6 +2080,9 @@ function get_sub_data(table){
     // array with each element representing a row of substitutions, each in that representing a substitution, and a 2 element array in that with the input and output
     for (let i=0;i<rows.length;i++){
         var row = rows[i]
+        if (row.id==="spinner-row"){
+            continue
+        }
         var cells = row.children
         data.push([])
         for (let j=0;j<cells.length;j++){
@@ -2630,93 +2687,3 @@ function adjust_scale(){
 }
 
 
-
-function draw_coordinate_system(){
-
-    const scene_range = scene.range
-
-    const tick_sphere_radius = 0.02*scene_range
-    const shaft_width = 0.02*scene_range
-    const head_length = 3*shaft_width // based on glowscript's doc
-
-    const increment = find_increment(scene_range)
-
-    const n_increments = Math.floor(scene_range/increment)
-    
-    for (dim of ["x","y","z"]){
-        make_axis(dim)
-    }
-    
-    
-    function find_increment(scene_range){
-    
-        // TODO make it in increments of 1, 2, or 5
-
-        // screw it just do powers of 10 instead
-        const min_steps = 2
-    
-        const power = Math.floor(Math.log10(scene_range))
-    
-        const boop = 10**power
-    
-        if (scene_range/boop >= min_steps){
-            return boop
-        }else{
-            return boop/10
-        }
-    
-    }
-    
-    function make_axis(dim){
-    
-        // TODO use range
-
-        const tick_shift_dims = {x: 'y', y: 'z', z: 'x'}
-
-        for (let i=1; i<n_increments; i++){
-            const tick_pos = i*increment
-
-            for (sign of [1,-1]){
-
-                const tick_vec = vec(0,0,0)
-                tick_vec[dim] = sign*tick_pos
-                sphere({pos: tick_vec, radius: tick_sphere_radius})
-
-                const label_vec = vec(0,0,0)
-                label_vec[dim] = sign*tick_pos
-                
-                label_vec[tick_shift_dims[dim]] = -0.06*scene_range
-
-                label({'text': sign*tick_pos, 'pos': label_vec, height: 10, box: false, opacity:0})
-            }
-            
-        }
- 
-        const arrow_extra_factor = 0.2
-        const label_extra_factor = 0.1
-        const arrow_length = scene_range*(2+arrow_extra_factor)
-
-        direction = vec(0, 0, 0)
-        
-        direction[dim] = arrow_length
-    
-        position = vec(0, 0, 0)
-    
-        position[dim] = -arrow_length/2+head_length
-    
-    
-        const coord_arrow = arrow({pos: position, axis: direction, round: true, shaftwidth: shaft_width})
-        // coord_arrow.visible = false
-    
-        const text_position = vec(0, 0, 0)
-    
-        text_position[dim] = arrow_length/2*(1+label_extra_factor)
-    
-        
-        label({text: dim, pos: text_position, box: false, opacity:0})
-        // boop.visible = false
-    
-    
-    }
-    
-}
