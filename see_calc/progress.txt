@@ -7,10 +7,16 @@ CAS issues i'm saying fuck it for
 			(1-sin(x)^2)-cos(x)^2 would of course have worked
 
 
-dont allow variables to be removed form visuals
+handle empty spaces in sub table inputs
 
-scale has to be reset when loading a new visual
-	that's fine, it will happen once i fix resetting
+if you update the sheet, and then toggle the spinner without rerunning first, it can mess it all up (cause variables can be removed)
+	probably best to remove the spinners when changes are made
+	can keep track of dom using the same approach as undo and redo
+		if changes other than in solve table (so changing the solve name also no good!) --> remove the spinners
+
+
+
+if i can improve solve steps, i could add it, with a toggle display at the bottom of the solve block so it makes more sense what it is
 
 
 point visual, can have coordinate, useful for
@@ -48,10 +54,13 @@ visuals to create
 		simplest it's just levers
 		but could also have distributed loads
 		of course much more limited than skyciv but nice how you'd see loads update real time
+		could also have spring supports, basic sort of static indeterminancy
+			interesting cause i'm not exactly sure what the behavior is
 
 	light ray refraction
 		could have multiple layers
 		could determine path it would have to take
+		could also have prisms and stuff, interface at an angle
 	
 	surface bending with poisson
 		could fix 0 bending one way, and determines moment required

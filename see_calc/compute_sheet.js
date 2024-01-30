@@ -284,6 +284,7 @@ function calc(SoEs,start_idx,end_idx){
             // primitive visual
             var result = []
 
+
             const vis_block = match_vis_blocks[0]
 
             const vis_vars = Object.keys(vis_block.vars).map(add_char_placeholders)
@@ -391,18 +392,6 @@ function find_vis_name(eqn) {
     throw "VISUAL not found, shouldnt happen"
 }
 
-
-
-function get_quad_range(quad_object, dim){
-    
-    const vertex_keys = ["v0","v1","v2","v3"]
-
-    const coords = vertex_keys.map((vertex) => {
-        return quad_object[vertex]["pos"][dim]
-    })
-
-    return [min(coords), max(coords)]
-}
 
 
 
@@ -541,6 +530,17 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
         }
 
         try{    
+
+
+            
+            const is_visual = default_vis_vals !== undefined
+            const has_blank = sub_row.some(cell => {return cell === ""})
+
+            if (is_visual && has_blank){
+                throw new FormatError("Cannot have blank fields for a visual")
+            }
+
+
 
             if (sub_row.some(cell => {return cell.includes("=")})){
                 throw new FormatError("Cannot substitute an equation")

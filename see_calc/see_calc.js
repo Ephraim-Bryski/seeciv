@@ -686,7 +686,24 @@ function DOM2data(){
 
     const step_spinners = [...$("#spinner-row").children().children(".spinner-step")]
 
-    const step_sizes = step_spinners.map(spinner => {return spinner.value})
+    const step_sizes = {}
+
+    step_spinners.forEach(spinner => {
+        
+        const cell = spinner.parentNode
+        const row = cell.parentNode
+
+        const cell_siblings = [...row.children]
+
+        const spinner_idx = cell_siblings.indexOf(cell)
+
+        const variables = table_for_solving.data[0]
+        
+        const spinner_var = remove_char_placeholders(variables[spinner_idx])
+
+        step_sizes[spinner_var] = spinner.value
+        
+    })
 
     GLOBAL_solve_stuff.step_sizes = step_sizes
     
@@ -1642,9 +1659,20 @@ function spinner_adjust(spinner_button,sign){
     })
 
 
-    display_vis(equation_visuals.flat())
+    display_vis(equation_visuals.flat(), false)
 
 }
+
+
+var update_up_press = () => {
+    last_spinner_pressed = null
+    n_since_spinner_pressed = null
+}
+
+
+// attaching it to document instead of spinner buttons cause you can move your mouse away from the button and then release
+document.onmouseup = update_up_press
+
 
 
 
@@ -1780,17 +1808,41 @@ function make_sub_table(table_data, solve_result, is_solve_line){
             spinner_row.id = "spinner-row"
             const value_row = table.children[1]
             const value_cells = [...value_row.children]
-    
-            let input_count = 0
+            const variable_row = table.children[0]
+            const variable_cells = [...variable_row.children]
 
-            value_cells.forEach(value_cell => {
-                const mq_field = value_cell.children[0]
-                const is_input = [...mq_field.classList].includes('mq-editable-field')
-            
+            let step_sizes = GLOBAL_solve_stuff.step_sizes
+            if (!step_sizes){
+                step_sizes = {}
+            }
 
-                spinner_row.appendChild(make_spinner_field(is_input,input_count))
+            value_cells.forEach((value_cell,cell_idx) => {
+
+
+                const mq_value_field = value_cell.children[0]
+                const is_input = [...mq_value_field.classList].includes('mq-editable-field')
                 
-                if (is_input){input_count+=1}
+                let spinner_field
+                if (is_input){
+                    
+                    const mq_var_field = MQ(variable_cells[cell_idx].children[0])
+                    const spinner_variable = mq_var_field.latex()
+    
+                    let spinner_value
+    
+                    if (Object.keys(step_sizes).includes(spinner_variable)){
+                        spinner_value = step_sizes[spinner_variable]
+                    }else{
+                        spinner_value = 1
+                    }
+                    
+                    spinner_field = make_spinner_field(spinner_value)
+                }else{
+                    spinner_field = document.createElement("td")
+                }
+
+                spinner_row.appendChild(spinner_field)
+                
 
             })
             table.appendChild(spinner_row)
@@ -1801,53 +1853,43 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
     }
     
-    function make_spinner_field(is_spinner,input_count){
+    function make_spinner_field(step_size){
 
         const field = document.createElement("td")
 
         
-        if (is_spinner){
-            let step_size
-            if(GLOBAL_solve_stuff.step_sizes){
-                step_size = GLOBAL_solve_stuff.step_sizes[input_count]
-            }else{
-                step_size = 1
-            }
-            const left_spinner = document.createElement("button")
-            left_spinner.innerText = "◀"
-            left_spinner.classList.add("solve-spinner")
-            // left_spinner.onclick = spinner_decrement
-
-            const step_size_field = document.createElement("input")
-            step_size_field.type = 'number'
-            step_size_field.classList.add("spinner-step")
-            step_size_field.value = step_size
-
-            const right_spinner = document.createElement("button")
-            right_spinner.innerText = "▶"
-            right_spinner.classList.add("solve-spinner")
-
-
-            const update_down_press =  (e) => {
-                last_spinner_pressed = e.target
-                n_since_spinner_pressed = 0
-            }
-            const update_up_press = (e) => {
-                last_spinner_pressed = null
-                n_since_spinner_pressed = null
-            }
-
-            left_spinner.onmousedown = update_down_press
-            right_spinner.onmousedown = update_down_press
-            left_spinner.onmouseup = update_up_press
-            right_spinner.onmouseup = update_up_press
-
-
-            field.appendChild(left_spinner)
-            field.appendChild(step_size_field)
-            field.appendChild(right_spinner)            
             
+        
+        const left_spinner = document.createElement("button")
+        left_spinner.innerText = "◀"
+        left_spinner.classList.add("solve-spinner")
+        // left_spinner.onclick = spinner_decrement
+
+        const step_size_field = document.createElement("input")
+        step_size_field.type = 'number'
+        step_size_field.classList.add("spinner-step")
+        step_size_field.value = step_size
+
+        const right_spinner = document.createElement("button")
+        right_spinner.innerText = "▶"
+        right_spinner.classList.add("solve-spinner")
+
+
+        const update_down_press =  (e) => {
+            last_spinner_pressed = e.target
+            n_since_spinner_pressed = 0
         }
+        
+
+        left_spinner.onmousedown = update_down_press
+        right_spinner.onmousedown = update_down_press
+        // left_spinner.onmouseup = update_up_press
+        // right_spinner.onmouseup = update_up_press
+
+
+        field.appendChild(left_spinner)
+        field.appendChild(step_size_field)
+        field.appendChild(right_spinner)            
         return field
     }
 
@@ -2124,11 +2166,15 @@ function setUpGS(id){
 
 
 
-function ortho_xy(){
+function view_xy(){
     scene.forward = vec(0,0,-1)
 }
 
 
+
+function view_3d(){
+    scene.forward = vec(-1,-1,-1)
+}
 
 
 function make_tooltip(){
@@ -2250,7 +2296,7 @@ function redo(){
 
 
 function track_dom(){
-
+    return
     var current_dom = [DOM2data(),copy(GLOBAL_solve_stuff)]
 
     var past_dom = hist_doms[hist_idx]
@@ -2564,7 +2610,7 @@ function switch_popup(sel_child_name,e){
 
 
 
-function display_vis(vis_eqns){
+function display_vis(vis_eqns, scale_needs_adjusting = true){
     
 
     if (vis_eqns.length > 0){
@@ -2611,18 +2657,56 @@ function display_vis(vis_eqns){
 
     })
 
-    // adjust_scale()
-
-    // draw_coordinate_system()
-    
-    // calling twice to readjust for the coordinate system
-    // need to call it the first time so it knows the proper range when drawing the coordinate system    
+    if (scale_needs_adjusting){
+        adjust_scale()
+    }
+     
     
 }
 
+function get_quad_range(quad_object, dim){
+    
+    const vertex_keys = ["v0","v1","v2","v3"]
+
+    const coords = vertex_keys.map((vertex) => {
+        return quad_object[vertex]["pos"][dim]
+    })
+
+    return [min(coords), max(coords)]
+}
+
+
+// function get_curve_range(object, dim){
+
+//     const point_idxs = [...Array(object.npoints).keys()]
+    
+
+//     const locations = point_idxs.map(point_idx => {
+//         const point = object.point(point_idx)
+//         return get_point_range(point, dim)[0]
+//     })
+    
+
+//     return [min(locations), max(locations)]
+// }
+
+function get_point_range(object, dim){
+    const position = object.pos[dim]
+    return [position, position]
+}
+
+function get_object_range(object, dim){
+    const min_pos = object.pos[dim] - object.size[dim]/2
+    const max_pos = object.pos[dim] + object.size[dim]/2
+    range =  [min_pos,max_pos]    
+    return range
+}
 
 function adjust_scale(){
  
+    // this is basically what gs does but i can't figure out how to toggle it on and off
+        // by default, gs stops autoadjusting the scale once the range is set (either in code or by zooming)
+        
     const dim_keys = ["x","y","z"]
 
     const bounds = {}
@@ -2641,12 +2725,16 @@ function adjust_scale(){
 
             if (object instanceof label){
                 break
+            }if (object instanceof curve){
+                break // gets the range automatically with the points
             }if (object instanceof quad){
                 range = get_quad_range(object, dim)
+            }if (object.constructor.name === "point"){
+                // point isn't defined since it's not a user level function to create something
+                range = get_point_range(object, dim)
             }else{
-                const min_pos = object.pos[dim] - object.size[dim]/2
-                const max_pos = object.pos[dim] + object.size[dim]/2
-                range =  [min_pos,max_pos]    
+                range = get_object_range(object,dim)
+                
             }
 
             const new_bounds = range.map((val,idx) => {

@@ -178,8 +178,7 @@ let physical_vis = [
     },
 
     {
-        // TODO no longer GREEK
-        // again assuming its axis is the z axis
+
 
         name: "Wheel",
         vars: {
@@ -188,7 +187,7 @@ let physical_vis = [
             z_0:0,
             L:1,
             r:1,
-            GREEKtheta:0
+            "\\theta":0
         },
 
         vis: (inp)=>{
@@ -200,26 +199,26 @@ let physical_vis = [
 
             const front_side = [
                 vec(
-                    inp.x_0+inp.r*math.cos(inp.GREEKtheta),
-                    inp.y_0+inp.r*math.sin(inp.GREEKtheta),
+                    inp.x_0+inp.r*math.cos(inp["\\theta"]),
+                    inp.y_0+inp.r*math.sin(inp["\\theta"]),
                     inp.z_0+inp.L
                 ),
                 vec(
-                    inp.x_0-inp.r*math.cos(inp.GREEKtheta),
-                    inp.y_0-inp.r*math.sin(inp.GREEKtheta),
+                    inp.x_0-inp.r*math.cos(inp["\\theta"]),
+                    inp.y_0-inp.r*math.sin(inp["\\theta"]),
                     inp.z_0+inp.L
                 )
             ]
 
             const back_side = [
                 vec(
-                    inp.x_0+inp.r*math.cos(inp.GREEKtheta),
-                    inp.y_0+inp.r*math.sin(inp.GREEKtheta),
+                    inp.x_0+inp.r*math.cos(inp["\\theta"]),
+                    inp.y_0+inp.r*math.sin(inp["\\theta"]),
                     inp.z_0
                 ),
                 vec(
-                    inp.x_0-inp.r*math.cos(inp.GREEKtheta),
-                    inp.y_0-inp.r*math.sin(inp.GREEKtheta),
+                    inp.x_0-inp.r*math.cos(inp["\\theta"]),
+                    inp.y_0-inp.r*math.sin(inp["\\theta"]),
                     inp.z_0
                 )
             ]
