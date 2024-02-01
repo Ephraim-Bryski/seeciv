@@ -7,6 +7,8 @@ CAS issues i'm saying fuck it for
 			(1-sin(x)^2)-cos(x)^2 would of course have worked
 
 
+for outputs for visual the main thing (maybe only thing) should just be whether the visual was created, i never really look at the values
+
 handle empty spaces in sub table inputs
 
 if you update the sheet, and then toggle the spinner without rerunning first, it can mess it all up (cause variables can be removed)
@@ -14,16 +16,16 @@ if you update the sheet, and then toggle the spinner without rerunning first, it
 	can keep track of dom using the same approach as undo and redo
 		if changes other than in solve table (so changing the solve name also no good!) --> remove the spinners
 
+don't allow visual for solve block
 
+maybe too ambitious but...
+	would be nice to have a toggle between equation, reference, and visual, then even have a dropdown suggestion for ref or visual
 
 if i can improve solve steps, i could add it, with a toggle display at the bottom of the solve block so it makes more sense what it is
 
 
-point visual, can have coordinate, useful for
-	linkage
-	mohrs circle
-	actually lots of stuff even as a quick check
-	could make 
+point coordinates and axes as primitves
+	need to get it from my computer
 
 visuals still showing even when there's an error
 	i thought i resolved this D:

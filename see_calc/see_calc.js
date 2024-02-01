@@ -1627,7 +1627,7 @@ function spinner_adjust(spinner_button,sign){
 
     solve_output_eqns.forEach(eqn => {
         const stuff = eqn.split("=")
-        const solve_var = stuff[0]
+        const solve_var = remove_char_placeholders(stuff[0])
         const solve_val = stuff[1]
         solve_output[solve_var] = solve_val
     })
@@ -2645,6 +2645,12 @@ function display_vis(vis_eqns, scale_needs_adjusting = true){
             if (vis_exp.includes("NaN")){
                 throw "shouldnt have nan"
             }
+
+            const is_color_var = vis_exp.includes('"')
+            if (is_color_var){
+                vis_input[vis_var] = vis_exp.replaceAll("(","").replaceAll(")","")
+                return
+            }
             try{
                 var vis_val = math.evaluate(ltx_to_math(vis_exp))
             }catch{
@@ -2725,11 +2731,11 @@ function adjust_scale(){
 
             if (object instanceof label){
                 break
-            }if (object instanceof curve){
+            }else if (object instanceof curve){
                 break // gets the range automatically with the points
-            }if (object instanceof quad){
+            }else if (object instanceof quad){
                 range = get_quad_range(object, dim)
-            }if (object.constructor.name === "point"){
+            }else if (object.constructor.name === "point"){
                 // point isn't defined since it's not a user level function to create something
                 range = get_point_range(object, dim)
             }else{

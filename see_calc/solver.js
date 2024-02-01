@@ -781,6 +781,10 @@ function get_all_vars(eqns){
     if (typeof eqns ==="string"){eqns = [eqns]}
 
 
+    const quote_dummy = "__QUOTE_FOR_COLOR__"
+
+    eqns = eqns.map(eqn => {return eqn.replaceAll('"',quote_dummy)})
+
     var regex = /\W[a-zA-Z](\w?)+/g
     var vars = []
     eqns.forEach((eqn)=>{
@@ -811,6 +815,12 @@ function get_all_vars(eqns){
     // just in case it's not in latex
     all_vars = all_vars.filter(test_var => {return !trig_funcs.includes(test_var)})
     
+    // filter out the colors
+    all_vars = all_vars.filter(test_var => {
+        const in_quotes = test_var.includes(quote_dummy)
+        return !in_quotes
+    })
+
     return all_vars
 }
 

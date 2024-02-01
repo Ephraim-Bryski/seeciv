@@ -119,6 +119,7 @@ let primitive_vis = [
 
 ]
 
+
 let physical_vis = [
     {
         "name":"Rod",
@@ -481,6 +482,11 @@ let physical_vis = [
     }
 ]
 
+const external_visuals = [
+    draw_planetary
+]
+
+
 function get_vis_func(vis_name){
 
     // very hacky solution, probably using classes would make this better
@@ -493,4 +499,4 @@ function get_vis_func(vis_name){
 
 }
 
-vis_blocks = [primitive_vis,physical_vis].flat()
+vis_blocks = [primitive_vis,physical_vis,external_visuals].flat()

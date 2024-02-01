@@ -534,13 +534,32 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
 
             
             const is_visual = default_vis_vals !== undefined
-            const has_blank = sub_row.some(cell => {return cell === ""})
+            
+            if (is_visual){
+                
+                const has_blank = sub_row.some(cell => {return cell === ""})
 
-            if (is_visual && has_blank){
-                throw new FormatError("Cannot have blank fields for a visual")
+                if (has_blank){
+
+                    throw new FormatError("Cannot have blank fields for a visual")
+                }
+            
+
+                var_row.forEach((var_cell,col_idx)=>{
+                    const sub_cell = sub_row[col_idx]
+                    const is_color_cell = var_cell.includes("color")
+
+
+                    const colors = [...Object.keys(color_map)]
+                    const is_valid_color = colors.includes(sub_cell)
+
+                    if (is_color_cell && !is_valid_color){
+                        throw new FormatError(`${var_cell} must be one of: ${colors.join(", ")} with double quotes as shown`)
+                    }
+
+                })
+
             }
-
-
 
             if (sub_row.some(cell => {return cell.includes("=")})){
                 throw new FormatError("Cannot substitute an equation")
