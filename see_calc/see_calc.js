@@ -1129,7 +1129,8 @@ function make_line(eqn){
 }
 
 function format_visual_eqn(eqn){
-    const parts = eqn.split("|VISUAL")
+    const expression = eqn.split("=")[0]
+    const parts = expression.split("|VISUAL")
     if (parts.length === 1){
         return eqn
     }else if(parts.length > 2){
@@ -1146,6 +1147,18 @@ function format_visual_eqn(eqn){
     const visual = visuals[0]
 
     const visual_vars = Object.keys(visual.vars)
+
+    const unknown_vars = visual_vars.filter((vis_var,idx) => {
+        const value = values[idx]
+        return get_all_vars(value).length !== 0
+    })
+
+    if (unknown_vars.length === 0){
+        return `\\text{${visual_name} visual, displayed}`
+    }else{
+        return `\\text{${visual_name} visual, unknown: } ${unknown_vars.join("\\text{,  }")}`
+    }
+
 
     if (values.length !== visual_vars.length){
         throw "should be same number of variables and subbed values"

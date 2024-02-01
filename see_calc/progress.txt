@@ -7,7 +7,6 @@ CAS issues i'm saying fuck it for
 			(1-sin(x)^2)-cos(x)^2 would of course have worked
 
 
-for outputs for visual the main thing (maybe only thing) should just be whether the visual was created, i never really look at the values
 
 handle empty spaces in sub table inputs
 
@@ -33,7 +32,6 @@ visuals still showing even when there's an error
 improve numeric solver
 	just the obvious like don't check 10**10
 
-visual color as another input
 
 
 figure what to do with remove parentheses or some simplfiy for sub table
