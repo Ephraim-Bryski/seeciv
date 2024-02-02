@@ -13,11 +13,9 @@ if you update the sheet, and then toggle the spinner without rerunning first, it
 		if changes other than in solve table (so changing the solve name also no good!) --> remove the spinners
 
 
+i might just do degrees after all, just an annoying bit of parentheses checking
+
 visual keyword
-
-testing
-	getting stuck, ideally would go through whole process is 
-
 
 if i can improve solve steps, i could add it, with a toggle display at the bottom of the solve block so it makes more sense what it is
 

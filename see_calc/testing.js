@@ -210,7 +210,6 @@ function test_sheets(){
 
 
     const test_folder = library_sheets.filter(item => {return item.children && item.name === "Tests"})[0]
-
     
 
 
@@ -235,8 +234,6 @@ function test_sheets(){
 }
 
 function compare_ignore_key_order(item1, item2) {
-
-    // taken from cas, but generalized
 
 
     const con1 = item1.constructor

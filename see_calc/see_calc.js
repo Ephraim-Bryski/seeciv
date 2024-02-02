@@ -947,7 +947,7 @@ function make_line(eqn){
     MQ.MathField(in_field, {
         //autoCommands: "sqrt", // to just type instead of backslash
         autoCommands: selected_greek_names,
-        autoOperatorNames: trig_names,
+        autoOperatorNames: trig_names+" visual",
         handlers: {edit: function() {
         
             // for some reason, MQ runs it on creation, before there are parent elements ):<
@@ -1712,7 +1712,7 @@ function check_spinner_pressed(){
         }else if(spinner_idx === 2){
             sign = 1
         }else{
-            throw "index isn't at spinner??"
+            throw "index isn't at spinner, could happen if i changed the spinner layout"
         }
     
         spinner_adjust(last_spinner_pressed,sign)

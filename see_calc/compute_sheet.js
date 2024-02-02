@@ -223,33 +223,31 @@ function calc(SoEs,start_idx,end_idx){
         var new_table = undefined // removes table unless there is a substitution (removes if obsolete)
 
 
-        const solve_txt = "\\operatorname{solve}"
 
-        // const solve_line = line.startsWith(solve_txt)
+        const visual_txt = "\\operatorname{visual}"
 
-        const solve_txt_once = line.indexOf(solve_txt) === line.lastIndexOf(solve_txt)
-
-        const has_solve_txt = line.includes(solve_txt)
+        const visual_line = line.startsWith(visual_txt)
 
 
+        const has_visual_txt = line.includes(visual_txt)
 
-        if (has_solve_txt && !solve_line ){
-            throw new FormatError("solve keyword must occur once at the start of the line")
+        const visual_txt_once = line.indexOf(visual_txt) === line.lastIndexOf(visual_txt) && has_visual_txt
+
+
+
+        if (visual_txt_once && !has_visual_txt ){
+            throw new FormatError("visual keyword must be at the start of the line")
         }
 
-        if (has_solve_txt && !solve_txt_once){
-            throw new FormatError("solve keyword must only occur once in the line")
+        if (has_visual_txt && !visual_txt_once){
+            throw new FormatError("visual keyword must only occur once in the line")
         }
 
-        line = line.replaceAll(solve_txt,"")
+        line = line.replaceAll(visual_txt,"")
 
         const match_vis_blocks = vis_blocks.filter((vis_block)=>{return vis_block["name"]===line})
-
-        if (line.length===0){
-            if(!solve_line){
-                throw "should never happen, should have already been caught"
-            }
-        }else if(!(/^\w+$/.test(line))){    // checks if not alphanumeric (also allows underscores)
+        
+        if(!(/^\w+$/.test(line)) && line !== ""){    // checks if not alphanumeric (also allows underscores)
 
             if (solve_line){
                 throw new FormatError("Must input a reference to a block name, not an expression or equation") 
@@ -280,7 +278,12 @@ function calc(SoEs,start_idx,end_idx){
                 var result = [simplified_eqn]
             }
 
-        }else if(match_vis_blocks.length!==0){
+        }else if(visual_line){
+
+
+            if (match_vis_blocks.length === 0){
+                throw new FormatError(`${line} is not a known visual`)
+            }
             // primitive visual
             var result = []
 
