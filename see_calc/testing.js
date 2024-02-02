@@ -5,7 +5,7 @@ all_cas_tests = [simplify_tests, solve_tests, merge_tests, arithmetic_tests]
 
 function test(){
     const cas_passed = test_cas()
-    const solver_passed = test_solver()
+    const solver_passed = test_sheets()
     const all_passed = cas_passed && solver_passed
 
     if (all_passed){
@@ -84,7 +84,7 @@ function test_cas(test_suites = all_cas_tests){
 }
 
 
-function test_solver(){
+function OLD_test_solver(){
     
     const test_folder = firebase_data.filter(folder=>{return folder.name === "Tests"})[0]
 
@@ -117,7 +117,7 @@ function test_solver(){
 }
 
 
-function test_sheet(sheet, error_type){
+function OLD_test_sheet(sheet, error_type){
     const sheet_name = sheet.name
     const sheet_data = sheet.blocks
     const result = calc(sheet_data, 0, sheet_data.length)
@@ -201,4 +201,83 @@ function check_solution(eqns, all_row_sols){
     })
 
     return all_correct
+}
+
+
+function test_sheets(){
+    
+    const library_sheets = get_firebase_data()
+
+
+    const test_folder = library_sheets.filter(item => {return item.children && item.name === "Tests"})[0]
+
+    
+
+
+    const sheets = test_folder.children
+    
+    for (let sheet of sheets){
+        if (sheet === "blank"){continue}
+        const old_sheet = sheet.blocks
+        load_sheet(["Tests",sheet.name],"")
+        const new_sheet = DOM2data()
+        const new_computed_sheet = calc(DOM2data(),0,new_sheet.length)
+        const is_match = compare_ignore_key_order(old_sheet, new_computed_sheet)
+        if (is_match){
+            console.log('yay :)')
+        }else{
+            console.warn(sheet.name)
+        }
+    }
+
+
+
+}
+
+function compare_ignore_key_order(item1, item2) {
+
+    // taken from cas, but generalized
+
+
+    const con1 = item1.constructor
+    const con2 = item2.constructor
+
+
+    if (con1 !== con2){
+        return false
+    }
+
+    const constructor = con1
+
+
+    if (constructor === Object){
+        // dictionary
+
+        const keys1 = [...Object.keys(item1)]
+        const keys2 = [...Object.keys(item2)]
+
+        if (keys1.length !== keys2.length){
+            return false
+        }
+
+        return keys1.every(key=>{
+            return compare_ignore_key_order(item1[key], item2[key])
+        })
+
+    }else if (constructor === Array){
+        
+        if (item1.length !== item2.length) {
+            return false;
+        }
+
+        return item1.every((_,idx)=>{
+            return compare_ignore_key_order(item1[idx],item2[idx])
+        })
+        
+
+    }else{
+        return item1 === item2
+    }
+
+
 }

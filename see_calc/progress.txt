@@ -7,18 +7,17 @@ CAS issues i'm saying fuck it for
 			(1-sin(x)^2)-cos(x)^2 would of course have worked
 
 
-
-handle empty spaces in sub table inputs
-
 if you update the sheet, and then toggle the spinner without rerunning first, it can mess it all up (cause variables can be removed)
 	probably best to remove the spinners when changes are made
 	can keep track of dom using the same approach as undo and redo
 		if changes other than in solve table (so changing the solve name also no good!) --> remove the spinners
 
-don't allow visual for solve block
 
-maybe too ambitious but...
-	would be nice to have a toggle between equation, reference, and visual, then even have a dropdown suggestion for ref or visual
+visual keyword
+
+testing
+	getting stuck, ideally would go through whole process is 
+
 
 if i can improve solve steps, i could add it, with a toggle display at the bottom of the solve block so it makes more sense what it is
 
@@ -43,10 +42,6 @@ To do at end
 	
 	catch all error so it doesn't break if some weird error comes up
 
-clicking on the glowscript element does not focus you out of an input field (mathquill or regular)
-	i think i'll ask the forum once i have the rest of the site up and running so it's clear why it's an issue
-	
-	
 
 visuals to create
 

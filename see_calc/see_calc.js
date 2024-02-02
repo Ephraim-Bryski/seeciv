@@ -2144,7 +2144,7 @@ function get_sub_data(table){
             var cell = cells[j]
             var mq_field = cell.children[0]
             if(!(mq_field.className.includes("mq"))){continue}
-            const ltx_raw = MQ(mq_field).latex()
+            const ltx_raw = MQ(mq_field).latex().replaceAll("\\ ","")
             var ltx = add_char_placeholders(ltx_raw)
             data[i].push(ltx)
 
@@ -2253,6 +2253,7 @@ function make_MQ(){
 
         let ltx = field.temp_ltx
         MQ(field).latex(ltx)
+        return
     })
 
 }
@@ -2622,6 +2623,24 @@ function switch_popup(sel_child_name,e){
 }
 
 
+
+// glowscript prevents it from automatically doing this
+// for some reason gs also prevents onmousedown from working
+$("#vis")[0].onmouseup = () => {
+    console.log('hi')
+    const mq_fields = [...$(".mq-editable-field")]
+
+    mq_fields.forEach(field => {
+        MQ(field).blur()
+    })
+
+    const regular_fields = [...$("input")]
+
+    regular_fields.forEach(field => {
+        field.blur()
+    })
+
+}
 
 function display_vis(vis_eqns, scale_needs_adjusting = true){
     
