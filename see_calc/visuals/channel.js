@@ -69,3 +69,5 @@ const draw_channel = {
 
 
 }}
+
+vis_blocks.push(draw_channel)

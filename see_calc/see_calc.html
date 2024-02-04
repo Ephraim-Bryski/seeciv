@@ -11,89 +11,10 @@
 
 
 <!-- stuff for log in, doesn't work in debug environment so wait until very end-->
-<!--
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<span id="log-in-status" style="color:white"></span>
-
-<script>
-var firebase_log_in = firebase
-
-
-const fb_config_log_in = {
-  apiKey: "AIzaSyDUuFHtA_-CFs90xbX-Z1Ros3QGwegFvcg",
-  authDomain: "test-7af03.firebaseapp.com",
-  databaseURL: "https://test-7af03-default-rtdb.firebaseio.com",
-  projectId: "test-7af03",
-  storageBucket: "test-7af03.appspot.com",
-  messagingSenderId: "772660129335",
-  appId: "1:772660129335:web:79af91672aff96686159b2",
-  measurementId: "G-D312DPNMBZ"
-};
-
-  // Initialize Firebase
-  firebase_log_in.initializeApp(fb_config_log_in);
 
 
 
-// Check if the user is already logged in on page load
-firebase_log_in.auth().onAuthStateChanged(function(user) {
-  if (user) {
-    // User is signed in
-    $("#sign-in")[0].style.display = "none"
-    $("#save-field")[0].style.display = ""
-    $("#save-button")[0].style.display = ""
-    $("#sign-out")[0].style.display = ""
-    $("#log-in-status")[0].innerText = user.email
-    console.log("IN :D")
-    console.log(user.email);
-    // Do something with the logged-in user, e.g., display user info
-  } else {
-    $("#sign-out")[0].style.display = "none"
-    $("#sign-in")[0].style.display = ""
-    $("#save-field")[0].style.display = "none"
-    $("#save-button")[0].style.display = "none"
-    $("#log-in-status")[0].innerText = ""
-    // No user is signed in
-    console.log("User is not logged in");
-  }
-});
 
-
-
-// Sign out the current user
-function signOutUser() {
-  firebase_log_in.auth().signOut().then(function() {
-    // Sign-out successful.
-    console.log("User signed out");
-    // Perform any additional actions after sign-out if needed
-  }).catch(function(error) {
-    // An error happened.
-    console.error(error);
-  });
-}
-
-
-
-// Sign in with Google
-function signInWithGoogle() {
-  var provider = new firebase_log_in.auth.GoogleAuthProvider();
-  firebase_log_in.auth().signInWithPopup(provider).then(function(result) {
-    // User signed in successfully
-    var user = result.user;
-    console.log(user.email);
-    // alert(`logged in as ${user.email}`);
-  }).catch(function(error) {
-    // Handle errors
-    console.error(error);
-  });
-}
-
-
-
-// Add a button in your HTML to trigger the sign-in
-</script>
--->
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
@@ -122,7 +43,9 @@ function signInWithGoogle() {
 
 <!-- not needed since its imported in worker, only including it so i can use it in the debugger-->
 
-
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="handle_log_in.js"></script>
 
 
 <!-- firebase-->
@@ -216,8 +139,8 @@ function signInWithGoogle() {
      
 
 
-    <button style="display:none; float:right" id="sign-in" class="menu-text" onclick="signInWithGoogle()" >Sign in with Google</button>
-    <button style="display:none; float:right" id="sign-out" class="menu-text" onclick="signOutUser()">Sign out</button>
+    <button style="display:none" id="sign-in" class="menu-text" onclick="signInWithGoogle()" >Sign in with Google</button>
+    <button style="display:none" id="sign-out" class="menu-text" onclick="signOutUser()">Sign out</button>
 
 
 
@@ -259,35 +182,17 @@ function signInWithGoogle() {
 
     <div id="load" style="display:block">
         
-        
-        <div id="logged_out" style="display: none;">
-            <div>
-                <span>Username</span>
-                <input id="username">
-            </div>
-            <span>
-                <button>Create Account</button>
-                <button onclick="log_in()">Log In</button>
-            </span>
-            <br>
-        </div>
-
-        <div id="logged_in" style="display: none;">
-            <button onclick="log_out()">Log Out</button>
-            <br>
-            
-
-        </div>
 
 
-        
+        <div class="library-label" id="user-content-label" style="display: none;"></div>
         <div id="user-content"></div>
+		<div class="library-label" style="display: none;">Public Content</div>
         <div id="library"></div>
         
     </div>
 
 
-
+ 
 </div>
 
 
@@ -321,8 +226,20 @@ function signInWithGoogle() {
 <link rel="stylesheet" href="treant-js-master\Treant.css">
 
 <script src="visuals/color_map.js"></script>
-<script src="visuals/planetary.js"></script>
 <script src="vis_database.js"></script>
+<script src="visuals/channel.js"></script>
+<script src="visuals/coordinates_and_points.js"></script>
+<script src="visuals/curved_arrow.js"></script>
+<script src="visuals/geometry_visuals.js"></script>
+<script src="visuals/planetary.js"></script>
+<script src="visuals/soil_properties.js"></script>
+<script src="visuals/stress_rotate_2d.js"></script>
+<script src="visuals/stress_strain.js"></script>
+<script src="visuals/stretchy_rod.js"></script>
+<script src="visuals/twisty_rod.js"></script>
+<script src="visuals/water_wave.js"></script>
+
+
 
 <script src="UI_tree.js"></script>
 <script src="cas.js"></script>

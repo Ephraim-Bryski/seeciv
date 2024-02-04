@@ -1,7 +1,7 @@
 
 const draw_curved_arrow = {
     
-    name: "ArrowCurved",
+    name: "CurvedArrow",
     vars: {
         x: 0,
         y: 0,
@@ -52,3 +52,5 @@ const draw_curved_arrow = {
     arrow({axis: direction})
 }
 }
+
+vis_blocks.push(draw_curved_arrow)

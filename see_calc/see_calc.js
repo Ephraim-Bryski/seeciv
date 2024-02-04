@@ -1,7 +1,6 @@
 
 var MQ = MathQuill.getInterface(2);
 
-CURRENT_USER = null
 
 const trig_names = "sin cos tan csc sec cot sinh cosh tanh csch sech coth arcsin arccos arctan arccsc arcsec arccot arcsinh arccosh arctanh arccsch arcsech arccoth"
 const selected_greek_names = "pi alpha theta omega tau"
@@ -186,7 +185,6 @@ function save_sheet(){
     }
 
 
-    write_url(CURRENT_USER, [folder_path,sheet_name].flat())
 
 
     const blocks = JSON.parse(JSON.stringify((DOM2data())))
@@ -202,7 +200,21 @@ function save_sheet(){
     //! for now always saving into top folder
     // save_content(firebase_data, "", sheet_data, true)
     
-    const place_to_save = get_folder_content(folder_path.join("/"),get_firebase_data(CURRENT_USER))
+
+    let place_to_save
+
+    if (CURRENT_USER){
+
+        if (!firebase_data.Users[CURRENT_USER]){
+            firebase_data.Users[CURRENT_USER] = []
+        }
+        place_to_save = firebase_data.Users[CURRENT_USER]
+    }else{
+        place_to_save = firebase_data.Library
+    }
+
+
+    // const place_to_save = get_folder_content(folder_path.join("/"),get_firebase_data(CURRENT_USER))
 
     save_content(place_to_save, "", sheet_data, true)
 
@@ -213,53 +225,11 @@ function save_sheet(){
     // send_to_url()
 
     database.set(firebase_data)    
-}
 
-
-function log_in(){
-    // TODO check if already account
-        // need to figure out registering vs logging in 
-
-
-    
-    const logged_in_user = document.getElementById("username").value
-
-    const is_alphanumeric =  /^[a-zA-Z0-9\s]+$/.test(logged_in_user)
-
-    if (!is_alphanumeric){
-        alert("username must only contain letters and numbers") 
-        return
-    }
-
-
-    CURRENT_USER = logged_in_user
-
-    const all_users = Object.keys(firebase_data.Users)
-
-    const already_a_user = all_users.some(user => {return user == logged_in_user})
-
-    if (!already_a_user){
-        firebase_data.Users[logged_in_user] = ["blank"] // cause stupid firebase doesn't understand empty arrays
-    }
-
-
-
-    document.getElementById("logged_in").style.display = "block";
-    document.getElementById("logged_out").style.display = "none";
-
-    update_library()
+    write_url(CURRENT_USER, [folder_path,sheet_name].flat())
 
 }
 
-function log_out(){
-    CURRENT_USER = null
-
-    
-    document.getElementById("logged_out").style.display = "block";
-    document.getElementById("logged_in").style.display = "none";
-
-    update_library()
-}
 
 let firebase_data
 
@@ -297,15 +267,24 @@ function update_library(package = null){
     const create_library_buttons = (names, container)=>{create_sheet_buttons(names, container, null)}
     const create_user_buttons = (names, container)=>{create_sheet_buttons(names, container, CURRENT_USER)}
 
+    const library_labels = [...$(".library-label")]
+
     let user_data
     if (!firebase_data.Users || !firebase_data.Users[CURRENT_USER]){
         user_data = []
+        library_labels.forEach(label => {label.style.display = 'none'})
     }else{
+
         user_data = firebase_data.Users[CURRENT_USER]
+        $("#user-content-label")[0].innerText = `${CURRENT_USER}'s Content`
+        library_labels.forEach(label => {label.style.display = ''})
+        
     }
 
-    replace_UI_tree(firebase_data.Library, library_root, create_library_buttons)
+
+
     replace_UI_tree(user_data, user_content_root, create_user_buttons)
+    replace_UI_tree(firebase_data.Library, library_root, create_library_buttons)
 
 
     
@@ -1846,7 +1825,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                     if (Object.keys(step_sizes).includes(spinner_variable)){
                         spinner_value = step_sizes[spinner_variable]
                     }else{
-                        spinner_value = 1
+                        spinner_value = .1
                     }
                     
                     spinner_field = make_spinner_field(spinner_value)
@@ -1880,6 +1859,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
         const step_size_field = document.createElement("input")
         step_size_field.type = 'number'
+        step_size_field.title = 'Spinner step size'
         step_size_field.classList.add("spinner-step")
         step_size_field.value = step_size
 
@@ -2181,12 +2161,14 @@ function setUpGS(id){
 
 function view_xy(){
     scene.forward = vec(0,0,-1)
+    adjust_scale()
 }
 
 
 
 function view_3d(){
     scene.forward = vec(-1,-1,-1)
+    adjust_scale()
 }
 
 

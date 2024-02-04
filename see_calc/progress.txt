@@ -13,22 +13,22 @@ if you update the sheet, and then toggle the spinner without rerunning first, it
 		if changes other than in solve table (so changing the solve name also no good!) --> remove the spinners
 
 
+need state for hide/reload
+
 i might just do degrees after all, just an annoying bit of parentheses checking
 
-visual keyword
 
 if i can improve solve steps, i could add it, with a toggle display at the bottom of the solve block so it makes more sense what it is
 
+not sure whether to list all visuals when an invalid one is input
 
-point coordinates and axes as primitves
-	need to get it from my computer
+about 85% of the time (at least for my stretchy rod example) is spent in displaying the visual, the majority of that in clearing it
+	would be much faster to just update the visual when using spinner
 
-visuals still showing even when there's an error
-	i thought i resolved this D:
 
 improve numeric solver
 	just the obvious like don't check 10**10
-
+	
 
 
 figure what to do with remove parentheses or some simplfiy for sub table
@@ -42,6 +42,11 @@ To do at end
 
 
 visuals to create
+
+	basics
+		line
+		rectangular plane portion
+		helices
 
 	basic statics, equilibrium loads
 		simplest it's just levers

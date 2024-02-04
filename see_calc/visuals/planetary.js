@@ -84,40 +84,64 @@ const draw_planetary = {
         }
     }
     
-    function make_gear(x,y,z,R,theta,gear_color){
-    
-        cylinder({pos:vec(x,y,z), axis: axis,radius:R,color:gear_color})
-    
-        
-        const angles = base_spoke_angles.map(angle => {return angle+theta*Math.PI/180})
-        
-        // gonna assume along z axis
-        const spoke_points_F = angles.map(angle => {
-            const x_pos = x+R*Math.cos(angle)
-            const y_pos = y+R*Math.sin(angle)
-            return vec(x_pos,y_pos,z)
-        })
-    
-    
-        const spoke_points_B = spoke_points_F.map(point => {
-            return point.add(axis)
-        })
-    
-        curve({pos:[spoke_points_F[0],spoke_points_F[2]],color:spoke_color})
-        curve({pos:[spoke_points_F[1],spoke_points_F[3]],color:spoke_color})
-    
-        
-        curve({pos:[spoke_points_B[0],spoke_points_B[2]],color:spoke_color})
-        curve({pos:[spoke_points_B[1],spoke_points_B[3]],color:spoke_color})
-    
-        spoke_points_F.forEach((point_F,idx)=>{
-            const point_B = spoke_points_B[idx]
-            curve({pos:[point_F,point_B], color:spoke_color})
-        })
-    }
         
 }}
 
 
+const draw_wheel = {
+
+
+    name: "Wheel",
+    vars: {
+        x_0:0,
+        y_0:0,
+        z_0:0,
+        L:1,
+        r:1,
+        "\\theta":0
+    },
+
+    vis: (inp)=>{
+
+        make_gear(inp.x_0, inp.y_0, inp.z_0, inp.r, inp["\\theta"], color.white)
+
+    }
+}
 
     
+
+
+function make_gear(x,y,z,R,theta,gear_color){
+    
+    cylinder({pos:vec(x,y,z), axis: axis,radius:R,color:gear_color})
+
+    
+    const angles = base_spoke_angles.map(angle => {return angle+theta*Math.PI/180})
+    
+    // gonna assume along z axis
+    const spoke_points_F = angles.map(angle => {
+        const x_pos = x+R*Math.cos(angle)
+        const y_pos = y+R*Math.sin(angle)
+        return vec(x_pos,y_pos,z)
+    })
+
+
+    const spoke_points_B = spoke_points_F.map(point => {
+        return point.add(axis)
+    })
+
+    curve({pos:[spoke_points_F[0],spoke_points_F[2]],color:spoke_color})
+    curve({pos:[spoke_points_F[1],spoke_points_F[3]],color:spoke_color})
+
+    
+    curve({pos:[spoke_points_B[0],spoke_points_B[2]],color:spoke_color})
+    curve({pos:[spoke_points_B[1],spoke_points_B[3]],color:spoke_color})
+
+    spoke_points_F.forEach((point_F,idx)=>{
+        const point_B = spoke_points_B[idx]
+        curve({pos:[point_F,point_B], color:spoke_color})
+    })
+}
+
+vis_blocks.push(draw_planetary)
+vis_blocks.push(draw_wheel)

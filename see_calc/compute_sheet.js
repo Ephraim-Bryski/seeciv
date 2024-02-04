@@ -207,7 +207,7 @@ function calc(SoEs,start_idx,end_idx){
 
         if (line === ""){
             if (solve_line){
-                console.warn("BLANK LINE FOUND")
+                return
             }else{
                 throw new FormatError("Line cannot be blank")
             }
@@ -226,22 +226,26 @@ function calc(SoEs,start_idx,end_idx){
 
         const visual_txt = "\\operatorname{visual}"
 
+
+
+
+
         const visual_line = line.startsWith(visual_txt)
 
 
         const has_visual_txt = line.includes(visual_txt)
 
-        const visual_txt_once = line.indexOf(visual_txt) === line.lastIndexOf(visual_txt) && has_visual_txt
+        const has_multiple_visual_texts = line.indexOf(visual_txt) !== line.lastIndexOf(visual_txt)
 
 
-
-        if (visual_txt_once && !has_visual_txt ){
+        if (has_visual_txt && !visual_line){
             throw new FormatError("visual keyword must be at the start of the line")
         }
 
-        if (has_visual_txt && !visual_txt_once){
-            throw new FormatError("visual keyword must only occur once in the line")
+        if (has_multiple_visual_texts){
+            throw new FormatError("visual keyword must only occur once")
         }
+
 
         line = line.replaceAll(visual_txt,"")
 
@@ -280,6 +284,10 @@ function calc(SoEs,start_idx,end_idx){
 
         }else if(visual_line){
 
+            const vis_blocks_text = vis_blocks.map(block => {return block.name}).join(", ")
+            if (line === ""){
+                throw new FormatError(`visual must be followed by the name of a primitive visual<br>${vis_blocks_text}`)
+            }
 
             if (match_vis_blocks.length === 0){
                 throw new FormatError(`${line} is not a known visual`)
