@@ -2696,6 +2696,21 @@ function get_quad_range(quad_object, dim){
 }
 
 
+function get_triangle_range(triangle_object, dim){
+    
+    const vertex_keys = ["v0","v1","v2"]
+
+    const coords = vertex_keys.map((vertex) => {
+        return triangle_object[vertex]["pos"][dim]
+    })
+
+    return [min(coords), max(coords)]
+}
+
+
+
+
+
 // function get_curve_range(object, dim){
 
 //     const point_idxs = [...Array(object.npoints).keys()]
@@ -2749,6 +2764,8 @@ function adjust_scale(){
                 break // gets the range automatically with the points
             }else if (object instanceof quad){
                 range = get_quad_range(object, dim)
+            }else if (object instanceof triangle){
+                range = get_triangle_range(object, dim)
             }else if (object.constructor.name === "point"){
                 // point isn't defined since it's not a user level function to create something
                 range = get_point_range(object, dim)

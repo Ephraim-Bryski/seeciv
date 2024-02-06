@@ -11,7 +11,16 @@ if you update the sheet, and then toggle the spinner without rerunning first, it
 	probably best to remove the spinners when changes are made
 	can keep track of dom using the same approach as undo and redo
 		if changes other than in solve table (so changing the solve name also no good!) --> remove the spinners
+		could also have the Run button color initially be gray, and then change to blue when modification, makes it much clearer
 
+
+for solve input
+	either evaluate math expressions OR
+	at least give a better error message saying which input is invalid
+	also if something's invalid, don't adjust the size, or else you get a really big text box that looks stupid and glitchy
+
+
+fix testing when it hits an erroro
 
 need state for hide/reload
 
@@ -28,28 +37,23 @@ about 85% of the time (at least for my stretchy rod example) is spent in display
 
 improve numeric solver
 	just the obvious like don't check 10**10
-	
+
 
 
 figure what to do with remove parentheses or some simplfiy for sub table
 
 To do at end
 
-	the only issue with login is it doesn't work with launch.json
-	so i have to wait until the end to transfer everything over
-	
+
 	catch all error so it doesn't break if some weird error comes up
 
 
 visuals to create
 
 	basics
-		line
-		rectangular plane portion
 		helices
 
 	basic statics, equilibrium loads
-		simplest it's just levers
 		but could also have distributed loads
 		of course much more limited than skyciv but nice how you'd see loads update real time
 		could also have spring supports, basic sort of static indeterminancy
@@ -109,14 +113,9 @@ visuals to create
 		issue is i don't have sum
 			might still be ok, since you would just add to the one above
 
+
+	trapezoidal distribution
 	
-
-
-
-
-	for bars in tension in compression, i could have diagonal lines both ways (creating squares)
-		then the squares will deform
-
 	random stuff
 		balloon, how the pressure after a certain point goes down cause the rubber thins
 			or the two balloons thing, issue is it would need to find the two different solutions
