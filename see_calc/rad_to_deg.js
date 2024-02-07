@@ -33,6 +33,23 @@ function find_matching_parentheses(text, open_idx){
 }
 
 
+function get_all_indices(text,sub_text){
+    /*
+    this weirdness does two things
+        avoids need to check start of line
+        offsets indices by 1, which is what i need cause the index matches at the nonalphanum not the start
+    */
+    const padded_text = "-"+text
+    
+    // stupid gpt code, of course i needed to correct it :/
+    var regex = new RegExp("(\\W)" + sub_text, "g"); // create a dynamic regex with the variable
+    var result, indices = []; // initialize an array to store the indices
+    while (result = regex.exec(padded_text)) { // loop through the matches
+        indices.push(result.index); // push the index of the match to the array
+    }
+    return indices
+}
+
 function rad_to_deg(expression){
 
     
@@ -44,12 +61,12 @@ function rad_to_deg(expression){
 
 
 
-    const forward_start_idxs = forward_ops.map(op => {return get_all_indices(expression, op)}).flat()
-    const inverse_start_idxs = inverse_ops.map(op => {return get_all_indices(expression, op)}).flat()
+    const forward_start_idxs = forward_trig.map(op => {return get_all_indices(expression, op)}).flat()
+    const inverse_start_idxs = inverse_trig.map(op => {return get_all_indices(expression, op)}).flat()
 
 
-    const forward_open_idxs = forward_start_idxs.map(idx => {return idx + 4})
-    const inverse_open_idxs = inverse_start_idxs.map(idx => {return idx + 5})
+    const forward_open_idxs = forward_start_idxs.map(idx => {return idx + 3})
+    const inverse_open_idxs = inverse_start_idxs.map(idx => {return idx + 4})
 
     const forward_close_idxs = forward_open_idxs.map(idx => {return find_matching_parentheses(expression, idx)})
     const inverse_close_idxs = inverse_open_idxs.map(idx => {return find_matching_parentheses(expression, idx)})
@@ -67,7 +84,7 @@ function rad_to_deg(expression){
     })
 
     inverse_start_idxs.forEach(idx => {
-        chars[idx] = "(\\"
+        chars[idx] = "(a"
     })
 
     inverse_close_idxs.forEach(idx => {
@@ -78,25 +95,23 @@ function rad_to_deg(expression){
 }
 
 
-function check_it(before,after){
-    if (rad_to_deg(before) !== after){
-        console.warn(`u done messed up ${before}`)
-    }
-}
-console.log(rad_to_deg("\\sin(3+\\asin(4))"))
-
-
-function get_all_indices(text,substring){
+function test_rad_to_deg(){
     
-    let start_idx = 0
-    const indices = []
-    while (true){
-        const index = text.indexOf(substring, start_idx)
-        if (index === -1){
-            return indices
+    
+    function check_it(before,after){
+        if (rad_to_deg(before) !== after){
+            console.warn(`u done messed up ${rad_to_deg(before)}`)
+        }else{
+            console.log('yay :)')
         }
-        indices.push(index)
-        start_idx = index + substring.length
     }
-    
+
+    check_it("a*b+c","a*b+c")
+    check_it("sin(a+b)","sin((a+b)*pi/180)")
+    check_it("asin(a+b)+3","(asin(a+b)*180/pi)+3")
+    check_it("asin(a+b)^2","(asin(a+b)*180/pi)^2")
+    check_it("sin(cos(a))","sin((cos((a)*pi/180))*pi/180)")
+    check_it("sin(asin(a)+3)","sin(((asin(a)*180/pi)+3)*pi/180)")
+    check_it("(a+b)*c","(a+b)*c")
+
 }

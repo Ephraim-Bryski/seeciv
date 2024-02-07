@@ -42,8 +42,9 @@ firebase_log_in.auth().onAuthStateChanged(function(user) {
 		CURRENT_USER = null
 		$("#sign-out")[0].style.display = "none"
 		$("#sign-in")[0].style.display = ""
-		$("#save-field")[0].style.display = "none"
-		$("#save-button")[0].style.display = "none"
+		// just temporary so i can save stuff without logging in
+		// $("#save-field")[0].style.display = "none"
+		// $("#save-button")[0].style.display = "none"
 		// No user is signed in
 		console.log("User is not logged in");
 	}

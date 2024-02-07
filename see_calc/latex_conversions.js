@@ -94,7 +94,43 @@ function remove_char_placeholders(eqn){
 
 
 
+function do_other_syntax_checks(latex_expression){
 
+	// this is awful
+	// but not as scary cause it just throws errors, so ill know if it's misbehaving
+
+	trig_funcs.forEach(op => {
+		
+		if (op[0] === "a"){
+			op = "arc"+op.slice(1)
+		}
+
+		const latex_op = "\\\\"+op
+
+		const exponent_trig = RegExp(latex_op+"[\\^]","g")
+		const non_parentheses_trig = RegExp(latex_op+"[ ]","g")
+
+		if (exponent_trig.test(latex_expression)){
+			throw new FormatError("only supports trig exponents after the closed parentheses")
+		}
+
+		const without_parentheses = non_parentheses_trig.test(latex_expression) || latex_expression.endsWith(op)
+
+		if (without_parentheses){
+			throw new FormatError("trig function input must be enclosed in parentheses")
+		}
+
+	})
+
+
+	/*
+	forbid
+
+		\\trigfunc^
+
+		\\trigfuncanything other than parentheses
+	*/
+}
 
 
 function ltx_to_math(ltx_eqn){

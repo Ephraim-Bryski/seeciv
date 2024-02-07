@@ -14,33 +14,56 @@ if you update the sheet, and then toggle the spinner without rerunning first, it
 		could also have the Run button color initially be gray, and then change to blue when modification, makes it much clearer
 
 
-for solve input
-	either evaluate math expressions OR
-	at least give a better error message saying which input is invalid
-	also if something's invalid, don't adjust the size, or else you get a really big text box that looks stupid and glitchy
+need visual Line
+coordinate needs rounded values, and a tad bigger text
+sigma without backslash
+probably want to control min and max for axes
+	or honestly just having it positive might be ok
+i feel like things are a bit too zoomed out by default
+probaby should have colors for everything :D
+arrow scale for stressrotate
+
+need scales on arrows in general
+
+if you solve a block with only a visual and then save it, the solve stuff disappears on reload
+
+error messages
+
+	not sure whether to list all visuals when an invalid one is input
+
+style
+	glowscript canvas resize on window resize
+		event listener that just changes canvas size leads to
+			error on creating new gs objects
+			when you minimize the window and reopen, it is just white for a while
+			no idea why for either of these
+			may be possible to delete the canvas and recreate
+
+misc
+	if i can improve solve steps, i could add it, with a toggle display at the bottom of the solve block so it makes more sense what it is
 
 
-fix testing when it hits an erroro
+	about 85% of the time (at least for my stretchy rod example) is spent in displaying the visual, the majority of that in clearing it
+		would be much faster to just update the visual when using spinner
+
+
+	improve numeric solver
+		just the obvious like don't check 10**10
+
+	figure what to do with remove parentheses or some simplfiy for sub table
+
+
 
 need state for hide/reload
-
-i might just do degrees after all, just an annoying bit of parentheses checking
-
-
-if i can improve solve steps, i could add it, with a toggle display at the bottom of the solve block so it makes more sense what it is
-
-not sure whether to list all visuals when an invalid one is input
-
-about 85% of the time (at least for my stretchy rod example) is spent in displaying the visual, the majority of that in clearing it
-	would be much faster to just update the visual when using spinner
-
-
-improve numeric solver
-	just the obvious like don't check 10**10
+	not sure whether i want it to be a state of the user session or of the sheet
+	gonna wait until i make more sheets
 
 
 
-figure what to do with remove parentheses or some simplfiy for sub table
+
+
+
+
 
 To do at end
 

@@ -652,6 +652,7 @@ function is_real(value){
 function newton_raphson(exp,solve_var,guess){
 
 
+    const exp_degree = rad_to_deg(exp)
 
     var prev_guess
     
@@ -660,8 +661,10 @@ function newton_raphson(exp,solve_var,guess){
     const max_count = 100
 
     var f = (x)=>{
+        //RAD need to first replace with degrees so it doesn't have to run that every time
+        // exp_deg = rad_to_deg(exp)
         return math.evaluate(
-            sub_all_vars(exp,solve_var,x.toString())
+            sub_all_vars(exp_degree,solve_var,x.toString())
         )
     }
 
@@ -724,9 +727,12 @@ function forward_solve(ordered_sub){
 
         solution_step.eqn = `${sub.solve_var}=${ltx_expression}`
 
+        const val_degree = rad_to_deg(val)
 
         try{
-            sub.sol = num_to_string(math.evaluate(val))    // this is necessary for trig functions
+            //RAD math.evaluate(rad_to_deg(val))
+
+            sub.sol = num_to_string(math.evaluate(val_degree))    // this is necessary for trig functions
         }catch(e){
             throw new TooMuchUnknownError
         }

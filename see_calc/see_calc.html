@@ -66,17 +66,6 @@
 <link rel="stylesheet" href="main.css"/>
 <link rel="stylesheet" href="calc_blocks.css"/>
 
-<div id="page-not-found">
-
-    
-    <div class="container">
-        <h1>Page Not Found</h1>
-        <p>The sheet you're looking for isn't available, it might have been moved or deleted.</p>
-        <p>Sorry :\</p>
-    </div>
-</div>
-    
-
 
 
 
@@ -132,7 +121,7 @@
     <button  class="menu-text visual-toggle" onclick="view_xy()" style="display:none">XY</button>
     <button  class="menu-text visual-toggle" onclick="view_3d()" style="display:none">3D</button>
 
-    <button  style="float:right" class="menu-text" onclick="toggle_solve_steps(event)" id="toggle-solve-steps" style="display:none">Solve Steps</button>
+    <button  style="float:right" class="menu-text" onclick="NEED_TO_MOVE_SOLVE_STEPS(event)" id="toggle-solve-steps" style="display:none">Solve Steps</button>
     
     <button  style="float:right" class="menu-text" onclick="toggle_library(event)">Library</button>
     
@@ -150,50 +139,20 @@
 
 
 
-<div id="popup">
 
-
-    <table id="search-box" style="display: none;">
-
-        <tr>
-            <td class="search-title">
-                Block Name
-            </td>
-            <td class="search-title">
-                Variable Name
-            </td>
-        </tr>
-        <tr>
-            <td id="search-block">
-            </td>
+<div id="library" style="display:block">
     
+    <div id="solve-steps" ></div>
+
+
+    <div class="library-label" id="user-content-label" style="display: none;"></div>
+    <div id="user-content"></div>
+    <div class="library-label" style="display: none;">Public Content</div>
+    <div id="public-content"></div>
     
-            <td id="search-var">
-    
-            </td>
-        </tr>
-    </tr>
-    </table>
-    
-
-    <div id="solve-steps" style="display: none;margin:10px">
-
-    </div>
-
-    <div id="load" style="display:block">
-        
-
-
-        <div class="library-label" id="user-content-label" style="display: none;"></div>
-        <div id="user-content"></div>
-		<div class="library-label" style="display: none;">Public Content</div>
-        <div id="library"></div>
-        
-    </div>
-
-
- 
 </div>
+
+
 
 
 

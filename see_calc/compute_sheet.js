@@ -267,6 +267,8 @@ function calc(SoEs,start_idx,end_idx){
                 throw new FormatError("Terms on both side of equal sign required")
             }else{
                 
+                do_other_syntax_checks(line)
+
                 var line_math = ltx_to_math(line) // before getallvars so it catches 3a=4 (issue with invalid variable, not no variables!)
 
                 if (get_all_vars(line).length===0){

@@ -283,8 +283,9 @@ function take_trig_func(trig_func,value){
     const evaluated_value = String(evaluate_fraction(value))
 
     const expression = trig_func + evaluated_value + ")" 
-
-    const result = math.evaluate(expression)
+    //RAD
+    const expression_degree = rad_to_deg(expression)
+    const result = math.evaluate(expression_degree)
 
     if (Math.abs(result.im) > 10 ** -8){
         throw new EvaluateError("trig function evaluated outside of domain")

@@ -40,7 +40,7 @@ body{
     pointer-events: auto;
 }
 
-#popup{
+#library{
     /* general window for variable tracking, showing steps, library etc. */
     position:absolute;
     right:0%;
@@ -50,8 +50,12 @@ body{
     pointer-events: auto;
     padding: 5px;
     padding-left: 10px;
-    
+    border-color: red;
+    border-width: 2.5px;    
+    border-style:solid;
 }
+
+
 
 .library-label {
     font-weight: bold;
@@ -62,6 +66,7 @@ body{
 #top-menu {
     pointer-events: auto;
     width:100%;
+    background-color: black;
 }
 .menu-text{
     height: 100%;
@@ -198,6 +203,12 @@ body{
 
 .search-sel{
     background-color: lightgray;
+}
+
+#library {
+    border-color:black;
+    border-width: 2.5px;
+    display: none;
 }
 
 

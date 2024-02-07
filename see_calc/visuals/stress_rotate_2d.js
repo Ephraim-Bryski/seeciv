@@ -17,7 +17,7 @@ const draw_stress_rotate_2d = {
 
     const x0 = inp.x_0
     const y0 = inp.y_0
-    const theta = inp["\\theta"]
+    const theta = inp["\\theta"]*Math.PI/180
     const size = inp.size
     const sx = inp["\\sigma_x"]
     const sy = inp["\\sigma_y"]

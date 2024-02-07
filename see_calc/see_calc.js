@@ -2,6 +2,25 @@
 var MQ = MathQuill.getInterface(2);
 
 
+addEventListener("resize",e => {
+    return
+    const height = window.innerHeight-5
+    const width = window.innerWidth-5
+
+    const gs_canvases = [...$("canvas")]
+
+    if (gs_canvases.length !== 2){
+        throw "assuming there's only the two glowscript canvases"
+    }
+
+    for (canvas of gs_canvases){
+        canvas.style.width = `${width}px`
+        canvas.style.height = `${height}px`
+    }
+})
+
+
+
 const trig_names = "sin cos tan csc sec cot sinh cosh tanh csch sech coth arcsin arccos arctan arccsc arcsec arccot arcsinh arccosh arctanh arccsch arcsech arccoth"
 const selected_greek_names = "pi alpha theta omega tau"
 
@@ -197,8 +216,7 @@ function save_sheet(){
     const sheet_data = {name: sheet_name, blocks: sanitized_solved_blocks, visuals: equation_visuals, solve_stuff: sanitized_solve_stuff}
     
 
-    //! for now always saving into top folder
-    // save_content(firebase_data, "", sheet_data, true)
+
     
 
     let place_to_save
@@ -210,7 +228,7 @@ function save_sheet(){
         }
         place_to_save = firebase_data.Users[CURRENT_USER]
     }else{
-        place_to_save = firebase_data.Library
+        place_to_save = get_folder_content(folder_path.join("/"),firebase_data.Library)
     }
 
 
@@ -256,7 +274,7 @@ function update_library(package = null){
     const load_btns = [...document.getElementsByClassName("sheet-load-btn")]
     load_btns.forEach((btn)=>{btn.remove()})
 
-    const library_root = document.getElementById("library")
+    const library_root = document.getElementById("public-content")
     const user_content_root = document.getElementById("user-content")
 
 
@@ -345,15 +363,10 @@ window.addEventListener('hashchange', send_to_url);
 
 
 function create_unknown_page(){
-    $("#page-not-found")[0].style.display = "block"
+    const hash_name = window.location.hash.slice(1)
+    alert(`${hash_name} is snot an existing page, it may have been moved or deleted.`)
+    return
 
-    remove_element_ids = ["top-menu","popup","vis"]
-
-    for (id of remove_element_ids){
-        $(`#${id}`)[0].style.display = 'none'
-    }
-
-    $(".block").remove()
 
 }
 
@@ -989,7 +1002,7 @@ function make_line(eqn){
 
     const is_solve_line = eqn.input.includes("\\operatorname{solve}")
 
-    const is_error = display_eqns instanceof Error
+    const is_error = typeof display_eqns === "string" || display_eqns instanceof Error
 
 
     // Trying to not have the output arrows if there's an error for tabular solve
@@ -1002,7 +1015,14 @@ function make_line(eqn){
         out_field.innerHTML = ""
         show_output = "block"
     }else if (is_error){
-        out_field.innerHTML = display_eqns.message  // this occurs only when it's an error or new line
+        // ive given up ):
+        let message
+        if (typeof display_eqns === "string"){
+            message = display_eqns
+        }else{
+            message = display_eqns.message
+        }
+        out_field.innerHTML = message  // this occurs only when it's an error or new line
         out_field.classList.add("error-msg")
         in_field.classList.add("input-error")
         show_output = "block"
@@ -1719,7 +1739,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
     // checking outputsolveidxs undefined since
         // if it's not undefined, it's still the old table before it hit an error
         // this happens if you create a table, then do something after that immediately hits an error (e.g. invalid block name)
-    if (table_data!==undefined && table_data.output_solve_idxs === undefined && table_data.length!==0){
+    if (table_data!==undefined && table_data.constructor!==Object && table_data.length!==0){
 
         base_vars = table_data[0]
 
@@ -1967,7 +1987,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
             if (is_solve_line && not_first_row){
                 let n_digits
-                if (rounded_cell_val){
+                if (rounded_cell_val && !isNaN(rounded_cell_val)){
                     n_digits = rounded_cell_val.toString().length
                 }else{
                     n_digits = 0
@@ -2551,10 +2571,26 @@ things for popup:
 */
 
 function toggle_library(e){
-    switch_popup("load",e)
+    // just get the library div and switch the display
+    
+    const library_element = $("#library")[0]
+    const toggle_btn = e.target
+
+    const display = library_element.style.display
+
+    if (display === 'block'){
+        library_element.style.display = 'none'
+        toggle_btn.classList.remove("menu-text-selected")
+    }else{
+        toggle_btn.classList.add("menu-text-selected")
+        library_element.style.display = 'block'
+    }
+    
+
     //load_library()
 }
 
+/*
 
 function toggle_var_search(e){
     switch_popup("search-box",e)
@@ -2604,12 +2640,11 @@ function switch_popup(sel_child_name,e){
 
 }
 
-
+*/
 
 // glowscript prevents it from automatically doing this
 // for some reason gs also prevents onmousedown from working
 $("#vis")[0].onmouseup = () => {
-    console.log('hi')
     const mq_fields = [...$(".mq-editable-field")]
 
     mq_fields.forEach(field => {
@@ -2666,7 +2701,10 @@ function display_vis(vis_eqns, scale_needs_adjusting = true){
                 return
             }
             try{
-                var vis_val = math.evaluate(ltx_to_math(vis_exp))
+                //RAD 
+                const expression_rad = ltx_to_math(vis_exp)
+                const expression_degree = rad_to_deg(expression_rad)
+                var vis_val = math.evaluate(expression_degree)
             }catch{
                 throw "could not solve for all values for visual "+vis_name+" shouldnt happen??"
             }                

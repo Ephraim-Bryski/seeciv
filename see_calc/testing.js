@@ -211,7 +211,7 @@ function test_sheets(){
 
     const test_folder = library_sheets.filter(item => {return item.children && item.name === "Tests"})[0]
     
-
+    let all_pass = true
 
     const sheets = test_folder.children
     
@@ -220,15 +220,18 @@ function test_sheets(){
         const old_sheet = sheet.blocks
         load_sheet(["Tests",sheet.name],"")
         const new_sheet = DOM2data()
-        const new_computed_sheet = calc(DOM2data(),0,new_sheet.length)
+        const new_computed_sheet_with_errors = calc(DOM2data(),0,new_sheet.length)
+        const new_computed_sheet = replace_errors_with_messages(new_computed_sheet_with_errors)
         const is_match = compare_ignore_key_order(old_sheet, new_computed_sheet)
         if (is_match){
             console.log('yay :)')
         }else{
+            all_pass = false
             console.warn(sheet.name)
         }
     }
 
+    return all_pass
 
 
 }
