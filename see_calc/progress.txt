@@ -14,28 +14,38 @@ if you update the sheet, and then toggle the spinner without rerunning first, it
 		could also have the Run button color initially be gray, and then change to blue when modification, makes it much clearer
 
 
-need visual Line
-coordinate needs rounded values, and a tad bigger text
-sigma without backslash
+
+
 probably want to control min and max for axes
 	or honestly just having it positive might be ok
 i feel like things are a bit too zoomed out by default
 probaby should have colors for everything :D
 arrow scale for stressrotate
 
-need scales on arrows in general
 
 if you solve a block with only a visual and then save it, the solve stuff disappears on reload
+
+solve sub table field with input stays even when change to SoE makes it irrelevant???????
+	CHECK THIS :O
+	cant reproduce, x1 for Pipe
+	basically it's when there's insufficient information for a visual, removing something and cant be subbed in
 
 error messages
 
 	not sure whether to list all visuals when an invalid one is input
 
 style
+
+	if you delete the sheet you're currently on, you get the alert too, kind of annoying
+	
+	when saving a sheet with a new name, it sometimes adds the old sheet to the canvas, dont understand why
+		it gets removed when rerunning though
+
+	when saving sheet, collapses library tree, just a bit annoying
+
 	glowscript canvas resize on window resize
 		event listener that just changes canvas size leads to
 			error on creating new gs objects
-			when you minimize the window and reopen, it is just white for a while
 			no idea why for either of these
 			may be possible to delete the canvas and recreate
 

@@ -216,6 +216,9 @@ function test_sheets(){
     const sheets = test_folder.children
     
     for (let sheet of sheets){
+        if (sheet === sheets[sheets.length-1]){
+            // continue
+        }
         if (sheet === "blank"){continue}
         const old_sheet = sheet.blocks
         load_sheet(["Tests",sheet.name],"")
@@ -235,6 +238,8 @@ function test_sheets(){
 
 
 }
+
+
 
 function compare_ignore_key_order(item1, item2) {
 

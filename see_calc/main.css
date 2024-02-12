@@ -40,6 +40,23 @@ body{
     pointer-events: auto;
 }
 
+#solve-steps{
+    /* general window for variable tracking, showing steps, library etc. */
+    position:absolute;
+    right:0%;
+    z-index: 2;
+    background-color: white;
+    border-radius: 5px;
+    pointer-events: auto;
+    padding: 5px;
+    padding-left: 10px;
+    border-color: black;
+    display: none;
+    border-width: 2.5px;    
+    border-style:solid;
+}
+
+
 #library{
     /* general window for variable tracking, showing steps, library etc. */
     position:absolute;
@@ -50,7 +67,8 @@ body{
     pointer-events: auto;
     padding: 5px;
     padding-left: 10px;
-    border-color: red;
+    border-color: black;
+    display: none;
     border-width: 2.5px;    
     border-style:solid;
 }
@@ -205,11 +223,6 @@ body{
     background-color: lightgray;
 }
 
-#library {
-    border-color:black;
-    border-width: 2.5px;
-    display: none;
-}
 
 
 .library-arrow-button{

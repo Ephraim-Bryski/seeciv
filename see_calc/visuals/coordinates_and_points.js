@@ -2,6 +2,10 @@
 const greek_symbols = ["α", "β", "γ", "δ", "ε", "ζ", "η", "θ", "ι", "κ", "λ", "μ", "ν", "ξ", "ο", "π", "ρ", "σ", "τ", "υ", "φ", "χ", "ψ", "ω"]
 const greek_latex = ["\\alpha", "\\beta", "\\gamma", "\\delta", "\\epsilon", "\\zeta", "\\eta", "\\theta", "\\iota", "\\kappa", "\\lambda", "\\mu", "\\nu", "\\xi", "\\omicron", "\\pi", "\\rho", "\\sigma", "\\tau", "\\upsilon", "\\phi", "\\chi", "\\psi", "\\omega"]
 
+function round(value){
+    const n_places = 2
+    return Math.round(value*10**n_places)/10**n_places
+}
 
 
 const draw_coordinate_2d = {
@@ -12,7 +16,7 @@ const draw_coordinate_2d = {
     },
     vis:(inp) => {
 
-        draw_point(inp.x,inp.y,0,`(${inp.x},${inp.y})`)
+        draw_coordinate(inp.x,inp.y,0,`(${round(inp.x)},${round(inp.y)})`)
     }
 }
 
@@ -28,7 +32,7 @@ const draw_coordinate_3d = {
     },
     vis:(inp) => {
 
-        draw_point(inp.x,inp.y,inp.z,`(${inp.x},${inp.y},${inp.z})`)
+        draw_coordinate(inp.x,inp.y,inp.z,`(${round(inp.x)},${round(inp.y)},${round(inp.z)})`)
         
     }
 }
@@ -104,11 +108,12 @@ const draw_axes_3d ={
 
 
 
-function draw_point(x,y,z,text){
+function draw_coordinate(x,y,z,text){
     // just internal function, not exposed to user
+
     position = vec(x,y,z)
     points({pos:[position]})
-    label({pos: position, text: text, align: 'left', box: false, opacity: 0,height:8,xoffset:5,yoffset:5,line:false})
+    label({pos: position, text: text, align: 'left', box: false, opacity: 0,height:12,xoffset:5,yoffset:5,line:false})
 }    
 
 
@@ -144,7 +149,7 @@ function draw_axes(origin,texts,lengths){
 
 
         const offset_key = offset_keys[i]
-        const label_input = {'text': symbol_text, 'pos': p2, height: 10, box: false, border:2, line: false}
+        const label_input = {'text': symbol_text, 'pos': p2, height: 18, box: false, border:2, line: false}
         label_input[offset_key] = 5
 
         label(label_input)

@@ -121,7 +121,7 @@
     <button  class="menu-text visual-toggle" onclick="view_xy()" style="display:none">XY</button>
     <button  class="menu-text visual-toggle" onclick="view_3d()" style="display:none">3D</button>
 
-    <button  style="float:right" class="menu-text" onclick="NEED_TO_MOVE_SOLVE_STEPS(event)" id="toggle-solve-steps" style="display:none">Solve Steps</button>
+    <button  style="float:right" class="menu-text" onclick="toggle_solve_steps(event)" id="toggle-solve-steps" style="display:none">Solve Steps</button>
     
     <button  style="float:right" class="menu-text" onclick="toggle_library(event)">Library</button>
     
@@ -137,12 +137,12 @@
 </div>
 
 
-
+<div id="solve-steps"  style="display: none;"></div>
 
 
 <div id="library" style="display:block">
     
-    <div id="solve-steps" ></div>
+
 
 
     <div class="library-label" id="user-content-label" style="display: none;"></div>
@@ -213,3 +213,5 @@
 <script src="test.js"></script>
 
 <script src="rad_to_deg.js"></script>
+
+<script src="fix_sheet_visuals.js"></script>

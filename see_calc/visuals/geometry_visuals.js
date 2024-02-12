@@ -8,7 +8,7 @@ const draw_box = {
         "z":0,
         "L":1,
         "H":1,
-        "W":1    
+        "W":1,
     },
 
     vis: (inp)=>{
@@ -50,11 +50,12 @@ const draw_arrow = {
         z_0: 0,
         v_x: 1,
         v_y: 0,
-        v_z: 0
+        v_z: 0,
+        scale: 1
     },
     vis: (inp)=>{
         const pos = vec(inp.x_0,inp.y_0,inp.z_0)
-        const axis = vec(inp.v_x, inp.v_y, inp.v_z)
+        const axis = vec(inp.v_x*inp.scale, inp.v_y*inp.scale, inp.v_z*inp.scale)
         arrow({pos: pos, axis: axis})
     }
 }
@@ -263,6 +264,7 @@ vis_blocks.push(draw_box)
 vis_blocks.push(draw_cylinder)
 vis_blocks.push(draw_arrow)
 vis_blocks.push(draw_ramp)
+vis_blocks.push(draw_line)
 vis_blocks.push(draw_circle)
 vis_blocks.push(draw_plane_xy)
 vis_blocks.push(draw_plane_xz)

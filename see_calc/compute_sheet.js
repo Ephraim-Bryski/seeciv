@@ -396,13 +396,6 @@ function find_vis_name(eqn) {
 
     return expression.split("VISUAL")[1]
 
-    const substring = "VISUAL"
-    const startIndex = eqn.indexOf(substring);
-    if (startIndex !== -1) {
-        const endIndex = startIndex + substring.length;
-        return eqn.substring(endIndex);
-    }
-    throw "VISUAL not found, shouldnt happen"
 }
 
 

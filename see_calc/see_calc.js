@@ -22,7 +22,7 @@ addEventListener("resize",e => {
 
 
 const trig_names = "sin cos tan csc sec cot sinh cosh tanh csch sech coth arcsin arccos arctan arccsc arcsec arccot arcsinh arccosh arctanh arccsch arcsech arccoth"
-const selected_greek_names = "pi alpha theta omega tau"
+const selected_greek_names = "pi alpha theta omega tau sigma"
 
 
 function removeUndefined(obj) {
@@ -100,7 +100,17 @@ function resetGS(){
         }
         if (!reached_coord_labels){return}
         */
-        obj.visible=false
+
+        // simple_spheres (created by points) have a bizarre issue
+        // when you set the visibility off immediately after creating, gs crashes
+        // ony an issue when testing sheets, when reset immediately after generating
+        // hack solution is to just move it really far away instead
+        // then when checking range to adjust scale, ignore spheres
+        if (obj.constructor === simple_sphere){
+            obj.pos = vec(10**6,0,0)
+        }else{
+            obj.visible=false
+        }
     })
 
 }
@@ -364,7 +374,7 @@ window.addEventListener('hashchange', send_to_url);
 
 function create_unknown_page(){
     const hash_name = window.location.hash.slice(1)
-    alert(`${hash_name} is snot an existing page, it may have been moved or deleted.`)
+    alert(`${hash_name} is not an existing page, it may have been moved or deleted.`)
     return
 
 
@@ -2077,7 +2087,8 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                     const is_editable = [...old_MQ_field.classList].includes('mq-editable-field')
                     if (is_editable){
 
-                        MQ(new_MQ_field).latex(old_MQ_field.innerText)
+                        const old_latex = MQ(old_MQ_field).latex()
+                        MQ(new_MQ_field).latex(old_latex)
                         // MQ_field.innerText = ""
                     }
                     // console.log(`${MQ_field.innerText}: ${is_editable}`)
@@ -2570,6 +2581,29 @@ things for popup:
 
 */
 
+
+function toggle_solve_steps(e){
+    // just get the library div and switch the display
+    
+    const library_element = $("#solve-steps")[0]
+    const toggle_btn = e.target
+
+    const display = library_element.style.display
+
+    if (display === 'block'){
+        library_element.style.display = 'none'
+        toggle_btn.classList.remove("menu-text-selected")
+    }else{
+        toggle_btn.classList.add("menu-text-selected")
+        library_element.style.display = 'block'
+    }
+    
+
+    //load_library()
+}
+
+
+
 function toggle_library(e){
     // just get the library div and switch the display
     
@@ -2687,7 +2721,8 @@ function display_vis(vis_eqns, scale_needs_adjusting = true){
 
         const vis_input = {}
 
-        if (vis_vars.length !== vis_exps.length){throw "should be same argument length"}
+        if (vis_vars.length !== vis_exps.length){
+            throw "should be same argument length"}
         vis_vars.forEach((_,i)=>{
             const vis_var = vis_vars[i] // remove placeholders so i can use the original latex 
             const vis_exp = vis_exps[i]
@@ -2797,6 +2832,8 @@ function adjust_scale(){
             let range
 
             if (object instanceof label){
+                break
+            }else if (object.constructor === simple_sphere){
                 break
             }else if (object instanceof curve){
                 break // gets the range automatically with the points

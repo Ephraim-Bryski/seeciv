@@ -9,12 +9,13 @@ const draw_stress_rotate_2d = {
         "\\theta":0,
         "\\sigma_x":0,
         "\\sigma_y":0,
-        "\\tau":0
+        "\\tau":0,
+        "scale": 0.1
         
     },
     vis: (inp)=>{
 
-
+    
     const x0 = inp.x_0
     const y0 = inp.y_0
     const theta = inp["\\theta"]*Math.PI/180
@@ -22,7 +23,8 @@ const draw_stress_rotate_2d = {
     const sx = inp["\\sigma_x"]
     const sy = inp["\\sigma_y"]
     const tau = inp["\\tau"]
-    
+    const arrow_scale = inp["scale"]
+
     const objects = []
     
     const center = vec(x0,y0,0)
@@ -43,13 +45,13 @@ const draw_stress_rotate_2d = {
             arrow_pos = arrow_pos.add(center)
     
             const arrow_axis = vec(0,0,0)
-            arrow_axis[axis] = sign*stress
+            arrow_axis[axis] = sign*stress*arrow_scale
     
             if (stress<0){
                 arrow_pos = arrow_pos.add(arrow_axis.multiply(-1))
             }
         
-            objects.push(arrow({pos: arrow_pos, axis: arrow_axis}))
+            objects.push(arrow({pos: arrow_pos, axis: arrow_axis, color: color.blue}))
         
         }
         
@@ -71,12 +73,12 @@ const draw_stress_rotate_2d = {
             arrow_pos = arrow_pos.add(center)
     
             const arrow_axis = vec(0,0,0)
-            arrow_axis[axis_dir] = sign*tau
+            arrow_axis[axis_dir] = sign*tau*arrow_scale
             
             arrow_pos = arrow_pos.add(arrow_axis.multiply(-1/2))
             
         
-            objects.push(arrow({pos: arrow_pos, axis: arrow_axis}))
+            objects.push(arrow({pos: arrow_pos, axis: arrow_axis, color: color.red}))
         
         }
         
