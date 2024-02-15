@@ -542,19 +542,12 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
             const is_visual = default_vis_vals !== undefined
             
             if (is_visual){
-                
-                const has_blank = sub_row.some(cell => {return cell === ""})
 
-                if (has_blank){
-
-                    throw new FormatError("Cannot have blank fields for a visual")
-                }
-            
 
                 var_row.forEach((var_cell,col_idx)=>{
+                    
                     const sub_cell = sub_row[col_idx]
                     const is_color_cell = var_cell.includes("color")
-
 
                     const colors = [...Object.keys(color_map)]
                     const is_valid_color = colors.includes(sub_cell)
@@ -586,7 +579,11 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
             }else{
                 eqns_subbed = remove_vars(eqns_subbed,removed_vars)
             }
-    
+
+            fuck_my_life_push_to_equation_visuals_but_check_first(eqns_subbed)
+           
+
+          
         }catch(error){
             solve_error_types = [ContradictionError, EvaluateError, NumericSolveError, TooMuchUnknownError, CantSolveError, FormatError]
             if (solve_error_types.some((type) => {return error instanceof type})){
@@ -609,16 +606,18 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
 
     }
 
-    const solved_vis_eqns = all_eqns.flat().filter(eqn => {
-        if (eqn.error instanceof Error){return false}
-        const is_vis = eqn.includes("VISUAL")
-        const all_subbed = get_all_vars(eqn).length === 0
+    // const solved_vis_eqns = all_eqns.flat().filter(eqn => {
+    //     if (eqn.error instanceof Error){return false}
+    //     const is_vis = eqn.includes("VISUAL")
+    //     const all_subbed = get_all_vars(eqn).length === 0
 
-        return is_vis && all_subbed
-    })
+    //     return is_vis && all_subbed
+    // })
+
+
 
     // display_vis(solved_vis_eqns)
-    equation_visuals.push(solved_vis_eqns)
+    // equation_visuals.push(solved_vis_eqns)
 
     return [all_eqns,table, solve_steps]
 

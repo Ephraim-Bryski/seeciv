@@ -159,20 +159,20 @@ function num_to_string(number){
 
     // avoids the issue of small numbers being written in scientific notation when using built in string method
     
-    if (number === "Infinity"){throw new EvaluateError("Infinite value found")}
+    if (String(number) === "Infinity"){throw new EvaluateError("Infinite value found")}
 
-
+    if (String(number) === "NaN"){
+        throw new EvaluateError("undefined value found")
+    }
 
     if (typeof number === "string"){return number}
     // gpt code
     precision_n = 30
-    let numberAsString = number.toFixed(precision_n); // Convert to string with 2 decimal places
+    let numberAsString = number.toFixed(precision_n); 
     numberAsString = numberAsString.replace(/\.?0+$/, ''); 
     
     
-    if (numberAsString === "NaN"){
-        throw new EvaluateError("undefined value found")
-    }
+
 
     return numberAsString
 }

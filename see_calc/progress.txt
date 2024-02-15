@@ -5,6 +5,10 @@ CAS issues i'm saying fuck it for
 		hasinfinitesolutions SHOULD work BUT...
 			(1-sin(x)^2)^0.5-cos(x) is actually only sometimes zero cause the square is moved over to the other side
 			(1-sin(x)^2)-cos(x)^2 would of course have worked
+	mohrs circle
+		circle equation and sin and cos --> contradiction cause sin and cos only gets one sign, which could be wrong
+		circle equation and tan --> flips sign, as it moves past pi/2
+		need just sin and cos for it to work
 
 
 if you update the sheet, and then toggle the spinner without rerunning first, it can mess it all up (cause variables can be removed)
@@ -25,18 +29,18 @@ arrow scale for stressrotate
 
 if you solve a block with only a visual and then save it, the solve stuff disappears on reload
 
-solve sub table field with input stays even when change to SoE makes it irrelevant???????
-	CHECK THIS :O
-	cant reproduce, x1 for Pipe
-	basically it's when there's insufficient information for a visual, removing something and cant be subbed in
 
 error messages
 
-	not sure whether to list all visuals when an invalid one is input
+	not sure whether to list all visuals when an invalid one is input <-- no dont
+
+	visual removed var error message can be confusing
+		probably if it's not a primitive visual, just use the too much unknown error
 
 style
 
 	if you delete the sheet you're currently on, you get the alert too, kind of annoying
+		dont do alert need to fix 404 page
 	
 	when saving a sheet with a new name, it sometimes adds the old sheet to the canvas, dont understand why
 		it gets removed when rerunning though
@@ -51,11 +55,6 @@ style
 
 misc
 	if i can improve solve steps, i could add it, with a toggle display at the bottom of the solve block so it makes more sense what it is
-
-
-	about 85% of the time (at least for my stretchy rod example) is spent in displaying the visual, the majority of that in clearing it
-		would be much faster to just update the visual when using spinner
-
 
 	improve numeric solver
 		just the obvious like don't check 10**10
