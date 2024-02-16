@@ -49,6 +49,12 @@ function remove_vars(SoEs, vars_to_remove){
         return simplified_SoEs
     }
 
+
+
+
+
+
+
     const back_solution = back_solve(SoEs, vars_to_remove, false)
 
 
@@ -57,6 +63,24 @@ function remove_vars(SoEs, vars_to_remove){
     
     const final_eqns = remaining_trees.map(tree => {return tree_to_eqn(simplify_tree(tree), true)})
     
+
+
+    const visual_eqns = final_eqns.filter(eqn => {return eqn.includes("VISUAL")})
+    const nonvisual_eqns = final_eqns.filter(eqn => {return !visual_eqns.includes(eqn)})
+    const visual_vars = get_all_vars(visual_eqns)
+    const nonvisual_vars = get_all_vars(nonvisual_eqns)
+
+    vars_to_remove.forEach(remove_var => {
+        const in_visual_eqns = visual_vars.includes(remove_var)
+        const in_nonvisual_eqns = nonvisual_vars.includes(remove_var)
+
+        if (in_visual_eqns){
+            throw new FormatError("variables removed from visual, should this be a too much unknown error?")
+        }
+        if (in_nonvisual_eqns){
+            throw "this doesnt make sense, variables should have been removed"
+        }
+    })
 
 
     return final_eqns
@@ -204,17 +228,6 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
         
 
     }
-    
-    vis_SoEs.forEach(vis_eqn => {
-        
-        const vis_vars_left = get_all_vars(vis_eqn).some(variable => {return vars_to_remove.includes(variable)})
-        
-        if (vis_vars_left){
-            const vis_name = vis_eqn.split("VISUAL")[1]
-            throw new FormatError(`${vis_name} has had variables removed from it, not allowed for a visual`)
-        }
-        
-    })
 
 
     const solved_vis_SoEs = vis_SoEs.filter(eqn => {return get_all_vars(eqn).length === 0})
@@ -372,7 +385,6 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
     combined_solution.remaining_trees = branched_solution.remaining_trees
     combined_solution.ordered_sub = [prebranch_solution.ordered_sub, branched_solution.ordered_sub].flat()
     combined_solution.steps = [prebranch_solution.steps, branched_solution.steps].flat()
-
 
     return combined_solution
 

@@ -3,20 +3,21 @@ var MQ = MathQuill.getInterface(2);
 
 
 addEventListener("resize",e => {
-    return
-    const height = window.innerHeight-5
-    const width = window.innerWidth-5
 
-    const gs_canvases = [...$("canvas")]
+    const old_range = scene.range
+    const old_axis = scene.axis
+    const old_center = scene.center
 
-    if (gs_canvases.length !== 2){
-        throw "assuming there's only the two glowscript canvases"
-    }
+    setUpGS("vis")
 
-    for (canvas of gs_canvases){
-        canvas.style.width = `${width}px`
-        canvas.style.height = `${height}px`
-    }
+    
+    display_vis(equation_visuals)
+    
+
+    scene.range = old_range
+    scene.axis = old_axis
+    scene.center = old_center
+
 })
 
 
@@ -62,7 +63,7 @@ var SoEs= [
 const equation_visuals = []
 var GLOBAL_solve_stuff = null // oh god......
 
-function clear_equation_visuals(){
+function clear_equation_visuals(``){
     while (equation_visuals.length > 0){
         equation_visuals.pop()
     }
@@ -120,7 +121,8 @@ data2DOM(SoEs)  // performed without calculations
 var start_run_idx
 var end_run_idx
 
-const scene = setUpGS("vis")
+let scene
+setUpGS("vis")
 
 
 
@@ -213,7 +215,7 @@ function save_sheet(){
         return
     }
 
-
+    clear_equation_visuals()
 
 
     const blocks = JSON.parse(JSON.stringify((DOM2data())))
@@ -1066,6 +1068,8 @@ function make_line(eqn){
             
             var row = document.createElement("tr")
             if (arr_row.error instanceof Error){
+                output_arr.style.display = 'none'
+                show_output = "block"
                 row.innerText = arr_row.error.message
                 row.classList.add("error-msg")
             }else if (typeof(arr_row) === "string"){
@@ -1811,7 +1815,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
             }
 
 
-            const new_row = make_row(sorted_row,editable,solve_output_eqns,blank_idxs)
+            const new_row = make_row(sorted_row,editable,solve_output_eqns,blank_idxs, contains_error)
 
             if (contains_error){
                 
@@ -1924,7 +1928,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
     table.classList.add(".sub-table")
     return table
 
-    function make_row(vars,not_first_row,solve_output_eqns,blank_idxs){
+    function make_row(vars,not_first_row,solve_output_eqns,blank_idxs, is_error = false){
 
 
         const solve_output = {}
@@ -2013,11 +2017,15 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
 
 		})
-		if (not_first_row){
-			row.appendChild(make_row_ops())
-		}else{
-			row.classList.add("top-row")
-		}
+
+
+
+        
+        if (not_first_row){
+            row.appendChild(make_row_ops())
+        }else{
+            row.classList.add("top-row")
+        }
 		return row
 
 		function make_row_ops(){  // should take idx as input?
@@ -2181,10 +2189,9 @@ function setUpGS(id){
     
     var graphDiv = document.getElementById(id)
     window.__context= {glowscript_container: graphDiv}  
-    let scene=canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: true,userzoom: true,autoscale: true,resizable:false})
+    scene = canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: true,userzoom: true,autoscale: true,resizable:false})
     //scene.forward=vec(1,-0.5,-1)
 
-    return scene
 }
 
 

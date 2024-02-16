@@ -27,23 +27,14 @@ probaby should have colors for everything :D
 arrow scale for stressrotate
 
 
-if you solve a block with only a visual and then save it, the solve stuff disappears on reload
 
-
-error messages
-
-	not sure whether to list all visuals when an invalid one is input <-- no dont
-
-	visual removed var error message can be confusing
-		probably if it's not a primitive visual, just use the too much unknown error
 
 style
 
+	keep font consistent (error and visual output text are different)
+
 	if you delete the sheet you're currently on, you get the alert too, kind of annoying
 		dont do alert need to fix 404 page
-	
-	when saving a sheet with a new name, it sometimes adds the old sheet to the canvas, dont understand why
-		it gets removed when rerunning though
 
 	when saving sheet, collapses library tree, just a bit annoying
 
@@ -70,11 +61,16 @@ need state for hide/reload
 
 
 
+moving buttons around
+	sign in should be inside the library menu
+	probably remove undo and redo
+	solve steps should be in the solve block
 
 
 
 
 To do at end
+
 
 
 	catch all error so it doesn't break if some weird error comes up
