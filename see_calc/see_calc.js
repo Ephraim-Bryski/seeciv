@@ -63,7 +63,7 @@ var SoEs= [
 const equation_visuals = []
 var GLOBAL_solve_stuff = null // oh god......
 
-function clear_equation_visuals(``){
+function clear_equation_visuals(){
     while (equation_visuals.length > 0){
         equation_visuals.pop()
     }
