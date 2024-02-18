@@ -3,14 +3,17 @@ var MQ = MathQuill.getInterface(2);
 
 
 addEventListener("resize",e => {
-
+    
+    console.log('boop')
     const old_range = scene.range
     const old_axis = scene.axis
     const old_center = scene.center
 
-    setUpGS("vis")
+    setUpGS("vis",false)
 
     
+    
+
     display_vis(equation_visuals)
     
 
@@ -23,30 +26,10 @@ addEventListener("resize",e => {
 
 
 const trig_names = "sin cos tan csc sec cot sinh cosh tanh csch sech coth arcsin arccos arctan arccsc arcsec arccot arcsinh arccosh arctanh arccsch arcsech arccoth"
-const selected_greek_names = "pi alpha theta omega tau sigma"
+const operator_names = "sqrt pi alpha theta omega tau sigma"
 
 
-function removeUndefined(obj) {
-    if (Array.isArray(obj)) {
-      for (let i = 0; i < obj.length; i++) {
-        if (obj[i] === undefined) {
-          obj.splice(i, 1);
-          i--; // Adjust index after removal
-        } else if (typeof obj[i] === 'object') {
-          removeUndefined(obj[i]); // Recurse into nested object or array
-        }
-      }
-    } else if (typeof obj === 'object' && obj !== null) {
-      for (const key in obj) {
-        if (obj[key] === undefined) {
-          delete obj[key];
-        } else if (typeof obj[key] === 'object') {
-          removeUndefined(obj[key]); // Recurse into nested object or array
-        }
-      }
-    }
-}
-  
+
 
 var SoEs= [
     {
@@ -117,6 +100,10 @@ function resetGS(){
 }
 
 
+// calls toggle so ends up being true
+let show_blocks = false
+
+
 data2DOM(SoEs)  // performed without calculations
 var start_run_idx
 var end_run_idx
@@ -127,37 +114,35 @@ setUpGS("vis")
 
 
 document.addEventListener('keyup', (e)=>{
+    let should_track = true
     if (e.code==="Enter"){
         var in_field=document.activeElement
         if (e.ctrlKey){
             // resetGS()
             run_sheet()
         }else if(in_field.tagName=="TEXTAREA"){
-
             const in_table = $(in_field).parents("td").length === 1
-
             if (!in_table){ 
                 add_line(in_field)
-            }
-            
+            }    
         }else if(in_field.className=="block-name-txt"){
-            
-            
             const is_solve_field = in_field.id === "solve-field"
-
             if (!is_solve_field){
                 add_block(in_field)    
             }
-            
-            
         }
     }else if(e.code ==="KeyZ" && e.ctrlKey){
         undo()
+        should_track = false
     }else if(e.code === "KeyY" && e.ctrlKey){
         redo()
+        should_track = false
     }          
-})
 
+    if (should_track){
+        track_dom(false)
+    }
+})
 
 const fb_config = {
     apiKey: "AIzaSyBrjMcMVh5Qe4i1wI28Hu6cWtlBLn-1Fpc",
@@ -176,6 +161,10 @@ const database = firebase.database().ref();
 const auth = firebase.auth()
 
 function clear_sheet(){
+    throw "not using this any more"
+    clear_equation_visuals()
+    setUpGS("vis")
+    $("#save-field")[0].value = ""
     GLOBAL_solve_stuff = {reference:""}
     $(".block").remove()
     const main  = $("#calc")[0]
@@ -206,14 +195,19 @@ function save_sheet(){
     
     const is_alphanumeric =  /^[a-zA-Z0-9\s]+$/.test(sheet_name)
 
+
+    const error_message_field = $("#save-field-error-msg")[0]
+    
     if (sheet_name === ""){
-        alert("Sheet name cannot be blank.")
+        error_message_field.innerText = "Sheet name cannot be blank."
         return
     }
     if (!is_alphanumeric){
-        alert("Sheet name must only contain letters and numbers.") 
+        error_message_field.innerText = "Sheet name must only contain letters and numbers."
         return
     }
+
+    error_message_field.innerText = ""
 
     clear_equation_visuals()
 
@@ -225,7 +219,15 @@ function save_sheet(){
     const sanitized_solved_blocks = replace_errors_with_messages(solved_blocks)
     const sanitized_solve_stuff = replace_errors_with_messages(GLOBAL_solve_stuff)
 
-    const sheet_data = {name: sheet_name, blocks: sanitized_solved_blocks, visuals: equation_visuals, solve_stuff: sanitized_solve_stuff}
+    const about_text = $("#about-field")[0].value
+
+    const sheet_data = {
+        name: sheet_name,
+        blocks: sanitized_solved_blocks,
+        visuals: equation_visuals,
+        solve_stuff: sanitized_solve_stuff,
+        about: about_text
+    }
     
 
 
@@ -297,26 +299,50 @@ function update_library(package = null){
     const create_library_buttons = (names, container)=>{create_sheet_buttons(names, container, null)}
     const create_user_buttons = (names, container)=>{create_sheet_buttons(names, container, CURRENT_USER)}
 
-    const library_labels = [...$(".library-label")]
 
     let user_data
     if (!firebase_data.Users || !firebase_data.Users[CURRENT_USER]){
         user_data = []
-        library_labels.forEach(label => {label.style.display = 'none'})
     }else{
 
         user_data = firebase_data.Users[CURRENT_USER]
         $("#user-content-label")[0].innerText = `${CURRENT_USER}'s Content`
-        library_labels.forEach(label => {label.style.display = ''})
         
     }
+
+
+    const foldable_class_name = ".toggle-div"
+
+    const old_toggle_divs = [...$(foldable_class_name)]
+
+    const old_folding = old_toggle_divs.map(div => {
+        return div.style.display
+    })
+
 
 
 
     replace_UI_tree(user_data, user_content_root, create_user_buttons)
     replace_UI_tree(firebase_data.Library, library_root, create_library_buttons)
 
+    const new_toggle_divs = [...$(foldable_class_name)]
+    const new_arrow_buttons = [...$(".library-arrow-button")]
 
+    if (old_toggle_divs.length !== new_toggle_divs.length){
+        return
+    }
+
+    const arrow_text_mapping = {
+        "none": '▶',
+        "block": '▼'
+    }
+
+    new_toggle_divs.forEach((div,idx)=>{
+        const old_display = old_folding[idx]
+        div.style.display = old_display
+
+        new_arrow_buttons[idx].innerText = arrow_text_mapping[old_display]
+    })
     
 }
 
@@ -347,7 +373,7 @@ function write_url(owner, path_split){
 }
 
 function send_to_url(){
-
+    console.log('loading    ')
     const target = window.location.hash.substring(1);
     if (!target) {return}
     const stuff = target.split("|")
@@ -383,6 +409,8 @@ function create_unknown_page(){
 }
 
 function load_sheet(all_names, owner){
+
+    clear_equation_visuals()
 
     const sheet_name = all_names[all_names. length-1]
     
@@ -432,9 +460,11 @@ function load_sheet(all_names, owner){
 
     const sheet_data = replace_messages_with_errors(sanitized_sheet_data)
 
+    let about_text = possible_sheets[0].about
 
+    if (!about_text){about_text = ""}
 
-    resetGS()    
+    resetGS()   
 
     document.getElementById("save-field").value=sheet_name
 
@@ -443,11 +473,24 @@ function load_sheet(all_names, owner){
 
     if (sheet_visuals !== undefined){
         // checking if undefined just cause of stuff i saved before adding the visuals attribute
+        
         // getting dictionary values cause of stupid firebase ):<
-        display_vis(Object.values(sheet_visuals).flat())
+        fuck_you_firebase_sheet_visuals = Object.values(sheet_visuals)
+        display_vis(fuck_you_firebase_sheet_visuals.flat())
+
+        view_xy()
+
+
+        // clear_equation_visuals()
+        fuck_you_firebase_sheet_visuals.forEach(eqn => {
+            equation_visuals.push(eqn)
+        })
+        
     }
     
 
+
+    $("#about-field")[0].value = about_text
 
 
 }
@@ -729,6 +772,9 @@ function toggle_visual_buttons(display){
     }
 }
 
+
+toggle_blocks()
+
 function data2DOM(SoEs){
 
     $(".block").remove()
@@ -745,9 +791,9 @@ function data2DOM(SoEs){
             lines = [...row.querySelectorAll(".line")]
             lines.forEach((line)=>{line.style.display = "none"})
             display_btn = [...row.querySelectorAll(".info-btn")].at(-1) // last element
-            var arr = $(row).find(".collapse-down")[0]
-            arr.classList.remove("collapse-down")
-            arr.classList.add("collapse-right")
+            // var arr = $(row).find(".collapse-down")[0]
+            // arr.classList.remove("collapse-down")
+            // arr.classList.add("collapse-right")
         }
         main.appendChild(row)
     }
@@ -762,26 +808,31 @@ function data2DOM(SoEs){
         show_steps(GLOBAL_solve_stuff.steps)
     }
     
-    const steps_element = $("#solve-steps")[0]
 
-    if (steps_element.innerText.replaceAll("\n","").replaceAll(" ","") === ""){
-        steps_element.innerText = "Not solving an actual block."
-    }
     make_MQ()
+
+    // need to have it reset the previous show/hide
+    // but toggle flips it so i need to flip the flip first
+    show_blocks = !show_blocks
+    toggle_blocks()
+
+
+
 }
 
 
 function show_steps(steps){
 
 
-    // clear the solve steps from the previous step
-    $("#solve-steps")[0].innerHTML = ""
-    
+
     // called by data2DOM directly instead
 
     if (steps === undefined){
         return
     }
+
+    // clear the solve steps from the previous step
+    $("#solve-steps")[0].innerHTML = ""
 
 
 
@@ -804,26 +855,61 @@ function show_steps(steps){
         return txt
     }
     
-    const arrow = " \\ \\  \\Rightarrow \\ \\ "
+    const arrow = "\\ \\ \\  \\Rightarrow \\ \\ \\"
 
+
+    if (false && steps.sub){
+
+        if (steps.sub.length > 0){
+            all_lines.push("\\text{Substitutions}")
+        }
+
+        steps.sub.forEach(step => {
+            const line = `${sp(8)} ${step[0]} ${arrow} ${step[1]} `
+            all_lines.push(line)
+        })
+
+        if (steps.sub.length > 0){
+            all_lines.push("")
+
+        }
+
+
+    }
 
     steps.back.forEach(step => {
 
-        const line = `\\text{Solving} ${sp(2)} ${step.eqn0} ${sp(2)}\\text{for} ${sp(2)} ${step.solve_var} ${arrow} ${step.solve_var} = ${step.sol}`
-
-        all_lines.push(line)
-    
         // same issue with firebase ):<
         if (step.substitutions === undefined){
             step.substitutions = []
         }
 
+        const solved_equation = `${step.solve_var} = ${step.sol}`
+
+        const no_change_to_solve = step.eqn0.replaceAll(" ","") === solved_equation.replaceAll(" ","")
+
+        const no_substitutions = step.substitutions.length === 0
+
+
+        if (no_change_to_solve && no_substitutions){return}
+
+        let line
+        if (no_change_to_solve){
+            line = `\\text{Subbing in} ${sp(2)} ${step.eqn0}`
+        }else{
+            line = `\\text{Solving} ${sp(2)} ${step.eqn0} ${sp(2)}\\text{for} ${sp(2)} ${step.solve_var} ${arrow} ${solved_equation}`
+        }
+
+        all_lines.push(line)
+    
         step.substitutions.forEach(sub => {
-            const sub_line = `${sp(4)} \\text{Subbing} ${sp(2)} ${sub.eqn0} ${arrow} ${sub.eqn_subbed}`
+            const sub_line = `${sp(8)} \\text{Subbing} ${sp(2)} ${sub.eqn0}  ${arrow} ${sub.eqn_subbed}`
             
             all_lines.push(sub_line)
         
         })
+
+        all_lines.push("")
     
 
         
@@ -831,6 +917,11 @@ function show_steps(steps){
 
 
     steps.forward.forEach(step => {
+
+        const no_change_to_evaluate = step.eqn.replaceAll(" ","") === step.sol.replaceAll(" ","")
+
+        if (no_change_to_evaluate){
+            return}
 
         const line =  `\\text{Evaluating} ${sp(2)} ${step.eqn} ${arrow} ${step.sol}`
 
@@ -840,23 +931,17 @@ function show_steps(steps){
     })
 
 
-    if (steps.error){
-        all_lines.push(`\\text{${steps.error}}`)
-    }
-
 
 
     const container = $("#solve-steps")[0]
 
     all_lines.forEach(line => {
 
-        container.appendChild(wrap_static_MQ(line, false))
+        field = wrap_static_MQ(line, false)
+        field.style.marginTop = "5px"
+        container.appendChild(field )
 
     })
-
-
-
-    
 }
 
 function toggle_blocks(){
@@ -866,22 +951,24 @@ function toggle_blocks(){
     toggle_blocks_button = $("#toggle-blocks")[0]
     toggle_blocks_text = toggle_blocks_button.innerText
 
-    let show
-    if (toggle_blocks_text === "Show"){
-        toggle_blocks_button.innerText = "Hide"
-        show = true
+
+    if (show_blocks){
+
+        toggle_blocks_button.innerText = "Show Equations"
     }else{
-        toggle_blocks_button.innerText = "Show"
-        show = false
+
+        toggle_blocks_button.innerText = "Hide Equations"
     }
 
+    show_blocks = !show_blocks
+    
     for (block of blocks){
         
         if (block.id === 'solve-block'){
             continue
         }
 
-        if (show){
+        if (show_blocks){
             block.style.display = ''
         }else{
             block.style.display = 'none'
@@ -950,7 +1037,7 @@ function make_line(eqn){
     //MQ
     MQ.MathField(in_field, {
         //autoCommands: "sqrt", // to just type instead of backslash
-        autoCommands: selected_greek_names,
+        autoCommands: operator_names,
         autoOperatorNames: trig_names+" visual",
         handlers: {edit: function() {
         
@@ -1061,9 +1148,9 @@ function make_line(eqn){
         if (typeof display_eqns[0]==="string"){display_eqns = [display_eqns]}
 
         var table = document.createElement("table")
-        var row = document.createElement("tr")
-        row.innerText = " "
-        table.appendChild(row)
+        var pad_row = document.createElement("tr")
+
+        table.appendChild(pad_row)
         display_eqns.forEach(arr_row=>{
             
             var row = document.createElement("tr")
@@ -1096,6 +1183,9 @@ function make_line(eqn){
             table.appendChild(row)
 
         })
+
+        const rows = [...table.children]
+        rows.forEach(row => {row.style.height = "25px"})
         out_field.appendChild(table)
     }
 
@@ -1265,7 +1355,6 @@ function make_solve_block(){
 
 
     if (!GLOBAL_solve_stuff || !GLOBAL_solve_stuff.result){
-        $("#toggle-solve-steps")[0].style.display="none"
         return block
     }
 
@@ -1277,8 +1366,6 @@ function make_solve_block(){
 
 
     in_field.value = GLOBAL_solve_stuff.reference
-
-    $("#toggle-solve-steps")[0].style.display=""
 
 
 
@@ -1318,6 +1405,38 @@ function make_solve_block(){
         
     }
 
+
+
+
+    const show_steps_text = "Show steps to solve system"
+    const hide_steps_text = "Hide steps"
+    
+
+    const toggle_solve_steps_field = document.createElement("button")
+    toggle_solve_steps_field.style.display = 'block'
+    toggle_solve_steps_field.innerText = show_steps_text
+    block.appendChild(toggle_solve_steps_field)
+    
+    
+    const solve_steps_field = document.createElement("div")
+    solve_steps_field.id = "solve-steps"
+    solve_steps_field.style.display = 'none'
+    
+    block.appendChild(solve_steps_field)
+    
+    
+    toggle_solve_steps_field.onclick = (e) => {
+        const is_hidden = solve_steps_field.style.display === 'none'
+
+        if (is_hidden){
+            solve_steps_field.style.display = ''
+            toggle_solve_steps_field.innerText = hide_steps_text
+        }else{
+            solve_steps_field.style.display = 'none'
+            toggle_solve_steps_field.innerText = show_steps_text
+        }
+    }
+    
     return block
 
     
@@ -1408,7 +1527,7 @@ function make_block(SoE){
 
     name_line=document.createElement('span')
     name_line.className="block-name"
-    name_line.appendChild(close_btn)
+    // name_line.appendChild(close_btn)
     
     name_line.appendChild(add_btn)
     name_line.appendChild(remove_button)
@@ -1971,7 +2090,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
             
                 //MQ
                 MQ.MathField(in_field, {
-                    autoCommands: selected_greek_names,
+                    autoCommands: operator_names,
                     autoOperatorNames: trig_names,
                     handlers: {edit: function() {
                     
@@ -2178,7 +2297,7 @@ function get_sub_data(table){
 
 
 
-function setUpGS(id){
+function setUpGS(id, do_extra = true){
     function removeAllChildNodes(parent) {
         while (parent.firstChild) {
             parent.removeChild(parent.firstChild);
@@ -2188,8 +2307,11 @@ function setUpGS(id){
     
     
     var graphDiv = document.getElementById(id)
-    window.__context= {glowscript_container: graphDiv}  
-    scene = canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: true,userzoom: true,autoscale: true,resizable:false})
+    if (do_extra){
+
+        window.__context= {glowscript_container: graphDiv}  
+    }
+    scene = canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: true,userzoom: false,autoscale: true})
     //scene.forward=vec(1,-0.5,-1)
 
 }
@@ -2230,7 +2352,7 @@ function wrap_static_MQ(eqn, in_table = true){
 
     eqn_wrapper.classList.add("display-eqn-cell")
     var eqn_field = document.createElement("div")
-    eqn_field.innerHTML = remove_char_placeholders(round_decimals(eqn, 5))
+    eqn_field.innerHTML = remove_char_placeholders(round_decimals(eqn, 3))
     eqn_field.className = "eqn-field"    // this is done to mathquillify at the end (must be done after appending it to document so parentheses format isnt messed up)
     
     eqn_wrapper.appendChild(eqn_field)
@@ -2298,7 +2420,12 @@ function copy(stuff){
 }
 
 
+function my_check(){
+    console.log(hist_idx)
+    hist_doms.forEach(dom => {try{console.log(dom[0][1].eqns[0].input)}catch{console.log('')}})
+}
 function undo(){
+    my_check()
     var past_dom = hist_doms[hist_idx-1]
 
     if (past_dom===undefined){return}
@@ -2329,8 +2456,29 @@ function redo(){
 }
 
 
-function track_dom(){
-    return
+function track_dom(due_to_button_click = true){
+
+
+    
+    const parent_block = $(document.activeElement).parents(".block")[0]
+    
+
+    const edited_solve_block = parent_block && parent_block.id === "solve-block"
+    
+    console.log(edited_solve_block)
+
+    const should_remove_spinner = (parent_block && !edited_solve_block) || due_to_button_click
+    console.log(should_remove_spinner)
+
+    if (should_remove_spinner){
+        const spinner_elements = [...$(".solve-spinner")].concat([...$(".spinner-step")])
+        spinner_elements.forEach(element => {
+            element.style.display = 'none'
+        })
+    }
+
+
+
     var current_dom = [DOM2data(),copy(GLOBAL_solve_stuff)]
 
     var past_dom = hist_doms[hist_idx]
@@ -2348,7 +2496,6 @@ function track_dom(){
 }
 
 
-document.addEventListener('keyup', track_dom)
 
 /*
 const modify_buttons = [...$(".add-remove-btn")]
@@ -2589,31 +2736,12 @@ things for popup:
 */
 
 
-function toggle_solve_steps(e){
-    // just get the library div and switch the display
-    
-    const library_element = $("#solve-steps")[0]
-    const toggle_btn = e.target
-
-    const display = library_element.style.display
-
-    if (display === 'block'){
-        library_element.style.display = 'none'
-        toggle_btn.classList.remove("menu-text-selected")
-    }else{
-        toggle_btn.classList.add("menu-text-selected")
-        library_element.style.display = 'block'
-    }
-    
-
-    //load_library()
-}
-
-
 
 function toggle_library(e){
     // just get the library div and switch the display
     
+    switch_popup("library",e)
+    return
     const library_element = $("#library")[0]
     const toggle_btn = e.target
 
@@ -2631,6 +2759,10 @@ function toggle_library(e){
     //load_library()
 }
 
+
+function toggle_about(e){
+    switch_popup("about",e)
+}
 /*
 
 function toggle_var_search(e){
@@ -2641,6 +2773,9 @@ function toggle_var_search(e){
 function toggle_solve_steps(e){
     switch_popup("solve-steps",e)
 }
+
+*/
+
 
 function switch_popup(sel_child_name,e){
 
@@ -2659,11 +2794,11 @@ function switch_popup(sel_child_name,e){
 
     const sel_child = $("#"+sel_child_name)[0]
 
-    const popup = sel_child.parentElement
 
-    const all_children = [...popup.children]
+    const popups = [$("#library")[0],$("#about")[0]]
 
-    all_children.forEach(child=>{
+
+    popups.forEach(child=>{
         
         if (child===sel_child){return}
 
@@ -2681,7 +2816,6 @@ function switch_popup(sel_child_name,e){
 
 }
 
-*/
 
 // glowscript prevents it from automatically doing this
 // for some reason gs also prevents onmousedown from working

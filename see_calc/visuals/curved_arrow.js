@@ -17,6 +17,11 @@ const draw_curved_arrow = {
     const position = vec(inp.x,inp.y,inp.z)
     const direction = vec(inp.v_x,inp.v_y,inp.v_z)
 
+
+    if (direction.mag === 0){
+        return
+    }
+
     const arc_radius = mag(direction)
 
 
@@ -25,12 +30,14 @@ const draw_curved_arrow = {
     const head_length = 4*head_radius
 
 
-    const circle = shapes.circle({radius:shaft_radius})
+    const circle = shapes.circle({radius:shaft_radius,np:20})
 
 
 
-    const arc_path = paths.arc({radius:arc_radius, angle1:-3*Math.PI/2,angle2:0})
-
+    let arc_path = paths.arc({radius:arc_radius, angle1:-3*Math.PI/2,angle2:0,np:20})
+    arc_path = arc_path.map(vector => {
+        return vector.add(position)
+    })
 
     const arrow_shaft = extrusion({shape: circle, path: arc_path})
 
@@ -49,7 +56,6 @@ const draw_curved_arrow = {
     arrow_shaft.rotate({axis: rotation_axis, angle: rotation_angle, origin: position})
     arrow_head.rotate({axis: rotation_axis, angle: rotation_angle, origin: position})
 
-    arrow({axis: direction})
 }
 }
 

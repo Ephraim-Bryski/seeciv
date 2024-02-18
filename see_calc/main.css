@@ -23,6 +23,8 @@ body{
 
 
 
+
+
 #calc{
     background-color: transparent;
     pointer-events: none;
@@ -38,9 +40,10 @@ body{
     background-color: black;
     z-index: -5;
     pointer-events: auto;
+
 }
 
-#solve-steps{
+#OLD-solve-steps{
     /* general window for variable tracking, showing steps, library etc. */
     position:absolute;
     right:0%;
@@ -57,7 +60,7 @@ body{
 }
 
 
-#library{
+.popup{
     /* general window for variable tracking, showing steps, library etc. */
     position:absolute;
     right:0%;
@@ -150,9 +153,7 @@ body{
     .tooltip {display: block; --tooltip-text: "(Ctrl+Enter)";} 
 }
 
-#toggle-blocks{
-    width: 70px;
-}
+
 
 .menu-text-selected{
     color:white
@@ -211,6 +212,11 @@ body{
     padding-left: 10px;
 }
 
+
+
+#vis{
+    zoom:0;
+}
 .search-btn {
     /* for searching variables */
     border: none;
@@ -229,6 +235,20 @@ body{
     background-color: transparent;
     border: none;
     cursor: pointer;
+}
+
+
+
+#save-sheet-btn {
+
+    color: #333; /* Initial text color */
+
+    border:none;
+    background-color: white;
+}    
+#save-sheet-btn:hover {
+color: black; /* Color on hover */
+cursor: pointer;
 }
 
 
@@ -281,7 +301,20 @@ body{
 
 
 
-  
+#sign-in {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-weight: bold;
+    color: gray;
+    text-decoration: underline dotted;
+    padding-bottom: 15px;
+}
+
+#sign-in:hover {
+    
+    text-decoration: underline;
+}
 
 .toggle-div {
     padding-top: 2px;

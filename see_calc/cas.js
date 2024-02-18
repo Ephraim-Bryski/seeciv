@@ -149,10 +149,15 @@ function construct_fraction(num,den){
         }
         return num_to_string(reduced_num / reduced_den)
     }else{
-        return String(reduced_num) + "/" + String(reduced_den)
+        return fuck_you_string(reduced_num) + "/" + fuck_you_string(reduced_den)
     }
 
 
+}
+
+function fuck_you_string(a){
+    // cause String can use scientific notation >:(
+    return num_to_string(a)
 }
 
 function num_to_string(number){
@@ -210,7 +215,7 @@ function is_decimal(value){
 function add_numbers(value1, value2){
 
     if (is_decimal(value1) || is_decimal(value2)){
-        return String(evaluate_fraction(value1) + evaluate_fraction(value2))
+        return fuck_you_string(evaluate_fraction(value1) + evaluate_fraction(value2))
     }
 
     const [num1, den1] = get_num_den(value1)
@@ -226,6 +231,8 @@ function add_numbers(value1, value2){
     return construct_fraction(new_num, new_den)
 
 }
+
+
 
 function multiply_numbers(value1, value2){
 
@@ -266,10 +273,11 @@ function take_exponent(base,exponent){
     
 
     if (write_fraction){
+        //E
 
         const inverted_value = base_number ** -exponent_number
 
-        return construct_fraction("1", String(inverted_value))
+        return construct_fraction("1", fuck_you_string(inverted_value))
     }
 
 
@@ -280,7 +288,7 @@ function take_exponent(base,exponent){
 
 function take_trig_func(trig_func,value){
 
-    const evaluated_value = String(evaluate_fraction(value))
+    const evaluated_value = fuck_you_string(evaluate_fraction(value))
 
     const expression = trig_func + evaluated_value + ")" 
     //RAD
@@ -1049,7 +1057,7 @@ function simplify_arithmetic(tree){
         numbers.forEach(term=>{
             value = op_func(value,term)
         })
-        const final_value = String(value)
+        const final_value = fuck_you_string(value)
 
 
         const are_all_numbers = tree.terms.every(is_number)
@@ -1871,7 +1879,7 @@ function tree_to_eqn(tree, use_ltx = false, parent){
 
 
             if (Number(term) < 0){
-                right_terms.push(String(-Number(term)))
+                right_terms.push(fuck_you_string(-Number(term)))
                 return
             }else if (typeof term === "string" && term[0] === "-"){
                 right_terms.push(term.slice(1,Infinity))
@@ -2201,7 +2209,7 @@ function merge_fraction_products(tree){
             return tree
         }
 
-        const pos_coeff = String(-Number(coeff))
+        const pos_coeff = fuck_you_string(-Number(coeff))
 
 
         let pos_exponent
@@ -2230,9 +2238,9 @@ function merge_fraction_products(tree){
 
         [num, den] = get_num_den(tree)
         // tree.op = "/"
-        // tree.terms = [String(num), String(den)]
+        // tree.terms = [fuck_you_string(num), fuck_you_string(den)]
 
-        return {op: "/", terms: [String(num), String(den)]}
+        return {op: "/", terms: [fuck_you_string(num), fuck_you_string(den)]}
 
     }
 

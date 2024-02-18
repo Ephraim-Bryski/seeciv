@@ -302,7 +302,6 @@ function calc(SoEs,start_idx,end_idx){
             const vis_block = match_vis_blocks[0]
 
             const vis_vars = Object.keys(vis_block.vars).map(add_char_placeholders)
-            //const default_vals = Object.values(vis_block.vars).map(val=>{return String(val)})
 
             const vis_eqn = vis_vars.map(vis_var=>{
                 return vis_var+"|"
@@ -531,15 +530,40 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
             }
         }
 
-        eqns_subbed = eqns_subbed.map(eqn => {return sub_all_vars(eqn, sub_in, sub_out)})
+
+
+
+        const new_eqns_subbed = eqns_subbed.map(eqn => {return sub_all_vars(eqn, sub_in, sub_out)})
+
+        const sub_steps = []
+
+        eqns_subbed.forEach((old_eqn,idx)=>{
+
+            const new_eqn = new_eqns_subbed[idx]
+            
+            const was_changed = old_eqn.replaceAll(" ","") !== new_eqn.replaceAll(" ","") 
+            const is_visual = old_eqn.includes("VISUAL")
+
+            if (was_changed && !is_visual){
+                sub_steps.push([old_eqn, new_eqn])
+            }
+        })
 
         if (for_solving){
-            GLOBAL_solve_stuff.steps = {back: [], forward: []}
+            GLOBAL_solve_stuff.steps = {sub: sub_steps, back: [], forward: []}
         }
+
+        
+        eqns_subbed = new_eqns_subbed
 
         try{    
 
-
+            removed_vars.forEach(remove_var => {
+                if(sub_out.includes(remove_var)){
+                    //VAR
+                    throw new FormatError(`Variable ${remove_var} is being removed but is also a substitution output, not allowed`)
+                }
+            })
             
             const is_visual = default_vis_vals !== undefined
             

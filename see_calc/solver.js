@@ -101,7 +101,8 @@ function solve_eqns(SoEs){
     const extra_vis_vars = vars_with_vis.filter(vis_var => {return !vars_to_remove.includes(vis_var)})
 
     if (extra_vis_vars.length !== 0){
-        throw new TooMuchUnknownError(`Visual variables ${extra_vis_vars} are not in any equations`)
+        //VAR
+        throw new FormatError(`You need to substitute a value for visual variables: ${extra_vis_vars.join(",")}`)
     }
 
 
@@ -853,6 +854,7 @@ function newton_raphson(exp,solve_var,guess){
 
     function fprime(x) {
         var h = 0.001;
+        return (f(x+h)-f(x-h))/(2*h)
         return math.divide(math.subtract(f(math.add(x,h)),f(math.subtract(x,h))),2*h)
     }
 
@@ -895,12 +897,7 @@ function forward_solve(ordered_sub){
         var sub = ordered_sub[sub_i]
         
         var val = sub.sol
-        
-        // not using getallvars since trig functions (without latex backslashes) are counted as variables
-        //if (get_all_vars(val).length!==0){throw new TooMuchUnknownError}
 
-        // honestly screw evaluate, it only throws an error if it has operations
-        // otherwise, it's some weird dictionary, throws an error on numtostring
 
         const solution_step = {}
 

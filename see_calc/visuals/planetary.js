@@ -1,4 +1,8 @@
 
+const base_spoke_angles = [0,Math.PI/2,Math.PI,3*Math.PI/2]
+const gear_depth = 1
+const gear_axis = vec(0,0,gear_depth)
+const spoke_color = color.black 
 
 const draw_planetary = {
     
@@ -20,12 +24,6 @@ const draw_planetary = {
     },
     vis: (inp)=>{
 
-
-
-    const depth = 1
-    const axis = vec(0,0,depth)
-    const spoke_color = color.black 
-    const base_spoke_angles = [0,Math.PI/2,Math.PI,3*Math.PI/2]
 
     x = inp.x
     y = inp.y
@@ -66,7 +64,7 @@ const draw_planetary = {
         const ring_shape = shapes.circle({radius:outer_R,thickness: thickness_ratio})
         
         
-        const line_path = [center,center.add(axis)]
+        const line_path = [center,center.add(gear_axis)]
         extrusion({shape: ring_shape, path: line_path,color:gear_color})
     
         for (base_angle of base_spoke_angles){
@@ -76,7 +74,7 @@ const draw_planetary = {
             const x2 = x+outer_R*Math.cos(angle)
             const y2 = y+outer_R*Math.sin(angle)    
             const z_F = z
-            const z_B = z+depth
+            const z_B = z+gear_depth
             curve({pos:[vec(x1,y1,z_F),vec(x2,y2,z_F)],color:spoke_color})
             curve({pos:[vec(x1,y1,z_B),vec(x2,y2,z_B)],color:spoke_color})
             curve({pos:[vec(x1,y1,z_F),vec(x1,y1,z_B)],color:spoke_color})
@@ -113,7 +111,7 @@ const draw_wheel = {
 
 function make_gear(x,y,z,R,theta,gear_color){
     
-    cylinder({pos:vec(x,y,z), axis: axis,radius:R,color:gear_color})
+    cylinder({pos:vec(x,y,z), axis: gear_axis,radius:R,color:gear_color})
 
     
     const angles = base_spoke_angles.map(angle => {return angle+theta*Math.PI/180})
@@ -127,7 +125,7 @@ function make_gear(x,y,z,R,theta,gear_color){
 
 
     const spoke_points_B = spoke_points_F.map(point => {
-        return point.add(axis)
+        return point.add(gear_axis)
     })
 
     curve({pos:[spoke_points_F[0],spoke_points_F[2]],color:spoke_color})

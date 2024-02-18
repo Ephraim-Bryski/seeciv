@@ -40,7 +40,7 @@ firebase_log_in.auth().onAuthStateChanged(function(user) {
 		// Do something with the logged-in user, e.g., display user info
 	} else {
 		CURRENT_USER = null
-		$("#sign-out")[0].style.display = "none"
+		// $("#sign-out")[0].style.display = "none"
 		$("#sign-in")[0].style.display = ""
 		// just temporary so i can save stuff without logging in
 		// $("#save-field")[0].style.display = "none"

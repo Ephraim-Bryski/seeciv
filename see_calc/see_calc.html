@@ -97,39 +97,37 @@
 
 <div id="top-menu">
 
-    <button  id="toggle-blocks" class="menu-text" onclick="toggle_blocks()">Hide</button>
+    <button class="menu-text" style="display: none" onclick="clear_sheet()">Clear Sheet</button>
 
-    <button  class="menu-text" onclick="undo()">
+
+    <button  class="menu-text" style="display: none" onclick="undo()">
       Undo
 
 
     </button>
 
+    <button  id="toggle-blocks" class="menu-text" onclick="toggle_blocks()"></button>
+
+
     <button  id="run-button" class="menu-text" onclick="run_sheet()">
-      Run
+      Run Sheet
     </button>
 
-    <button  class="menu-text" onclick="redo()"> 
+    <button  class="menu-text"style="display: none" onclick="redo()"> 
       Redo
 
     </button>
 
-    <input style="height:100%" id="save-field" placeholder="Sheet name">
 
-    <button  class="menu-text" onclick="save_sheet()" id="save-button">Save</button>
 
-    <button  class="menu-text visual-toggle" onclick="view_xy()" style="display:none">XY</button>
-    <button  class="menu-text visual-toggle" onclick="view_3d()" style="display:none">3D</button>
-
-    <button  style="float:right" class="menu-text" onclick="toggle_solve_steps(event)" id="toggle-solve-steps" style="display:none">Solve Steps</button>
+    <button  class="menu-text visual-toggle" onclick="view_xy()" style="display:none">Reset View</button>
     
-    <button  style="float:right" class="menu-text" onclick="toggle_library(event)">Library</button>
+    <button  style="float:right" class="menu-text menu-text-selected" onclick="toggle_library(event)">Library</button>
     
      
 
 
-    <button style="display:none" id="sign-in" class="menu-text" onclick="signInWithGoogle()" >Sign in with Google</button>
-    <button style="display:none" id="sign-out" class="menu-text" onclick="signOutUser()">Sign out</button>
+    <button style="float: right" class="menu-text" onclick="toggle_about(event)">About</button>
 
 
 
@@ -137,24 +135,37 @@
 </div>
 
 
-<div id="solve-steps"  style="display: none;"></div>
+<div id="OLD-solve-steps"  style="display: none;"></div>
 
 
-<div id="library" style="display:block">
+<div id="library" class="popup" style="display:block">
     
 
 
 
-    <div class="library-label" id="user-content-label" style="display: none;"></div>
-    <div id="user-content"></div>
-    <div class="library-label" style="display: none;">Public Content</div>
+    <div class="library-label" id="user-content-label">User Content</div>
+    <button id="sign-in" onclick="signInWithGoogle()" >Sign in with Google</button>
+
+    <br>
+    <input style="height:100%" id="save-field" pattern="[A-Za-z]+" placeholder="Sheet name">
+    <button  onclick="save_sheet()" id="save-sheet-btn" id="save-button">Save</button>
+    <span id="save-field-error-msg" style="color: red"></span>
+
+    <div class="library-label">Public Content</div>
+    <div id="user-content">Loading library...</div>
+
     <div id="public-content"></div>
     
 </div>
 
 
 
-
+<div id="about" class="popup" style="display: none;">
+  <div class="library-label">About the sheet</div>
+  <textarea id="about-field" style="resize: none;width:90%;height:200px"></textarea>
+  <div class="library-label">About the site</div>
+  super informative stuff, probably link to something else
+</div>
 
 
 <div id="calc"></div>

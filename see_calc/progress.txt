@@ -23,55 +23,41 @@ if you update the sheet, and then toggle the spinner without rerunning first, it
 probably want to control min and max for axes
 	or honestly just having it positive might be ok
 i feel like things are a bit too zoomed out by default
+	depends on the screen size, not sure what to do about this
 probaby should have colors for everything :D
-arrow scale for stressrotate
+
+
+
+resizing gs canvas, sooo annoying
+	updating size of canvas: leads to gs errors when creating new object
+	recreating canvas: before it worked but now it causes it to crash, don't know why
+
+
+curvedarrow needs scale
 
 
 
 
-style
 
-	keep font consistent (error and visual output text are different)
+misc	
 
-	if you delete the sheet you're currently on, you get the alert too, kind of annoying
-		dont do alert need to fix 404 page
+	about sheet info?
 
-	when saving sheet, collapses library tree, just a bit annoying
 
-	glowscript canvas resize on window resize
-		event listener that just changes canvas size leads to
-			error on creating new gs objects
-			no idea why for either of these
-			may be possible to delete the canvas and recreate
-
-misc
-	if i can improve solve steps, i could add it, with a toggle display at the bottom of the solve block so it makes more sense what it is
-
-	improve numeric solver
-		just the obvious like don't check 10**10
-
+	dont allow to show steps if error in solve input field (e.g. not a block name)
+		might just not show steps if there's stuff unknown
+		
 	figure what to do with remove parentheses or some simplfiy for sub table
-
-
-
-need state for hide/reload
-	not sure whether i want it to be a state of the user session or of the sheet
-	gonna wait until i make more sheets
-
-
-
-
-moving buttons around
-	sign in should be inside the library menu
-	probably remove undo and redo
-	solve steps should be in the solve block
 
 
 
 
 To do at end
 
+	make sure all error messages make sense
+		error message convert variable names to plain text (using greek mapping i used for glowscript text) (assuming i keep the variables, not sure)
 
+	some sort of indication that the sheet is loading when you first go on the site to a particular sheet
 
 	catch all error so it doesn't break if some weird error comes up
 
