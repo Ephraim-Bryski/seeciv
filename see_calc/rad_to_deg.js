@@ -52,17 +52,18 @@ function get_all_indices(text,sub_text){
 
 function rad_to_deg(expression){
 
+    // return expression
     
     const pie = 'pi' //Math.PI.toString()  // who doesntlike pie :)
         
-    const get_op = func => {return `\\${func}(`}
+    const get_op = func => {return `${func}\\(`}
     const forward_ops = forward_trig.map(get_op)
     const inverse_ops = inverse_trig.map(get_op)
 
 
 
-    const forward_start_idxs = forward_trig.map(op => {return get_all_indices(expression, op)}).flat()
-    const inverse_start_idxs = inverse_trig.map(op => {return get_all_indices(expression, op)}).flat()
+    const forward_start_idxs = forward_ops.map(op => {return get_all_indices(expression, op)}).flat()
+    const inverse_start_idxs = inverse_ops.map(op => {return get_all_indices(expression, op)}).flat()
 
 
     const forward_open_idxs = forward_start_idxs.map(idx => {return idx + 3})

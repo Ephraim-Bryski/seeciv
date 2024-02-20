@@ -269,6 +269,11 @@ function calc(SoEs,start_idx,end_idx){
                 
                 do_other_syntax_checks(line)
 
+
+                if (line.includes("color")){
+                    throw new FormatError("'color' cannot be in a variable in an equation")
+                }
+
                 var line_math = ltx_to_math(line) // before getallvars so it catches 3a=4 (issue with invalid variable, not no variables!)
 
                 if (get_all_vars(line).length===0){
@@ -420,16 +425,7 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
         var n_col = old_table_data.length
     }
 
-
-
-
-
-
-
-
     const new_vars = get_all_vars(eqns)
-
-
 
     var new_trans_table = []
 
@@ -567,41 +563,62 @@ function compute_sub_table(eqns, old_table, for_solving = false,default_vis_vals
             
             const is_visual = default_vis_vals !== undefined
             
-            if (is_visual){
+            const colors = [...Object.keys(color_map)]
+
+            const is_valid_color = (field) => {
+
+                return field.includes("color") || colors.includes(field)
+            }
 
 
-                var_row.forEach((var_cell,col_idx)=>{
-                    
-                    const sub_cell = sub_row[col_idx]
-                    const is_color_cell = var_cell.includes("color")
 
-                    const colors = [...Object.keys(color_map)]
-                    const is_valid_color = colors.includes(sub_cell)
+            var_row.forEach((var_cell,col_idx)=>{
 
-                    if (sub_cell === ""){
-                        throw new FormatError("cannot have an empty cell for a visual")
+                const sub_cell = sub_row[col_idx]
+            
+                if (sub_cell.includes("=")){
+                    throw new FormatError("Cannot substitute an equation")
+                }
+
+                if(sub_cell !== ""){
+                    do_other_syntax_checks(sub_cell)
+                    eqn_to_tree(ltx_to_math(sub_cell))
+                }
+
+                const is_color_cell = var_cell.includes("color")
+
+
+                if (is_visual && sub_cell === ""){
+                    throw new FormatError("cannot have an empty cell for a visual")
+                }
+
+                if (is_color_cell && !is_valid_color(sub_cell)){
+                    throw new FormatError(`${var_cell} must either be a variable with color in it or be one of: ${colors.join(", ")}`)
+                }
+
+                if (!is_color_cell && sub_cell.includes("color")){
+                    // can't check if it isValidColor since you could have something like "y" subbed which is sometimes fine
+                    throw new FormatError("Cannot substitute variable with 'color' for a noncolor variable")
+
+                }
+
+            })
+
+
+            if (for_solving){
+                sub_row.forEach((sub_cell,idx)=> {
+                    const var_cell = var_row[idx]
+                    const is_color_input = var_cell.includes("color")
+
+                    if (is_color_input && !is_valid_color(sub_cell)){
+                        throw new FormatError(`Solving input for a color must be one of: ${colors.join(", ")}`)
                     }
-
                     
-
-                    if (is_color_cell && !is_valid_color){
-                        throw new FormatError(`${var_cell} must be one of: ${colors.join(", ")} with double quotes as shown`)
+                    if(!is_color_input && isNaN(sub_cell)){
+                        throw new FormatError("When solving, can only substitute numbers")
                     }
-
                 })
-
             }
-
-            if (sub_row.some(cell => {return cell.includes("=")})){
-                throw new FormatError("Cannot substitute an equation")
-            }
-
-            if (for_solving && sub_row.some(cell => {return isNaN(cell)})){
-                throw new FormatError("When solving, can only substitute numbers")
-            }
-
-
-
 
             if (for_solving){
                 const stuff = solve_eqns(eqns_subbed)

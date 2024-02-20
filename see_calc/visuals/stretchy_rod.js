@@ -41,14 +41,14 @@ const draw_stretchy_rod = {
     
         function draw_helix(start_angle, direction_sign){
     
-            const n_points = 100*n_coils
+            const n_points = Math.ceil(20*n_coils)
     
     
             const total_angle = n_coils*2*Math.PI
     
             const points = []
     
-            for (let i=0;i<n_points;i++){
+            for (let i=0;i<=n_points;i++){
                 const fraction = i/n_points
                 const angle = start_angle+direction_sign*fraction*total_angle
                 const x = x1 + fraction*L

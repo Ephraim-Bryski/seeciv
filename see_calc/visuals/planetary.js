@@ -55,13 +55,18 @@ const draw_planetary = {
     }
 
     function make_ring_gear(x,y,z,inner_R,theta,gear_color){
+        
+        if (inner_R === 0){
+            return
+        }
+        
         const center = vec(x,y,z)
     
         const thickness = 0.1*inner_R   // arbitrary
         const outer_R = inner_R + thickness
     
         const thickness_ratio = (outer_R-inner_R)/outer_R
-        const ring_shape = shapes.circle({radius:outer_R,thickness: thickness_ratio})
+        const ring_shape = shapes.circle({radius:outer_R,thickness: thickness_ratio,np:30})
         
         
         const line_path = [center,center.add(gear_axis)]

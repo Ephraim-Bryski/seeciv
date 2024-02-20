@@ -1463,17 +1463,22 @@ function make_block(SoE){
 
     var remove_button=document.createElement('button')
     remove_button.onclick=function(event){
-
-        if (($(".block")).length === 2){
-            return
-        }
-
+        
+        
+        
         var outer=block.parentNode
-
+        
         change_start_idx([].indexOf.call(block.parentNode.children, block) )
-
+        
         outer.removeChild(block)
         track_dom()
+        
+        if ($(".block").length === 1){
+            const solve_block = $("#solve-block")[0]
+            const empty_block = make_block()
+            outer.insertBefore(empty_block,solve_block)
+        }
+
 
     }
     remove_button.innerHTML="X"
@@ -1980,8 +1985,14 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                     }else{
                         spinner_value = .1
                     }
+
+                    if (spinner_variable.includes("color")){
+                        spinner_field = document.createElement("td")
+                    }else{
+
+                        spinner_field = make_spinner_field(spinner_value)
+                    }
                     
-                    spinner_field = make_spinner_field(spinner_value)
                 }else{
                     spinner_field = document.createElement("td")
                 }
@@ -2464,11 +2475,9 @@ function track_dom(due_to_button_click = true){
     
 
     const edited_solve_block = parent_block && parent_block.id === "solve-block"
-    
-    console.log(edited_solve_block)
+
 
     const should_remove_spinner = (parent_block && !edited_solve_block) || due_to_button_click
-    console.log(should_remove_spinner)
 
     if (should_remove_spinner){
         const spinner_elements = [...$(".solve-spinner")].concat([...$(".spinner-step")])

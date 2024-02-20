@@ -55,7 +55,7 @@ function remove_vars(SoEs, vars_to_remove){
 
 
 
-    const back_solution = back_solve(SoEs, vars_to_remove, false)
+    const back_solution = back_solve(SoEs, vars_to_remove, false, false)
 
 
     const remaining_trees = back_solution.remaining_trees
@@ -106,7 +106,7 @@ function solve_eqns(SoEs){
     }
 
 
-    const back_solution = back_solve(SoEs, vars_to_remove, true)
+    const back_solution = back_solve(SoEs, vars_to_remove, true, false)
 
     const ordered_sub = back_solution.ordered_sub
     const back_steps = back_solution.steps
@@ -157,13 +157,33 @@ function show_trees(trees){
     })
 }
 
-function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
+function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system, in_tree_form){
 
-    const SoEs = SoEs_with_vis.filter(SoE => {return !SoE.includes("VISUAL")})
-    let vis_SoEs = SoEs_with_vis.filter(SoE => {return SoE.includes("VISUAL")})
+        
+    let vis_SoEs = SoEs_with_vis.filter(eqn => {return typeof eqn === "string" && eqn.includes("VISUAL")})
+    
+
+    const SoEs = SoEs_with_vis.filter(eqn => {return !vis_SoEs.includes(eqn)})
+
+    // const SoEs = SoEs_with_vis.filter(SoE => {return !SoE.includes("VISUAL")})
 
     // doing this weird mapping for groupcommonterms and eqntotree cause otherwise the second default argument is undefined, cause javascript |:
-    const trees = SoEs.map(ltx_to_math).map(eqn => {return eqn_to_tree(eqn,true)}).map(tree => {return group_common_terms(tree)}) // trees will be mutated in the backsolve scope
+    
+    let trees_ungrouped
+    if (in_tree_form){
+        trees_ungrouped = SoEs
+    }else{
+
+        trees_ungrouped = SoEs.map(ltx_to_math).map(eqn => {return eqn_to_tree(eqn,true)})
+    }
+    
+
+    const trees = trees_ungrouped.map(tree => {return group_common_terms(tree)}) // trees will be mutated in the backsolve scope
+    
+    
+    
+    
+    
     const trees_info = trees.map(get_tree_info)          
     const trees_complexity = trees_info.map(info => {return info[0]})
     const trees_counts = trees_info.map(info => {return info[1]})
@@ -274,9 +294,7 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
         throw new CantSolveError
     }
 
-    if (!solved && to_solve_system){
-        // throw new TooMuchUnknownError
-    }
+
 
     // now we know there are branches 
 
@@ -303,11 +321,11 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
 
     const nested_branched_solutions = []
 
-    possible_branches.forEach(branch => {
+    possible_branches.forEach(branch_tree => {
         try {
             // TODO could be made more efficient by not converting back to eqns instead have backsolve take trees but whatever /:
-            const branch_eqns = branch.map(tree => {return tree_to_eqn(tree)})
-            const solution = back_solve(branch_eqns, remaining_vars_to_remove)
+            // const branch_eqns = branch.map(tree => {return tree_to_eqn(tree)})
+            const solution = back_solve(branch_tree, remaining_vars_to_remove, false, true)
             nested_branched_solutions.push(solution)
         }catch(e){
             if (e instanceof EvaluateError || e instanceof ContradictionError){
@@ -470,11 +488,6 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
 
             const tree = trees[tree_idx]
             if (tree === null){return}
-
-            const other_trees_vars = trees_counts.map((counts, idx) => {
-                if (idx === tree_idx){return []}
-                return Object.keys(counts)
-            }).flat()
     
             const tree_vars = Object.keys(trees_counts[tree_idx])
 
@@ -485,14 +498,8 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system){
             if (nonzero_sol){
                 throw new ContradictionError
             }
-    
-            const is_isolated = empty_intersection(other_trees_vars, tree_vars)
-            const has_vars_to_remove = !empty_intersection(vars_to_remove, tree_vars)
-            const is_unneded = is_isolated && has_vars_to_remove && !to_solve_system
-        
-            if (is_unneded || zero_sol){
-                //delete_tree(tree_idx)
-            }
+
+
         })
     }
     
@@ -854,7 +861,6 @@ function newton_raphson(exp,solve_var,guess){
 
     function fprime(x) {
         var h = 0.001;
-        return (f(x+h)-f(x-h))/(2*h)
         return math.divide(math.subtract(f(math.add(x,h)),f(math.subtract(x,h))),2*h)
     }
 
@@ -968,7 +974,10 @@ function get_all_vars(eqns){
 
     const quote_dummy = "__QUOTE_FOR_COLOR__"
 
+
     eqns = eqns.map(eqn => {return eqn.replaceAll('"',quote_dummy)})
+
+
 
     var regex = /\W[a-zA-Z](\w?)+/g
     var vars = []

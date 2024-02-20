@@ -99,6 +99,8 @@ function do_other_syntax_checks(latex_expression){
 	// this is awful
 	// but not as scary cause it just throws errors, so ill know if it's misbehaving
 
+	latex_expression = latex_expression.replaceAll("BS"," ")
+
 	trig_funcs.forEach(op => {
 		
 		if (op[0] === "a"){

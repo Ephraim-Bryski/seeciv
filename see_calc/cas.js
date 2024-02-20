@@ -329,7 +329,7 @@ function get_common_product_terms(tree){
 function is_tree(term){
 
 
-    const keys = Object.keys(term).filter(key=>{return key !== "inverted"}).sort()      // when constructing the tree it adds an inverted property, so i just filter it out5
+    const keys = Object.keys(term).filter(key=>{return key !== "inverted" && key !== "has_solve_var"}).sort()      // when constructing the tree it adds an inverted property, so i just filter it out5
     const correct_keys = ["op", "terms"]
     
     return keys.every((_,idx)=>{return keys[idx] === correct_keys[idx]})
@@ -1861,7 +1861,6 @@ class VariableEliminatedError extends Error {
 
 //#region tree --> equation
 
-tree_to_eqn(eqn_to_tree("g_1*c"),true)
 
 function tree_to_eqn(tree, use_ltx = false, parent){
 
@@ -1937,6 +1936,13 @@ function tree_to_eqn(tree, use_ltx = false, parent){
 
     return eqn
 }
+
+
+// const ohnotree = '{"op":"*","terms":[{"op":"^","terms":[{"op":"^","terms":[{"op":"*","terms":[{"op":"^","terms":["y","-1"]},"1.990049751243781361864648715709"]},"1.5"]},"-1"]},{"op":"^","terms":[{"op":"^","terms":["y","-1"]},"-1"]},{"op":"^","terms":["0.995024875621890680932324357855","-1"]}]}'
+
+// const fuck = JSON.parse(ohnotree)
+
+// tree_to_expression(fuck)
 
 function tree_to_expression(tree, use_ltx, parent){
 
@@ -2028,7 +2034,7 @@ function tree_to_expression(tree, use_ltx, parent){
         const non_coeffs = terms.filter(term => {return !is_number(term)})
 
         if (coeffs.length > 1){
-            console.warn("there should only be one coefficient, only OK if tree not simplified")
+            // console.warn("there should only be one coefficient, only OK if tree not simplified")
         }
 
         let rearranged_terms
@@ -2075,7 +2081,14 @@ function tree_to_expression(tree, use_ltx, parent){
         const upper_priority = op_priority(parent.op)
         const lower_priority = op_priority(tree.op)
     
-        need_parens = upper_priority>lower_priority
+        
+
+        if (parent.op === "/" && tree.op === "/"){
+            console.warn("I RECENTLY CHANGED THIS TO FIX DIVIDE ORDER OF OPS, MAKE SURE NOTHING'S BLOWING UP")
+            need_parens = true
+        }else{
+            need_parens = upper_priority>lower_priority
+        }
     }
 
     if (need_parens){

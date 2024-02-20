@@ -10,14 +10,15 @@ CAS issues i'm saying fuck it for
 		circle equation and tan --> flips sign, as it moves past pi/2
 		need just sin and cos for it to work
 
-
-if you update the sheet, and then toggle the spinner without rerunning first, it can mess it all up (cause variables can be removed)
-	probably best to remove the spinners when changes are made
-	can keep track of dom using the same approach as undo and redo
-		if changes other than in solve table (so changing the solve name also no good!) --> remove the spinners
-		could also have the Run button color initially be gray, and then change to blue when modification, makes it much clearer
+	stupid syntax thing
+		subtable with a greek letter multiplied on the right side, it will not see that greek letter cause there's no space after \\cdot
+			space is only added when going back and forth from eqn to tree back to eqn
 
 
+
+
+dont allow quotation marks (and any other symbols)
+	except of course for color and labels
 
 
 probably want to control min and max for axes
@@ -36,17 +37,11 @@ resizing gs canvas, sooo annoying
 curvedarrow needs scale
 
 
-
-
-
 misc	
 
-	about sheet info?
-
-
 	dont allow to show steps if error in solve input field (e.g. not a block name)
-		might just not show steps if there's stuff unknown
-		
+		might just not show steps if there's an error
+
 	figure what to do with remove parentheses or some simplfiy for sub table
 
 
