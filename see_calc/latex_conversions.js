@@ -99,6 +99,17 @@ function do_other_syntax_checks(latex_expression){
 	// this is awful
 	// but not as scary cause it just throws errors, so ill know if it's misbehaving
 
+
+	const invalid_chars = "`'!@#$%&[]~"+'"'
+
+	for (char of invalid_chars){
+		if (latex_expression.includes(char)){
+			throw new FormatError(`${char} is not allowed in an equation`)
+		}
+	}
+
+
+
 	latex_expression = latex_expression.replaceAll("BS"," ")
 
 	trig_funcs.forEach(op => {

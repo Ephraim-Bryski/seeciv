@@ -10,12 +10,6 @@ CAS issues i'm saying fuck it for
 		circle equation and tan --> flips sign, as it moves past pi/2
 		need just sin and cos for it to work
 
-	stupid syntax thing
-		subtable with a greek letter multiplied on the right side, it will not see that greek letter cause there's no space after \\cdot
-			space is only added when going back and forth from eqn to tree back to eqn
-
-
-
 
 dont allow quotation marks (and any other symbols)
 	except of course for color and labels
@@ -28,6 +22,27 @@ i feel like things are a bit too zoomed out by default
 probaby should have colors for everything :D
 
 
+visual ramp could instead be derived from triangular prism primitive
+
+bugs
+	when you make a sub table and then replace it with an equation, the arrow still shows up 
+	if you have only a visual and solve it, then save, the save stuff disappears
+
+call Library Examples, call About Help
+in Help, go over shortcuts
+	math field
+		visual
+		\theta
+	visual
+		pan
+		orbit
+	navigation
+		enter to create new (shift+enter for block)
+		navigate holding control and arrow keys
+		delete with ctrl+del (ctrl+shift+del for block)
+		swap with alt and arrow? (alt+shift and arrow for block)
+
+shortcuts
 
 resizing gs canvas, sooo annoying
 	updating size of canvas: leads to gs errors when creating new object
@@ -37,12 +52,62 @@ resizing gs canvas, sooo annoying
 curvedarrow needs scale
 
 
-misc	
+undo doesnt clear visuals?????????
+	i thought i fixed this
+	i think undo and redo shouldn't run the sheet each time, that introduces annoying lag
+		doesnt work cause you lose sub table
+	might just undo and redo to last run (e.g. Ctrl+Enter)
 
-	dont allow to show steps if error in solve input field (e.g. not a block name)
-		might just not show steps if there's an error
+for some reason setting zoom messes up MQ (changes where the cursur is initially on focus)
 
-	figure what to do with remove parentheses or some simplfiy for sub table
+visuals
+	statics
+		rections point and distributed load
+		hanging cable
+		moment from point loads, influence
+		space truss
+		2d truss, could have a node primitve with 5 forces, set ones you don't need to 0
+	dynamics
+		friction wheels <-- cant actually be done, can only get the final state
+		pendulum (small angle, show forces)
+			unfortunately will have to hardcode sinusoidal motion
+		spinning pendulum
+		spring mass SHM, show phase state diagram
+		projectile motion
+		ramp (hollow tube) <-- WAY too complicated for something that's not actually very interesting
+		pendulum with shifted center
+	optics
+		multiple refraction layers
+		circular mirror
+		lens (might need lens primitive)
+		prism refraction
+	solid mechanics
+		tension in series
+		torsion in series
+		section properties
+		mohr
+		3d stress strain
+		stress in beam
+	fluid mechanics
+		pipe (single and then in series, then maybe network)
+		wave (show particle motion)
+		open channel (hyrdaulic depth)
+		open channel (expansion, contraction, raising lowering bottom)
+		specific energy of channel
+		maybe hydrostatics, not sure
+	soil mechanics
+		soil properties derivation (no visual)
+		soil components
+		point loads stress
+		triaxial (bringing back mohr stuff)
+			mu and cohesion
+	mechanisms
+		4 bar linkage
+		quick/springy return
+		planetary gear
+		automatic transmission
+		rotation to oscillating motion
+		
 
 
 
@@ -54,13 +119,24 @@ To do at end
 
 	some sort of indication that the sheet is loading when you first go on the site to a particular sheet
 
+	only show solutions steps when it successfully solves 
+
 	catch all error so it doesn't break if some weird error comes up
+
+
 
 
 visuals to create
 
+	water wave showing particle motion
+
 	basics
 		helices
+
+
+	phase state diagram with spring on mass
+
+	
 
 	basic statics, equilibrium loads
 		but could also have distributed loads
@@ -69,8 +145,6 @@ visuals to create
 			interesting cause i'm not exactly sure what the behavior is
 
 	light ray refraction
-		could have multiple layers
-		could determine path it would have to take
 		could also have prisms and stuff, interface at an angle
 	
 	surface bending with poisson

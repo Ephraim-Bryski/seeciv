@@ -40,8 +40,12 @@ function remove_vars(SoEs, vars_to_remove){
     if (vars_to_remove.length === 0){
         
 
-        return SoEs
         const simplified_SoEs = SoEs.map(eqn => {
+
+            if (eqn.includes("VISUAL")){
+                return eqn
+            }
+
             const tree = eqn_to_tree(ltx_to_math(eqn))
             const simplified_tree = simplify_tree(tree)
             return tree_to_eqn(simplified_tree, true)
@@ -647,6 +651,9 @@ function has_infinite_solutions(exp_ltx){
 
 }
 
+
+const past_numeric_solutions = {}
+
 function numeric_solve(exp_ltx){
 
     //exp = exp_ltx
@@ -661,11 +668,25 @@ function numeric_solve(exp_ltx){
     const ascending = Array.from(Array(n_guesses/2), (_, index) => index + 1);
     const guesses = ascending.map(val=>{return [base**val,base**(-val),-(base**val),-(base**(-val))]}).flat()
 
+    
+    const past_solution = past_numeric_solutions[solve_var]
 
+    if(past_solution && last_spinner_pressed){
+        // this helps a lot for speeding up circular mirror but doesn't really affect other things
+        // (basically uses the previous guess as the first guess)
+        // only for while the spinner is held down, that way it doesnt go for a really weird solution
+        
+        guesses.unshift(past_solution)
+    }
+    
 
+    let count = 0
     for (let guess of guesses){
+        count ++ 
         try{
             const solution = newton_raphson(exp,solve_var,guess)
+            past_numeric_solutions[solve_var] = Number(solution)
+            console.log(count)
             return solution        
         }catch (e){
             if (e instanceof NumericSolveError || e instanceof EvaluateError){
@@ -675,6 +696,7 @@ function numeric_solve(exp_ltx){
             }
         }
     }
+
 
     throw new NumericSolveError("Can't find numeric solution")
 

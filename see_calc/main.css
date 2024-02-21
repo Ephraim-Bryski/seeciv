@@ -34,7 +34,7 @@ body{
 #vis{
     position:absolute;
     left:0%; /* will probably change this, vis will take over the entire area below the top bar */
-    width:99.5%;
+    width:99%;
     top: 0px;
     height: 99%;
     background-color: black;
@@ -214,9 +214,6 @@ body{
 
 
 
-#vis{
-    zoom:0;
-}
 .search-btn {
     /* for searching variables */
     border: none;

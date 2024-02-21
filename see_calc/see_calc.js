@@ -1,5 +1,22 @@
 
+const trig_names = "sin cos tan csc sec cot sinh cosh tanh csch sech coth arcsin arccos arctan arccsc arcsec arccot arcsinh arccosh arctanh arccsch arcsech arccoth"
+const operator_names = "sqrt pi alpha theta omega tau sigma"
+
+
 var MQ = MathQuill.getInterface(2);
+
+const MQ_line_parameters = {
+    autoCommands: operator_names,
+    autoOperatorNames: trig_names+" visual",
+}
+
+const MQ_table_parameters = {
+    autoCommands: operator_names,
+    autoOperatorNames: trig_names,
+}
+
+
+
 
 
 addEventListener("resize",e => {
@@ -23,10 +40,6 @@ addEventListener("resize",e => {
 
 })
 
-
-
-const trig_names = "sin cos tan csc sec cot sinh cosh tanh csch sech coth arcsin arccos arctan arccsc arcsec arccot arcsinh arccosh arctanh arccsch arcsech arccoth"
-const operator_names = "sqrt pi alpha theta omega tau sigma"
 
 
 
@@ -112,8 +125,12 @@ let scene
 setUpGS("vis")
 
 
+var n_mq_fields = 0
 
 document.addEventListener('keyup', (e)=>{
+
+
+    
     let should_track = true
     if (e.code==="Enter"){
         var in_field=document.activeElement
@@ -140,9 +157,77 @@ document.addEventListener('keyup', (e)=>{
     }          
 
     if (should_track){
-        track_dom(false)
+
+        const new_n_mq_fields = $(".mq-root-block").length
+    
+        // TODO do the same check for mouseup (clicks to add or remove stuff)
+        if (new_n_mq_fields !== n_mq_fields){
+            new_track_dom()
+        }
+    
+        n_mq_fields = new_n_mq_fields
     }
+
+    
+
+
+
 })
+
+
+const history_stack = []
+const future_stack = []
+
+function new_track_dom(){
+    const mq_fields = get_input_fields()
+    const latex = mq_fields.map(field => {return MQ(field).latex()})
+    const clone = $('#calc').clone(true,true);
+
+    history_stack.push({clone: clone, latex: latex})
+    while(future_stack.length){future_stack.pop()}
+}
+
+function get_input_fields(){
+    return [...$(".mq-root-block")]
+        .map(child => {return child.parentNode})
+        .filter(field => {return [...field.classList].includes("mq-editable-field")})
+}
+
+function undo(){
+    step_DOM_history(history_stack, future_stack)
+}
+
+function redo(){
+    step_DOM_history(future_stack, history_stack)   
+}
+
+function step_DOM_history(source_stack, destination_stack){
+
+    if (source_stack.length === 0){return}
+
+    const source = source_stack.pop()
+    const source_clone = source.clone
+    const source_latex = source.latex
+    destination_stack.push({clone: source_clone, latex: source_latex})
+
+    $("#calc").replaceWith(source_clone)
+    const past_mq_fields = get_input_fields()
+
+    past_mq_fields.forEach((old_field, idx) => {
+        let new_field
+        if ([...old_field.classList].includes("line-input")){
+            new_field = document.createElement('div')
+            new_field.classList.add("line-input")
+            MQ.MathField(new_field, MQ_line_parameters)
+        }else{
+            new_field = document.createElement("div")
+            new_field.style.width = old_field.style.width
+            MQ.MathField(new_field, MQ_table_parameters)
+        }
+        MQ(new_field).latex(source_latex[idx])
+        old_field.replaceWith(new_field, true, true)
+    })
+}
 
 const fb_config = {
     apiKey: "AIzaSyBrjMcMVh5Qe4i1wI28Hu6cWtlBLn-1Fpc",
@@ -478,7 +563,6 @@ function load_sheet(all_names, owner){
         fuck_you_firebase_sheet_visuals = Object.values(sheet_visuals)
         display_vis(fuck_you_firebase_sheet_visuals.flat())
 
-        view_xy()
 
 
         // clear_equation_visuals()
@@ -1035,40 +1119,7 @@ function make_line(eqn){
     
 
     //MQ
-    MQ.MathField(in_field, {
-        //autoCommands: "sqrt", // to just type instead of backslash
-        autoCommands: operator_names,
-        autoOperatorNames: trig_names+" visual",
-        handlers: {edit: function() {
-        
-            // for some reason, MQ runs it on creation, before there are parent elements ):<
-            if(in_field.parentElement===null){
-                return 
-            }
-
-            var calc_row = in_field.parentElement.parentElement.parentElement
-            var idx = [].indexOf.call(calc_row.parentNode.children, calc_row);       
-            change_start_idx(idx)
-
-            return
-
-
-            in_field.classList.remove("input-error")
-
-
-            var row = $(in_field).parents(".line")
-
-
-            var remove_classes = [".collapse-arrow",".error-msg",".display-eqn-cell"]//,".sub-table"]
-
-            remove_classes.forEach((cl)=>{
-                var item = row.find(cl)[0]
-                if (item===undefined){return}
-                item.style.display = "none"
-            })
-
-    }}
-    })   // editing it should change the start_idx for solving
+    MQ.MathField(in_field, MQ_line_parameters)
 
 
 
@@ -1089,8 +1140,8 @@ function make_line(eqn){
     var input = eqn.input
     input = input.replaceAll("\\ ","")
 
-    in_field.temp_ltx = remove_char_placeholders(input) // just to store it temporarily cause mq is annoying about 
-    //MQ(in_field).latex(input)
+    // in_field.temp_ltx = remove_char_placeholders(input) // just to store it temporarily cause mq is annoying about 
+    MQ(in_field).latex(remove_char_placeholders(input))
     var display_eqns = eqn.result
     var show_output = eqn.show_output
 
@@ -1346,7 +1397,6 @@ function make_solve_block(){
     in_field.placeholder = "Block to solve"
     in_field.style.width="150px"
     in_field.style.marginRight="0px"
-    // MQ.MathField(in_field)
 
     reference_line.appendChild(solve_span)
     reference_line.appendChild(in_field)
@@ -1516,7 +1566,7 @@ function make_block(SoE){
     }
     name_field.placeholder = "Block name"
     var error_field = document.createElement('span')
-    error_field.classList.add("block-error-msg")    // right now just for finding it so it can be removed on edit (no style)
+    error_field.classList.add("error-msg")    // right now just for finding it so it can be removed on edit (no style)
 
 
     if (SoE!==undefined && SoE.result instanceof Error){
@@ -1815,8 +1865,12 @@ function spinner_adjust(spinner_button,sign){
 
 
 var update_up_press = () => {
+    past_numeric_solutions
     last_spinner_pressed = null
     n_since_spinner_pressed = null
+
+    // resets the guess for the numeric solution
+    for (key of Object.keys(past_numeric_solutions)){delete past_numeric_solutions[key]}
 }
 
 
@@ -1922,7 +1976,11 @@ function make_sub_table(table_data, solve_result, is_solve_line){
             let blank_idxs
             if (contains_error){
 
-                const output_idxs = solve_result[i-1].output_idxs
+                let output_idxs = solve_result[i-1].output_idxs
+
+                if (!output_idxs){
+                    output_idxs = []
+                }
 
                 blank_idxs = output_idxs.map(output_idx => {
                     return sort_idxs.indexOf(output_idx)
@@ -1943,7 +2001,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
             if (contains_error){
                 
-                new_row.style.outline="thin solid red"
+                new_row.classList.add("table-error")
                 
             }
 			table.appendChild(new_row)
@@ -2100,17 +2158,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
 
             
                 //MQ
-                MQ.MathField(in_field, {
-                    autoCommands: operator_names,
-                    autoOperatorNames: trig_names,
-                    handlers: {edit: function() {
-                    
-                    if(in_field.parentElement===null){
-                        return 
-                    }
-                    change_start_idx($(in_field).parents(".block").index())
-
-                }}})
+                MQ.MathField(in_field, MQ_table_parameters)
 
             }
             
@@ -2199,12 +2247,11 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                 clear.classList.add("table-clear")
             }
             
-			clear.innerText="-"
+			clear.innerText="X"
 			clear.onclick = (e)=>{
+                
+                $("#spinner-row")[0].style.display = 'none'
 
-                if (is_solve_line){
-                    $("#spinner-row")[0].style.display = 'none'
-                }
                 
                 change_start_idx($(e.target).parents(".block").index())
 
@@ -2213,10 +2260,6 @@ function make_sub_table(table_data, solve_result, is_solve_line){
                 const new_row = make_row(blank,true,[],[])
 
                 for (let i=0; i<row.children.length; i++){
-
-                    if (!is_solve_line){
-                        break
-                    }
 
                     const old_cell = row.children[i]
                     const new_cell = new_row.children[i]
@@ -2244,7 +2287,7 @@ function make_sub_table(table_data, solve_result, is_solve_line){
             if (is_solve_line){
                 btns_to_include = [clear]
             }else{
-                btns_to_include = [add, remove, clear]
+                btns_to_include = [add, remove]
             }
 
 			btns_to_include.forEach((btn)=>{
@@ -2322,7 +2365,7 @@ function setUpGS(id, do_extra = true){
 
         window.__context= {glowscript_container: graphDiv}  
     }
-    scene = canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: true,userzoom: false,autoscale: true})
+    scene = canvas({width: graphDiv.offsetWidth,height: graphDiv.offsetHeight,resizable: false,userzoom: false,autoscale: true})
     //scene.forward=vec(1,-0.5,-1)
 
 }
@@ -2373,7 +2416,7 @@ function wrap_static_MQ(eqn, in_table = true){
 
 function make_MQ(){
 
-
+    
 
     const out_fields = [...$(".eqn-field")]
 
@@ -2400,14 +2443,14 @@ function make_MQ(){
     })
 
 
-    const in_fields = [...$(".line-input")]
+    // const in_fields = [...$(".line-input")]
 
-    in_fields.forEach(field => {
+    // in_fields.forEach(field => {
 
-        let ltx = field.temp_ltx
-        MQ(field).latex(ltx)
-        return
-    })
+    //     let ltx = field.temp_ltx
+    //     MQ(field).latex(ltx)
+    //     return
+    // })
 
 }
 
@@ -2435,21 +2478,9 @@ function my_check(){
     console.log(hist_idx)
     hist_doms.forEach(dom => {try{console.log(dom[0][1].eqns[0].input)}catch{console.log('')}})
 }
-function undo(){
-    my_check()
-    var past_dom = hist_doms[hist_idx-1]
 
-    if (past_dom===undefined){return}
-    //  in reality would be a callback
-    // data2DOM(calc(past_dom,0,past_dom.length))
-    GLOBAL_solve_stuff = past_dom[1]
-    const non_solve_stuff = past_dom[0]
-    data2DOM(calc(copy(non_solve_stuff),0,non_solve_stuff.length))
-    hist_idx-=1
-    //document.body.appendChild(past_dom[0])
-}
 
-function redo(){
+function OLD_redo(){
 
 
     var future_dom = hist_doms[hist_idx+1]
@@ -2467,9 +2498,15 @@ function redo(){
 }
 
 
+const LETS_SEE = []
+
 function track_dom(due_to_button_click = true){
 
+	var DomTreeCopy = $('#calc').clone(true,true);
 
+    LETS_SEE.push(DomTreeCopy)
+
+    return
     
     const parent_block = $(document.activeElement).parents(".block")[0]
     

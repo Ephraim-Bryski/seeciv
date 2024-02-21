@@ -66,13 +66,13 @@ function calc(SoEs,start_idx,end_idx){
         var SoE=SoE_struct.eqns;
 
         if (known_SoEs.includes(name)){
-            SoE_struct.result = new FormatError('"'+name+'"'+' is already a block name')
+            SoE_struct.result = new FormatError('"'+name+'"'+' is already a system name')
         }else if(name.length===0){
-            SoE_struct.result = new FormatError("Block name cannot be blank")
+            SoE_struct.result = new FormatError("Name of system cannot be blank")
         }else if(!(/^\w+$/.test(name))){
-            SoE_struct.result = new FormatError("Block name cannot have math operations")
+            SoE_struct.result = new FormatError("Name of system cannot only have letters and numbers")
         }else if(name.includes("_")){
-            SoE_struct.result = new FormatError("Block name cannot include underscores")
+            SoE_struct.result = new FormatError("Name of system cannot include underscores")
         }else{
             SoE_struct.result = ""
         }
@@ -218,20 +218,12 @@ function calc(SoEs,start_idx,end_idx){
         line = line.replaceAll("\\ ","")
 
         var vis_vars = []
-
     
         var new_table = undefined // removes table unless there is a substitution (removes if obsolete)
 
-
-
         const visual_txt = "\\operatorname{visual}"
 
-
-
-
-
         const visual_line = line.startsWith(visual_txt)
-
 
         const has_visual_txt = line.includes(visual_txt)
 
@@ -283,7 +275,9 @@ function calc(SoEs,start_idx,end_idx){
                 const simplified_eqn = tree_to_eqn(eqn_to_tree(line_math), true)
 
                 if (get_all_vars(simplified_eqn).length === 0){
-                    throw new FormatError(`Equation simplifies to something without variables: ${simplified_eqn}`)
+                    // i dont think this is necessary, and it anyway doesnt catch stuff that actually matters
+                        // e.g. misses a=a+1
+                    // throw new FormatError(`Equation simplifies to something without variables: ${simplified_eqn}`)
                 }
 
                 var result = [simplified_eqn]
