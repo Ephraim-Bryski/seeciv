@@ -1,7 +1,6 @@
 
 const base_spoke_angles = [0,Math.PI/2,Math.PI,3*Math.PI/2]
-const gear_depth = 1
-const gear_axis = vec(0,0,gear_depth)
+
 const spoke_color = color.black 
 
 const draw_planetary = {
@@ -41,8 +40,8 @@ const draw_planetary = {
 
     const R_ring = R_s+R_p*2
     const R_case = R_s+R_p
-    make_gear(x,y,z,R_s,angle_s,color_s)
-    make_ring_gear(x,y,z,R_ring,angle_r,color_r)
+    make_gear(x,y,z,R_s,angle_s,color_s, planetary_length)
+    make_ring_gear(x,y,z,R_ring,angle_r,color_r, planetary_length)
 
     const n_planets = 3
 
@@ -51,10 +50,10 @@ const draw_planetary = {
         const orbit_angle = base_orbit_angle+angle_c*Math.PI/180
         const planet_x = x+R_case*Math.cos(orbit_angle)
         const planet_y = y+R_case*Math.sin(orbit_angle)
-        make_gear(planet_x,planet_y,z,R_p,angle_p,color_p)
+        make_gear(planet_x,planet_y,z,R_p,angle_p,color_p, planetary_length)
     }
 
-    function make_ring_gear(x,y,z,inner_R,theta,gear_color){
+    function make_ring_gear(x,y,z,inner_R,theta,gear_color, length){
         
         if (inner_R === 0){
             return
@@ -68,6 +67,7 @@ const draw_planetary = {
         const thickness_ratio = (outer_R-inner_R)/outer_R
         const ring_shape = shapes.circle({radius:outer_R,thickness: thickness_ratio,np:30})
         
+        const gear_axis = vec(0,0,length)
         
         const line_path = [center,center.add(gear_axis)]
         extrusion({shape: ring_shape, path: line_path,color:gear_color})
@@ -106,7 +106,7 @@ const draw_wheel = {
 
     vis: (inp)=>{
 
-        make_gear(inp.x_0, inp.y_0, inp.z_0, inp.r, inp["\\theta"], color.white)
+        make_gear(inp.x_0, inp.y_0, inp.z_0, inp.r, inp["\\theta"], color.white, inp.L)
 
     }
 }
@@ -114,7 +114,10 @@ const draw_wheel = {
     
 
 
-function make_gear(x,y,z,R,theta,gear_color){
+function make_gear(x,y,z,R,theta,gear_color, length){
+
+    const gear_depth = 1
+    const gear_axis = vec(0,0,length)
     
     cylinder({pos:vec(x,y,z), axis: gear_axis,radius:R,color:gear_color})
 

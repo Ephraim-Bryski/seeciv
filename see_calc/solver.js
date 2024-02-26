@@ -100,7 +100,7 @@ function solve_eqns(SoEs){
     const vars_with_vis = get_all_vars(SoEs)
 
 
-    const vars_to_remove = get_all_vars(non_vis_eqns)
+    let vars_to_remove = get_all_vars(non_vis_eqns)
 
     const extra_vis_vars = vars_with_vis.filter(vis_var => {return !vars_to_remove.includes(vis_var)})
 
@@ -109,10 +109,20 @@ function solve_eqns(SoEs){
         throw new FormatError(`You need to substitute a value for visual variables: ${extra_vis_vars.join(",")}`)
     }
 
+    if (GLOBAL_spinner_variable){
+        
+        vars_to_remove = vars_to_remove.filter(variable => {return variable != GLOBAL_spinner_variable})
+    }
+
 
     const back_solution = back_solve(SoEs, vars_to_remove, true, false)
 
     const ordered_sub = back_solution.ordered_sub
+
+    
+    GLOBAL_solve_stuff.previous_back_solution = back_solution
+    
+
     const back_steps = back_solution.steps
 
     const forward_solution = forward_solve(ordered_sub)
@@ -367,12 +377,8 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system, in_tree_form
         return nonzero_trees.length
     } 
 
-
-    if (branched_solutions.length === 0){
-        throw new ContradictionError
-    }
-
-
+    
+    
     if (branched_solutions.length > 1){
 
         branched_solutions = branched_solutions.filter(solution => {
@@ -382,19 +388,24 @@ function back_solve(SoEs_with_vis, vars_to_remove, to_solve_system, in_tree_form
             }
 
             const solution_tree = solution.remaining_trees[0]
-
+            
             const solution_tree_copy = JSON.parse(JSON.stringify(solution_tree))
-
-
+            
+            
             const simplified_tree = simplify_tree(solution_tree_copy)
 
-            is_zero_solution = typeof simplified_tree === "string"
+            is_zero_solution = typeof simplified_tree === "string" && !simplified_tree.includes("VISUAL")
 
             return !is_zero_solution
         })
     
     }
     
+    
+
+    if (branched_solutions.length === 0){
+        throw new ContradictionError
+    }
 
     // TODO for now using the solution with the most eqns, probably not the best approach
     branched_solutions = sorted(branched_solutions,key = get_n_eqns)
@@ -686,7 +697,7 @@ function numeric_solve(exp_ltx){
         try{
             const solution = newton_raphson(exp,solve_var,guess)
             past_numeric_solutions[solve_var] = Number(solution)
-            console.log(count)
+            // console.log(solut)
             return solution        
         }catch (e){
             if (e instanceof NumericSolveError || e instanceof EvaluateError){
@@ -910,7 +921,9 @@ function newton_raphson(exp,solve_var,guess){
     
     if (real_comp === Infinity || real_comp === -Infinity){throw new NumericSolveError("Solution is infinite")}
 
+    console.log(`iterations: ${iter_count}`)
     return num_to_string(real_comp)
+
     
 }
 

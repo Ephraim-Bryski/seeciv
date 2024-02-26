@@ -9,11 +9,23 @@ CAS issues i'm saying fuck it for
 		circle equation and sin and cos --> contradiction cause sin and cos only gets one sign, which could be wrong
 		circle equation and tan --> flips sign, as it moves past pi/2
 		need just sin and cos for it to work
+	WHY CANT SOLVE sheet (truss example), only issue when you shift the top two nodes vertically, there is too much unknown, not sure why
+
+not removing solve arrows on edit any more D:
+
+when running a sheet that is longer than a page, don't go back to the top
+
+for optimize
+	when spinner pressed, store variable
+	don't subsitute the spinner pressed value
+	when back solving, if spinner variable, don't remove spinner var, then save the solution
+	substitute in the value for the spinner var (in the beginning of back solve solution)
+	when spinner pressed, check if back solution, if so just jump directly to forward solve with that solution
 
 
-dont allow quotation marks (and any other symbols)
-	except of course for color and labels
+check what happens with 2a etc (not including mutiplication symbol)
 
+confirmation on save
 
 probably want to control min and max for axes
 	or honestly just having it positive might be ok
@@ -21,12 +33,25 @@ i feel like things are a bit too zoomed out by default
 	depends on the screen size, not sure what to do about this
 probaby should have colors for everything :D
 
-
 visual ramp could instead be derived from triangular prism primitive
+
+Run sheet should be gray and blue on hover
+
+water wave showing forces on columns and conservation of mass
+
+screw the auto greek, gets annoying (like with "pi" in spin)
+
+labeled arrows
+
+
+store the step size so it preserves it after a solve error
 
 bugs
 	when you make a sub table and then replace it with an equation, the arrow still shows up 
-	if you have only a visual and solve it, then save, the save stuff disappears
+	if you have only a visual and solve it, then save, the solve stuff disappears
+	substituting a*pi/180 asks for subbing pi fuck you
+	still gives sheet not found alert on save sometimes D:
+
 
 call Library Examples, call About Help
 in Help, go over shortcuts
@@ -49,8 +74,15 @@ resizing gs canvas, sooo annoying
 	recreating canvas: before it worked but now it causes it to crash, don't know why
 
 
+"Clear output" instead of "x" for solve (less scary)
+
+wheel in arbitrary orientation
+	can use instead of bevel for the differential (would actually be clearer)
+
 curvedarrow needs scale
 
+
+if there's an error before the solve block, ideally the input values for saving should be restored after the error is fixed
 
 undo doesnt clear visuals?????????
 	i thought i fixed this
@@ -59,6 +91,17 @@ undo doesnt clear visuals?????????
 	might just undo and redo to last run (e.g. Ctrl+Enter)
 
 for some reason setting zoom messes up MQ (changes where the cursur is initially on focus)
+
+ellipse primitive
+	for phase state diagram and water particle motion
+
+forces on wave
+
+composite section
+
+instead of grouping into major topics, i think it's better to group into smaller things, and go deep into each
+	
+waterwave no work at 0 amplitude
 
 visuals
 	statics
@@ -74,8 +117,12 @@ visuals
 		spinning pendulum
 		spring mass SHM, show phase state diagram
 		projectile motion
-		ramp (hollow tube) <-- WAY too complicated for something that's not actually very interesting
+		ramp (hollow tube)
 		pendulum with shifted center
+		comparison of forces on spinning vs regular pendulum
+		gyroscope?
+		feynman spinning plate (again would need arbitrary axis wheel)
+
 	optics
 		multiple refraction layers
 		circular mirror

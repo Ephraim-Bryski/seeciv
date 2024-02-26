@@ -1,7 +1,7 @@
 
 const trig_names = "sin cos tan csc sec cot sinh cosh tanh csch sech coth arcsin arccos arctan arccsc arcsec arccot arcsinh arccosh arctanh arccsch arcsech arccoth"
-const operator_names = "sqrt pi alpha theta omega tau sigma"
-
+// const operator_names = "sqrt pi alpha theta omega tau sigma"
+const operator_names = "sqrt"
 
 var MQ = MathQuill.getInterface(2);
 
@@ -58,6 +58,8 @@ var SoEs= [
 
 const equation_visuals = []
 var GLOBAL_solve_stuff = null // oh god......
+var GLOBAL_spinner_variable = null
+
 
 function clear_equation_visuals(){
     while (equation_visuals.length > 0){
@@ -486,6 +488,8 @@ window.addEventListener('hashchange', send_to_url);
 
 
 function create_unknown_page(){
+    window.location.hash = ""
+    return
     const hash_name = window.location.hash.slice(1)
     alert(`${hash_name} is not an existing page, it may have been moved or deleted.`)
     return
@@ -811,6 +815,7 @@ function DOM2data(){
 //    MQ($("#solve-field")[0]).latex()
     const table_for_solving = get_sub_data($("#solve-table")[0])
 
+
     GLOBAL_solve_stuff = {
         reference: block_to_solve,
     }
@@ -820,31 +825,21 @@ function DOM2data(){
     const step_sizes = {}
 
     step_spinners.forEach(spinner => {
-        
         const cell = spinner.parentNode
         const row = cell.parentNode
-
         const cell_siblings = [...row.children]
-
         const spinner_idx = cell_siblings.indexOf(cell)
-
         const variables = table_for_solving.data[0]
-        
         const spinner_var = remove_char_placeholders(variables[spinner_idx])
-
-        step_sizes[spinner_var] = spinner.value
-        
+        step_sizes[spinner_var] = spinner.value  
     })
 
     GLOBAL_solve_stuff.step_sizes = step_sizes
-    
-    
+
     // so firebase doesn't complain about undefined
     if (table_for_solving){
         GLOBAL_solve_stuff.table = table_for_solving
     }    
-
-
     return data
 } 
 
@@ -1778,7 +1773,8 @@ function replace_messages_with_errors(obj) {
 }
 
 
-function spinner_adjust(spinner_button,sign){
+
+function spinner_adjust(spinner_button,sign, was_previously_ran){
     
     const cell = $(spinner_button).parents("td")[0]
     const all_cells = [...$("#spinner-row").children("td")]
@@ -1803,34 +1799,92 @@ function spinner_adjust(spinner_button,sign){
 
     value_field_MQ.latex(String(new_rounded_value))
 
+    const adjust_var = MQ(top_cells[cell_idx].children[0]).latex()
 
+    
     clear_equation_visuals()
-
+    
+    const previous_solution = GLOBAL_solve_stuff.previous_back_solution
+    
     const sheet_data= DOM2data()
-    calc(DOM2data(sheet_data),0,sheet_data.length)
-
-    const solve_output_eqns = GLOBAL_solve_stuff.result[0]
+    
+    GLOBAL_spinner_variable = adjust_var
+    
     const solve_output = {}
+    
+    if (was_previously_ran){
+        
+        const remaining_trees = previous_solution.remaining_trees
+
+        if (remaining_trees.length !== 1){
+            throw "could be ok not sure"
+        }
+
+        const remaining_tree = remaining_trees[0]
+
+        const remaining_subbed_tree = sub_in(remaining_tree, adjust_var, String(new_value))
+        
+        const remaining_vars = get_all_vars(tree_to_eqn(remaining_subbed_tree))
+
+        // sub the spinner adjust value into the previous solution trees
+
+        //! need to handle errors
+
+        // remove all vars in back solve
+        //! tosolvesystem, what to set?
+        // back solve just gets that final solution (numeric stuff)
+        // tosolvesytem set to false just means it doesnt push steps
+        const back_solution = back_solve([remaining_subbed_tree],  remaining_vars, false, true)
+        
+        // add this into the previous back solution
+        // need to make a copy of it
+        const new_sub = previous_solution.ordered_sub.concat(back_solution)
+
+        const solution = forward_solve(new_sub).solution
 
 
-    const error_field = $("#solve-error-msg")[0]
-    if (solve_output_eqns.error instanceof Error){
-        const error_message = solve_output_eqns.error.message
+        solution.forEach(bop => {
+            solve_output[bop.solve_var] = bop.sol
+        })
 
-        error_field.innerText = error_message
 
-        return
+        // need to convert from 
+        // {solve_var: a, sol: 3} --> {a: 3}
 
     }else{
-        error_field.innerText = ""
+
+        calc(DOM2data(sheet_data),0,sheet_data.length)
+
+        const solve_output_eqns = GLOBAL_solve_stuff.result[0]
+        // const solve_output = {}
+    
+    
+        const error_field = $("#solve-error-msg")[0]
+        if (solve_output_eqns.error instanceof Error){
+            const error_message = solve_output_eqns.error.message
+            error_field.innerText = error_message
+            return
+        }else{
+            error_field.innerText = ""
+        }
+    
+        solve_output_eqns.forEach(eqn => {
+            const stuff = eqn.split("=")
+            const solve_var = remove_char_placeholders(stuff[0])
+            const solve_val = stuff[1]
+            solve_output[solve_var] = solve_val
+        })
+    
     }
 
-    solve_output_eqns.forEach(eqn => {
-        const stuff = eqn.split("=")
-        const solve_var = remove_char_placeholders(stuff[0])
-        const solve_val = stuff[1]
-        solve_output[solve_var] = solve_val
-    })
+    //SPEED just remove from GLOBAL_solve_stuff.table.data
+
+    // then i could just shove it into GLOBAL_solve_stuff.spinner_value or something
+
+    // then delete the field (don't set to null cause of stupid firebase) on spinner up
+
+    // then don't do calc, just 
+
 
 
     
@@ -1883,12 +1937,12 @@ document.onmouseup = update_up_press
 let last_spinner_pressed = null
 let n_since_spinner_pressed = null
 
-setInterval(check_spinner_pressed,100)
+setInterval(check_spinner_pressed,1)
+
 
 function check_spinner_pressed(){
 
-
-    const just_clicked = n_since_spinner_pressed === 0
+    const just_clicked =    n_since_spinner_pressed === 0
 
     const held_down = n_since_spinner_pressed > 3
 
@@ -1906,7 +1960,8 @@ function check_spinner_pressed(){
             throw "index isn't at spinner, could happen if i changed the spinner layout"
         }
     
-        spinner_adjust(last_spinner_pressed,sign)
+
+        spinner_adjust(last_spinner_pressed,sign, held_down)
       
     }
       

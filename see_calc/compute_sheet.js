@@ -68,11 +68,11 @@ function calc(SoEs,start_idx,end_idx){
         if (known_SoEs.includes(name)){
             SoE_struct.result = new FormatError('"'+name+'"'+' is already a system name')
         }else if(name.length===0){
-            SoE_struct.result = new FormatError("Name of system cannot be blank")
+            SoE_struct.result = new FormatError("Name of block cannot be blank")
         }else if(!(/^\w+$/.test(name))){
-            SoE_struct.result = new FormatError("Name of system cannot only have letters and numbers")
+            SoE_struct.result = new FormatError("Name of block cannot only have letters and numbers")
         }else if(name.includes("_")){
-            SoE_struct.result = new FormatError("Name of system cannot include underscores")
+            SoE_struct.result = new FormatError("Name of block cannot include underscores")
         }else{
             SoE_struct.result = ""
         }

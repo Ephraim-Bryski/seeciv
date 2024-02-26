@@ -56,7 +56,7 @@ const draw_arrow = {
     vis: (inp)=>{
         const pos = vec(inp.x_0,inp.y_0,inp.z_0)
         const axis = vec(inp.v_x*inp.scale, inp.v_y*inp.scale, inp.v_z*inp.scale)
-        arrow({pos: pos, axis: axis})
+        arrow({pos: pos, axis: axis, round: true})
     }
 }
 

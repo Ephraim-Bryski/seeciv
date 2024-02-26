@@ -3,11 +3,11 @@ const draw_channel = {
     
     name: "Channel",
     vars: {
-        L:0,
-        y:0,
-        W:0,
-        "\\alpha":0,
-        "\\theta":0,
+        L:5,
+        y:1,
+        W:1,
+        W_2:2,
+        S:0,
     },
     vis: (inp)=>{
 
@@ -16,29 +16,33 @@ const draw_channel = {
     const depth = inp.y
     const length = inp.L
     const width = inp.W
-    const tilt = inp["\\alpha"]
-    const slope = inp["\\theta"]
+    const width2 = inp.W_2
+    // const tilt = inp["\\alpha"]
+    const slope = -inp["S"]
 
     
+    function make_quad(points,quad_color){
+    
+        const vertices = points.map(point => {
+            return vertex({pos:point, color:quad_color})
+        })
+        quad({vs:vertices})
+
+    }
 
 
-
-    const vertices = points.map(point => {
-        return vertex({pos:point, color:quad_color})
-    })
-    quad({vs:vertices})
 
 
     const wall_color = vec(0.6,0.3,0.5)
     const water_color = vec(0,0,0.7)
 
-    const tilt_shift = depth*Math.sin(tilt*Math.PI/180)
-    const slope_shift = length*Math.sin(slope*Math.PI/180)
+    // const tilt_shift = depth*Math.sin(tilt*Math.PI/180)
+    const slope_shift = length*slope
 
-    const front_BL = vec(-width,0,0)
-    const front_BR = vec(width,0,0)
-    const front_TL = vec(-width-tilt_shift,depth,0)
-    const front_TR = vec(width+tilt_shift,depth,0)
+    const front_BL = vec(-width/2,0,0)
+    const front_BR = vec(width/2,0,0)
+    const front_TL = vec(-width2/2,depth,0)
+    const front_TR = vec(width2/2,depth,0)
 
     const length_vec = vec(0,-slope_shift,length)
 

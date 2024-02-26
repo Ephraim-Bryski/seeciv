@@ -28,7 +28,7 @@ vis: inp => {
     const n_steps = 100
 
     function get_elevation(x){
-        return depth+height/2*Math.cos(x/length-2*Math.PI*phi)
+        return depth+height/2*Math.sin(2*Math.PI*x/length-phi*Math.PI/180)
     }
     
     function linspace(start, end, steps) {
