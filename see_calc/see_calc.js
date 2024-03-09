@@ -1804,78 +1804,36 @@ function spinner_adjust(spinner_button,sign, was_previously_ran){
     
     clear_equation_visuals()
     
-    const previous_solution = GLOBAL_solve_stuff.previous_back_solution
-    
+
     const sheet_data= DOM2data()
     
     GLOBAL_spinner_variable = adjust_var
     
     const solve_output = {}
     
-    if (was_previously_ran){
-        
-        const remaining_trees = previous_solution.remaining_trees
-
-        if (remaining_trees.length !== 1){
-            throw "could be ok not sure"
-        }
-
-        const remaining_tree = remaining_trees[0]
-
-        const remaining_subbed_tree = sub_in(remaining_tree, adjust_var, String(new_value))
-        
-        const remaining_vars = get_all_vars(tree_to_eqn(remaining_subbed_tree))
-
-        // sub the spinner adjust value into the previous solution trees
-
-        //! need to handle errors
-
-        // remove all vars in back solve
-        //! tosolvesystem, what to set?
-        // back solve just gets that final solution (numeric stuff)
-        // tosolvesytem set to false just means it doesnt push steps
-        const back_solution = back_solve([remaining_subbed_tree],  remaining_vars, false, true)
-        
-        // add this into the previous back solution
-        // need to make a copy of it
-        const new_sub = previous_solution.ordered_sub.concat(back_solution)
-
-        const solution = forward_solve(new_sub).solution
 
 
-        solution.forEach(bop => {
-            solve_output[bop.solve_var] = bop.sol
-        })
+    calc(DOM2data(sheet_data),0,sheet_data.length)
+
+    const solve_output_eqns = GLOBAL_solve_stuff.result[0]
+    // const solve_output = {}
 
 
-        // need to convert from 
-        // {solve_var: a, sol: 3} --> {a: 3}
-
+    const error_field = $("#solve-error-msg")[0]
+    if (solve_output_eqns.error instanceof Error){
+        const error_message = solve_output_eqns.error.message
+        error_field.innerText = error_message
+        return
     }else{
-
-        calc(DOM2data(sheet_data),0,sheet_data.length)
-
-        const solve_output_eqns = GLOBAL_solve_stuff.result[0]
-        // const solve_output = {}
-    
-    
-        const error_field = $("#solve-error-msg")[0]
-        if (solve_output_eqns.error instanceof Error){
-            const error_message = solve_output_eqns.error.message
-            error_field.innerText = error_message
-            return
-        }else{
-            error_field.innerText = ""
-        }
-    
-        solve_output_eqns.forEach(eqn => {
-            const stuff = eqn.split("=")
-            const solve_var = remove_char_placeholders(stuff[0])
-            const solve_val = stuff[1]
-            solve_output[solve_var] = solve_val
-        })
-    
+        error_field.innerText = ""
     }
+
+    solve_output_eqns.forEach(eqn => {
+        const stuff = eqn.split("=")
+        const solve_var = remove_char_placeholders(stuff[0])
+        const solve_val = stuff[1]
+        solve_output[solve_var] = solve_val
+    })
 
     //SPEED just remove from GLOBAL_solve_stuff.table.data
 
