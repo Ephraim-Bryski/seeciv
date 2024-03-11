@@ -84,6 +84,11 @@ body{
     padding-bottom: 5px;
 }
 
+#save-field-error-msg{
+    font-family: "Arial", Arial, sans-serif;
+
+}
+
 #top-menu {
     pointer-events: auto;
     width:100%;

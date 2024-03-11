@@ -51,12 +51,13 @@ const draw_arrow = {
         v_x: 1,
         v_y: 0,
         v_z: 0,
-        scale: 1
+        scale: 1,
+        color: '"w"'
     },
     vis: (inp)=>{
         const pos = vec(inp.x_0,inp.y_0,inp.z_0)
         const axis = vec(inp.v_x*inp.scale, inp.v_y*inp.scale, inp.v_z*inp.scale)
-        arrow({pos: pos, axis: axis, round: true})
+        arrow({pos: pos, axis: axis, round: true, color: color_map[inp.color]})
     }
 }
 

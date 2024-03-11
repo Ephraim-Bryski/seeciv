@@ -11,27 +11,12 @@ CAS issues i'm saying fuck it for
 		need just sin and cos for it to work
 	WHY CANT SOLVE sheet (truss example), only issue when you shift the top two nodes vertically, there is too much unknown, not sure why
 
-not removing solve arrows on edit any more D:
 
-when running a sheet that is longer than a page, don't go back to the top
-
-for optimize
-	when spinner pressed, store variable
-	don't subsitute the spinner pressed value
-	when back solving, if spinner variable, don't remove spinner var, then save the solution
-	substitute in the value for the spinner var (in the beginning of back solve solution)
-	when spinner pressed, check if back solution, if so just jump directly to forward solve with that solution
-
-
-check what happens with 2a etc (not including mutiplication symbol)
 
 confirmation on save
 
-probably want to control min and max for axes
-	or honestly just having it positive might be ok
-i feel like things are a bit too zoomed out by default
-	depends on the screen size, not sure what to do about this
-probaby should have colors for everything :D
+
+bring back the thing to MQify at the end
 
 visual ramp could instead be derived from triangular prism primitive
 
@@ -39,18 +24,13 @@ Run sheet should be gray and blue on hover
 
 water wave showing forces on columns and conservation of mass
 
-screw the auto greek, gets annoying (like with "pi" in spin)
-
-labeled arrows
 
 
-store the step size so it preserves it after a solve error
+
 
 bugs
-	when you make a sub table and then replace it with an equation, the arrow still shows up 
-	if you have only a visual and solve it, then save, the solve stuff disappears
-	substituting a*pi/180 asks for subbing pi fuck you
-	still gives sheet not found alert on save sometimes D:
+	NONE FUCK YES
+		there are actually still bugs but i dont fucking care
 
 
 call Library Examples, call About Help

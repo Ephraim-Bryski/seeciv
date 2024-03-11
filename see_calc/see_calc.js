@@ -129,13 +129,30 @@ setUpGS("vis")
 
 var n_mq_fields = 0
 
+
+function remove_those_spinners(){
+    const spinners = [...$(".solve-spinner")]
+    spinners.forEach(spinner => {
+        spinner.parentElement.style.display = 'none'
+    })
+
+}
+
 document.addEventListener('keyup', (e)=>{
 
 
+    var in_field=document.activeElement
+
+    if ($(in_field).parents(".block").length === 1 && $(in_field).parents("#solve-block").length === 0){
+        remove_those_spinners()
+    }
+
+    if (in_field.id = "save-field"){
+        document.getElementById("save-field-error-msg").innerText = ""
+    }
     
     let should_track = true
     if (e.code==="Enter"){
-        var in_field=document.activeElement
         if (e.ctrlKey){
             // resetGS()
             run_sheet()
@@ -287,10 +304,13 @@ function save_sheet(){
     
     if (sheet_name === ""){
         error_message_field.innerText = "Sheet name cannot be blank."
+        error_message_field.style.color = 'red'
         return
     }
     if (!is_alphanumeric){
-        error_message_field.innerText = "Sheet name must only contain letters and numbers."
+        error_message_field.innerText = "Only letters and numbers allowed."
+        error_message_field.style.color = 'red'
+
         return
     }
 
@@ -343,7 +363,11 @@ function save_sheet(){
     // window.location.hash = full_path
     // send_to_url()
 
-    database.set(firebase_data)    
+    database.set(firebase_data).then(()=>{
+        const save_field = $("#save-field-error-msg")[0]
+        save_field.innerText = "Sheet saved!"
+        save_field.style.color = 'green'
+    })
 
     write_url(CURRENT_USER, [folder_path,sheet_name].flat())
 
@@ -484,6 +508,7 @@ function send_to_url(){
 
 
 
+
 window.addEventListener('hashchange', send_to_url);
 
 
@@ -556,6 +581,10 @@ function load_sheet(all_names, owner){
     resetGS()   
 
     document.getElementById("save-field").value=sheet_name
+
+    if (GLOBAL_solve_stuff.solved_table && !GLOBAL_solve_stuff.result){
+        GLOBAL_solve_stuff.result = [[]]
+    }
 
     //! will not produce a visual right now (would have to run compute_sheet first to get the vis equations), then call use_calc_results
     data2DOM(sheet_data)
@@ -1081,6 +1110,7 @@ function make_line(eqn){
     add_btn.onclick = (e)=>{
         add_line(e.target)
         track_dom()
+        remove_those_spinners()
     }
 
     add_btn.classList.add("add-remove-btn")
@@ -1101,6 +1131,7 @@ function make_line(eqn){
             outer[0].appendChild(make_line())
         }  
         track_dom()
+        remove_those_spinners()
     }
     
     remove_button.className="line-btn"  // i dont think this is used
@@ -1286,6 +1317,10 @@ function format_visual_eqn(eqn){
         throw "should only be split once"
     }
     const values = parts[0].split("|")
+    if (values.length === 7 && eqn.includes("Arrow")){
+        console.log("FUCK THIS")
+        values.push('"w"')
+    }
     const visual_name = parts[1]
     const visuals = vis_blocks.filter(block =>{ return block.name === visual_name} )
 
@@ -1524,6 +1559,7 @@ function make_block(SoE){
             outer.insertBefore(empty_block,solve_block)
         }
 
+        remove_those_spinners()
 
     }
     remove_button.innerHTML="X"
@@ -1536,6 +1572,7 @@ function make_block(SoE){
     add_btn.onclick = (e) => {
         add_block(e.target)
         track_dom()
+        remove_those_spinners()
     }
     add_btn.innerHTML = "+"
     add_btn.classList.add("add-remove-btn")
@@ -2920,6 +2957,10 @@ function display_vis(vis_eqns, scale_needs_adjusting = true){
         vis_exps.pop()
 
         const vis_input = {}
+    
+        if (vis_name === "Arrow" && vis_exps.length === 7){
+            vis_exps.push('"w"')
+        }
 
         if (vis_vars.length !== vis_exps.length){
             throw "should be same argument length"}
