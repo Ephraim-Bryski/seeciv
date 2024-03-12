@@ -58,7 +58,6 @@ var SoEs= [
 
 const equation_visuals = []
 var GLOBAL_solve_stuff = null // oh god......
-var GLOBAL_spinner_variable = null
 
 
 function clear_equation_visuals(){
@@ -1844,7 +1843,6 @@ function spinner_adjust(spinner_button,sign, was_previously_ran){
 
     const sheet_data= DOM2data()
     
-    GLOBAL_spinner_variable = adjust_var
     
     const solve_output = {}
     

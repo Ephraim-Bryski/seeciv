@@ -109,10 +109,6 @@ function solve_eqns(SoEs){
         throw new FormatError(`You need to substitute a value for visual variables: ${extra_vis_vars.join(",")}`)
     }
 
-    if (GLOBAL_spinner_variable){
-        
-        vars_to_remove = vars_to_remove.filter(variable => {return variable != GLOBAL_spinner_variable})
-    }
 
 
     const back_solution = back_solve(SoEs, vars_to_remove, true, false)
