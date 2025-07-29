@@ -1,1 +1,1 @@
-This is the codebase for what was seeciv.com, a site I create for visualizing concepts in solid mechanics. It's since been subsumed by equationvisuals.com
+This is the codebase for what was seeciv.com, a site I created for visualizing concepts in solid mechanics, shared among my classmates. It's since been subsumed by equationvisuals.com, which allows the user to construct visuals from systems of equations.
